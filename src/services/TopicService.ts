@@ -1,4 +1,4 @@
-import { Topic } from "@/models/Topic";
+import { Topic, Question } from "@/models/Topic";
 
 // Enhanced questions based on real content from the provided PDFs
 export const getDSATopics = (): Topic[] => {
@@ -15,28 +15,28 @@ export const getDSATopics = (): Topic[] => {
           id: "sorting-algorithms-q1",
           prompt: "Explain the bubble sort algorithm and analyze its best-case and worst-case time complexity.",
           difficulty: "easy",
-          solution: "Bubble sort works by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the wrong order. The process is repeated until no swaps are needed. Best-case time complexity is O(n) when the array is already sorted, and worst-case is O(n²) when the array is sorted in reverse order.",
+          solution: "Bubble sort works by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the wrong order. The process is repeated until no swaps are needed. Best-case time complexity is O(n) when the array is already sorted, and worst-case is O(n^2) when the array is sorted in reverse order.",
           hints: ["Think about how elements 'bubble up' to their correct positions", "Consider what happens when you iterate through an already sorted array", "Count the number of comparisons in the worst case scenario"]
         },
         {
           id: "sorting-algorithms-q2",
           prompt: "Compare and contrast insertion sort and selection sort in terms of their approach and efficiency.",
           difficulty: "easy",
-          solution: "Insertion sort builds the sorted array one item at a time by iteratively taking elements from the unsorted part and inserting them into their correct position in the sorted part. Selection sort divides the array into a sorted and unsorted part, repeatedly selects the minimum element from the unsorted part, and moves it to the end of the sorted part. Both have O(n²) worst-case time complexity, but insertion sort performs better on nearly sorted arrays with O(n) best-case.",
+          solution: "Insertion sort builds the sorted array one item at a time by iteratively taking elements from the unsorted part and inserting them into their correct position in the sorted part. Selection sort divides the array into a sorted and unsorted part, repeatedly selects the minimum element from the unsorted part, and moves it to the end of the sorted part. Both have O(n^2) worst-case time complexity, but insertion sort performs better on nearly sorted arrays with O(n) best-case.",
           hints: ["Think about how each algorithm divides the array", "Consider which algorithm minimizes the number of swaps", "What happens when the input is already sorted?"]
         },
         {
           id: "sorting-algorithms-q3",
           prompt: "Implement the merge sort algorithm and explain its divide-and-conquer approach. Why is it more efficient than simple sorting algorithms?",
           difficulty: "medium",
-          solution: "Merge sort divides the array into two halves, recursively sorts them, and then merges the sorted halves. It has a time complexity of O(n log n) in all cases, making it more efficient than simple O(n²) algorithms like bubble, insertion, or selection sort for large datasets. Its divide-and-conquer strategy processes smaller problems independently before combining results.",
+          solution: "Merge sort divides the array into two halves, recursively sorts them, and then merges the sorted halves. It has a time complexity of O(n log n) in all cases, making it more efficient than simple O(n^2) algorithms like bubble, insertion, or selection sort for large datasets. Its divide-and-conquer strategy processes smaller problems independently before combining results.",
           hints: ["Focus on the merging step of two sorted arrays", "Think recursively - how do you sort each half?", "Analyze the time complexity at each level of recursion"]
         },
         {
           id: "sorting-algorithms-q4",
           prompt: "Explain the quicksort algorithm, including its partitioning strategy. Discuss scenarios where quicksort might perform poorly and how to mitigate them.",
           difficulty: "medium",
-          solution: "Quicksort selects a 'pivot' element and partitions the array so elements less than the pivot are on one side and greater elements on the other. It recursively sorts the sub-arrays. Worst-case O(n²) occurs with already sorted arrays or when the smallest/largest element is always chosen as pivot. This can be mitigated by selecting a random pivot, using median-of-three, or implementing hybrid approaches with insertion sort for small arrays.",
+          solution: "Quicksort selects a 'pivot' element and partitions the array so elements less than the pivot are on one side and greater elements on the other. It recursively sorts the sub-arrays. Worst-case O(n^2) occurs with already sorted arrays or when the smallest/largest element is always chosen as pivot. This can be mitigated by selecting a random pivot, using median-of-three, or implementing hybrid approaches with insertion sort for small arrays.",
           hints: ["Consider what makes a good pivot selection strategy", "Think about the worst possible input for quicksort", "How does partition placement affect performance?"]
         },
         {
@@ -336,7 +336,7 @@ export const getDSATopics = (): Topic[] => {
           id: "complexity-analysis-q1",
           prompt: "Analyze the time complexity of the quicksort algorithm.",
           difficulty: "easy",
-          solution: "Quicksort has an average time complexity of O(n log n) and a worst-case time complexity of O(n²).",
+          solution: "Quicksort has an average time complexity of O(n log n) and a worst-case time complexity of O(n^2).",
           hints: ["Understand the quicksort algorithm", "Analyze its time complexity", "Consider the best, average, and worst-case scenarios"]
         },
         {
@@ -386,36 +386,36 @@ export const getMathTopics = (): Topic[] => {
           id: "linear-algebra-q1",
           prompt: "Find the eigenvalues and eigenvectors of the matrix A = [[3, 1], [1, 3]].",
           difficulty: "easy",
-          solution: "To find eigenvalues, solve the characteristic equation det(A - λI) = 0. For this matrix: det([[3-λ, 1], [1, 3-λ]]) = (3-λ)² - 1 = 0, which gives λ = 2 or λ = 4. For λ = 2, solving (A - 2I)v = 0 gives eigenvector v₁ = [1, -1] (or any scalar multiple). For λ = 4, solving (A - 4I)v = 0 gives eigenvector v₂ = [1, 1] (or any scalar multiple).",
-          hints: ["Calculate the characteristic polynomial", "Remember that for each eigenvalue λ, you need to solve (A-λI)v = 0", "Check your eigenvectors by confirming Av = λv"]
+          solution: "To find eigenvalues, solve the characteristic equation det(A - lambda * I) = 0. For this matrix: det([[3-lambda, 1], [1, 3-lambda]]) = (3-lambda)^2 - 1 = 0, which gives lambda = 2 or lambda = 4. For lambda = 2, solving (A - 2I)v = 0 gives eigenvector v_1 = [1, -1] (or any scalar multiple). For lambda = 4, solving (A - 4I)v = 0 gives eigenvector v_2 = [1, 1] (or any scalar multiple).",
+          hints: ["Calculate the characteristic polynomial", "Remember that for each eigenvalue lambda, you need to solve (A - lambda * I)v = 0", "Check your eigenvectors by confirming Av = lambda * v"]
         },
         {
           id: "linear-algebra-q2",
-          prompt: "Determine if the set of vectors {(1,2,3), (2,3,4), (3,5,7)} forms a basis for R³. Justify your answer.",
+          prompt: "Determine if the set of vectors {(1,2,3), (2,3,4), (3,5,7)} forms a basis for R^3. Justify your answer.",
           difficulty: "easy",
-          solution: "A set of vectors forms a basis for R³ if: (1) there are exactly 3 vectors, (2) they are linearly independent. We have 3 vectors, so we need to check linear independence. Form the matrix with these vectors as columns: [[1,2,3],[2,3,5],[3,4,7]] and compute its determinant. The determinant is 0, indicating these vectors are linearly dependent. Therefore, they do not form a basis for R³.",
+          solution: "A set of vectors forms a basis for R^3 if: (1) there are exactly 3 vectors, (2) they are linearly independent. We have 3 vectors, so we need to check linear independence. Form the matrix with these vectors as columns: [[1,2,3],[2,3,5],[3,4,7]] and compute its determinant. The determinant is 0, indicating these vectors are linearly dependent. Therefore, they do not form a basis for R^3.",
           hints: ["Remember the definition of a basis requires linear independence and spanning", "You can check linear independence by computing the determinant", "Alternatively, see if you can express one vector as a linear combination of the others"]
         },
         {
           id: "linear-algebra-q3",
           prompt: "Find the rank and nullity of the matrix A = [[2,4,6],[1,2,3],[3,6,9]] and verify the Rank-Nullity theorem.",
           difficulty: "medium",
-          solution: "Row-reducing the matrix gives: [[1,2,3],[0,0,0],[0,0,0]]. The rank is 1 (number of non-zero rows). For an m×n matrix, the Rank-Nullity Theorem states that rank(A) + nullity(A) = n. Here, n = 3, so nullity(A) = 3 - 1 = 2. This means the dimension of the null space is 2. We can verify by finding a basis for the null space: {[-2,1,0], [-3,0,1]} are linearly independent vectors in the null space.",
+          solution: "Row-reducing the matrix gives: [[1,2,3],[0,0,0],[0,0,0]]. The rank is 1 (number of non-zero rows). For an m x n matrix, the Rank-Nullity Theorem states that rank(A) + nullity(A) = n. Here, n = 3, so nullity(A) = 3 - 1 = 2. This means the dimension of the null space is 2. We can verify by finding a basis for the null space: {[-2,1,0], [-3,0,1]} are linearly independent vectors in the null space.",
           hints: ["Use row reduction to find the rank", "Remember that nullity is the dimension of the null space", "The Rank-Nullity theorem states that rank(A) + nullity(A) = number of columns"]
         },
         {
           id: "linear-algebra-q4",
           prompt: "Diagonalize the matrix A = [[4,-3,0],[2,-1,0],[0,0,2]] if possible. If not, explain why.",
           difficulty: "medium",
-          solution: "To diagonalize A, we need n linearly independent eigenvectors. The characteristic equation is (2-λ)((4-λ)(-1-λ)-(-3)(2)) = 0, which simplifies to (2-λ)(λ²-3λ+2) = 0. The eigenvalues are λ = 2 (double) and λ = 1. For λ = 2, solving (A-2I)v = 0 gives eigenvectors v₁ = [3,2,0] and v₂ = [0,0,1]. For λ = 1, we get v₃ = [1,1,0]. These three eigenvectors are linearly independent, so A is diagonalizable as P⁻¹AP = diag(2,1,2) where P = [v₁,v₃,v₂].",
+          solution: "To diagonalize A, we need n linearly independent eigenvectors. The characteristic equation is (2-lambda)((4-lambda)(-1-lambda)-(-3)(2)) = 0, which simplifies to (2-lambda)(lambda^2 - 3*lambda + 2) = 0. The eigenvalues are lambda = 2 (double) and lambda = 1. For lambda = 2, solving (A-2I)v = 0 gives eigenvectors v_1 = [3,2,0] and v_2 = [0,0,1]. For lambda = 1, we get v_3 = [1,1,0]. These three eigenvectors are linearly independent, so A is diagonalizable as P^-1 A P = diag(2,1,2) where P = [v_1,v_3,v_2].",
           hints: ["Find all eigenvalues first", "For each eigenvalue, find a basis for its eigenspace", "Check if you have enough linearly independent eigenvectors"]
         },
         {
           id: "linear-algebra-q5",
-          prompt: "Prove that similar matrices have the same eigenvalues. If A and B are similar matrices with A = P⁻¹BP, explain whether they necessarily have the same eigenvectors.",
+          prompt: "Prove that similar matrices have the same eigenvalues. If A and B are similar matrices with A = P^-1 B P, explain whether they necessarily have the same eigenvectors.",
           difficulty: "hard",
-          solution: "If A and B are similar, then A = P⁻¹BP for some invertible matrix P. For eigenvalues: If Bv = λv, then P⁻¹BPP⁻¹v = λP⁻¹v, which means A(P⁻¹v) = λ(P⁻¹v). So if v is an eigenvector of B with eigenvalue λ, then P⁻¹v is an eigenvector of A with the same eigenvalue λ. Therefore, similar matrices have the same eigenvalues. However, they don't necessarily have the same eigenvectors. In fact, if v is an eigenvector of B, then P⁻¹v (not v itself) is the corresponding eigenvector of A.",
-          hints: ["Consider what happens when you apply both sides of A = P⁻¹BP to an eigenvector", "Think about how the transformation P affects eigenvectors", "Remember that eigenvalues are intrinsic properties of the linear transformation"]
+          solution: "If A and B are similar, then A = P^-1 B P for some invertible matrix P. For eigenvalues: If Bv = lambda * v, then P^-1 B P P^-1 v = lambda * P^-1 v, which means A(P^-1 v) = lambda * (P^-1 v). So if v is an eigenvector of B with eigenvalue lambda, then P^-1 v is an eigenvector of A with the same eigenvalue lambda. Therefore, similar matrices have the same eigenvalues. However, they don't necessarily have the same eigenvectors. In fact, if v is an eigenvector of B, then P^-1 v (not v itself) is the corresponding eigenvector of A.",
+          hints: ["Consider what happens when you apply both sides of A = P^-1 B P to an eigenvector", "Think about how the transformation P affects eigenvectors", "Remember that eigenvalues are intrinsic properties of the linear transformation"]
         }
       ]
     },
@@ -429,37 +429,37 @@ export const getMathTopics = (): Topic[] => {
       questions: [
         {
           id: "calculus-q1",
-          prompt: "Find the derivative of f(x) = x³sin(x) using the product rule, and verify your answer using the definition of the derivative.",
+          prompt: "Find the derivative of f(x) = x^3 * sin(x) using the product rule, and verify your answer using the definition of the derivative.",
           difficulty: "easy",
-          solution: "Using the product rule: f'(x) = (x³)'sin(x) + x³(sin(x))' = 3x²sin(x) + x³cos(x). Using the definition of the derivative: f'(x) = lim(h→0) [f(x+h) - f(x)]/h = lim(h→0) [(x+h)³sin(x+h) - x³sin(x)]/h. Expanding and applying limit laws leads to the same result: 3x²sin(x) + x³cos(x).",
-          hints: ["Remember the product rule: (fg)' = f'g + fg'", "For the definition approach, use small angle approximations", "Be careful with the algebra when expanding (x+h)³"]
+          solution: "Using the product rule: f'(x) = (x^3)' * sin(x) + x^3 * (sin(x))' = 3x^2 * sin(x) + x^3 * cos(x). Using the definition of the derivative: f'(x) = lim(h->0) [f(x+h) - f(x)]/h = lim(h->0) [(x+h)^3 * sin(x+h) - x^3 * sin(x)]/h. Expanding and applying limit laws leads to the same result: 3x^2 * sin(x) + x^3 * cos(x).",
+          hints: ["Remember the product rule: (fg)' = f'g + fg'", "For the definition approach, use small angle approximations", "Be careful with the algebra when expanding (x+h)^3"]
         },
         {
           id: "calculus-q2",
-          prompt: "Evaluate the definite integral ∫(0 to π/2) sin²(x)cos²(x)dx using an appropriate substitution or identity.",
+          prompt: "Evaluate the definite integral of sin^2(x) * cos^2(x) dx from 0 to pi/2 using an appropriate substitution or identity.",
           difficulty: "easy",
-          solution: "Using the identity sin²(x)cos²(x) = (sin(2x)/2)², the integral becomes ∫(0 to π/2) (sin(2x)/2)²dx. Further using sin²(u) = (1-cos(2u))/2 with u = 2x, we get ∫(0 to π/2) (1-cos(4x))/8 dx = [x/8 - sin(4x)/32](0 to π/2) = π/16 - 0 = π/16.",
-          hints: ["Try using double angle formulas", "Remember that sin²(x)cos²(x) = (sin(2x)/2)²", "Another approach is using sin²(x) = (1-cos(2x))/2 and cos²(x) = (1+cos(2x))/2"]
+          solution: "Using the identity sin^2(x) * cos^2(x) = (sin(2x)/2)^2, the integral becomes the integral of (sin(2x)/2)^2 dx from 0 to pi/2. Further using sin^2(u) = (1-cos(2u))/2 with u = 2x, we get the integral of (1-cos(4x))/8 dx from 0 to pi/2 = [x/8 - sin(4x)/32] evaluated from 0 to pi/2 = pi/16 - 0 = pi/16.",
+          hints: ["Try using double angle formulas", "Remember that sin^2(x) * cos^2(x) = (sin(2x)/2)^2", "Another approach is using sin^2(x) = (1-cos(2x))/2 and cos^2(x) = (1+cos(2x))/2"]
         },
         {
           id: "calculus-q3",
-          prompt: "Find the extrema of the function f(x,y) = x² + y² - 2x - 4y + 5 and classify them as maxima, minima, or saddle points.",
+          prompt: "Find the extrema of the function f(x,y) = x^2 + y^2 - 2x - 4y + 5 and classify them as maxima, minima, or saddle points.",
           difficulty: "medium",
-          solution: "Computing partial derivatives: ∂f/∂x = 2x - 2 and ∂f/∂y = 2y - 4. Setting both equal to zero: 2x - 2 = 0 → x = 1, and 2y - 4 = 0 → y = 2. So the critical point is (1,2). To classify, compute the Hessian matrix: H = [[∂²f/∂x² = 2, ∂²f/∂x∂y = 0], [∂²f/∂y∂x = 0, ∂²f/∂y² = 2]]. Since det(H) = 4 > 0 and ∂²f/∂x² > 0, this is a minimum. Computing f(1,2) = 1 + 4 - 2 - 8 + 5 = 0, so the minimum value is 0 at (1,2).",
+          solution: "Computing partial derivatives: df/dx = 2x - 2 and df/dy = 2y - 4. Setting both equal to zero: 2x - 2 = 0 -> x = 1, and 2y - 4 = 0 -> y = 2. So the critical point is (1,2). To classify, compute the Hessian matrix: H = [[d^2f/dx^2 = 2, d^2f/dxdy = 0], [d^2f/dydx = 0, d^2f/dy^2 = 2]]. Since det(H) = 4 > 0 and d^2f/dx^2 > 0, this is a minimum. Computing f(1,2) = 1 + 4 - 2 - 8 + 5 = 0, so the minimum value is 0 at (1,2).",
           hints: ["Set the partial derivatives equal to zero to find critical points", "Use the second derivative test with the Hessian matrix", "Complete the square to rewrite the function in a more revealing form"]
         },
         {
           id: "calculus-q4",
-          prompt: "Use the method of Lagrange multipliers to find the maximum and minimum values of f(x,y,z) = xyz subject to the constraint x² + y² + z² = 1.",
+          prompt: "Use the method of Lagrange multipliers to find the maximum and minimum values of f(x,y,z) = xyz subject to the constraint x^2 + y^2 + z^2 = 1.",
           difficulty: "medium",
-          solution: "Using Lagrange multipliers, we need ∇f = λ∇g where g(x,y,z) = x² + y² + z² - 1. This gives: yz = 2λx, xz = 2λy, xy = 2λz. Multiplying these equations by x, y, and z respectively and adding: 3xyz = 2λ(x² + y² + z²) = 2λ. So λ = 3xyz/2. Substituting back: yz = 3xyz²/1, which means z² = 1/3 (similarly, x² = y² = 1/3). Thus, extrema occur at (±1/√3, ±1/√3, ±1/√3) with all possible sign combinations. When all signs are the same, f = 1/3√3 (maximum); when one sign differs, f = -1/3√3 (minimum).",
-          hints: ["Set up the Lagrangian L(x,y,z,λ) = xyz - λ(x² + y² + z² - 1)", "From symmetry, consider if x² = y² = z² at the extrema", "Remember to check all possible sign combinations"]
+          solution: "Using Lagrange multipliers, we need grad(f) = lambda * grad(g) where g(x,y,z) = x^2 + y^2 + z^2 - 1. This gives: yz = 2*lambda*x, xz = 2*lambda*y, xy = 2*lambda*z. Multiplying these equations by x, y, and z respectively and adding: 3xyz = 2*lambda*(x^2 + y^2 + z^2) = 2*lambda. So lambda = 3xyz/2. Substituting back: yz = 3xyz^2 / 1, which means z^2 = 1/3 (similarly, x^2 = y^2 = 1/3). Thus, extrema occur at (+-1/sqrt(3), +-1/sqrt(3), +-1/sqrt(3)) with all possible sign combinations. When all signs are the same, f = 1 / (3*sqrt(3)) (maximum); when one sign differs, f = -1 / (3*sqrt(3)) (minimum).",
+          hints: ["Set up the Lagrangian L(x,y,z,lambda) = xyz - lambda * (x^2 + y^2 + z^2 - 1)", "From symmetry, consider if x^2 = y^2 = z^2 at the extrema", "Remember to check all possible sign combinations"]
         },
         {
           id: "calculus-q5",
-          prompt: "Investigate the convergence of the improper integral ∫(1 to ∞) (ln(x)/x)dx using appropriate tests, and evaluate it if it converges.",
+          prompt: "Investigate the convergence of the improper integral of (ln(x)/x) dx from 1 to infinity using appropriate tests, and evaluate it if it converges.",
           difficulty: "hard",
-          solution: "Let's examine ∫(1 to R) (ln(x)/x)dx as R → ∞. Using the substitution u = ln(x), du = dx/x, we get ∫(0 to ln(R)) u du = [u²/2](0 to ln(R)) = (ln(R))²/2. As R → ∞, (ln(R))²/2 → ∞, so the improper integral diverges. We can verify this by comparison: for large x, ln(x)/x > 1/x^(1+ε) for any ε > 0, and since ∫(1 to ∞) 1/x^(1+ε) dx converges only for ε > 0, our integral must diverge.",
+          solution: "Let's examine the integral of (ln(x)/x) dx from 1 to R as R -> infinity. Using the substitution u = ln(x), du = dx/x, we get the integral of u du from 0 to ln(R) = [u^2/2] evaluated from 0 to ln(R) = (ln(R))^2 / 2. As R -> infinity, (ln(R))^2 / 2 -> infinity, so the improper integral diverges. We can verify this by comparison: for large x, ln(x)/x > 1/x^(1+epsilon) for any epsilon > 0, and since the integral of 1/x^(1+epsilon) dx from 1 to infinity converges only for epsilon > 0, our integral must diverge.",
           hints: ["Try the substitution u = ln(x)", "Compare with a known convergent or divergent integral", "Consider integration by parts as an alternative approach"]
         }
       ]
@@ -476,7 +476,7 @@ export const getMathTopics = (): Topic[] => {
           id: "graph-theory-q1",
           prompt: "Prove that a connected graph with n vertices has at least n-1 edges. When does equality hold?",
           difficulty: "easy",
-          solution: "We'll prove by induction on n. Base case: For n=1, a single vertex has 0 edges, which is ≥ n-1 = 0. Inductive step: Assume true for graphs with k vertices. For a connected graph G with k+1 vertices, remove one vertex v and its incident edges. This may create multiple components G₁, G₂, ..., Gₘ. Each component has at least one edge connecting to v (otherwise G wouldn't be connected). If nᵢ is the number of vertices in Gᵢ, then by induction, Gᵢ has at least nᵢ-1 edges. The total number of edges is at least Σ(nᵢ-1) + m = (k+1-m) + m = k+1. Equality holds when removing any vertex creates exactly one component, i.e., when G is a tree.",
+          solution: "We'll prove by induction on n. Base case: For n=1, a single vertex has 0 edges, which is >= n-1 = 0. Inductive step: Assume true for graphs with k vertices. For a connected graph G with k+1 vertices, remove one vertex v and its incident edges. This may create multiple components G_1, G_2, ..., G_m. Each component has at least one edge connecting to v (otherwise G wouldn't be connected). If n_i is the number of vertices in G_i, then by induction, G_i has at least n_i-1 edges. The total number of edges is at least sum(n_i - 1) + m = (k+1-m) + m = k+1. Equality holds when removing any vertex creates exactly one component, i.e., when G is a tree.",
           hints: ["Try using induction on the number of vertices", "Consider what happens when you remove a vertex and its incident edges", "Think about the minimum structure needed to ensure connectivity"]
         },
         {
@@ -490,21 +490,21 @@ export const getMathTopics = (): Topic[] => {
           id: "graph-theory-q3",
           prompt: "Apply Dijkstra's algorithm to find the shortest path from vertex A to all other vertices in the following weighted graph: Edges: A-B(4), A-C(2), B-C(1), B-D(5), C-D(8), C-E(10), D-E(2), D-F(6), E-F(3).",
           difficulty: "medium",
-          solution: "Using Dijkstra's algorithm: Initialize distances: d(A)=0, others=∞. Visited=[]. Extract A, update d(B)=4, d(C)=2. Visited=[A]. Extract C, update d(B)=min(4,2+1)=3, d(D)=10, d(E)=12. Visited=[A,C]. Extract B, update d(D)=min(10,3+5)=8. Visited=[A,C,B]. Extract D, update d(E)=min(12,8+2)=10, d(F)=14. Visited=[A,C,B,D]. Extract E, update d(F)=min(14,10+3)=13. Visited=[A,C,B,D,E]. Extract F. Final shortest paths: A→B: 3 via C, A→C: 2 direct, A→D: 8 via B, A→E: 10 via D, A→F: 13 via E.",
+          solution: "Using Dijkstra's algorithm: Initialize distances: d(A)=0, others=infinity. Visited=[]. Extract A, update d(B)=4, d(C)=2. Visited=[A]. Extract C, update d(B)=min(4,2+1)=3, d(D)=10, d(E)=12. Visited=[A,C]. Extract B, update d(D)=min(10,3+5)=8. Visited=[A,C,B]. Extract D, update d(E)=min(12,8+2)=10, d(F)=14. Visited=[A,C,B,D]. Extract E, update d(F)=min(14,10+3)=13. Visited=[A,C,B,D,E]. Extract F. Final shortest paths: A->B: 3 via C, A->C: 2 direct, A->D: 8 via B, A->E: 10 via D, A->F: 13 via E.",
           hints: ["Maintain a priority queue of vertices ordered by current distance", "Always select the unvisited vertex with the smallest distance", "Update distances when you find a shorter path"]
         },
         {
           id: "graph-theory-q4",
-          prompt: "Find all spanning trees of the complete graph K₄, and determine the number of spanning trees in Kₙ for any n.",
+          prompt: "Find all spanning trees of the complete graph K_4, and determine the number of spanning trees in K_n for any n.",
           difficulty: "medium",
-          solution: "K₄ has 4 vertices and 6 edges. Any spanning tree must have 3 edges. We need to select 3 edges that don't form a cycle. Starting from any arrangement, we have 4 vertices and C(6,3) = 20 ways to select 3 edges. However, many of these selections contain cycles. Using Cayley's formula, the number of spanning trees in Kₙ is n^(n-2). For K₄, this gives 4² = 16 spanning trees. We can verify by systematic enumeration or by calculating the determinant of the Laplacian matrix.",
-          hints: ["Use Cayley's formula: a complete graph Kₙ has n^(n-2) spanning trees", "Alternatively, apply the Matrix-Tree Theorem using the Laplacian matrix", "For small graphs, consider enumeration by removing edges that don't disconnect the graph"]
+          solution: "K_4 has 4 vertices and 6 edges. Any spanning tree must have 3 edges. We need to select 3 edges that don't form a cycle. Starting from any arrangement, we have 4 vertices and C(6,3) = 20 ways to select 3 edges. However, many of these selections contain cycles. Using Cayley's formula, the number of spanning trees in K_n is n^(n-2). For K_4, this gives 4^2 = 16 spanning trees. We can verify by systematic enumeration or by calculating the determinant of the Laplacian matrix.",
+          hints: ["Use Cayley's formula: a complete graph K_n has n^(n-2) spanning trees", "Alternatively, apply the Matrix-Tree Theorem using the Laplacian matrix", "For small graphs, consider enumeration by removing edges that don't disconnect the graph"]
         },
         {
           id: "graph-theory-q5",
           prompt: "Prove or disprove: In any simple graph, the sum of the degrees of all vertices is equal to twice the number of edges. Apply this to develop a proof of the handshaking lemma.",
           difficulty: "hard",
-          solution: "This statement is true. In a simple graph, each edge connects exactly two vertices, contributing 1 to the degree of each of these vertices. Therefore, when we sum all vertex degrees, each edge is counted exactly twice. So if d(v) represents the degree of vertex v, then Σv∈V d(v) = 2|E|, where |E| is the number of edges. The handshaking lemma is a direct consequence: in any graph, the number of vertices with odd degree must be even. Proof: Let V₁ be vertices with odd degree and V₂ be vertices with even degree. Then Σv∈V d(v) = Σv∈V₁ d(v) + Σv∈V₂ d(v). The right side must be even (as Σv∈V₂ d(v) is even), and we know the left side equals 2|E|, which is even. Therefore, Σv∈V₁ d(v) must be even, which is only possible if |V₁| is even.",
+          solution: "This statement is true. In a simple graph, each edge connects exactly two vertices, contributing 1 to the degree of each of these vertices. Therefore, when we sum all vertex degrees, each edge is counted exactly twice. So if d(v) represents the degree of vertex v, then sum(d(v)) = 2*|E|, where |E| is the number of edges. The handshaking lemma is a direct consequence: in any graph, the number of vertices with odd degree must be even. Proof: Let V_1 be vertices with odd degree and V_2 be vertices with even degree. Then sum(d(v)) = sum(d(v) for v in V_1) + sum(d(v) for v in V_2). The right side must be even (as sum(d(v) for v in V_2) is even), and we know the left side equals 2*|E|, which is even. Therefore, sum(d(v) for v in V_1) must be even, which is only possible if |V_1| is even.",
           hints: ["Consider what each edge contributes to the degree sum", "For the handshaking lemma, separate vertices into odd and even degree sets", "Remember that the sum of an odd number of odd numbers is odd"]
         }
       ]
@@ -521,35 +521,35 @@ export const getMathTopics = (): Topic[] => {
           id: "statistics-q1",
           prompt: "A fair coin is tossed 10 times. Calculate the probability of getting exactly 7 heads. What is the expected number of heads?",
           difficulty: "easy",
-          solution: "For a fair coin with probability p = 0.5 of heads, the number of heads in n tosses follows a binomial distribution B(n,p). The probability of exactly k heads is given by P(X=k) = C(n,k) * p^k * (1-p)^(n-k), where C(n,k) is the binomial coefficient. For n=10, k=7, p=0.5: P(X=7) = C(10,7) * 0.5^7 * 0.5^3 = 120 * 0.5^10 = 120/1024 = 15/128 ≈ 0.117. The expected number of heads is E(X) = np = 10 * 0.5 = 5.",
+          solution: "For a fair coin with probability p = 0.5 of heads, the number of heads in n tosses follows a binomial distribution B(n,p). The probability of exactly k heads is given by P(X=k) = C(n,k) * p^k * (1-p)^(n-k), where C(n,k) is the binomial coefficient. For n=10, k=7, p=0.5: P(X=7) = C(10,7) * 0.5^7 * 0.5^3 = 120 * 0.5^10 = 120/1024 = 15/128 is approximately 0.117. The expected number of heads is E(X) = np = 10 * 0.5 = 5.",
           hints: ["Use the binomial probability formula P(X=k) = C(n,k) * p^k * (1-p)^(n-k)", "Calculate C(10,7) = 10!/(7!(10-7)!) = 120", "Remember that for a binomial distribution, E(X) = np"]
         },
         {
           id: "statistics-q2",
-          prompt: "The heights of adult males in a certain population are normally distributed with mean μ = 175 cm and standard deviation σ = 7 cm. What is the probability that a randomly selected adult male has a height greater than 185 cm?",
+          prompt: "The heights of adult males in a certain population are normally distributed with mean mu = 175 cm and standard deviation sigma = 7 cm. What is the probability that a randomly selected adult male has a height greater than 185 cm?",
           difficulty: "easy",
-          solution: "For a normal distribution with mean μ and standard deviation σ, we need to find P(X > 185). First, standardize: z = (185 - 175)/7 = 10/7 ≈ 1.43. Then P(X > 185) = P(Z > 1.43) = 1 - P(Z ≤ 1.43). From the standard normal table, P(Z ≤ 1.43) ≈ 0.9236. So P(X > 185) ≈ 1 - 0.9236 = 0.0764 or about 7.64%.",
-          hints: ["Standardize the value using z = (x - μ)/σ", "Use the standard normal table or calculator function", "Verify that you're calculating the correct tail probability"]
+          solution: "For a normal distribution with mean mu and standard deviation sigma, we need to find P(X > 185). First, standardize: z = (185 - 175)/7 = 10/7 is approximately 1.43. Then P(X > 185) = P(Z > 1.43) = 1 - P(Z <= 1.43). From the standard normal table, P(Z <= 1.43) is approximately 0.9236. So P(X > 185) is approximately 1 - 0.9236 = 0.0764 or about 7.64%.",
+          hints: ["Standardize the value using z = (x - mu)/sigma", "Use the standard normal table or calculator function", "Verify that you're calculating the correct tail probability"]
         },
         {
           id: "statistics-q3",
-          prompt: "A population has a mean of μ = 50 and standard deviation of σ = 10. A random sample of 64 observations is taken. What is the probability that the sample mean will be less than 48?",
+          prompt: "A population has a mean of mu = 50 and standard deviation of sigma = 10. A random sample of 64 observations is taken. What is the probability that the sample mean will be less than 48?",
           difficulty: "medium",
-          solution: "By the Central Limit Theorem, for large samples (n ≥ 30), the sampling distribution of the sample mean is approximately normal with mean μ and standard error σ/√n. Here, μ = 50 and the standard error is 10/√64 = 10/8 = 1.25. We need P(X̄ < 48). Standardizing: z = (48 - 50)/1.25 = -2/1.25 = -1.6. From the standard normal table, P(Z < -1.6) ≈ 0.0548. So there's about a 5.48% probability that the sample mean will be less than 48.",
-          hints: ["Apply the Central Limit Theorem for the sampling distribution", "Calculate the standard error of the mean: σ/√n", "Standardize the sample mean to find the z-score"]
+          solution: "By the Central Limit Theorem, for large samples (n >= 30), the sampling distribution of the sample mean is approximately normal with mean mu and standard error sigma/sqrt(n). Here, mu = 50 and the standard error is 10/sqrt(64) = 10/8 = 1.25. We need P(X_bar < 48). Standardizing: z = (48 - 50)/1.25 = -2/1.25 = -1.6. From the standard normal table, P(Z < -1.6) is approximately 0.0548. So there's about a 5.48% probability that the sample mean will be less than 48.",
+          hints: ["Apply the Central Limit Theorem for the sampling distribution", "Calculate the standard error of the mean: sigma/sqrt(n)", "Standardize the sample mean to find the z-score"]
         },
         {
           id: "statistics-q4",
-          prompt: "Two independent random samples are drawn from populations with population variances σ₁² = 25 and σ₂² = 36. The first sample has n₁ = 40 observations with sample mean x̄₁ = 85, and the second has n₂ = 50 observations with sample mean x̄₂ = 82. Construct a 95% confidence interval for the difference in population means μ₁ - μ₂.",
+          prompt: "Two independent random samples are drawn from populations with population variances sigma_1^2 = 25 and sigma_2^2 = 36. The first sample has n_1 = 40 observations with sample mean x_bar_1 = 85, and the second has n_2 = 50 observations with sample mean x_bar_2 = 82. Construct a 95% confidence interval for the difference in population means mu_1 - mu_2.",
           difficulty: "medium",
-          solution: "For independent samples with known population variances, a 95% confidence interval for μ₁ - μ₂ is given by (x̄₁ - x̄₂) ± z₀.₀₂₅√(σ₁²/n₁ + σ₂²/n₂). Here, x̄₁ - x̄₂ = 85 - 82 = 3, z₀.₀₂₅ = 1.96, and √(σ₁²/n₁ + σ₂²/n₂) = √(25/40 + 36/50) = √(0.625 + 0.72) = √1.345 ≈ 1.16. So the 95% confidence interval is 3 ± 1.96(1.16) = 3 ± 2.27 = (0.73, 5.27).",
-          hints: ["Remember the formula for a confidence interval for the difference in means", "Calculate the standard error of the difference: √(σ₁²/n₁ + σ₂²/n₂)", "For a 95% confidence interval, use z = 1.96"]
+          solution: "For independent samples with known population variances, a 95% confidence interval for mu_1 - mu_2 is given by (x_bar_1 - x_bar_2) +- z_0.025 * sqrt(sigma_1^2/n_1 + sigma_2^2/n_2). Here, x_bar_1 - x_bar_2 = 85 - 82 = 3, z_0.025 = 1.96, and sqrt(sigma_1^2/n_1 + sigma_2^2/n_2) = sqrt(25/40 + 36/50) = sqrt(0.625 + 0.72) = sqrt(1.345) is approximately 1.16. So the 95% confidence interval is 3 +- 1.96(1.16) = 3 +- 2.27 = (0.73, 5.27).",
+          hints: ["Remember the formula for a confidence interval for the difference in means", "Calculate the standard error of the difference: sqrt(sigma_1^2/n_1 + sigma_2^2/n_2)", "For a 95% confidence interval, use z = 1.96"]
         },
         {
           id: "statistics-q5",
-          prompt: "A pharmaceutical company claims that a new drug reduces cholesterol by at least 15% on average. In a clinical trial with 45 patients, the mean reduction was 13.8% with a sample standard deviation of 4.2%. Conduct a hypothesis test to evaluate the company's claim at a significance level of α = 0.05.",
+          prompt: "A pharmaceutical company claims that a new drug reduces cholesterol by at least 15% on average. In a clinical trial with 45 patients, the mean reduction was 13.8% with a sample standard deviation of 4.2%. Conduct a hypothesis test to evaluate the company's claim at a significance level of alpha = 0.05.",
           difficulty: "hard",
-          solution: "We'll test H₀: μ ≥ 15 vs H₁: μ < 15 (one-tailed test). Test statistic: t = (x̄ - μ₀)/(s/√n) = (13.8 - 15)/(4.2/√45) = -1.2/0.626 = -1.917. With df = 44, the critical t-value for α = 0.05 (one-tailed) is approximately -1.68. Since -1.917 < -1.68, we reject H₀. Alternatively, the p-value = P(t < -1.917) ≈ 0.031 < 0.05, leading to the same conclusion. There is sufficient evidence to conclude that the drug does not reduce cholesterol by at least 15% on average, contradicting the company's claim.",
+          solution: "We'll test H_0: mu >= 15 vs H_1: mu < 15 (one-tailed test). Test statistic: t = (x_bar - mu_0)/(s/sqrt(n)) = (13.8 - 15)/(4.2/sqrt(45)) = -1.2/0.626 = -1.917. With df = 44, the critical t-value for alpha = 0.05 (one-tailed) is approximately -1.68. Since -1.917 < -1.68, we reject H_0. Alternatively, the p-value = P(t < -1.917) is approximately 0.031 < 0.05, leading to the same conclusion. There is sufficient evidence to conclude that the drug does not reduce cholesterol by at least 15% on average, contradicting the company's claim.",
           hints: ["Set up the null and alternative hypotheses carefully", "Use a one-sample t-test since the population standard deviation is unknown", "Calculate the test statistic and compare to the critical value or find the p-value"]
         }
       ]
@@ -566,10 +566,10 @@ export const getTopicBySlug = (slug: string): Topic | undefined => {
 };
 
 // Helper function to generate questions for each topic
-function generateQuestions(topicSlug: string) {
+function generateQuestions(topicSlug: string): Question[] {
   // This is a fallback function used for topics that don't have specific questions defined
   // With our enhanced topics above, this will rarely be used
-  const questions = [
+  const questions: Question[] = [
     {
       id: `${topicSlug}-q1`,
       prompt: `Basic question about ${topicSlug.replace(/-/g, ' ')}`,
@@ -605,7 +605,7 @@ function generateQuestions(topicSlug: string) {
       solution: `Solution to the expert-level question about ${topicSlug.replace(/-/g, ' ')}`,
       hints: ['Hint 1', 'Hint 2', 'Hint 3']
     }
-  ] as any;
+  ];
   
   return questions;
 }

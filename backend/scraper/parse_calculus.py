@@ -3,8 +3,10 @@ import os
 import json
 from bs4 import BeautifulSoup
 
-RAW_DIR = "backend/data/raw_calculus"
-OUTPUT_JSON = "backend/data/calculus_parsed.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "data"))
+RAW_DIR = os.path.join(DATA_DIR, "raw_calculus")
+OUTPUT_JSON = os.path.join(DATA_DIR, "calculus_parsed.json")
 
 def parse_html_files():
     parsed_data = []

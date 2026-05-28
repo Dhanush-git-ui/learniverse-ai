@@ -2,8 +2,10 @@
 import json
 import os
 
-INPUT_JSON = "backend/data/calculus_parsed.json"
-OUTPUT_CHUNKS = "backend/data/chunks/calculus_chunks.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "data"))
+INPUT_JSON = os.path.join(DATA_DIR, "calculus_parsed.json")
+OUTPUT_CHUNKS = os.path.join(DATA_DIR, "chunks", "calculus_chunks.json")
 os.makedirs(os.path.dirname(OUTPUT_CHUNKS), exist_ok=True)
 
 MAX_CHUNK_SIZE = 800

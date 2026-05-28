@@ -1,5 +1,5 @@
-
 import { HelpCircle } from 'lucide-react';
+import { renderMarkdown } from '@/utils/markdown';
 
 interface PeerMessageProps {
   content: string;
@@ -15,7 +15,7 @@ const PeerMessage = ({ content, className = '' }: PeerMessageProps) => {
       <div className="flex flex-col">
         <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">Code Buddy</div>
         <div className="py-3 px-4 bg-purple-50 dark:bg-purple-900/20 rounded-r-xl rounded-bl-xl text-gray-800 dark:text-gray-200">
-          {content}
+          {renderMarkdown(content)}
         </div>
       </div>
     </div>

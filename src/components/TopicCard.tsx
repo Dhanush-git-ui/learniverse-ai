@@ -11,8 +11,7 @@ interface TopicCardProps {
 
 const TopicCard = ({ topic, className = '' }: TopicCardProps) => {
   // Dynamically get the icon component from Lucide
-  // @ts-ignore - This is safe as we're controlling the icon names
-  const IconComponent = LucideIcons[topic.icon];
+  const IconComponent = LucideIcons[topic.icon as keyof typeof LucideIcons] as LucideIcons.LucideIcon;
   
   return (
     <Link 

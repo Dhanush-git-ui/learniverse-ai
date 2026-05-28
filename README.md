@@ -1,4 +1,4 @@
-# 🌌 Learniverse AI
+# Learniverse AI
 
 Learniverse AI is an interactive, state-of-the-art educational platform designed to help students master **Data Structures, Algorithms (DSA)**, and **Calculus**. 
 
@@ -6,11 +6,11 @@ Powered by a **Dual-Persona Retrieval-Augmented Generation (RAG)** pipeline, Lea
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 * **Dual-Persona Mentoring:**
-  * **Teacher AI 🎓:** Provides structured, precise, step-by-step textbook explanations utilizing correct mathematical and computer science terminology.
-  * **Peer AI 🤝:** Explains complex concepts in simple, intuitive, and relatable ways using friendly analogies, acting like your smart study partner.
+  * **Teacher AI:** Provides structured, precise, step-by-step textbook explanations utilizing correct mathematical and computer science terminology.
+  * **Peer AI:** Explains complex concepts in simple, intuitive, and relatable ways using friendly analogies, acting like your smart study partner.
 * **Grounded Textbook Reference (RAG):** Answers are strictly grounded in university-level reference material (such as *Active Calculus* and *Open Data Structures*), preventing hallucinations.
 * **Citations & Sources:** Every response lists the specific textbook chapters and sections referenced during generation.
 * **Interactive Question Cards:** Solve topic-specific coding and math problems, get hints, and submit your answers for evaluation.
@@ -18,7 +18,7 @@ Powered by a **Dual-Persona Retrieval-Augmented Generation (RAG)** pipeline, Lea
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technology |
 |---|---|
@@ -30,7 +30,7 @@ Powered by a **Dual-Persona Retrieval-Augmented Generation (RAG)** pipeline, Lea
 
 ---
 
-## 📂 Project Architecture
+## Project Architecture
 
 ```
 learniverse-ai/
@@ -57,7 +57,7 @@ learniverse-ai/
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 * **Node.js** (v18+)
@@ -105,7 +105,7 @@ learniverse-ai/
 
 ---
 
-## 🧠 How the RAG Pipeline Works
+## How the RAG Pipeline Works
 
 ```mermaid
 graph TD
@@ -130,5 +130,5 @@ graph TD
 
 ---
 
-## 📝 License
+## License
 This project is open-source and available for educational purposes.

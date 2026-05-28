@@ -52,6 +52,16 @@ def retrieve_context(query, category="DSA", top_k=5, num_results=None):
     metadatas = results["metadatas"][0] if results and "metadatas" in results and results["metadatas"] else []
     distances = results["distances"][0] if results and "distances" in results and results["distances"] else []
 
+    # Import SIMILARITY_THRESHOLD dynamically
+    import sys
+    backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if backend_dir not in sys.path:
+        sys.path.insert(0, backend_dir)
+    try:
+        from config import SIMILARITY_THRESHOLD
+    except ImportError:
+        SIMILARITY_THRESHOLD = 1.3
+
     retrieved_chunks = []
 
     # STEP 4: Combine everything cleanly
@@ -60,6 +70,10 @@ def retrieve_context(query, category="DSA", top_k=5, num_results=None):
         metadatas,
         distances
     ):
+        # Ignore chunks that are not similar enough (distance above threshold)
+        if distance > SIMILARITY_THRESHOLD:
+            continue
+
         retrieved_chunks.append({
             "text": doc,
             "metadata": metadata,
@@ -67,7 +81,8 @@ def retrieve_context(query, category="DSA", top_k=5, num_results=None):
             # Flattened keys to support direct dict access doc['book']
             "book": metadata.get("book", "Open Data Structures") if metadata else "Open Data Structures",
             "chapter": metadata.get("chapter", "Unknown") if metadata else "Unknown",
-            "topic": metadata.get("topic", "Unknown") if metadata else "Unknown"
+            "topic": metadata.get("topic", "Unknown") if metadata else "Unknown",
+            "content_type": metadata.get("content_type", "general") if metadata else "general"
         })
 
     return retrieved_chunks

@@ -4,7 +4,9 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-RAW_DIR = "backend/data/raw_calculus"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "data"))
+RAW_DIR = os.path.join(DATA_DIR, "raw_calculus")
 os.makedirs(RAW_DIR, exist_ok=True)
 
 # Correct base paths for the stable single-variable edition

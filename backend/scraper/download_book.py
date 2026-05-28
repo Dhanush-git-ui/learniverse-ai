@@ -6,7 +6,8 @@ import time
 
 BASE_URL = "https://opendatastructures.org/ods-java/"
 
-output_dir = Path("data/raw")
+SCRIPT_DIR = Path(__file__).resolve().parent
+output_dir = SCRIPT_DIR.parent / "data" / "raw"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 visited = set()

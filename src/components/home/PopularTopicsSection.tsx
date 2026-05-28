@@ -13,8 +13,7 @@ const PopularTopicsSection = () => {
 
   const renderIcon = (iconName: string) => {
     // Dynamically get the icon component from Lucide
-    // @ts-ignore - This is safe as we're controlling the icon names
-    const IconComponent = LucideIcons[iconName];
+    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcons.LucideIcon;
     return IconComponent ? <IconComponent /> : null;
   };
 

@@ -3,10 +3,19 @@ import { useRef, useEffect } from 'react';
 import TeacherMessage from '../TeacherMessage';
 import PeerMessage from '../PeerMessage';
 
+interface Source {
+  book: string;
+  chapter: string;
+  topic: string;
+  score?: number;
+  content_type?: string;
+}
+
 interface Message {
   id: string;
   type: 'teacher' | 'peer' | 'user';
   content: string;
+  sources?: Source[];
 }
 
 interface ConversationMessagesProps {
@@ -36,7 +45,7 @@ const ConversationMessages = ({ messages, isLoading }: ConversationMessagesProps
       
       {messages.map((message) => (
         message.type === 'teacher' ? (
-          <TeacherMessage key={message.id} content={message.content} />
+          <TeacherMessage key={message.id} content={message.content} sources={message.sources} />
         ) : message.type === 'peer' ? (
           <PeerMessage key={message.id} content={message.content} />
         ) : (

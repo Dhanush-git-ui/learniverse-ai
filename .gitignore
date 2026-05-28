@@ -23,9 +23,31 @@ dist-ssr
 *.sln
 *.sw?
 
+# Learniverse AI specific ignores
 .env
 __pycache__/
 *.pyc
 node_modules/
+dist/
+dist-ssr/
+
+# Python Virtual Environments
+venv/
+.venv/
+ENV/
+env/
+
+# Vector database & raw assets
 chroma_db/
-data/chroma_db/
+backend/chroma_db/
+backend/data/chroma_db/
+backend/data/raw/
+backend/data/raw_calculus/
+backend/data/chunks/
+backend/data/embeddings/
+backend/data/*.json
+
+# Cache & Build logs
+.eslintcache
+.vite/
+.parcel-cache

@@ -4,7 +4,9 @@ import os
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-CHUNKS_PATH = "backend/data/chunks/calculus_chunks.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "data"))
+CHUNKS_PATH = os.path.join(DATA_DIR, "chunks", "calculus_chunks.json")
 # Points exactly to your project's active Chroma storage folder
 DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "chroma_db"))
 

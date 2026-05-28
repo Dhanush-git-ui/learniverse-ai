@@ -10,9 +10,9 @@ load_dotenv(dotenv_path=dotenv_path)
 
 # Quick sanity check print to verify it's working before running the RAG pipeline
 if not os.getenv("GEMINI_API_KEY"):
-    print(f"❌ CRITICAL ERROR: GEMINI_API_KEY could not be read from {dotenv_path}")
+    print(f"[ERROR] CRITICAL: GEMINI_API_KEY could not be read from {dotenv_path}")
 else:
-    print("✅ Success: GEMINI_API_KEY found and loaded successfully.")
+    print("[SUCCESS] GEMINI_API_KEY found and loaded successfully.")
 
 # Allow running this file directly as a script
 if __name__ == "__main__" or not __package__:
@@ -20,6 +20,8 @@ if __name__ == "__main__" or not __package__:
 
 from rag.retriever import retrieve_context
 from rag.generator import generate_teacher_answer, generate_peer_answer
+
+import concurrent.futures
 
 def run_rag_pipeline(query: str, topic: str, category: str, history: list = None):
     """
@@ -34,14 +36,24 @@ def run_rag_pipeline(query: str, topic: str, category: str, history: list = None
     # 2. Compile text fragments into a single context block for the LLM
     context_str = "\n\n".join([f"Source [{doc['book']} - {doc['chapter']} - {doc['topic']}]: {doc['text']}" for doc in context_chunks])
     
-    # 3. Fire the context into your Gemini API prompt generator
-    teacher_ans = generate_teacher_answer(query=query, context=context_str , history=history)
-    peer_ans = generate_peer_answer(query=query, context=context_str, history=history)
+    # 3. Fire the context into your Gemini API prompt generator concurrently using ThreadPoolExecutor
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        future_teacher = executor.submit(generate_teacher_answer, query=query, context=context_str, history=history)
+        future_peer = executor.submit(generate_peer_answer, query=query, context=context_str, history=history)
+        
+        teacher_ans = future_teacher.result()
+        peer_ans = future_peer.result()
     
-    # 4. Format sources to return matching metadata to the React UI components
+    # 4. Format sources to return matching metadata (including score and content_type) to the React UI components
     formatted_sources = []
     for doc in context_chunks:
-        source_entry = {"book": doc["book"], "chapter": doc["chapter"], "topic": doc["topic"]}
+        source_entry = {
+            "book": doc["book"],
+            "chapter": doc["chapter"],
+            "topic": doc["topic"],
+            "score": doc["score"],
+            "content_type": doc["content_type"]
+        }
         if source_entry not in formatted_sources:
             formatted_sources.append(source_entry)
     
