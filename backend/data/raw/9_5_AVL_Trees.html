@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>9.5 AVL Trees</TITLE>
+</HEAD>
+<BODY>
+<H1>9.5 AVL Trees</H1>
+<P>
+An AVL tree (named after inventors Adelson-Velsky and Landis) is a self-balancing binary search tree (BST). 
+In an AVL tree, the heights of the two child subtrees of any node differ by at most one; if at any time they differ by more than one, rebalancing is done to restore this property. 
+Lookup, insertion, and deletion all take O(log n) time in both the average and worst cases, where n is the number of nodes in the tree prior to the operation. 
+Insertions and deletions may require the tree to be rebalanced by one or more tree rotations.
+</P>
+
+<H2>Balance Factor</H2>
+<P>
+In a binary search tree, the balance factor of a node N is defined as the height difference of its left and right subtrees:
+BalanceFactor(N) = height(left_subtree(N)) - height(right_subtree(N)).
+A node N is considered balanced if its BalanceFactor(N) is in the set {-1, 0, 1}. 
+If the balance factor of any node becomes greater than 1 or less than -1, the subtree rooted at N is unbalanced and requires rotation to restore balance.
+</P>
+
+<H2>AVL Tree Rotations</H2>
+<P>
+To restore balance after an insertion or deletion, AVL trees perform four types of rotations depending on the relative path from the unbalanced node to the newly inserted node:
+1. Single Left Rotation (RR Rotation): Used when a node is added to the right subtree of a right child.
+2. Single Right Rotation (LL Rotation): Used when a node is added to the left subtree of a left child.
+3. Left-Right Rotation (LR Rotation): Used when a node is added to the right subtree of a left child. It consists of a left rotation on the child followed by a right rotation on the parent.
+4. Right-Left Rotation (RL Rotation): Used when a node is added to the left subtree of a right child. It consists of a right rotation on the child followed by a left rotation on the parent.
+</P>
+
+<H2>Complexity Analysis of AVL Trees</H2>
+<P>
+Because the height of an AVL tree with n nodes is always bounded by approximately 1.44 log n, all dictionary operations on an AVL tree are guaranteed to run in O(log n) worst-case time.
+Specifically:
+- Search: O(log n) time, since the height is logarithmic.
+- Insert: O(log n) time, requiring at most one rotation sequence (single or double) to rebalance.
+- Delete: O(log n) time, which may require up to O(log n) rotations as we backtrack to the root.
+- Space Complexity: O(n) space to store the keys and balancing factors.
+</P>
+</BODY>
+</HTML>

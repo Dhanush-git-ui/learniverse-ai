@@ -1,0 +1,1780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>3.3 SEList: A Space-Efficient Linked List</TITLE>
+<META NAME="description" CONTENT="3.3 SEList: A Space-Efficient Linked List">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="3_4_Discussion_Exercises.html">
+<LINK REL="previous" HREF="3_2_DLList_Doubly_Linked_Li.html">
+<LINK REL="up" HREF="3_Linked_Lists.html">
+<LINK REL="next" HREF="3_4_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html555"
+  HREF="3_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html549"
+  HREF="3_Linked_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html543"
+  HREF="3_2_DLList_Doubly_Linked_Li.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html551"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html553"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html556"
+  HREF="3_4_Discussion_Exercises.html">3.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html550"
+  HREF="3_Linked_Lists.html">3. Linked Lists</A>
+<B> Previous:</B> <A NAME="tex2html544"
+  HREF="3_2_DLList_Doubly_Linked_Li.html">3.2 DLList: A Doubly-Linked</A>
+ &nbsp; <B>  <A NAME="tex2html552"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html554"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html557"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00631000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Space Requirements</A>
+<LI><A NAME="tex2html558"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00632000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">2</SPAN> Finding Elements</A>
+<LI><A NAME="tex2html559"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00633000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN> Adding an Element</A>
+<LI><A NAME="tex2html560"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00634000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">4</SPAN> Removing an Element</A>
+<LI><A NAME="tex2html561"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00635000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">5</SPAN> Amortized Analysis of Spreading and Gathering</A>
+<LI><A NAME="tex2html562"
+  HREF="3_3_SEList_Space_Efficient_.html#SECTION00636000000000000000"><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">6</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00630000000000000000"></A>
+<A NAME="sec:selist"></A>
+<BR>
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN> <TT>SEList</TT>: A Space-Efficient Linked List
+</H1>
+
+<P>
+<A NAME="9844"></A><A NAME="9130"></A>One of the drawbacks of linked lists (besides the time it takes to access
+elements that are deep within the list) is their space usage.  Each node
+in a <TT>DLList</TT> requires an additional two references to the next and
+previous nodes in the list.  Two of the fields in a <TT>Node</TT> are dedicated
+to maintaining the list, and only one of the fields is for storing data!
+
+<P>
+An <TT>SEList</TT> (space-efficient list) reduces this wasted space using
+a simple idea: Rather than store individual elements in a <TT>DLList</TT>,
+we store a block (array) containing several items. More precisely, an
+<TT>SEList</TT> is parameterized by a <SPAN  CLASS="textit">block size</SPAN> <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1299.png"
+ ALT="$ \mathtt{b}$"></SPAN>. Each individual
+node in an <TT>SEList</TT> stores a block that can hold up to <!-- MATH
+ $\mathtt{b+1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1300.png"
+ ALT="$ \mathtt{b+1}$"></SPAN> elements.
+
+<P>
+For reasons that will become clear later, it will be helpful if we can
+do <TT>Deque</TT> operations on each block.  The data structure that we choose
+for this is a <TT>BDeque</TT> (bounded deque),
+<A NAME="9847"></A><A NAME="9143"></A><A NAME="9144"></A>derived from the <TT>ArrayDeque</TT>
+structure described in Section&nbsp;<A HREF="2_4_ArrayDeque_Fast_Deque_O.html#sec:arraydeque">2.4</A>.  The <TT>BDeque</TT> differs from the
+<TT>ArrayDeque</TT> in one small way: When a new <TT>BDeque</TT> is created, the size
+of the backing array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1301.png"
+ ALT="$ \mathtt{a}$"></SPAN> is fixed at <!-- MATH
+ $\mathtt{b+1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1302.png"
+ ALT="$ \mathtt{b+1}$"></SPAN> and never grows or shrinks.
+The important property of a <TT>BDeque</TT> is that it allows for the addition
+or removal of elements at either the front or back in constant time. This
+will be useful as elements are shifted from one block to another.
+
+<P>
+<PRE>
+    class BDeque extends ArrayDeque&lt;T&gt; {
+        BDeque() {
+            super(SEList.this.type());
+            a = newArray(b+1);
+        }
+        void resize() { }
+    }
+</PRE>
+
+<P>
+An <TT>SEList</TT> is then a doubly-linked list of blocks:
+ <PRE>
+    class Node {
+        BDeque d;
+        Node prev, next;
+    }
+</PRE>
+<PRE>
+    int n;
+    Node dummy;
+</PRE>
+
+<P>
+
+<P>
+
+<H2><A NAME="SECTION00631000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Space Requirements</A>
+</H2>
+
+<P>
+An <TT>SEList</TT> places very tight restrictions on the number of elements
+in a block: Unless a block is the last block, then that block contains
+at least <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1303.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> and at most <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1304.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> elements.  This means that, if an
+<TT>SEList</TT> contains <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1305.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements, then it has at most
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{n}}/(\ensuremath{\mathtt{b}}-1) + 1 = O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="149" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1306.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}/(\ensuremath{\mathtt{b}}-1) + 1 = O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})
+$">
+</DIV><P></P>
+blocks.  The <TT>BDeque</TT> for each block contains an array of length <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1307.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN>
+but, for every block except the last, at most a constant amount of
+space is wasted in this array.  The remaining memory used by a block is
+also constant.  This means that the wasted space in an <TT>SEList</TT> is only
+<!-- MATH
+ $O(\ensuremath{\mathtt{b}}+\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1308.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}+\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})$"></SPAN>.  By choosing a value of <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1309.png"
+ ALT="$ \mathtt{b}$"></SPAN> within a constant factor
+of <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1310.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN>, we can make the space-overhead of an SEList approach
+the <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1311.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN> lower bound given in Section&nbsp;<A HREF="2_6_RootishArrayStack_Space.html#sec:rootishspaceusage">2.6.2</A>.
+
+<P>
+
+<H2><A NAME="SECTION00632000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">2</SPAN> Finding Elements</A>
+</H2>
+
+<P>
+The first challenge we face with an <TT>SEList</TT> is finding the list item
+with a given index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1312.png"
+ ALT="$ \mathtt{i}$"></SPAN>.  Note that the location of an element consists
+of two parts: 
+
+<OL>
+<LI>The node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1313.png"
+ ALT="$ \mathtt{u}$"></SPAN> that contains the block that contains the element
+  with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1314.png"
+ ALT="$ \mathtt{i}$"></SPAN>; and
+</LI>
+<LI>the index <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1315.png"
+ ALT="$ \mathtt{j}$"></SPAN> of the element within its block.
+</LI>
+</OL>
+
+<P>
+<PRE>
+    class Location {
+        Node u;
+        int j;
+        Location(Node u, int j) {
+            this.u = u;
+            this.j = j;
+        }
+    }
+</PRE>
+
+<P>
+To find the block that contains a particular element, we proceed the same
+way as we do in a <TT>DLList</TT>.  We either start at the front of the list and
+traverse in the forward direction, or at the back of the list and traverse
+backwards until we reach the node we want.  The only difference is that,
+each time we move from one node to the next, we skip over a whole block
+of elements.
+
+<P>
+
+<PRE>
+    Location getLocation(int i) {
+        if (i &lt; n/2) {
+            Node u = dummy.next;
+            while (i &gt;= u.d.size()) {
+                i -= u.d.size();
+                u = u.next;
+            }
+            return new Location(u, i);
+        } else {
+            Node u = dummy;
+            int idx = n;
+            while (i &lt; idx) {
+                u = u.prev;
+                idx -= u.d.size();
+            }
+            return new Location(u, i-idx);
+        }
+    }
+</PRE>
+
+<P>
+Remember that, with the exception of at most one block, each block
+contains at least <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1316.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements, so each step in our search gets
+us <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1317.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements closer to the element we are looking for.  If we
+are searching forward, this means that we reach the node we want after
+<!-- MATH
+ $O(1+\ensuremath{\mathtt{i}}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1318.png"
+ ALT="$ O(1+\ensuremath{\mathtt{i}}/\ensuremath{\mathtt{b}})$"></SPAN> steps.  If we search backwards, then we reach the node we
+want after <!-- MATH
+ $O(1+(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="109" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1319.png"
+ ALT="$ O(1+(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})/\ensuremath{\mathtt{b}})$"></SPAN> steps.  The algorithm takes the smaller
+of these two quantities depending on the value of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1320.png"
+ ALT="$ \mathtt{i}$"></SPAN>, so the time to
+locate the item with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1321.png"
+ ALT="$ \mathtt{i}$"></SPAN> is <!-- MATH
+ $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1322.png"
+ ALT="$ O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN>.
+
+<P>
+Once we know how to locate the item with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1323.png"
+ ALT="$ \mathtt{i}$"></SPAN>, the <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1324.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and
+<!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1325.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> operations translate into getting or setting a particular
+index in the correct block:
+
+<P>
+<PRE>
+    T get(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        Location l = getLocation(i);
+        return l.u.d.get(l.j);
+    }
+    T set(int i, T x) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        Location l = getLocation(i);
+        T y = l.u.d.get(l.j);
+        l.u.d.set(l.j,x);
+        return y;
+    }
+</PRE>
+
+<P>
+The running times of these operations are dominated by the time it takes
+to locate the item, so they also run in <!-- MATH
+ $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1326.png"
+ ALT="$ O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN>
+time.
+
+<P>
+
+<H2><A NAME="SECTION00633000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN> Adding an Element</A>
+</H2>
+
+<P>
+Adding elements to an <TT>SEList</TT> is a little more complicated.  Before
+considering the general case, we consider the easier operation, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1327.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>,
+in which <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1328.png"
+ ALT="$ \mathtt{x}$"></SPAN> is added to the end of the list.  If the last block is full
+(or does not exist because there are no blocks yet), then we first
+allocate a new block and append it to the list of blocks.  Now that
+we are sure that the last block exists and is not full, we append <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1329.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+to the last block.
+
+<P>
+<PRE>
+    boolean add(T x) {
+        Node last = dummy.prev;
+        if (last == dummy || last.d.size() == b+1) {
+            last = addBefore(dummy);
+        }
+        last.d.add(x);
+        n++;
+        return true;
+    }
+</PRE>
+
+<P>
+Things get more complicated when we add to the interior of the list
+using <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1330.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>.  We first locate <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1331.png"
+ ALT="$ \mathtt{i}$"></SPAN> to get the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1332.png"
+ ALT="$ \mathtt{u}$"></SPAN> whose block
+contains the <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1333.png"
+ ALT="$ \mathtt{i}$"></SPAN>th list item.  The problem is that we want to insert
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1334.png"
+ ALT="$ \mathtt{x}$"></SPAN> into <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1335.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s block, but we have to be prepared for the case where
+<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1336.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s block already contains <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1337.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> elements, so that it is full and
+there is no room for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1338.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+
+<P>
+Let <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="84" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1339.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$"></SPAN> denote <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1340.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{u.next}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1341.png"
+ ALT="$ \mathtt{u.next}$"></SPAN>, <!-- MATH
+ $\mathtt{u.next.next}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1342.png"
+ ALT="$ \mathtt{u.next.next}$"></SPAN>,
+and so on.  We explore <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="84" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1343.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$"></SPAN> looking for a node
+that can provide space for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1344.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  Three cases can occur during our
+space exploration (see Figure&nbsp;<A HREF="#fig:selist-add">3.4</A>):
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:selist-add"></A><A NAME="10208"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 3.4:</STRONG>
+The three cases that occur during the addition of an item <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1348.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the interior of an <TT>SEList</TT>.  (This <TT>SEList</TT> has block size <!-- MATH
+ $\ensuremath{\mathtt{b}}=3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1349.png"
+ ALT="$ \ensuremath{\mathtt{b}}=3$"></SPAN>.)</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="LEFT"><IMG
+ WIDTH="427" HEIGHT="76" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1345.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/selist-add-a}"></TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="LEFT"><IMG
+ WIDTH="389" HEIGHT="76" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1346.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/selist-add-b}"></TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="LEFT"><IMG
+ WIDTH="551" HEIGHT="76" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1347.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/selist-add-c}"></TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<OL>
+<LI>We quickly (in <!-- MATH
+ $r+1\le \ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1350.png"
+ ALT="$ r+1\le \ensuremath{\mathtt{b}}$"></SPAN> steps) find a node <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1351.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> whose block
+is not full.  In this case, we perform <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1352.png"
+ ALT="$ r$"></SPAN> shifts of an element from
+one block into the next, so that the free space in <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1353.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> becomes a
+free space in <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1354.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>.  We can then insert <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1355.png"
+ ALT="$ \mathtt{x}$"></SPAN> into <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1356.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block.
+
+<P>
+</LI>
+<LI>We quickly (in <!-- MATH
+ $r+1\le \ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1357.png"
+ ALT="$ r+1\le \ensuremath{\mathtt{b}}$"></SPAN> steps) run off the end of the list
+of blocks.  In this case, we add a new empty block to the end of the
+list of blocks and proceed as in the first case.
+
+<P>
+</LI>
+<LI>After <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1358.png"
+ ALT="$ \mathtt{b}$"></SPAN> steps we do not find any block that is not full.
+In this case, <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1359.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$"></SPAN> is a sequence of <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1360.png"
+ ALT="$ \mathtt{b}$"></SPAN> blocks
+that each contain <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1361.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> elements.  We insert a new block <!-- MATH
+ $\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1362.png"
+ ALT="$ \ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}}$"></SPAN>
+at the end of this sequence and <SPAN  CLASS="textit">spread</SPAN> the original <!-- MATH
+ $\ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1363.png"
+ ALT="$ \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)$"></SPAN>
+elements so that each block of <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1364.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}}$"></SPAN> contains exactly
+<!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1365.png"
+ ALT="$ \mathtt{b}$"></SPAN> elements.  Now <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1366.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block contains only <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1367.png"
+ ALT="$ \mathtt{b}$"></SPAN> elements so it has
+room for us to insert <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1368.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+</LI>
+</OL>
+
+<P>
+<PRE>
+    void add(int i, T x) {
+        if (i &lt; 0 || i &gt; n) throw new IndexOutOfBoundsException();
+        if (i == n) {
+            add(x);
+            return;
+        }
+        Location l = getLocation(i);
+        Node u = l.u;
+        int r = 0;
+        while (r &lt; b &amp;&amp; u != dummy &amp;&amp; u.d.size() == b+1) {
+            u = u.next;
+            r++;
+        }
+        if (r == b) {      // b blocks each with b+1 elements
+            spread(l.u);
+            u = l.u;
+        } 
+        if (u == dummy) {  // ran off the end - add new node
+            u = addBefore(u);
+        }
+        while (u != l.u) { // work backwards, shifting elements
+            u.d.add(0, u.prev.d.remove(u.prev.d.size()-1));
+            u = u.prev;
+        }
+        u.d.add(l.j, x);
+        n++;
+    }
+</PRE>
+
+<P>
+The running time of the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1369.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> operation depends on which of
+the three cases above occurs.  Cases&nbsp;1 and 2 involve examining and
+shifting elements through at most <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1370.png"
+ ALT="$ \mathtt{b}$"></SPAN> blocks and take <!-- MATH
+ $O(\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1371.png"
+ ALT="$ O(\ensuremath{\mathtt{b}})$"></SPAN> time.
+Case&nbsp;3 involves calling the <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1372.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN> method, which  moves <!-- MATH
+ $\ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1373.png"
+ ALT="$ \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)$"></SPAN>
+elements and takes <!-- MATH
+ $O(\ensuremath{\mathtt{b}}^2)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1374.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}^2)$"></SPAN> time.  If we ignore the cost of Case&nbsp;3
+(which we will account for later with amortization) this means that
+the total running time to locate <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1375.png"
+ ALT="$ \mathtt{i}$"></SPAN> and perform the insertion of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1376.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+is <!-- MATH
+ $O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1377.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION00634000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">4</SPAN> Removing an Element</A>
+</H2>
+
+<P>
+Removing an element from an <TT>SEList</TT> is similar to adding an element.
+We first locate the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1378.png"
+ ALT="$ \mathtt{u}$"></SPAN> that contains the element with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1379.png"
+ ALT="$ \mathtt{i}$"></SPAN>.
+Now, we have to be prepared for the case where we cannot remove an element
+from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1380.png"
+ ALT="$ \mathtt{u}$"></SPAN> without causing <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1381.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s block to become smaller than <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1382.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN>.
+
+<P>
+Again, let <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="84" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1383.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$"></SPAN> denote <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1384.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{u.next}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1385.png"
+ ALT="$ \mathtt{u.next}$"></SPAN>, <!-- MATH
+ $\mathtt{u.next.next}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1386.png"
+ ALT="$ \mathtt{u.next.next}$"></SPAN>,
+and so on.  We examine <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="84" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1387.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ensuremath{\mathtt{u}}_1,\ensuremath{\mathtt{u}}_2,\ldots$"></SPAN> in order to look
+for a node from which we can borrow an element to make the size of
+<!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1388.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block at least <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1389.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN>.  There are three cases to consider
+(see Figure&nbsp;<A HREF="#fig:selist-remove">3.5</A>):
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:selist-remove"></A><A NAME="10212"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 3.5:</STRONG>
+The three cases that occur during the removal of an item <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1393.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the interior of an <TT>SEList</TT>.  (This <TT>SEList</TT> has block size <!-- MATH
+ $\ensuremath{\mathtt{b}}=3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1394.png"
+ ALT="$ \ensuremath{\mathtt{b}}=3$"></SPAN>.)</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><IMG
+ WIDTH="401" HEIGHT="72" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1390.png"
+ ALT="\includegraphics[scale=0.90909]{figs/selist-remove-a}"></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><IMG
+ WIDTH="366" HEIGHT="72" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1391.png"
+ ALT="\includegraphics[scale=0.90909]{figs/selist-remove-b}"></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><IMG
+ WIDTH="401" HEIGHT="72" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1392.png"
+ ALT="\includegraphics[scale=0.90909]{figs/selist-remove-c}"></TD>
+</TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<OL>
+<LI>We quickly (in <!-- MATH
+ $r+1\le \ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1395.png"
+ ALT="$ r+1\le \ensuremath{\mathtt{b}}$"></SPAN> steps) find a node whose block contains
+more than <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1396.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements. In this case, we perform <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1397.png"
+ ALT="$ r$"></SPAN> shifts of an
+element from one block into the previous one, so that the extra element
+in <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1398.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> becomes an extra element in <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1399.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>.  We can then remove the
+appropriate element from <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1400.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block.
+
+<P>
+</LI>
+<LI>We quickly (in <!-- MATH
+ $r+1\le \ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1401.png"
+ ALT="$ r+1\le \ensuremath{\mathtt{b}}$"></SPAN> steps) run off the end of the list of
+blocks.  In this case, <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1402.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> is the last block, and there is no need
+for <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1403.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN>'s block to contain at least <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1404.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements.  Therefore,
+we proceed as above, borrowing an element from <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1405.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> to make an extra
+element in <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1406.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>.  If this causes <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1407.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN>'s block to become empty,
+then we remove it.
+
+<P>
+</LI>
+<LI>After <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1408.png"
+ ALT="$ \mathtt{b}$"></SPAN> steps, we do not find any block containing more than
+<!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1409.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements.  In this case, <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1410.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$"></SPAN> is a sequence
+of <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1411.png"
+ ALT="$ \mathtt{b}$"></SPAN> blocks that each contain <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1412.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> elements.  We <SPAN  CLASS="textit">gather</SPAN>
+these <!-- MATH
+ $\ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}-1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1413.png"
+ ALT="$ \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}-1)$"></SPAN> elements into <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1414.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-2}$"></SPAN> so that each
+of these <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1415.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> blocks contains exactly <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1416.png"
+ ALT="$ \mathtt{b}$"></SPAN> elements and we remove
+<!-- MATH
+ $\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1417.png"
+ ALT="$ \ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$"></SPAN>, which is now empty.  Now <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1418.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block contains <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1419.png"
+ ALT="$ \mathtt{b}$"></SPAN>
+elements and we can then remove the appropriate element from it.
+</LI>
+</OL>
+
+<P>
+<PRE>
+    T remove(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        Location l = getLocation(i);
+        T y = l.u.d.get(l.j);
+        Node u = l.u;
+        int r = 0;
+        while (r &lt; b &amp;&amp; u != dummy &amp;&amp; u.d.size() == b-1) {
+            u = u.next;
+            r++;
+        }
+        if (r == b) {  // b blocks each with b-1 elements
+            gather(l.u);
+        }
+        u = l.u;
+        u.d.remove(l.j);
+        while (u.d.size() &lt; b-1 &amp;&amp; u.next != dummy) {
+            u.d.add(u.next.d.remove(0));
+            u = u.next;
+        }
+        if (u.d.isEmpty()) remove(u);
+        n--;
+        return y;
+    }
+</PRE>
+
+<P>
+Like the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1420.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> operation, the running time of the <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1421.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>
+operation is <!-- MATH
+ $O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1422.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN> if we ignore the cost of
+the <!-- MATH
+ $\mathtt{gather(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1423.png"
+ ALT="$ \mathtt{gather(u)}$"></SPAN> method that occurs in Case&nbsp;3.
+
+<P>
+
+<H2><A NAME="SECTION00635000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">5</SPAN> Amortized Analysis of Spreading and Gathering</A>
+</H2>
+
+<P>
+Next, we consider the cost of the <!-- MATH
+ $\mathtt{gather(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1424.png"
+ ALT="$ \mathtt{gather(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1425.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN> methods
+that may be executed by the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1426.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1427.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> methods.  For the
+sake of completeness, here they are:
+
+<P>
+<PRE>
+    void spread(Node u) {
+        Node w = u;
+        for (int j = 0; j &lt; b; j++) {
+            w = w.next;
+        }
+        w = addBefore(w);
+        while (w != u) {
+            while (w.d.size() &lt; b)
+                w.d.add(0,w.prev.d.remove(w.prev.d.size()-1));
+            w = w.prev;
+        }
+    }
+</PRE>
+<PRE>
+    void gather(Node u) {
+        Node w = u;
+        for (int j = 0; j &lt; b-1; j++) {
+            while (w.d.size() &lt; b)
+                w.d.add(w.next.d.remove(0));
+            w = w.next;
+        }
+        remove(w);
+    }
+</PRE>
+
+<P>
+The running time of each of these methods is dominated by the two
+nested loops.  Both the inner and outer loops execute at most
+<!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1428.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> times, so the total running time of each of these methods
+is <!-- MATH
+ $O((\ensuremath{\mathtt{b}}+1)^2)=O(\ensuremath{\mathtt{b}}^2)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="135" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1429.png"
+ ALT="$ O((\ensuremath{\mathtt{b}}+1)^2)=O(\ensuremath{\mathtt{b}}^2)$"></SPAN>. However, the following lemma shows that
+these methods execute on at most one out of every <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1430.png"
+ ALT="$ \mathtt{b}$"></SPAN> calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1431.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1432.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>.
+
+<P>
+<P>
+<DIV><A NAME="lem:selist-amortized"><B>Lemma  <SPAN CLASS="arabic">3</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>If an empty <TT>SEList</TT> is created and any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1433.png"
+ ALT="$ m\ge 1$"></SPAN> calls
+  to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1434.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1435.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> is performed, then the total time
+  spent during all calls to <!-- MATH
+ $\mathtt{spread()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1436.png"
+ ALT="$ \mathtt{spread()}$"></SPAN> and <!-- MATH
+ $\mathtt{gather()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1437.png"
+ ALT="$ \mathtt{gather()}$"></SPAN> is <!-- MATH
+ $O(\ensuremath{\mathtt{b}}m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1438.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}m)$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  We will use the potential method of amortized analysis.
+  <A NAME="9412"></A>We say that
+  a node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1440.png"
+ ALT="$ \mathtt{u}$"></SPAN> is <SPAN  CLASS="textit">fragile</SPAN> if <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1441.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s block does not contain <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1442.png"
+ ALT="$ \mathtt{b}$"></SPAN>
+  elements (so that <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1443.png"
+ ALT="$ \mathtt{u}$"></SPAN> is either the last node, or contains <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1444.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN>
+  or <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1445.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> elements).  Any node whose block contains <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1446.png"
+ ALT="$ \mathtt{b}$"></SPAN> elements is
+  <SPAN  CLASS="textit">rugged</SPAN>. Define the <SPAN  CLASS="textit">potential</SPAN> of an <TT>SEList</TT> as the number
+  of fragile nodes it contains.  We will consider only the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1447.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+  operation and its relation to the number of calls to <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1448.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN>.
+  The analysis of <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1449.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{gather(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1450.png"
+ ALT="$ \mathtt{gather(u)}$"></SPAN> is identical.
+
+<P>
+Notice that, if Case&nbsp;1 occurs during the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1451.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> method, then
+  only one node, <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1452.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN> has the size of its block changed. Therefore,
+  at most one node, namely <!-- MATH
+ $\ensuremath{\mathtt{u}}_r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1453.png"
+ ALT="$ \ensuremath{\mathtt{u}}_r$"></SPAN>, goes from being rugged to being
+  fragile.  If Case&nbsp;2 occurs, then a new node is created, and this node
+  is fragile, but no other node changes size, so the number of fragile
+  nodes increases by one.  Thus, in either Case&nbsp;1 or Case&nbsp;2 the potential
+  of the SEList increases by at most one.
+
+<P>
+Finally, if Case&nbsp;3 occurs, it is because <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1454.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_{\ensuremath{\mathtt{b}}-1}$"></SPAN>
+  are all fragile nodes.  Then <!-- MATH
+ $\ensuremath{\mathtt{spread(}}u_0\ensuremath{\mathtt{)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1455.png"
+ ALT="$ \ensuremath{\mathtt{spread(}}u_0\ensuremath{\mathtt{)}}$"></SPAN> is called and these <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1456.png"
+ ALT="$ \mathtt{b}$"></SPAN>
+  fragile nodes are replaced with <!-- MATH
+ $\ensuremath{\mathtt{b}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1457.png"
+ ALT="$ \ensuremath{\mathtt{b}}+1$"></SPAN> rugged nodes.  Finally, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1458.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+  is added to <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1459.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN>'s block, making <!-- MATH
+ $\ensuremath{\mathtt{u}}_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1460.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0$"></SPAN> fragile.  In total the
+  potential decreases by <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1461.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN>.
+
+<P>
+In summary, the potential starts at 0 (there are no nodes in the list).
+  Each time Case&nbsp;1 or Case&nbsp;2 occurs, the potential increases by at
+  most 1.  Each time Case&nbsp;3 occurs, the potential decreases by <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1462.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN>.
+  The potential (which counts the number of fragile nodes) is never
+  less than 0.  We conclude that, for every occurrence of Case&nbsp;3, there
+  are at least <!-- MATH
+ $\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1463.png"
+ ALT="$ \ensuremath{\mathtt{b}}-1$"></SPAN> occurrences of Case&nbsp;1 or Case&nbsp;2.  Thus, for every
+  call to <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1464.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN> there are at least <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1465.png"
+ ALT="$ \mathtt{b}$"></SPAN> calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1466.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>.  This
+  completes the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1439.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00636000000000000000">
+<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">6</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of the <TT>SEList</TT> data
+structure:
+
+<P>
+<P>
+<DIV><A NAME="thm:selist"><B>Theorem  <SPAN CLASS="arabic">3</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>An <TT>SEList</TT> implements the <TT>List</TT> interface.  Ignoring the cost of
+  calls to <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1467.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{gather(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1468.png"
+ ALT="$ \mathtt{gather(u)}$"></SPAN>, an <TT>SEList</TT> with block size <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1469.png"
+ ALT="$ \mathtt{b}$"></SPAN>
+  supports the operations
+  </I>
+<UL>
+<LI><!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1470.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1471.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> in <!-- MATH
+ $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1472.png"
+ ALT="$ O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN> time per operation; and
+</LI>
+<LI><!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1473.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1474.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> in <!-- MATH
+ $O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="151" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1475.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$"></SPAN> time per operation.
+  
+</LI>
+</UL><I>
+  Furthermore, beginning with an empty <TT>SEList</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1476.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1477.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1478.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations results in a total of <!-- MATH
+ $O(\ensuremath{\mathtt{b}}m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1479.png"
+ ALT="$ O(\ensuremath{\mathtt{b}}m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{spread(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1480.png"
+ ALT="$ \mathtt{spread(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{gather(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1481.png"
+ ALT="$ \mathtt{gather(u)}$"></SPAN>.
+</I>
+<P>
+<I>The space (measured in words)<A NAME="tex2html30"
+  HREF="#foot10078"><SUP><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A> used by an <TT>SEList</TT>
+  that stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1482.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements is <!-- MATH
+ $\ensuremath{\mathtt{n}} +O(\ensuremath{\mathtt{b}} + \ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1483.png"
+ ALT="$ \ensuremath{\mathtt{n}} +O(\ensuremath{\mathtt{b}} + \ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+The <TT>SEList</TT> is a trade-off between an <TT>ArrayList</TT> and a <TT>DLList</TT> where
+the relative mix of these two structures depends on the block size <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1484.png"
+ ALT="$ \mathtt{b}$"></SPAN>.
+At the extreme <!-- MATH
+ $\ensuremath{\mathtt{b}}=2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1485.png"
+ ALT="$ \ensuremath{\mathtt{b}}=2$"></SPAN>, each <TT>SEList</TT> node stores at most three values,
+which is not much different than a <TT>DLList</TT>. At the other extreme,
+<!-- MATH
+ $\ensuremath{\mathtt{b}}>\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1486.png"
+ ALT="$ \ensuremath{\mathtt{b}}&gt;\ensuremath{\mathtt{n}}$"></SPAN>, all the elements are stored in a single array, just like in
+an <TT>ArrayList</TT>.  In between these two extremes lies a trade-off between
+the time it takes to add or remove a list item and the time it takes to
+locate a particular list item.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot10078">... words)</A><A
+ HREF="3_3_SEList_Space_Efficient_.html#tex2html30"><SUP><SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>Recall Section&nbsp;<A HREF="1_4_Model_Computation.html#sec:model">1.4</A> for a
+  discussion of how memory is measured.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html555"
+  HREF="3_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html549"
+  HREF="3_Linked_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html543"
+  HREF="3_2_DLList_Doubly_Linked_Li.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html551"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html553"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html556"
+  HREF="3_4_Discussion_Exercises.html">3.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html550"
+  HREF="3_Linked_Lists.html">3. Linked Lists</A>
+<B> Previous:</B> <A NAME="tex2html544"
+  HREF="3_2_DLList_Doubly_Linked_Li.html">3.2 DLList: A Doubly-Linked</A>
+ &nbsp; <B>  <A NAME="tex2html552"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html554"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

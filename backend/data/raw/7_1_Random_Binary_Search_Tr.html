@@ -1,0 +1,1083 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>7.1 Random Binary Search Trees</TITLE>
+<META NAME="description" CONTENT="7.1 Random Binary Search Trees">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="7_2_Treap_Randomized_Binary.html">
+<LINK REL="previous" HREF="7_Random_Binary_Search_Tree.html">
+<LINK REL="up" HREF="7_Random_Binary_Search_Tree.html">
+<LINK REL="next" HREF="7_2_Treap_Randomized_Binary.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html836"
+  HREF="7_2_Treap_Randomized_Binary.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html830"
+  HREF="7_Random_Binary_Search_Tree.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html824"
+  HREF="7_Random_Binary_Search_Tree.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html832"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html834"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html837"
+  HREF="7_2_Treap_Randomized_Binary.html">7.2 Treap: A Randomized</A>
+<B> Up:</B> <A NAME="tex2html831"
+  HREF="7_Random_Binary_Search_Tree.html">7. Random Binary Search</A>
+<B> Previous:</B> <A NAME="tex2html825"
+  HREF="7_Random_Binary_Search_Tree.html">7. Random Binary Search</A>
+ &nbsp; <B>  <A NAME="tex2html833"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html835"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html838"
+  HREF="7_1_Random_Binary_Search_Tr.html#SECTION001011000000000000000"><SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Proof of Lemma&nbsp;7.1</A>
+<LI><A NAME="tex2html839"
+  HREF="7_1_Random_Binary_Search_Tr.html#SECTION001012000000000000000"><SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001010000000000000000"></A>
+<A NAME="sec:rbst"></A>
+<BR>
+<SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN> Random Binary Search Trees
+</H1>
+
+<P>
+Consider the two binary search trees shown in Figure&nbsp;<A HREF="#fig:rbs-lvc">7.1</A>, each of
+which has <!-- MATH
+ $\ensuremath{\mathtt{n}}=15$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2841.png"
+ ALT="$ \ensuremath{\mathtt{n}}=15$"></SPAN> nodes.  The one on the left is a list and the other
+is a perfectly balanced binary search tree. The one on the left has a
+height of <!-- MATH
+ $\ensuremath{\mathtt{n}}-1=14$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2842.png"
+ ALT="$ \ensuremath{\mathtt{n}}-1=14$"></SPAN> and the one on the right has a height of three.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:rbs-lvc"></A><A NAME="21141"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 7.1:</STRONG>
+Two binary search trees containing the integers <!-- MATH
+ $0,\ldots,14$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2845.png"
+ ALT="$ 0,\ldots,14$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="CENTER"><IMG
+ WIDTH="140" HEIGHT="214" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2843.png"
+ ALT="\includegraphics[scale=0.90909,scale=0.95]{figs/bst-path}"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="283" HEIGHT="134" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2844.png"
+ ALT="\includegraphics[scale=0.90909,scale=0.95]{figs/bst-balanced}"></TD>
+</TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Imagine how these two trees could have been constructed.  The one on
+the left occurs if we start with an empty <TT>BinarySearchTree</TT> and add
+the sequence
+<P><!-- MATH
+ \begin{displaymath}
+\langle 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 \rangle \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="281" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2847.png"
+ ALT="$\displaystyle \langle 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 \rangle \enspace .
+$">
+</DIV><P></P>
+No other sequence of additions will create this tree (as you can prove
+by induction on <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2848.png"
+ ALT="$ \mathtt{n}$"></SPAN>). On the other hand, the tree on the right can be
+created by the sequence
+<P><!-- MATH
+ \begin{displaymath}
+\langle 7,3,11,1,5,9,13,0,2,4,6,8,10,12,14 \rangle  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="281" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2849.png"
+ ALT="$\displaystyle \langle 7,3,11,1,5,9,13,0,2,4,6,8,10,12,14 \rangle \enspace .
+$">
+</DIV><P></P>
+Other sequences work as well, including
+<P><!-- MATH
+ \begin{displaymath}
+\langle 7,3,1,5,0,2,4,6,11,9,13,8,10,12,14 \rangle  \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="281" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2850.png"
+ ALT="$\displaystyle \langle 7,3,1,5,0,2,4,6,11,9,13,8,10,12,14 \rangle \enspace ,
+$">
+</DIV><P></P>
+and
+<P><!-- MATH
+ \begin{displaymath}
+\langle 7,3,1,11,5,0,2,4,6,9,13,8,10,12,14 \rangle \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="281" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2851.png"
+ ALT="$\displaystyle \langle 7,3,1,11,5,0,2,4,6,9,13,8,10,12,14 \rangle \enspace .
+$">
+</DIV><P></P>
+In fact, there are <!-- MATH
+ $21,964,800$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="85" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2852.png"
+ ALT="$ 21,964,800$"></SPAN> addition sequences that generate the
+tree on the right and only one that generates the tree on the left.
+
+<P>
+The above example gives some anecdotal evidence that, if we choose a
+random permutation of <!-- MATH
+ $0,\ldots,14$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2853.png"
+ ALT="$ 0,\ldots,14$"></SPAN>, and add it into a binary search
+tree, then we are more likely to get a very balanced tree (the right
+side of Figure&nbsp;<A HREF="#fig:rbs-lvc">7.1</A>) than we are to get a very unbalanced tree
+(the left side of Figure&nbsp;<A HREF="#fig:rbs-lvc">7.1</A>).
+
+<P>
+We can formalize this notion by studying random binary search trees.
+A <SPAN  CLASS="textit">random binary search tree</SPAN>
+<A NAME="21149"></A><A NAME="21150"></A>of size <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2854.png"
+ ALT="$ \mathtt{n}$"></SPAN> is obtained in the
+following way:  Take a random permutation, <!-- MATH
+ $\ensuremath{\mathtt{x}}_0,\ldots,\ensuremath{\mathtt{x}}_{\ensuremath{\mathtt{n}}-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2855.png"
+ ALT="$ \ensuremath{\mathtt{x}}_0,\ldots,\ensuremath{\mathtt{x}}_{\ensuremath{\mathtt{n}}-1}$"></SPAN>,
+of the integers <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2856.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN> and add its elements, one by one,
+into a <TT>BinarySearchTree</TT>.  By <SPAN  CLASS="textit">random permutation</SPAN>
+<A NAME="21158"></A><A NAME="21159"></A>we mean that
+each of the possible <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2857.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> permutations (orderings) of <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2858.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN>
+is equally likely, so that the probability of obtaining any particular
+permutation is <!-- MATH
+ $1/\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2859.png"
+ ALT="$ 1/\ensuremath{\mathtt{n}}!$"></SPAN>.
+
+<P>
+Note that the values <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2860.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN> could be replaced by any ordered
+set of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2861.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements without changing any of the properties of the
+random binary search tree.  The element <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2862.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$"></SPAN> is
+simply standing in for the element of rank <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2863.png"
+ ALT="$ \mathtt{x}$"></SPAN> in an ordered set of
+size <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2864.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+
+<P>
+Before we can present our main result about random binary search trees,
+we must take some time for a short digression to discuss a type of number
+that comes up frequently when studying randomized structures. For a
+non-negative integer, <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2865.png"
+ ALT="$ k$"></SPAN>, the <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2866.png"
+ ALT="$ k$"></SPAN>-th <SPAN  CLASS="textit">harmonic number</SPAN>,
+<A NAME="21170"></A><A NAME="21171"></A>denoted
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2868.png"
+ ALT="$ H_k$"></SPAN>, is defined as
+<P><!-- MATH
+ \begin{displaymath}
+H_k = 1 + 1/2 + 1/3 + \cdots + 1/k \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="208" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2869.png"
+ ALT="$\displaystyle H_k = 1 + 1/2 + 1/3 + \cdots + 1/k \enspace .
+$">
+</DIV><P></P>
+The harmonic number <SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2870.png"
+ ALT="$ H_k$"></SPAN> has no simple closed form, but it is very
+closely related to the natural logarithm of <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2871.png"
+ ALT="$ k$"></SPAN>.  In particular,
+<P><!-- MATH
+ \begin{displaymath}
+\ln k < H_k \le \ln k + 1  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="143" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2872.png"
+ ALT="$\displaystyle \ln k &lt; H_k \le \ln k + 1 \enspace .
+$">
+</DIV><P></P>
+Readers who have studied calculus might notice that this is because
+the integral <!-- MATH
+ $\int_1^k\! (1/x)\, \mathrm{d}x= \ln k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="114" HEIGHT="44" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2873.png"
+ ALT="$ \int_1^k\! (1/x)\, \mathrm{d}x= \ln k$"></SPAN>.  Keeping in mind that an integral can be
+interpreted as the area between a curve and the <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2874.png"
+ ALT="$ x$"></SPAN>-axis, the value of
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2875.png"
+ ALT="$ H_k$"></SPAN> can be lower-bounded by the integral <!-- MATH
+ $\int_1^k\! (1/x)\, \mathrm{d}x$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="44" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2876.png"
+ ALT="$ \int_1^k\! (1/x)\, \mathrm{d}x$"></SPAN> and upper-bounded by
+<!-- MATH
+ $1+ \int_1^k\! (1/x)\, \mathrm{d}x$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="44" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2877.png"
+ ALT="$ 1+ \int_1^k\! (1/x)\, \mathrm{d}x$"></SPAN>.  (See Figure&nbsp;<A HREF="#fig:harmonic-integral">7.2</A> for a graphical explanation.)
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:harmonic-integral"></A><A NAME="21809"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 7.2:</STRONG>
+The <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2880.png"
+ ALT="$ k$"></SPAN>th harmonic number <!-- MATH
+ $H_k=\sum_{i=1}^k 1/i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="97" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2881.png"
+ ALT="$ H_k=\sum_{i=1}^k 1/i$"></SPAN> is upper- and lower-bounded by two integrals. The value of these integrals is given by the 
+  area of the shaded region, while the value of <SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2882.png"
+ ALT="$ H_k$"></SPAN> is given by the area of
+  the rectangles.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="CENTER"><IMG
+ WIDTH="550" HEIGHT="362" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2878.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/harmonic-2}"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="545" HEIGHT="362" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2879.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/harmonic-3}"></TD>
+</TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<P>
+<DIV><A NAME="lem:rbs"><B>Lemma  <SPAN CLASS="arabic">7</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>In a random binary search tree of size <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2886.png"
+ ALT="$ \mathtt{n}$"></SPAN>, the following statements hold:
+  </I>
+<OL>
+<LI>For any <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2887.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$"></SPAN>, the expected length of the
+    search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2888.png"
+ ALT="$ \mathtt{x}$"></SPAN> is <!-- MATH
+ $H_{\ensuremath{\mathtt{x}}+1} + H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}} - O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="133" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2889.png"
+ ALT="$ H_{\ensuremath{\mathtt{x}}+1} + H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}} - O(1)$"></SPAN>.<A NAME="tex2html59"
+  HREF="#foot22136"><SUP><SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A>
+</LI>
+<LI>For any <!-- MATH
+ $\ensuremath{\mathtt{x}}\in(-1,n)\setminus\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="165" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2894.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in(-1,n)\setminus\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$"></SPAN>, the
+    expected length of the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2895.png"
+ ALT="$ \mathtt{x}$"></SPAN> is <!-- MATH
+ $H_{\lceil\ensuremath{\mathtt{x}}\rceil}
+    + H_{\ensuremath{\mathtt{n}}-\lceil\ensuremath{\mathtt{x}}\rceil}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2896.png"
+ ALT="$ H_{\lceil\ensuremath{\mathtt{x}}\rceil}
++ H_{\ensuremath{\mathtt{n}}-\lceil\ensuremath{\mathtt{x}}\rceil}$"></SPAN>.
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+We will prove Lemma&nbsp;<A HREF="#lem:rbs">7.1</A> in the next section.  For now, consider what
+the two parts of Lemma&nbsp;<A HREF="#lem:rbs">7.1</A> tell us.  The first part tells us that if
+we search for an element in a tree of size <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2897.png"
+ ALT="$ \mathtt{n}$"></SPAN>, then the expected length
+of the search path is at most <!-- MATH
+ $2\ln n + O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2898.png"
+ ALT="$ 2\ln n + O(1)$"></SPAN>.  The second part tells
+us the same thing about searching for a value not stored in the tree.
+When we compare the two parts of the lemma, we see that it is only
+slightly faster to search for something that is in the tree compared to
+something that is not.
+
+<P>
+
+<H2><A NAME="SECTION001011000000000000000"><SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Proof of Lemma&nbsp;<A HREF="#lem:rbs">7.1</A>
+</H2>
+
+<P>
+The key observation needed to prove Lemma&nbsp;<A HREF="#lem:rbs">7.1</A> is the following:
+The search path for a value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2899.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the open interval <!-- MATH
+ $(-1,\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="47" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2900.png"
+ ALT="$ (-1,\ensuremath{\mathtt{n}})$"></SPAN> in a
+random binary search tree, <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2901.png"
+ ALT="$ T$"></SPAN>, contains the node with key <!-- MATH
+ $i < \ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2902.png"
+ ALT="$ i &lt; \ensuremath{\mathtt{x}}$"></SPAN>
+if, and only if, in the random permutation used to create <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2903.png"
+ ALT="$ T$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2904.png"
+ ALT="$ i$"></SPAN>
+appears before any of <!-- MATH
+ $\{i+1,i+2,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="129" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2905.png"
+ ALT="$ \{i+1,i+2,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN>.
+
+<P>
+To see this, refer to Figure&nbsp;<A HREF="#fig:rbst-records">7.3</A> and notice that until
+some value in <!-- MATH
+ $\{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2906.png"
+ ALT="$ \{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN> is added, the search
+paths for each value in the open interval <!-- MATH
+ $(i-1,\lfloor\ensuremath{\mathtt{x}}\rfloor+1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2907.png"
+ ALT="$ (i-1,\lfloor\ensuremath{\mathtt{x}}\rfloor+1)$"></SPAN>
+are identical.  (Remember that for two values to have
+different search paths, there must be some element in the tree that
+compares differently with them.)  Let <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2908.png"
+ ALT="$ j$"></SPAN> be the first element in
+<!-- MATH
+ $\{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2909.png"
+ ALT="$ \{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN> to appear in the random permutation.
+Notice that <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2910.png"
+ ALT="$ j$"></SPAN> is now and will always be on the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2911.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+If <SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2912.png"
+ ALT="$ j\neq i$"></SPAN> then the node <!-- MATH
+ $\ensuremath{\mathtt{u}}_j$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2913.png"
+ ALT="$ \ensuremath{\mathtt{u}}_j$"></SPAN> containing <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2914.png"
+ ALT="$ j$"></SPAN> is created before the
+node <!-- MATH
+ $\ensuremath{\mathtt{u}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2915.png"
+ ALT="$ \ensuremath{\mathtt{u}}_i$"></SPAN> that contains <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2916.png"
+ ALT="$ i$"></SPAN>.  Later, when <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2917.png"
+ ALT="$ i$"></SPAN> is added, it will be
+added to the subtree rooted at <!-- MATH
+ $\ensuremath{\mathtt{u}}_j\ensuremath{\mathtt{.left}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2918.png"
+ ALT="$ \ensuremath{\mathtt{u}}_j\ensuremath{\mathtt{.left}}$"></SPAN>, since <SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2919.png"
+ ALT="$ i&lt;j$"></SPAN>.  On the other
+hand, the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2920.png"
+ ALT="$ \mathtt{x}$"></SPAN> will never visit this subtree because it
+will proceed to <!-- MATH
+ $\ensuremath{\mathtt{u}}_j\ensuremath{\mathtt{.right}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2921.png"
+ ALT="$ \ensuremath{\mathtt{u}}_j\ensuremath{\mathtt{.right}}$"></SPAN> after visiting <!-- MATH
+ $\ensuremath{\mathtt{u}}_j$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2922.png"
+ ALT="$ \ensuremath{\mathtt{u}}_j$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:rbst-records"></A><A NAME="22139"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 7.3:</STRONG>
+The value <!-- MATH
+ $i<\ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2924.png"
+ ALT="$ i&lt;\ensuremath{\mathtt{x}}$"></SPAN> is on the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2925.png"
+ ALT="$ \mathtt{x}$"></SPAN> if and only
+   if <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2926.png"
+ ALT="$ i$"></SPAN> is the first element among <!-- MATH
+ $\{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2927.png"
+ ALT="$ \{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN> added to the tree.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="552" HEIGHT="353" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2923.png"
+ ALT="% latex2html id marker 54970
+\includegraphics[width=\textwidth ]{figs/rbst-records}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Similarly, for <!-- MATH
+ $i>\ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2928.png"
+ ALT="$ i&gt;\ensuremath{\mathtt{x}}$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2929.png"
+ ALT="$ i$"></SPAN> appears in the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2930.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+if and only if <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2931.png"
+ ALT="$ i$"></SPAN> appears before any of <!-- MATH
+ $\{\lceil\ensuremath{\mathtt{x}}\rceil,
+\lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="144" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2932.png"
+ ALT="$ \{\lceil\ensuremath{\mathtt{x}}\rceil,
+\lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$"></SPAN> in the random permutation used to
+create <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2933.png"
+ ALT="$ T$"></SPAN>.
+
+<P>
+Notice that, if we start with a random permutation of <!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{n}}\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2934.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{n}}\}$"></SPAN>,
+then the subsequences containing only <!-- MATH
+ $\{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2935.png"
+ ALT="$ \{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN>
+and <!-- MATH
+ $\{\lceil\ensuremath{\mathtt{x}}\rceil, \lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="144" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2936.png"
+ ALT="$ \{\lceil\ensuremath{\mathtt{x}}\rceil, \lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$"></SPAN> are also random
+permutations of their respective elements.  Each element, then, in the
+subsets <!-- MATH
+ $\{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2937.png"
+ ALT="$ \{i,i+1,\ldots,\lfloor\ensuremath{\mathtt{x}}\rfloor\}$"></SPAN> and <!-- MATH
+ $\{\lceil\ensuremath{\mathtt{x}}\rceil,
+\lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="144" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2938.png"
+ ALT="$ \{\lceil\ensuremath{\mathtt{x}}\rceil,
+\lceil\ensuremath{\mathtt{x}}\rceil+1,\ldots,i-1\}$"></SPAN> is equally likely to appear before
+any other in its subset in the random permutation used to create <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2939.png"
+ ALT="$ T$"></SPAN>.
+So we have
+<P><!-- MATH
+ \begin{displaymath}
+\Pr\{\mbox{$i$\  is on the search path for \ensuremath{\mathtt{x}}}\}
+  = \left\{ \begin{array}{ll}
+     1/(\lfloor\ensuremath{\mathtt{x}}\rfloor-i+1) & \mbox{if $i < \ensuremath{\mathtt{x}}$} \\
+     1/(i-\lceil\ensuremath{\mathtt{x}}\rceil+1) & \mbox{if $i > \ensuremath{\mathtt{x}}$}
+     \end{array}\right . \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="26" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2940.png"
+ ALT="$\displaystyle \Pr\{$"><IMG
+ WIDTH="196" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2941.png"
+ ALT="$\displaystyle \mbox{$i$\ is on the search path for \ensuremath{\mathtt{x}}}$"><IMG
+ WIDTH="221" HEIGHT="56" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2942.png"
+ ALT="$\displaystyle \}
+= \left\{ \begin{array}{ll}
+1/(\lfloor\ensuremath{\mathtt{x}...
+...+1) &amp; \mbox{if $i &gt; \ensuremath{\mathtt{x}}$}
+\end{array}\right . \enspace .
+$">
+</DIV><P></P>
+
+<P>
+With this observation, the proof of Lemma&nbsp;<A HREF="#lem:rbs">7.1</A>
+involves some simple calculations with harmonic numbers:
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+[Proof of Lemma&nbsp;<A HREF="#lem:rbs">7.1</A>]
+Let <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2944.png"
+ ALT="$ I_i$"></SPAN> be the indicator random variable that is equal to one when <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2945.png"
+ ALT="$ i$"></SPAN>
+appears on the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2946.png"
+ ALT="$ \mathtt{x}$"></SPAN> and zero otherwise.  Then the length
+of the search path is given by
+<P><!-- MATH
+ \begin{displaymath}
+\sum_{i\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}\setminus\{\ensuremath{\mathtt{x}}\}} I_i
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="98" HEIGHT="57" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2947.png"
+ ALT="$\displaystyle \sum_{i\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}\setminus\{\ensuremath{\mathtt{x}}\}} I_i
+$">
+</DIV><P></P>
+so, if <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2948.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$"></SPAN>, the expected length of the search
+path is given by (see Figure&nbsp;<A HREF="#fig:rbst-probs">7.4</A>.a)
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="125" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2949.png"
+ ALT="$\displaystyle \mathrm{E}\left[\sum_{i=0}^{\ensuremath{\mathtt{x}}-1} I_i + \sum_{i=\ensuremath{\mathtt{x}}+1}^{\ensuremath{\mathtt{n}}-1} I_i\right]$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="158" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2950.png"
+ ALT="$\displaystyle = \sum_{i=0}^{\ensuremath{\mathtt{x}}-1} \mathrm{E}\left[I_i\righ...
+...nsuremath{\mathtt{x}}+1}^{\ensuremath{\mathtt{n}}-1} \mathrm{E}\left[I_i\right]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="275" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2951.png"
+ ALT="$\displaystyle = \sum_{i=0}^{\ensuremath{\mathtt{x}}-1} 1/(\lfloor\ensuremath{\m...
+...{x}}+1}^{\ensuremath{\mathtt{n}}-1} 1/(i-\lceil\ensuremath{\mathtt{x}}\rceil+1)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="250" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2952.png"
+ ALT="$\displaystyle = \sum_{i=0}^{\ensuremath{\mathtt{x}}-1} 1/(\ensuremath{\mathtt{x...
+...math{\mathtt{x}}+1}^{\ensuremath{\mathtt{n}}-1} 1/(i-\ensuremath{\mathtt{x}}+1)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="141" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2953.png"
+ ALT="$\displaystyle = \frac{1}{2}+\frac{1}{3}+\cdots+\frac{1}{\ensuremath{\mathtt{x}}+1}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="157" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2954.png"
+ ALT="$\displaystyle \quad {} + \frac{1}{2}+\frac{1}{3}+\cdots+\frac{1}{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2955.png"
+ ALT="$\displaystyle = H_{\ensuremath{\mathtt{x}}+1} + H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}} - 2 \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+The corresponding calculations for a search value
+<!-- MATH
+ $\ensuremath{\mathtt{x}}\in(-1,n)\setminus\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="165" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2956.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in(-1,n)\setminus\{0,\ldots,\ensuremath{\mathtt{n}}-1\}$"></SPAN> are almost identical (see
+Figure&nbsp;<A HREF="#fig:rbst-probs">7.4</A>.b).
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2943.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:rbst-probs"></A><A NAME="22160"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 7.4:</STRONG>
+The probabilities of an element being on the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2959.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+   when (a)&nbsp;<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2960.png"
+ ALT="$ \mathtt{x}$"></SPAN> is an integer and (b)&nbsp;when <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2961.png"
+ ALT="$ \mathtt{x}$"></SPAN> is not an integer.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="CENTER"><IMG
+ WIDTH="552" HEIGHT="64" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2957.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/rbst-probs-a}"></TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="CENTER">(a)</TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="CENTER"><IMG
+ WIDTH="552" HEIGHT="67" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2958.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/rbst-probs-b}"></TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD><TD ALIGN="CENTER">(b)</TD>
+<TD ALIGN="LEFT">&nbsp;</TD></TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<H2><A NAME="SECTION001012000000000000000">
+<SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of a random binary
+search tree:
+
+<P>
+<P>
+<DIV><A NAME="thm:rbs"><B>Theorem  <SPAN CLASS="arabic">7</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>A random binary search tree can be constructed in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2962.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> time.
+In a random binary search tree, the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2963.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation takes <!-- MATH
+ $O(\log
+\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2964.png"
+ ALT="$ O(\log
+\ensuremath{\mathtt{n}})$"></SPAN> expected time.</I></DIV><P></P>
+
+<P>
+We should emphasize again that the expectation in Theorem&nbsp;<A HREF="#thm:rbs">7.1</A> is with
+respect to the random permutation used to create the random binary
+search tree.  In particular, it does not depend on a random choice of
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2965.png"
+ ALT="$ \mathtt{x}$"></SPAN>; it is true for every value of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2966.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot22136">....</A><A
+ HREF="7_1_Random_Binary_Search_Tr.html#tex2html59"><SUP><SPAN CLASS="arabic">7</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>The
+    expressions <!-- MATH
+ $\ensuremath{\mathtt{x}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2890.png"
+ ALT="$ \ensuremath{\mathtt{x}}+1$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2891.png"
+ ALT="$ \ensuremath{\mathtt{n}}-\ensuremath{\mathtt{x}}$"></SPAN> can be interpreted respectively
+    as the number of elements in the tree less than or equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2892.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+    and the number of elements in the tree greater than or equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2893.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html836"
+  HREF="7_2_Treap_Randomized_Binary.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html830"
+  HREF="7_Random_Binary_Search_Tree.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html824"
+  HREF="7_Random_Binary_Search_Tree.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html832"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html834"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html837"
+  HREF="7_2_Treap_Randomized_Binary.html">7.2 Treap: A Randomized</A>
+<B> Up:</B> <A NAME="tex2html831"
+  HREF="7_Random_Binary_Search_Tree.html">7. Random Binary Search</A>
+<B> Previous:</B> <A NAME="tex2html825"
+  HREF="7_Random_Binary_Search_Tree.html">7. Random Binary Search</A>
+ &nbsp; <B>  <A NAME="tex2html833"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html835"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

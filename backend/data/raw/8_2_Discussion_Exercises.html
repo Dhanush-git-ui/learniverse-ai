@@ -1,0 +1,764 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>8.2 Discussion and Exercises</TITLE>
+<META NAME="description" CONTENT="8.2 Discussion and Exercises">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="previous" HREF="8_1_ScapegoatTree_Binary_Se.html">
+<LINK REL="up" HREF="8_Scapegoat_Trees.html">
+<LINK REL="next" HREF="9_Red_Black_Trees.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html909"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html903"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html899"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html905"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html907"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html910"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Up:</B> <A NAME="tex2html904"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+<B> Previous:</B> <A NAME="tex2html900"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">8.1 ScapegoatTree: A Binary</A>
+ &nbsp; <B>  <A NAME="tex2html906"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html908"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001120000000000000000">
+<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">2</SPAN> Discussion and Exercises</A>
+</H1>
+
+<P>
+The term <SPAN  CLASS="textit">scapegoat tree</SPAN> is due to Galperin and Rivest [<A
+ HREF="Bibliography.html#gr93">33</A>],
+who define and analyze these trees.  However, the same structure
+was discovered earlier by Andersson [<A
+ HREF="Bibliography.html#a89">5</A>,<A
+ HREF="Bibliography.html#a99">7</A>], who called them
+<SPAN  CLASS="textit">general balanced trees</SPAN>
+<A NAME="23730"></A>since they can have any shape as long as
+their height is small.
+
+<P>
+Experimenting with the <TT>ScapegoatTree</TT> implementation will reveal that
+it is often considerably slower than the other <TT>SSet</TT> implementations
+in this book. This may be somewhat surprising, since height bound of
+<P><!-- MATH
+ \begin{displaymath}
+\log_{3/2}\ensuremath{\mathtt{q}} \approx 1.709\log \ensuremath{\mathtt{n}} + O(1)
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="192" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3365.png"
+ ALT="$\displaystyle \log_{3/2}\ensuremath{\mathtt{q}} \approx 1.709\log \ensuremath{\mathtt{n}} + O(1)
+$">
+</DIV><P></P>
+is better than the expected length of a search path in a <TT>Skiplist</TT> and
+not too far from that of a <TT>Treap</TT>.  The implementation could be optimized
+by storing the sizes of subtrees explicitly at each node or by reusing
+already computed subtree sizes (Exercises&nbsp;<A HREF="#exc:scapegoat-quicksize">8.5</A>
+and <A HREF="#exc:scapegoat-explicitsize">8.6</A>).  Even with these optimizations,
+there will always be sequences of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3366.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{delete(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3367.png"
+ ALT="$ \mathtt{delete(x)}$"></SPAN> operation for
+which a <TT>ScapegoatTree</TT> takes longer than other <TT>SSet</TT> implementations.
+
+<P>
+This gap in performance is due to the fact that, unlike the other <TT>SSet</TT>
+implementations discussed in this book, a <TT>ScapegoatTree</TT> can spend a lot
+of time restructuring itself.  Exercise&nbsp;<A HREF="#exc:scapegoat-nlogn">8.3</A> asks you to prove
+that there are sequences of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3368.png"
+ ALT="$ \mathtt{n}$"></SPAN> operations in which a <TT>ScapegoatTree</TT>
+will spend on the order of <!-- MATH
+ $\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3369.png"
+ ALT="$ \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$"></SPAN> time in calls to <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3370.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN>.
+This is in contrast to other <TT>SSet</TT> implementations discussed in this
+book, which only make <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3371.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> structural changes during a sequence
+of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3372.png"
+ ALT="$ \mathtt{n}$"></SPAN> operations.  This is, unfortunately, a necessary consequence of
+the fact that a <TT>ScapegoatTree</TT> does all its restructuring by calls to
+<!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3373.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> [<A
+ HREF="Bibliography.html#d90">20</A>].
+
+<P>
+Despite their lack of performance, there are applications in which a
+<TT>ScapegoatTree</TT> could be the right choice.  This would occur any time
+there is additional data associated with nodes that cannot be updated
+in constant time when a rotation is performed, but that can be updated
+during a <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3374.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> operation.  In such cases, the <TT>ScapegoatTree</TT>
+and related structures based on partial rebuilding may work.  An example of such an application is outlined in Exercise&nbsp;<A HREF="#exc:list-order-maintenance">8.11</A>.
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+Illustrate the addition of the values 1.5 and then 1.6 on the
+  <TT>ScapegoatTree</TT> in Figure&nbsp;<A HREF="8_1_ScapegoatTree_Binary_Se.html#fig:scapegoat-example">8.1</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+Illustrate what happens when the sequence <SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3375.png"
+ ALT="$ 1,5,2,4,3$"></SPAN> is added to an
+  empty <TT>ScapegoatTree</TT>, and show where the credits described in the
+  proof of Lemma&nbsp;<A HREF="8_1_ScapegoatTree_Binary_Se.html#lem:scapegoat-amortized">8.3</A> go, and how they are used during
+  this sequence of additions.</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:scapegoat-nlogn"><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+Show that, if we start with an empty <TT>ScapegoatTree</TT> and call <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3376.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+  for <!-- MATH
+ $\ensuremath{\mathtt{x}}=1,2,3,\ldots,\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="104" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3377.png"
+ ALT="$ \ensuremath{\mathtt{x}}=1,2,3,\ldots,\ensuremath{\mathtt{n}}$"></SPAN>, then the total time spent during calls to
+  <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3378.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> is at least <!-- MATH
+ $c\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3379.png"
+ ALT="$ c\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$"></SPAN> for some constant <SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3380.png"
+ ALT="$ c&gt;0$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+The <TT>ScapegoatTree</TT>, as described in this chapter, guarantees that the
+  length of the search path does not exceed <!-- MATH
+ $\log_{3/2}\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3381.png"
+ ALT="$ \log_{3/2}\ensuremath{\mathtt{q}}$"></SPAN>.
+  
+<OL>
+<LI>Design, analyze, and implement a modified version of
+      <TT>ScapegoatTree</TT> where the length of the search path does not exceed
+      <!-- MATH
+ $\log_{\ensuremath{\mathtt{b}}} \ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3382.png"
+ ALT="$ \log_{\ensuremath{\mathtt{b}}} \ensuremath{\mathtt{q}}$"></SPAN>, where <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3383.png"
+ ALT="$ \mathtt{b}$"></SPAN> is a parameter with <!-- MATH
+ $1<\ensuremath{\mathtt{b}}<2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3384.png"
+ ALT="$ 1&lt;\ensuremath{\mathtt{b}}&lt;2$"></SPAN>.
+</LI>
+<LI>What does your analysis and/or your experiments say about the
+      amortized cost of <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3385.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3386.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3387.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> as a function
+      of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3388.png"
+ ALT="$ \mathtt{n}$"></SPAN> and <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3389.png"
+ ALT="$ \mathtt{b}$"></SPAN>?
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:scapegoat-quicksize"><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">5</SPAN></B></A> &nbsp; 
+Modify the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3390.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> method of the <TT>ScapegoatTree</TT> so that it does not
+  waste any time recomputing the sizes of subtrees that have already
+  been computed.  This is possible because, by the time the method
+  wants to compute <!-- MATH
+ $\mathtt{size(w)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3391.png"
+ ALT="$ \mathtt{size(w)}$"></SPAN>, it has already computed one of <!-- MATH
+ $\mathtt{size(w.left)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3392.png"
+ ALT="$ \mathtt{size(w.left)}$"></SPAN>
+  or <!-- MATH
+ $\mathtt{size(w.right)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="103" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3393.png"
+ ALT="$ \mathtt{size(w.right)}$"></SPAN>.  Compare the performance of your modified
+  implementation with the implementation given here.</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:scapegoat-explicitsize"><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">6</SPAN></B></A> &nbsp; 
+Implement a second version of the <TT>ScapegoatTree</TT> data structure that
+  explicitly stores and maintains the sizes of the subtree rooted at
+  each node.  Compare the performance of the resulting implementation
+  with that of the original <TT>ScapegoatTree</TT> implementation as well as
+  the implementation from Exercise&nbsp;<A HREF="#exc:scapegoat-quicksize">8.5</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">7</SPAN></B> &nbsp; 
+Reimplement the <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3394.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> method discussed at the beginning of this
+  chapter so that it does not require the use of an array to store the
+  nodes of the subtree being rebuilt.  Instead, it should use recursion
+  to first connect the nodes into a linked list and then convert this
+  linked list into a perfectly balanced binary tree.  (There are
+  very elegant recursive implementations of both steps.)</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">8</SPAN></B> &nbsp; 
+<A NAME="24131"></A>Analyze and implement a <TT>WeightBalancedTree</TT>. This is a tree in
+  which each node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3395.png"
+ ALT="$ \mathtt{u}$"></SPAN>, except the root, maintains the <SPAN  CLASS="textit">balance
+  invariant</SPAN> that <!-- MATH
+ $\ensuremath{\mathtt{size(u)}} \le (2/3)\ensuremath{\mathtt{size(u.parent)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="216" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3396.png"
+ ALT="$ \ensuremath{\mathtt{size(u)}} \le (2/3)\ensuremath{\mathtt{size(u.parent)}}$"></SPAN>.  The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3397.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and
+  <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3398.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations are identical to the standard <TT>BinarySearchTree</TT>
+  operations, except that any time the balance invariant is violated at
+  a node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3399.png"
+ ALT="$ \mathtt{u}$"></SPAN>, the subtree rooted at <!-- MATH
+ $\mathtt{u.parent}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3400.png"
+ ALT="$ \mathtt{u.parent}$"></SPAN> is rebuilt.
+  Your analysis should show that operations on a <TT>WeightBalancedTree</TT>
+  run in <!-- MATH
+ $O(\log\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3401.png"
+ ALT="$ O(\log\ensuremath{\mathtt{n}})$"></SPAN> amortized time.  </DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">9</SPAN></B> &nbsp; 
+<A NAME="24140"></A>Analyze and implement a <TT>CountdownTree</TT>.  In a <TT>CountdownTree</TT> each
+  node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3402.png"
+ ALT="$ \mathtt{u}$"></SPAN> keeps a <SPAN  CLASS="textit">timer</SPAN> <!-- MATH
+ $\mathtt{u.t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3403.png"
+ ALT="$ \mathtt{u.t}$"></SPAN>.  The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3404.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3405.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+  operations are exactly the same as in a standard <TT>BinarySearchTree</TT>
+  except that, whenever one of these operations affects <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3406.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s subtree,
+  <!-- MATH
+ $\mathtt{u.t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3407.png"
+ ALT="$ \mathtt{u.t}$"></SPAN> is decremented.  When <!-- MATH
+ $\ensuremath{\mathtt{u.t}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3408.png"
+ ALT="$ \ensuremath{\mathtt{u.t}}=0$"></SPAN> the entire subtree rooted at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3409.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+  is rebuilt into a perfectly balanced binary search tree.  When a node
+  <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3410.png"
+ ALT="$ \mathtt{u}$"></SPAN> is involved in a rebuilding operation (either because <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3411.png"
+ ALT="$ \mathtt{u}$"></SPAN> is rebuilt
+  or one of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3412.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s ancestors is rebuilt) <!-- MATH
+ $\mathtt{u.t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3413.png"
+ ALT="$ \mathtt{u.t}$"></SPAN> is reset to <!-- MATH
+ $\ensuremath{\mathtt{size(u)}}/3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3414.png"
+ ALT="$ \ensuremath{\mathtt{size(u)}}/3$"></SPAN>.
+
+<P>
+Your analysis should show that operations on a <TT>CountdownTree</TT> run
+  in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3415.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> amortized time.  (Hint: First show that each node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3416.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+  satisfies some version of a balance invariant.)</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">10</SPAN></B> &nbsp; 
+<A NAME="24156"></A>Analyze and implement a <TT>DynamiteTree</TT>.  In a <TT>DynamiteTree</TT> each
+  node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3417.png"
+ ALT="$ \mathtt{u}$"></SPAN> keeps tracks of the size of the subtree rooted at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3418.png"
+ ALT="$ \mathtt{u}$"></SPAN> in a
+  variable <!-- MATH
+ $\mathtt{u.size}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3419.png"
+ ALT="$ \mathtt{u.size}$"></SPAN>.  The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3420.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3421.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations are exactly
+  the same as in a standard <TT>BinarySearchTree</TT> except that, whenever one
+  of these operations affects a node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3422.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s subtree, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3423.png"
+ ALT="$ \mathtt{u}$"></SPAN> <SPAN  CLASS="textit">explodes</SPAN>
+  with probability <!-- MATH
+ $1/\ensuremath{\mathtt{u.size}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3424.png"
+ ALT="$ 1/\ensuremath{\mathtt{u.size}}$"></SPAN>.  When <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3425.png"
+ ALT="$ \mathtt{u}$"></SPAN> explodes, its entire subtree
+  is rebuilt into a perfectly balanced binary search tree.
+
+<P>
+Your analysis should show that operations on a <TT>DynamiteTree</TT> run
+  in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3426.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> expected time. </DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:list-order-maintenance"><B>Exercise  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">11</SPAN></B></A> &nbsp; 
+<A NAME="24167"></A>Design and implement a <TT>Sequence</TT> data structure that maintains a
+  sequence (list) of elements.  It supports these operations:
+  
+<UL>
+<LI><!-- MATH
+ $\mathtt{addAfter(e)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3427.png"
+ ALT="$ \mathtt{addAfter(e)}$"></SPAN>: Add a new element after the element <!-- MATH
+ $\mathtt{e}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3428.png"
+ ALT="$ \mathtt{e}$"></SPAN> in the
+    sequence.  Return the newly added element.  (If <!-- MATH
+ $\mathtt{e}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3429.png"
+ ALT="$ \mathtt{e}$"></SPAN> is null,
+    the new element is added at the beginning of the sequence.)
+</LI>
+<LI><!-- MATH
+ $\mathtt{remove(e)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3430.png"
+ ALT="$ \mathtt{remove(e)}$"></SPAN>: Remove <!-- MATH
+ $\mathtt{e}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3431.png"
+ ALT="$ \mathtt{e}$"></SPAN> from the sequence.
+</LI>
+<LI><!-- MATH
+ $\mathtt{testBefore(e1,e2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3432.png"
+ ALT="$ \mathtt{testBefore(e1,e2)}$"></SPAN>: return <!-- MATH
+ $\mathtt{true}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3433.png"
+ ALT="$ \mathtt{true}$"></SPAN> if and only if <!-- MATH
+ $\mathtt{e1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3434.png"
+ ALT="$ \mathtt{e1}$"></SPAN> comes
+    before <!-- MATH
+ $\mathtt{e2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3435.png"
+ ALT="$ \mathtt{e2}$"></SPAN> in the sequence.
+  
+</LI>
+</UL>
+  The first two operations should run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3436.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> amortized time.
+  The third operation should run in constant time.
+
+<P>
+The <TT>Sequence</TT> data structure can be implemented by storing the elements
+  in something like a <TT>ScapegoatTree</TT>, in the same order that they occur
+  in the sequence.  To implement <!-- MATH
+ $\mathtt{testBefore(e1,e2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3437.png"
+ ALT="$ \mathtt{testBefore(e1,e2)}$"></SPAN> in constant time,
+  each element <!-- MATH
+ $\mathtt{e}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3438.png"
+ ALT="$ \mathtt{e}$"></SPAN> is labelled with an integer that encodes the path from
+  the root to <!-- MATH
+ $\mathtt{e}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3439.png"
+ ALT="$ \mathtt{e}$"></SPAN>.  In this way, <!-- MATH
+ $\mathtt{testBefore(e1,e2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3440.png"
+ ALT="$ \mathtt{testBefore(e1,e2)}$"></SPAN> can be implemented
+  by comparing the labels of <!-- MATH
+ $\mathtt{e1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3441.png"
+ ALT="$ \mathtt{e1}$"></SPAN> and <!-- MATH
+ $\mathtt{e2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3442.png"
+ ALT="$ \mathtt{e2}$"></SPAN>.</DIV><P></P>
+
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html909"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html903"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html899"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html905"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html907"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html910"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Up:</B> <A NAME="tex2html904"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+<B> Previous:</B> <A NAME="tex2html900"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">8.1 ScapegoatTree: A Binary</A>
+ &nbsp; <B>  <A NAME="tex2html906"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html908"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

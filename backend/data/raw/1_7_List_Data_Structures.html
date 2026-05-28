@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>1.7 List of Data Structures</TITLE>
+<META NAME="description" CONTENT="1.7 List of Data Structures">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="1_8_Discussion_Exercises.html">
+<LINK REL="previous" HREF="1_6_Code_Samples.html">
+<LINK REL="up" HREF="1_Introduction.html">
+<LINK REL="next" HREF="1_8_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html351"
+  HREF="1_8_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html345"
+  HREF="1_Introduction.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html339"
+  HREF="1_6_Code_Samples.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html347"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html349"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html352"
+  HREF="1_8_Discussion_Exercises.html">1.8 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html346"
+  HREF="1_Introduction.html">1. Introduction</A>
+<B> Previous:</B> <A NAME="tex2html340"
+  HREF="1_6_Code_Samples.html">1.6 Code Samples</A>
+ &nbsp; <B>  <A NAME="tex2html348"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html350"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00470000000000000000">
+<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">7</SPAN> List of Data Structures</A>
+</H1>
+
+<P>
+Tables&nbsp;<A HREF="#tab:summary-i">1.1</A> and <A HREF="#tab:summary-ii">1.2</A> summarize the
+performance of data structures in this book that implement each of the
+interfaces, <TT>List</TT>, <TT>USet</TT>, and <TT>SSet</TT>, described in Section&nbsp;<A HREF="1_2_Interfaces.html#sec:interfaces">1.2</A>.
+Figure&nbsp;<A HREF="#fig:dependencies">1.6</A> shows the dependencies between various chapters in
+this book.
+<A NAME="2371"></A>A dashed arrow indicates only a weak dependency, in which
+only a small part of the chapter depends on a previous chapter or only
+the main results of the previous chapter.
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="2760"></A>
+<TABLE>
+<CAPTION><STRONG>Table 1.1:</STRONG>
+Summary of <TT>List</TT> and <TT>USet</TT> implementations.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<!-- MATH
+ $\resizebox{.98\textwidth}{!}{
+\begin{threeparttable}
+\begin{tabular}{|l|l|l|l|} \hline
+\multicolumn{4}{|c|}{\texttt{List} implementations} \\\hline
+& \ensuremath{\mathtt{get(i)}}/\ensuremath{\mathtt{set(i,x)}} & \ensuremath{\mathtt{add(i,x)}}/\ensuremath{\mathtt{remove(i)}} & \\\hline
+\texttt{ArrayStack} & $O(1)$\  & $O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$\tnote{A} & \textsection~\ref{sec:arraystack} \\
+\texttt{ArrayDeque} & $O(1)$\  & $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$\tnote{A} & \textsection~\ref{sec:arraydeque} \\
+\texttt{DualArrayDeque} & $O(1)$\  & $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$\tnote{A} & \textsection~\ref{sec:dualarraydeque}\\
+\texttt{RootishArrayStack} & $O(1)$\  & $O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$\tnote{A}  & \textsection~\ref{sec:rootisharraystack} \\
+\texttt{DLList} & $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$\  & $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$\   & \textsection~\ref{sec:dllist} \\
+\texttt{SEList} & $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$\  & $O(\ensuremath{\mathtt{b}}+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\}/\ensuremath{\mathtt{b}})$\tnote{A}  & \textsection~\ref{sec:selist} \\
+\texttt{SkiplistList} & $O(\log \ensuremath{\mathtt{n}})$\tnote{E} & $O(\log \ensuremath{\mathtt{n}})$\tnote{E}  & \textsection~\ref{sec:skiplistlist} \\\hline
+\multicolumn{4}{c}{} \\[2ex] \hline
+\multicolumn{4}{|c|}{\texttt{USet} implementations} \\\hline
+& \ensuremath{\mathtt{find(x)}} & \ensuremath{\mathtt{add(x)}}/\ensuremath{\mathtt{remove(x)}} & \\\hline
+\texttt{ChainedHashTable} & $O(1)$\tnote{E} & $O(1)$\tnote{A,E} & \textsection~\ref{sec:hashtable} \\
+\texttt{LinearHashTable} & $O(1)$\tnote{E} & $O(1)$\tnote{A,E} & \textsection~\ref{sec:linearhashtable} \\\hline
+\end{tabular}
+\begin{tablenotes}
+\item[A]{Denotes an \emph{amortized} running time.}
+\item[E]{Denotes an \emph{expected} running time.}
+\end{tablenotes}
+\end{threeparttable}}$
+ -->
+<IMG
+ WIDTH="542" HEIGHT="330" ALIGN="BOTTOM" BORDER="0"
+ SRC="img398.png"
+ ALT="% latex2html id marker 3455
+\resizebox{.98\textwidth}{!}{
+\begin{threeparttable...
+...{Denotes an \emph{expected} running time.}
+\end{tablenotes}\end{threeparttable}}">
+</DIV>
+
+<A NAME="tab:summary-i"></A></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="2791"></A>
+<TABLE>
+<CAPTION><STRONG>Table 1.2:</STRONG>
+Summary of <TT>SSet</TT> and priority <TT>Queue</TT> implementations.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<BR>
+<IMG
+ WIDTH="420" HEIGHT="391" BORDER="0"
+ SRC="img399.png"
+ ALT="\begin{threeparttable}
+% latex2html id marker 2465\begin{tabular}{\vert l\vert...
+...emory model; see Chapter~\ref{chap:btree}.}
+\end{tablenotes}\end{threeparttable}">
+<BR>
+</DIV>
+
+<A NAME="tab:summary-ii"></A></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:dependencies"></A><A NAME="2556"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.6:</STRONG>
+The dependencies between chapters in this book.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="555" HEIGHT="494" ALIGN="BOTTOM" BORDER="0"
+ SRC="img400.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/dependencies}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<BR><HR>
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

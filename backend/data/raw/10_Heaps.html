@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>10. Heaps</TITLE>
+<META NAME="description" CONTENT="10. Heaps">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="11_Sorting_Algorithms.html">
+<LINK REL="previous" HREF="9_Red_Black_Trees.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="10_1_BinaryHeap_Implicit_Bi.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1001"
+  HREF="10_1_BinaryHeap_Implicit_Bi.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html995"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html989"
+  HREF="9_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html997"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html999"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1002"
+  HREF="10_1_BinaryHeap_Implicit_Bi.html">10.1 BinaryHeap: An Implicit</A>
+<B> Up:</B> <A NAME="tex2html996"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html990"
+  HREF="9_4_Discussion_Exercises.html">9.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html998"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1000"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001300000000000000000"></A>
+<A NAME="chap:heaps"></A>
+<BR>
+<SPAN CLASS="arabic">10</SPAN>. Heaps
+</H1>
+
+<P>
+In this chapter, we discuss two implementations of the extremely useful
+priority <TT>Queue</TT> data structure.  Both of these structures are a special
+kind of binary tree called a <SPAN  CLASS="textit">heap</SPAN>, 
+<A NAME="27183"></A><A NAME="27184"></A><A NAME="27185"></A>which means ``a disorganized
+pile.''  This is in contrast to binary search trees that can be thought
+of as a highly organized pile.
+
+<P>
+The first heap implementation uses an array to simulate a complete binary
+tree.  This very fast implementation is the basis of one of the fastest
+known sorting algorithms, namely heapsort (see Section&nbsp;<A HREF="11_1_Comparison_Based_Sorti.html#sec:heapsort">11.1.3</A>).
+The second implementation is based on more flexible binary trees.
+It supports a <!-- MATH
+ $\mathtt{meld(h)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3837.png"
+ ALT="$ \mathtt{meld(h)}$"></SPAN> operation that allows the priority queue to
+absorb the elements of a second priority queue <!-- MATH
+ $\mathtt{h}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3838.png"
+ ALT="$ \mathtt{h}$"></SPAN>.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1003"
+  HREF="10_1_BinaryHeap_Implicit_Bi.html"><SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>BinaryHeap</TT>: An Implicit Binary Tree</A>
+<LI><A NAME="tex2html1004"
+  HREF="10_2_MeldableHeap_Randomize.html"><SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>MeldableHeap</TT>: A Randomized Meldable Heap</A>
+<LI><A NAME="tex2html1005"
+  HREF="10_3_Discussion_Exercises.html"><SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">3</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

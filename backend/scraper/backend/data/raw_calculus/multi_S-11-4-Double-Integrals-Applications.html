@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<!--********************************************-->
+<!--*       Generated from PreTeXt source      *-->
+<!--*                                          *-->
+<!--*         https://pretextbook.org          *-->
+<!--*                                          *-->
+<!--********************************************-->
+<html lang="en-US" dir="ltr">
+<!--******************************************-->
+<!--*  Authored with PreTeXt                 *-->
+<!--*  pretextbook.org                       *-->
+<!--*  Theme: default-modern                 *-->
+<!--*  Palette:                              *-->
+<!--******************************************-->
+<head xmlns:og="http://ogp.me/ns#" xmlns:book="https://ogp.me/ns/book#">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Applications of Double Integrals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<link href="_static/pretext/css/theme.css" rel="stylesheet" type="text/css">
+<link href="_static/pretext/css/ol-markers.css" rel="stylesheet" type="text/css">
+<script>
+var runestoneMathReady = new Promise((resolve) => window.rsMathReady = resolve);
+window.MathJax = {
+  "tex": {
+    "inlineMath": [
+      [
+        "\\(",
+        "\\)"
+      ]
+    ],
+    "tags": "none",
+    "tagSide": "right",
+    "tagIndent": ".8em",
+    "packages": {
+      "[+]": [
+        "base",
+        "extpfeil",
+        "ams",
+        "amscd",
+        "color",
+        "newcommand",
+        "knowl"
+      ]
+    }
+  },
+  "options": {
+    "ignoreHtmlClass": "tex2jax_ignore|ignore-math",
+    "processHtmlClass": "process-math",
+    "renderActions": {
+      "findScript": [
+        10,
+        function (doc) {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(function(node) {
+                var display = !!node.type.match(/; *mode=display/);
+                var math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                var text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = {node: text, delim: '', n: 0};
+                math.end = {node: text, delim: '', n: 0};
+                doc.math.push(math);
+            });
+        },
+        ""
+      ]
+    }
+  },
+  "chtml": {
+    "scale": 0.98,
+    "mtextInheritFont": true
+  },
+  "loader": {
+    "load": [
+      "input/asciimath",
+      "[tex]/extpfeil",
+      "[tex]/amscd",
+      "[tex]/color",
+      "[tex]/newcommand",
+      "[pretext]/mathjaxknowl3.js"
+    ],
+    "paths": {
+      "pretext": "_static/pretext/js/lib"
+    }
+  },
+  "startup": {
+    pageReady() {
+      return MathJax.startup.defaultPageReady().then(function () {
+      console.log("in ready function");
+      rsMathReady();
+      }
+    )}
+  }
+};
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><meta name="Keywords" content="Authored in PreTeXt">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:type" content="book">
+<meta property="book:title" content="Active Calculus - Multivariable">
+<meta property="book:author" content="Steve Schlicker">
+<meta property="book:author" content="Mitchel T. Keller">
+<meta property="book:author" content="Nicholas Long">
+<script src="_static/pretext/js/lib/jquery.min.js"></script><script src="_static/pretext/js/lib/jquery.sticky.js"></script><script src="_static/pretext/js/lib/jquery.espy.min.js"></script><script src="_static/pretext/js/pretext.js"></script><script src="_static/pretext/js/pretext_add_on.js?x=1"></script><script src="_static/pretext/js/user_preferences.js"></script><!--** eBookCongig is necessary to configure interactive       **-->
+<!--** Runestone components to run locally in reader's browser **-->
+<!--** No external communication:                              **-->
+<!--**     log level is 0, Runestone Services are disabled     **-->
+<script type="text/javascript">
+eBookConfig = {};
+eBookConfig.useRunestoneServices = false;
+eBookConfig.host = 'http://127.0.0.1:8000';
+eBookConfig.course = 'PTX_Course_Title_Here';
+eBookConfig.basecourse = 'PTX_Base_Course';
+eBookConfig.isLoggedIn = false;
+eBookConfig.email = '';
+eBookConfig.isInstructor = false;
+eBookConfig.logLevel = 0;
+eBookConfig.username = '';
+eBookConfig.readings = null;
+eBookConfig.activities = null;
+eBookConfig.downloadsEnabled = false;
+eBookConfig.allow_pairs = false;
+eBookConfig.enableScratchAC = false;
+eBookConfig.build_info = "";
+eBookConfig.python3 = null;
+eBookConfig.runestone_version = '7.11.0';
+eBookConfig.jobehost = '';
+eBookConfig.proxyuri_runs = '';
+eBookConfig.proxyuri_files = '';
+eBookConfig.enable_chatcodes =  false;
+</script>
+<!--*** Runestone Services ***-->
+<script src="_static/prefix-runtime.f91c1a4dc12163f2.bundle.js"></script><script src="_static/prefix-723.3e6434f80549315a.bundle.js"></script><script src="_static/prefix-runestone.731d8387162b79c1.bundle.js"></script><link rel="stylesheet" type="text/css" href="_static/prefix-723.3bccd435914aa0ff.css">
+<link rel="stylesheet" type="text/css" href="_static/prefix-runestone.557d81b04b3ec0e4.css">
+<script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script><script src="_static/pretext/js/pretext-webwork/2.20/pretext-webwork.js"></script><script src="https://webwork-ptx.aimath.org/webwork2_files/node_modules/iframe-resizer/js/iframeResizer.min.js"></script><script src="_static/pretext/js/lti_iframe_resizer.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/autoloader/prism-autoloader.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" integrity="sha512-dubtf8xMHSQlExGRQ5R7toxHLgSDZ0K7AunqPWHXmJQ8XyVIG19S1T95gBxlAeGOK02P4Da2RTnQz0Za0H0ebQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-highlight/prism-line-highlight.min.js" integrity="sha512-93uCmm0q+qO5Lb1huDqr7tywS8A2TFA+1/WHvyiWaK6/pvsFl6USnILagntBx8JnVbQH5s3n0vQZY6xNthNfKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js" integrity="sha512-4xUl/d6D6THrAnXAwGajXkoWaeMNwEKK4iNfq5DotEbLPAfk6FSxSP3ydNxqDgCw1c/0Z1Jg6L8h2j+++9BZmg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="lunr-pretext-search-index.js" async=""></script><script src="_static/pretext/js/pretext_search.js"></script><script src="_static/pretext/js/lib/knowl.js"></script><!--knowl.js code controls Sage Cells within knowls--><script>sagecellEvalName='Evaluate (Sage)';
+</script>
+</head>
+<body id="acmulti" class="pretext book ignore-math">
+<a class="assistive" href="#ptx-content">Skip to main content</a><header id="ptx-masthead" class="ptx-masthead"><div class="ptx-banner"><div class="title-container">
+<h1 class="heading"><a href="root-1-2.html"><span class="title">Active Calculus - Multivariable</span></a></h1>
+<p class="byline">Steve Schlicker, Mitchel T. Keller, Nicholas Long</p>
+</div></div></header><nav id="ptx-navbar" class="ptx-navbar navbar"><div class="ptx-navbar-contents">
+<button class="toc-toggle button" title="Contents"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5d2;</span><span class="name">Contents</span></button><a class="index-button button" href="root-1-2-7-1.html" title="Index"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span><span class="name">Index</span></a><div class="searchbox">
+<div class="searchwidget"><button id="searchbutton" class="searchbutton button" type="button" title="Search book"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe8b6;</span><span class="name">Search Book</span></button></div>
+<div id="searchresultsplaceholder" class="searchresultsplaceholder" style="display: none">
+<div class="search-results-controls">
+<input aria-label="Search term" id="ptxsearch" class="ptxsearch" type="text" name="terms" placeholder="Search term"><button title="Close search" id="closesearchresults" class="closesearchresults"><span class="material-symbols-outlined">close</span></button>
+</div>
+<h2 class="search-results-heading">Search Results: </h2>
+<div id="searchempty" class="searchempty"><span>No results.</span></div>
+<ol id="searchresults" class="searchresults"></ol>
+</div>
+</div>
+<span class="nav-other-controls"><button id="light-dark-button" class="light-dark-button button" title="Dark Mode"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe51c;</span><span class="name">Dark Mode</span></button></span><span class="treebuttons"><a class="previous-button button" href="S-11-3-Double-Integrals-General.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="up-button button" href="C-11.html" title="Up"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Up</span></a><a class="next-button button" href="S-11-5-Double-Integrals-Polar.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a></span>
+</div></nav><div id="latex-macros" class="hidden-content process-math" style="display:none"><span class="process-math">\(\newcommand{\R}{\mathbb{R}}
+\newcommand{\va}{\mathbf{a}}
+\newcommand{\vb}{\mathbf{b}}
+\newcommand{\vc}{\mathbf{c}}
+\newcommand{\vC}{\mathbf{C}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\ve}{\mathbf{e}}
+\newcommand{\vi}{\mathbf{i}}
+\newcommand{\vj}{\mathbf{j}}
+\newcommand{\vk}{\mathbf{k}}
+\newcommand{\vn}{\mathbf{n}}
+\newcommand{\vm}{\mathbf{m}}
+\newcommand{\vr}{\mathbf{r}}
+\newcommand{\vs}{\mathbf{s}}
+\newcommand{\vu}{\mathbf{u}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vz}{\mathbf{z}}
+\newcommand{\vzero}{\mathbf{0}}
+\newcommand{\vF}{\mathbf{F}}
+\newcommand{\vG}{\mathbf{G}}
+\newcommand{\vH}{\mathbf{H}}
+\newcommand{\vR}{\mathbf{R}}
+\newcommand{\vT}{\mathbf{T}}
+\newcommand{\vN}{\mathbf{N}}
+\newcommand{\vL}{\mathbf{L}}
+\newcommand{\vB}{\mathbf{B}}
+\newcommand{\vS}{\mathbf{S}}
+\newcommand{\proj}{\text{proj}}
+\newcommand{\comp}{\text{comp}}
+\newcommand{\nin}{}
+\newcommand{\vecmag}[1]{|#1|}
+\newcommand{\grad}{\nabla}
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\divg}{div}
+\newcommand{\lt}{&lt;}
+\newcommand{\gt}{&gt;}
+\newcommand{\amp}{&amp;}
+\definecolor{fillinmathshade}{gray}{0.9}
+\newcommand{\fillinmath}[1]{\mathchoice{\colorbox{fillinmathshade}{$\displaystyle     \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\textstyle        \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptstyle      \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptscriptstyle\phantom{\,#1\,}$}}}
+\)</span></div>
+<div class="ptx-page">
+<div id="ptx-sidebar" class="ptx-sidebar"><nav id="ptx-toc" class="ptx-toc depth2 focused" data-preexpanded-levels="0" data-max-levels="2"><ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-frontmatter">
+<div class="toc-title-box"><a href="frontmatter.html" class="internal"><span class="title">Front Matter</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-colophon"><div class="toc-title-box"><a href="front-colophon.html" class="internal"><span class="title">Colophon</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-4.html" class="internal"><span class="title">Features of the Text</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-5.html" class="internal"><span class="title">Vector Calculus Preface</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-6.html" class="internal"><span class="title">Acknowledgments</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-7.html" class="internal"><span class="title">Active Calculus - Multivariable: our goals</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-8.html" class="internal"><span class="title">How to Use this Text</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-9.html" class="internal"><span class="codenumber">9</span> <span class="title">Multivariable and Vector Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-1-Functions.html" class="internal"><span class="codenumber">9.1</span> <span class="title">Functions of Several Variables and Three Dimensional Space</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-4" class="internal"><span class="codenumber">9.1.1</span> <span class="title">Functions of Several Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-5" class="internal"><span class="codenumber">9.1.2</span> <span class="title">Representing Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-6" class="internal"><span class="codenumber">9.1.3</span> <span class="title">Some Standard Equations in Three-Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-7" class="internal"><span class="codenumber">9.1.4</span> <span class="title">Traces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-8" class="internal"><span class="codenumber">9.1.5</span> <span class="title">Contour Maps and Level Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-9" class="internal"><span class="codenumber">9.1.6</span> <span class="title">A gallery of functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-10" class="internal"><span class="codenumber">9.1.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-11" class="internal"><span class="codenumber">9.1.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-2-Vectors.html" class="internal"><span class="codenumber">9.2</span> <span class="title">Vectors</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-4" class="internal"><span class="codenumber">9.2.1</span> <span class="title">Representations of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-5" class="internal"><span class="codenumber">9.2.2</span> <span class="title">Equality of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-6" class="internal"><span class="codenumber">9.2.3</span> <span class="title">Operations on Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-7" class="internal"><span class="codenumber">9.2.4</span> <span class="title">Properties of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-8" class="internal"><span class="codenumber">9.2.5</span> <span class="title">Geometric Interpretation of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-9" class="internal"><span class="codenumber">9.2.6</span> <span class="title">The Magnitude of a Vector</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-10" class="internal"><span class="codenumber">9.2.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-11" class="internal"><span class="codenumber">9.2.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-3-Dot-Product.html" class="internal"><span class="codenumber">9.3</span> <span class="title">The Dot Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-4" class="internal"><span class="codenumber">9.3.1</span> <span class="title">The Dot Product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-5" class="internal"><span class="codenumber">9.3.2</span> <span class="title">The angle between vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-6" class="internal"><span class="codenumber">9.3.3</span> <span class="title">The Dot Product and Orthogonality</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-7" class="internal"><span class="codenumber">9.3.4</span> <span class="title">Work, Force, and Displacement</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-8" class="internal"><span class="codenumber">9.3.5</span> <span class="title">Projections</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-9" class="internal"><span class="codenumber">9.3.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-10" class="internal"><span class="codenumber">9.3.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-4-Cross-Product.html" class="internal"><span class="codenumber">9.4</span> <span class="title">The Cross Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-4" class="internal"><span class="codenumber">9.4.1</span> <span class="title">Computing the cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-5" class="internal"><span class="codenumber">9.4.2</span> <span class="title">The Length of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-6" class="internal"><span class="codenumber">9.4.3</span> <span class="title">The Direction of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-7" class="internal"><span class="codenumber">9.4.4</span> <span class="title">Torque is measured by a cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-8" class="internal"><span class="codenumber">9.4.5</span> <span class="title">Comparing the dot and cross products</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-9" class="internal"><span class="codenumber">9.4.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-10" class="internal"><span class="codenumber">9.4.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-5-Lines-Planes.html" class="internal"><span class="codenumber">9.5</span> <span class="title">Lines and Planes in Space</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-4" class="internal"><span class="codenumber">9.5.1</span> <span class="title">Lines in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-5" class="internal"><span class="codenumber">9.5.2</span> <span class="title">The Parametric Equations of a Line</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-6" class="internal"><span class="codenumber">9.5.3</span> <span class="title">Planes in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-7" class="internal"><span class="codenumber">9.5.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-8" class="internal"><span class="codenumber">9.5.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html" class="internal"><span class="codenumber">9.6</span> <span class="title">Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-4" class="internal"><span class="codenumber">9.6.1</span> <span class="title">Vector-Valued Functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-5" class="internal"><span class="codenumber">9.6.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-6" class="internal"><span class="codenumber">9.6.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html" class="internal"><span class="codenumber">9.7</span> <span class="title">Derivatives and Integrals of Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-4" class="internal"><span class="codenumber">9.7.1</span> <span class="title">The Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-5" class="internal"><span class="codenumber">9.7.2</span> <span class="title">Computing Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-6" class="internal"><span class="codenumber">9.7.3</span> <span class="title">Tangent Lines</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-7" class="internal"><span class="codenumber">9.7.4</span> <span class="title">Integrating a Vector-Valued Function</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-8" class="internal"><span class="codenumber">9.7.5</span> <span class="title">Projectile Motion</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-9" class="internal"><span class="codenumber">9.7.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-10" class="internal"><span class="codenumber">9.7.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html" class="internal"><span class="codenumber">9.8</span> <span class="title">Arc Length and Curvature</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-4" class="internal"><span class="codenumber">9.8.1</span> <span class="title">Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-5" class="internal"><span class="codenumber">9.8.2</span> <span class="title">Parameterizing With Respect To Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-6" class="internal"><span class="codenumber">9.8.3</span> <span class="title">Curvature</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-7" class="internal"><span class="codenumber">9.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-8" class="internal"><span class="codenumber">9.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-10.html" class="internal"><span class="codenumber">10</span> <span class="title">Derivatives of Multivariable Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-1-Limits.html" class="internal"><span class="codenumber">10.1</span> <span class="title">Limits</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-4" class="internal"><span class="codenumber">10.1.1</span> <span class="title">Limits of Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-5" class="internal"><span class="codenumber">10.1.2</span> <span class="title">Continuity</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-6" class="internal"><span class="codenumber">10.1.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-7" class="internal"><span class="codenumber">10.1.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.2</span> <span class="title">First-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.2.1</span> <span class="title">First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.2.2</span> <span class="title">Interpretations of First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.2.3</span> <span class="title">Using tables and contours to estimate partial derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.2.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-8" class="internal"><span class="codenumber">10.2.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.3</span> <span class="title">Second-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.3.1</span> <span class="title">Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.3.2</span> <span class="title">Interpreting the Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.3.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.3.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-4-Linearization.html" class="internal"><span class="codenumber">10.4</span> <span class="title">Linearization: Tangent Planes and Differentials</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-4" class="internal"><span class="codenumber">10.4.1</span> <span class="title">The Tangent Plane</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-5" class="internal"><span class="codenumber">10.4.2</span> <span class="title">Linearization</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-6" class="internal"><span class="codenumber">10.4.3</span> <span class="title">Differentials</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-7" class="internal"><span class="codenumber">10.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-8" class="internal"><span class="codenumber">10.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-5-Chain-Rule.html" class="internal"><span class="codenumber">10.5</span> <span class="title">The Chain Rule</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-4" class="internal"><span class="codenumber">10.5.1</span> <span class="title">The Chain Rule</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-5" class="internal"><span class="codenumber">10.5.2</span> <span class="title">Tree Diagrams</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-6" class="internal"><span class="codenumber">10.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-7" class="internal"><span class="codenumber">10.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html" class="internal"><span class="codenumber">10.6</span> <span class="title">Directional Derivatives and the Gradient</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-4" class="internal"><span class="codenumber">10.6.1</span> <span class="title">Directional Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-5" class="internal"><span class="codenumber">10.6.2</span> <span class="title">Computing the Directional Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#gradient_ss" class="internal"><span class="codenumber">10.6.3</span> <span class="title">The Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-7" class="internal"><span class="codenumber">10.6.4</span> <span class="title">The Direction of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-8" class="internal"><span class="codenumber">10.6.5</span> <span class="title">The Length of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-9" class="internal"><span class="codenumber">10.6.6</span> <span class="title">Applications</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-10" class="internal"><span class="codenumber">10.6.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-11" class="internal"><span class="codenumber">10.6.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-7-Optimization.html" class="internal"><span class="codenumber">10.7</span> <span class="title">Optimization</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-4" class="internal"><span class="codenumber">10.7.1</span> <span class="title">Extrema and Critical Points</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-5" class="internal"><span class="codenumber">10.7.2</span> <span class="title">Classifying Critical Points: The Second Derivative Test</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-6" class="internal"><span class="codenumber">10.7.3</span> <span class="title">Optimization on a Restricted Domain</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-7" class="internal"><span class="codenumber">10.7.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-8" class="internal"><span class="codenumber">10.7.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html" class="internal"><span class="codenumber">10.8</span> <span class="title">Constrained Optimization: Lagrange Multipliers</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4" class="internal"><span class="codenumber">10.8.1</span> <span class="title">Constrained Optimization and Lagrange Multipliers</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-5" class="internal"><span class="codenumber">10.8.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-6" class="internal"><span class="codenumber">10.8.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter contains-active">
+<div class="toc-title-box"><a href="C-11.html" class="internal"><span class="codenumber">11</span> <span class="title">Multiple Integrals</span></a></div>
+<ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html" class="internal"><span class="codenumber">11.1</span> <span class="title">Double Riemann Sums and Double Integrals over Rectangles</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-4" class="internal"><span class="codenumber">11.1.1</span> <span class="title">Double Riemann Sums over Rectangles</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-5" class="internal"><span class="codenumber">11.1.2</span> <span class="title">Double Riemann Sums and Double Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-6" class="internal"><span class="codenumber">11.1.3</span> <span class="title">Interpretation of Double Riemann Sums and Double integrals.</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-7" class="internal"><span class="codenumber">11.1.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-8" class="internal"><span class="codenumber">11.1.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html" class="internal"><span class="codenumber">11.2</span> <span class="title">Iterated Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-4" class="internal"><span class="codenumber">11.2.1</span> <span class="title">Iterated Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-5" class="internal"><span class="codenumber">11.2.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-6" class="internal"><span class="codenumber">11.2.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html" class="internal"><span class="codenumber">11.3</span> <span class="title">Double Integrals over General Regions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-4" class="internal"><span class="codenumber">11.3.1</span> <span class="title">Double Integrals over General Regions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-5" class="internal"><span class="codenumber">11.3.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-6" class="internal"><span class="codenumber">11.3.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section contains-active">
+<div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html" class="internal"><span class="codenumber">11.4</span> <span class="title">Applications of Double Integrals</span></a></div>
+<ul class="structural toc-item-list active">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-4" class="internal"><span class="codenumber">11.4.1</span> <span class="title">Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-5" class="internal"><span class="codenumber">11.4.2</span> <span class="title">Area</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-6" class="internal"><span class="codenumber">11.4.3</span> <span class="title">Center of Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-7" class="internal"><span class="codenumber">11.4.4</span> <span class="title">Probability</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-8" class="internal"><span class="codenumber">11.4.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-9" class="internal"><span class="codenumber">11.4.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html" class="internal"><span class="codenumber">11.5</span> <span class="title">Double Integrals in Polar Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-4" class="internal"><span class="codenumber">11.5.1</span> <span class="title">Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-5" class="internal"><span class="codenumber">11.5.2</span> <span class="title">Integrating in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-6" class="internal"><span class="codenumber">11.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-7" class="internal"><span class="codenumber">11.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html" class="internal"><span class="codenumber">11.6</span> <span class="title">Surfaces Defined Parametrically and Surface Area</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-4" class="internal"><span class="codenumber">11.6.1</span> <span class="title">Parametric Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#SS-11-6-2-Surface-Area-Parametrically-Defined-Surfaces" class="internal"><span class="codenumber">11.6.2</span> <span class="title">The Surface Area of Parametrically Defined Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-6" class="internal"><span class="codenumber">11.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-7" class="internal"><span class="codenumber">11.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html" class="internal"><span class="codenumber">11.7</span> <span class="title">Triple Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-4" class="internal"><span class="codenumber">11.7.1</span> <span class="title">Triple Riemann Sums and Triple Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-5" class="internal"><span class="codenumber">11.7.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-6" class="internal"><span class="codenumber">11.7.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html" class="internal"><span class="codenumber">11.8</span> <span class="title">Triple Integrals in Cylindrical and Spherical Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-4" class="internal"><span class="codenumber">11.8.1</span> <span class="title">Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-5" class="internal"><span class="codenumber">11.8.2</span> <span class="title">Triple Integrals in Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-6" class="internal"><span class="codenumber">11.8.3</span> <span class="title">Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-7" class="internal"><span class="codenumber">11.8.4</span> <span class="title">Triple Integrals in Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-8" class="internal"><span class="codenumber">11.8.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-9" class="internal"><span class="codenumber">11.8.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html" class="internal"><span class="codenumber">11.9</span> <span class="title">Change of Variables</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-4" class="internal"><span class="codenumber">11.9.1</span> <span class="title">Change of Variables in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-5" class="internal"><span class="codenumber">11.9.2</span> <span class="title">General Change of Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-6" class="internal"><span class="codenumber">11.9.3</span> <span class="title">Change of Variables in a Triple Integral</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-7" class="internal"><span class="codenumber">11.9.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-8" class="internal"><span class="codenumber">11.9.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C_Vector.html" class="internal"><span class="codenumber">12</span> <span class="title">Vector Calculus</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_VectorFields.html" class="internal"><span class="codenumber">12.1</span> <span class="title">Vector Fields</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Examples" class="internal"><span class="codenumber">12.1.1</span> <span class="title">Examples of Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Mathematical" class="internal"><span class="codenumber">12.1.2</span> <span class="title">Mathematical Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Plotting" class="internal"><span class="codenumber">12.1.3</span> <span class="title">Plotting Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Gradient" class="internal"><span class="codenumber">12.1.4</span> <span class="title">Gradient Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-8" class="internal"><span class="codenumber">12.1.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-9" class="internal"><span class="codenumber">12.1.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html" class="internal"><span class="codenumber">12.2</span> <span class="title">The Idea of a Line Integral</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_OrientCurve" class="internal"><span class="codenumber">12.2.1</span> <span class="title">Orientations of Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_LineIntegrals" class="internal"><span class="codenumber">12.2.2</span> <span class="title">Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Properties" class="internal"><span class="codenumber">12.2.3</span> <span class="title">Properties of Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Circulation" class="internal"><span class="codenumber">12.2.4</span> <span class="title">The Circulation of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-8" class="internal"><span class="codenumber">12.2.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-9" class="internal"><span class="codenumber">12.2.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html" class="internal"><span class="codenumber">12.3</span> <span class="title">Using Parametrizations to Calculate Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#SS_Vector_ParamLineIntegrals_Evaluation" class="internal"><span class="codenumber">12.3.1</span> <span class="title">Parametrizations in the Definition of <span class="process-math">\(\int_C\vF\cdot d\vr\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#alt_li_notation" class="internal"><span class="codenumber">12.3.2</span> <span class="title">Alternative Notation for Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-6" class="internal"><span class="codenumber">12.3.3</span> <span class="title">Independence of Parametrization for a Fixed Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-7" class="internal"><span class="codenumber">12.3.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-8" class="internal"><span class="codenumber">12.3.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FTCLI.html" class="internal"><span class="codenumber">12.4</span> <span class="title">Path-Independent Vector Fields and the Fundamental Theorem of Calculus for Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-4" class="internal"><span class="codenumber">12.4.1</span> <span class="title">Path-Independent Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-5" class="internal"><span class="codenumber">12.4.2</span> <span class="title">Line Integrals Along Closed Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#SS_Vector_FTCLI_Other" class="internal"><span class="codenumber">12.4.3</span> <span class="title">What other vector fields are path-independent?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-7" class="internal"><span class="codenumber">12.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-8" class="internal"><span class="codenumber">12.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html" class="internal"><span class="codenumber">12.5</span> <span class="title">Line Integrals of Scalar Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-4" class="internal"><span class="codenumber">12.5.1</span> <span class="title">Defining line integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-5" class="internal"><span class="codenumber">12.5.2</span> <span class="title">Using Parameterizations to Calculate Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-6" class="internal"><span class="codenumber">12.5.3</span> <span class="title">Properties of Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#SS_Vector_ScalarLineIntegral_Visualizations" class="internal"><span class="codenumber">12.5.4</span> <span class="title">Visualizations of Scalar Line Integrals as Area Under a Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-8" class="internal"><span class="codenumber">12.5.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#ez_Vector_ScalarLineIntegral" class="internal"><span class="codenumber">12.5.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Div.html" class="internal"><span class="codenumber">12.6</span> <span class="title">The Divergence of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Defn" class="internal"><span class="codenumber">12.6.1</span> <span class="title">Definition of the Divergence of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Development" class="internal"><span class="codenumber">12.6.2</span> <span class="title">Measuring the Change in Strength of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-6" class="internal"><span class="codenumber">12.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-7" class="internal"><span class="codenumber">12.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Curl.html" class="internal"><span class="codenumber">12.7</span> <span class="title">The Curl of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development" class="internal"><span class="codenumber">12.7.1</span> <span class="title">Measuring the Circulation Density of Vector Field in <span class="process-math">\(\R^2\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development3D" class="internal"><span class="codenumber">12.7.2</span> <span class="title">Measuring Rotation in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-6" class="internal"><span class="codenumber">12.7.3</span> <span class="title">Circulation Density in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Interpretation" class="internal"><span class="codenumber">12.7.4</span> <span class="title">Interpretation and Usage of Curl</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-8" class="internal"><span class="codenumber">12.7.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-9" class="internal"><span class="codenumber">12.7.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_GreensTheorem.html" class="internal"><span class="codenumber">12.8</span> <span class="title">Greenâs Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#SS_Vector_GreensTheorem_Circulation" class="internal"><span class="codenumber">12.8.1</span> <span class="title">Circulation</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-5" class="internal"><span class="codenumber">12.8.2</span> <span class="title">Greenâs Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-6" class="internal"><span class="codenumber">12.8.3</span> <span class="title">What happens when vector fields are not smooth?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-7" class="internal"><span class="codenumber">12.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-8" class="internal"><span class="codenumber">12.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FluxInt.html" class="internal"><span class="codenumber">12.9</span> <span class="title">Flux Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#SS_Vector_FluxInt_Idea" class="internal"><span class="codenumber">12.9.1</span> <span class="title">The Idea of the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-5" class="internal"><span class="codenumber">12.9.2</span> <span class="title">The Details of Measuring the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-6" class="internal"><span class="codenumber">12.9.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-7" class="internal"><span class="codenumber">12.9.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html" class="internal"><span class="codenumber">12.10</span> <span class="title">Surface Integrals of Scalar Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-4" class="internal"><span class="codenumber">12.10.1</span> <span class="title">Defining surface integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-5" class="internal"><span class="codenumber">12.10.2</span> <span class="title">Properties of Scalar Surface Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-6" class="internal"><span class="codenumber">12.10.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-7" class="internal"><span class="codenumber">12.10.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_StokesThm.html" class="internal"><span class="codenumber">12.11</span> <span class="title">Stokesâ Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Development" class="internal"><span class="codenumber">12.11.1</span> <span class="title">Circulation in three dimensions and Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Verify" class="internal"><span class="codenumber">12.11.2</span> <span class="title">Verifying and Applying Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#surfaceboundaries" class="internal"><span class="codenumber">12.11.3</span> <span class="title">Practice with Surfaces and their Boundaries</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-7" class="internal"><span class="codenumber">12.11.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-8" class="internal"><span class="codenumber">12.11.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_DivThm.html" class="internal"><span class="codenumber">12.12</span> <span class="title">The Divergence Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#SS_Vector_DivThm_Verify" class="internal"><span class="codenumber">12.12.1</span> <span class="title">The Divergence Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-5" class="internal"><span class="codenumber">12.12.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-6" class="internal"><span class="codenumber">12.12.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-backmatter">
+<div class="toc-title-box"><a href="root-1-2-7.html" class="internal"><span class="title">Back Matter</span></a></div>
+<ul class="structural toc-item-list"><li class="toc-item toc-index"><div class="toc-title-box"><a href="root-1-2-7-1.html" class="internal"><span class="title">Index</span></a></div></li></ul>
+</li>
+</ul></nav></div>
+<main class="ptx-main"><div id="ptx-content" class="ptx-content"><section class="section" id="S-11-4-Double-Integrals-Applications"><h2 class="heading hide-type">
+<span class="type">Section</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Applications of Double Integrals</span>
+</h2>
+<article class="objectives goal-like" id="S-11-4-Double-Integrals-Applications-2"><h3 class="heading"><span class="type">Motivating Questions</span></h3>
+<ul class="disc" id="S-11-4-Double-Integrals-Applications-2-1">
+<li id="S-11-4-Double-Integrals-Applications-2-1-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-2-1-1-1">If we have a mass density function for a lamina (thin plate), how does a double integral determine the mass of the lamina?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-11-4-Double-Integrals-Applications-2-1-1" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-2-1-2">
+<div class="para" id="S-11-4-Double-Integrals-Applications-2-1-2-1">How may a double integral be used to find the area between two curves?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-2-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-11-4-Double-Integrals-Applications-2-1-2" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-2-1-3">
+<div class="para" id="S-11-4-Double-Integrals-Applications-2-1-3-1">Given a mass density function on a lamina, how can we find the laminaâs center of mass?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-2-1-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-11-4-Double-Integrals-Applications-2-1-3" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-2-1-4">
+<div class="para" id="S-11-4-Double-Integrals-Applications-2-1-4-1">What is a joint probability density function? How do we determine the probability of an event if we know a probability density function?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-2-1-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-11-4-Double-Integrals-Applications-2-1-4" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Motivating Questions 11.4"><a href="#S-11-4-Double-Integrals-Applications-2" title="Copy heading and permalink for Motivating Questions 11.4" aria-label="Copy heading and permalink for Motivating Questions 11.4">ð</a></div></article><section class="introduction" id="S-11-4-Double-Integrals-Applications-3"><div class="para" id="S-11-4-Double-Integrals-Applications-3-1">So far, we have interpreted the double integral of a function <span class="process-math">\(f\)</span> over a domain <span class="process-math">\(D\)</span> in two different ways. First, <span class="process-math">\(\iint_D f(x,y) \, dA\)</span> tells us a difference of volumes â the volume the surface defined by <span class="process-math">\(f\)</span> bounds above the <span class="process-math">\(xy\)</span>-plane on <span class="process-math">\(D\)</span> minus the volume the surface bounds below the <span class="process-math">\(xy\)</span>-plane on <span class="process-math">\(D\text{.}\)</span> In addition, <span class="process-math">\(\frac{1}{A(D)} \iint_D f(x,y) \, dA\)</span> determines the average value of <span class="process-math">\(f\)</span> on <span class="process-math">\(D\text{.}\)</span> In this section, we investigate several other applications of double integrals, using the integration process as seen in <a href="S-11-4-Double-Integrals-Applications.html#PA_11_4" class="xref" data-knowl="./knowl/xref/PA_11_4.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 11.4.1">Preview ActivityÂ 11.4.1</a>: we partition into small regions, approximate the desired quantity on each small region, then use the integral to sum these values exactly in the limit.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-11-4-Double-Integrals-Applications-3-2">The following preview activity explores how a double integral can be used to determine the density of a thin plate with a mass density distribution. Recall that in single-variable calculus, we considered a similar problem and computed the mass of a one-dimensional rod with a mass-density distribution. There, as here, the key idea is that if density is constant, mass is the product of density and volume.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-3-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="exploration project-like" id="PA_11_4"><h3 class="heading">
+<span class="type">Preview Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.1</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h3>
+<div class="para logical" id="PA_11_4-1-1">
+<div class="para">Suppose that we have a flat, thin object (called a <dfn class="terminology">lamina</dfn>) whose density varies across the object. We can think of the density on a lamina as a measure of mass per unit area. As an example, consider a circular plate <span class="process-math">\(D\)</span> of radius 1 cm centered at the origin whose density <span class="process-math">\(\delta\)</span> varies depending on the distance from its center so that the density in grams per square centimeter at point <span class="process-math">\((x, y)\)</span> is</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/S-11-5-Double-Integrals-Polar.html" id="PA_11_4-1-1-5">
+\begin{equation*}
+\delta(x,y) = 10-2(x^2+y^2).
+\end{equation*}
+</div>
+<ol class="lower-alpha ol-marker-1" id="PA_11_4-1-1-6">
+<li id="PA_11_4-1-1-6-1">
+<div class="para" id="PA_11_4-1-1-6-1-1">Suppose that we partition the plate into subrectangles <span class="process-math">\(R_{ij}\text{,}\)</span> where <span class="process-math">\(1 \leq i \leq m\)</span> and <span class="process-math">\(1 \leq j \leq n\text{,}\)</span> of equal area <span class="process-math">\(\Delta A\text{,}\)</span> and select a point <span class="process-math">\((x_{ij}^*,y_{ij}^*)\)</span> in <span class="process-math">\(R_{ij}\)</span> for each <span class="process-math">\(i\)</span> and <span class="process-math">\(j\text{.}\)</span> What is the meaning of the quantity <span class="process-math">\(\delta(x_{ij}^*,y_{ij}^*) \Delta A\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#PA_11_4-1-1-6-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#PA_11_4-1-1-6-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="PA_11_4-1-1-6-2">
+<div class="para" id="PA_11_4-1-1-6-2-1">State a double Riemann sum that provides an approximation of the mass of the plate.<div class="autopermalink" data-description="Paragraph"><a href="#PA_11_4-1-1-6-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#PA_11_4-1-1-6-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="PA_11_4-1-1-6-3">
+<div class="para logical" id="PA_11_4-1-1-6-3-1">
+<div class="para">Explain why the double integral</div>
+<div class="displaymath process-math" id="PA_11_4-1-1-6-3-1-1">
+\begin{equation*}
+\iint_D \delta(x,y) \, dA
+\end{equation*}
+</div>
+<div class="para">tells us the exact mass of the plate.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#PA_11_4-1-1-6-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#PA_11_4-1-1-6-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="PA_11_4-1-1-6-4">
+<div class="para" id="PA_11_4-1-1-6-4-1">Determine an iterated integral which, if evaluated, would give the exact mass of the plate.  Do not actually evaluate the integral. (This integral is considerably easier to evaluate in polar coordinates, which we will learn more about in <a href="S-11-5-Double-Integrals-Polar.html" class="internal" title="Section 11.5: Double Integrals in Polar Coordinates">SectionÂ 11.5</a>.)<div class="autopermalink" data-description="Paragraph"><a href="#PA_11_4-1-1-6-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#PA_11_4-1-1-6-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#PA_11_4-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Preview Activity 11.4.1"><a href="#PA_11_4" title="Copy heading and permalink for Preview Activity 11.4.1" aria-label="Copy heading and permalink for Preview Activity 11.4.1">ð</a></div></article></section><section class="subsection" id="S-11-4-Double-Integrals-Applications-4"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.1</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Mass</span>
+</h3>
+<div class="para" id="S-11-4-Double-Integrals-Applications-4-2">Density is a measure of some quantity per unit area or volume. For example, we can measure the human population density of some region as the number of humans in that region divided by the area of that region. In physics, the mass density of an object is the mass of the object per unit area or volume. As suggested by <a href="S-11-4-Double-Integrals-Applications.html#PA_11_4" class="xref" data-knowl="./knowl/xref/PA_11_4.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 11.4.1">Preview ActivityÂ 11.4.1</a>, the following holds in general.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-4-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Lamina-mass"><h4 class="heading"><span class="title">The mass of a lamina.</span></h4>
+<div class="para" id="Lamina-mass-2">If <span class="process-math">\(\delta(x, y)\)</span> describes the density of a lamina defined by a planar region <span class="process-math">\(D\text{,}\)</span> then the <em class="emphasis">mass</em> of <span class="process-math">\(D\)</span> is given by the double integral <span class="process-math">\(\iint_D \delta(x,y) \, dA\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Lamina-mass-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The mass of a lamina"><a href="#Lamina-mass" title="Copy heading and permalink for Assemblage: The mass of a lamina" aria-label="Copy heading and permalink for Assemblage: The mass of a lamina">ð</a></div></article><article class="activity project-like" id="A_11_4_3"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.2</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para" id="A_11_4_3-1-1">Let <span class="process-math">\(D\)</span> be a half-disk lamina of radius 3 in quadrants IV and I, centered at the origin as shown in <a href="S-11-4-Double-Integrals-Applications.html#F_11_4_Mass_exercise" class="xref" data-knowl="./knowl/xref/F_11_4_Mass_exercise.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 11.4.1">FigureÂ 11.4.1</a>. Assume the density at point <span class="process-math">\((x,y)\)</span> is given by <span class="process-math">\(\delta(x,y) = x\text{.}\)</span> Find the exact mass of the lamina.<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <figure class="figure figure-like" id="F_11_4_Mass_exercise"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_11_4_half_circle.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_11_4_Mass_exercise-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_11_4_Mass_exercise-2-description"><div class="para" id="F_11_4_Mass_exercise-2-1-1">A half disk lamina.<div class="autopermalink" data-description="Paragraph"><a href="#F_11_4_Mass_exercise-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A half disk lamina.<div class="autopermalink" data-description="Figure 11.4.1"><a href="#F_11_4_Mass_exercise" title="Copy heading and permalink for Figure 11.4.1" aria-label="Copy heading and permalink for Figure 11.4.1">ð</a></div></figcaption></figure><div class="autopermalink" data-description="Activity 11.4.2"><a href="#A_11_4_3" title="Copy heading and permalink for Activity 11.4.2" aria-label="Copy heading and permalink for Activity 11.4.2">ð</a></div></article><div class="autopermalink" data-description="Subsection 11.4.1: Mass"><a href="#S-11-4-Double-Integrals-Applications-4" title="Copy heading and permalink for Subsection 11.4.1: Mass" aria-label="Copy heading and permalink for Subsection 11.4.1: Mass">ð</a></div></section><section class="subsection" id="S-11-4-Double-Integrals-Applications-5"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.2</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Area</span>
+</h3>
+<div class="para" id="S-11-4-Double-Integrals-Applications-5-2">If we consider the situation where the mass-density distribution is constant, we can also see how a double integral may be used to determine the area of a region. Assuming that <span class="process-math">\(\delta(x,y) = 1\)</span> over a closed bounded region <span class="process-math">\(D\text{,}\)</span> where the units of <span class="process-math">\(\delta\)</span> are âmass per unit of area,â it follows that <span class="process-math">\(\iint_D 1 \, dA\)</span> is the mass of the lamina. But since the density is constant, the numerical value of the integral is simply the area.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-5-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-11-4-Double-Integrals-Applications-5-3">As the following activity demonstrates, we can also see this fact by considering a three-dimensional solid whose height is always 1.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-5-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_11_4_1"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.3</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_11_4_1-1-1">
+<div class="para">Suppose we want to find the area of the bounded region <span class="process-math">\(D\)</span> between the curves</div>
+<div class="displaymath process-math" id="A_11_4_1-1-1-2">
+\begin{equation*}
+y = 1-x^2 \ \ \ \ \ \text{ and }  \ \ \ \ \ y=x-1.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para logical" id="A_11_4_1-1-2">
+<div class="para">A picture of this region is shown in <a href="S-11-4-Double-Integrals-Applications.html#F_11_4_Area_ex_1" class="xref" data-knowl="./knowl/xref/F_11_4_Area_ex_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 11.4.2">FigureÂ 11.4.2</a>.</div>
+<ol class="lower-alpha ol-marker-1" id="A_11_4_1-1-2-2">
+<li id="A_11_4_1-1-2-2-1">
+<div class="para" id="A_11_4_1-1-2-2-1-1">The volume of a solid with constant height is given by the area of the base times the height.  Hence, we may interpret the area of the region <span class="process-math">\(D\)</span> as the volume of a solid with base <span class="process-math">\(D\)</span> and of uniform height 1. That is, the area of <span class="process-math">\(D\)</span> is given by <span class="process-math">\(\iint_D 1 \, dA\text{.}\)</span> Write an iterated integral whose value is <span class="process-math">\(\iint_D 1 \, dA\text{.}\)</span> (Hint: Which order of integration might be more efficient? Why?) <figure class="figure figure-like" id="F_11_4_Area_ex_1"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_11_4_area.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_11_4_Area_ex_1-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_11_4_Area_ex_1-2-description"><div class="para" id="F_11_4_Area_ex_1-2-1-1">The graphs of <span class="process-math">\(y = 1-x^2\)</span> and <span class="process-math">\(y=x-1\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#F_11_4_Area_ex_1-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>The graphs of <span class="process-math">\(y = 1-x^2\)</span> and <span class="process-math">\(y=x-1\text{.}\)</span><div class="autopermalink" data-description="Figure 11.4.2"><a href="#F_11_4_Area_ex_1" title="Copy heading and permalink for Figure 11.4.2" aria-label="Copy heading and permalink for Figure 11.4.2">ð</a></div></figcaption></figure><div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_1-1-2-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_11_4_1-1-2-2-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_11_4_1-1-2-2-2">
+<div class="para" id="A_11_4_1-1-2-2-2-1">Evaluate the iterated integral from (a). What does the result tell you?<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_1-1-2-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_11_4_1-1-2-2-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 11.4.3"><a href="#A_11_4_1" title="Copy heading and permalink for Activity 11.4.3" aria-label="Copy heading and permalink for Activity 11.4.3">ð</a></div></article><div class="para" id="S-11-4-Double-Integrals-Applications-5-5">We now formally state the conclusion from our earlier discussion and <a href="S-11-4-Double-Integrals-Applications.html#A_11_4_1" class="xref" data-knowl="./knowl/xref/A_11_4_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Activity 11.4.3">ActivityÂ 11.4.3</a>.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-5-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Double-integral-area"><h4 class="heading"><span class="title">The double integral and area.</span></h4>
+<div class="para logical" id="Double-integral-area-2">
+<div class="para">Given a closed, bounded region <span class="process-math">\(D\)</span> in the plane, the area of <span class="process-math">\(D\text{,}\)</span> denoted <span class="process-math">\(A(D)\text{,}\)</span> is given by the double integral</div>
+<div class="displaymath process-math" id="Double-integral-area-2-4">
+\begin{equation*}
+A(D) = \iint_D 1 \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#Double-integral-area-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The double integral and area"><a href="#Double-integral-area" title="Copy heading and permalink for Assemblage: The double integral and area" aria-label="Copy heading and permalink for Assemblage: The double integral and area">ð</a></div></article><div class="autopermalink" data-description="Subsection 11.4.2: Area"><a href="#S-11-4-Double-Integrals-Applications-5" title="Copy heading and permalink for Subsection 11.4.2: Area" aria-label="Copy heading and permalink for Subsection 11.4.2: Area">ð</a></div></section><section class="subsection" id="S-11-4-Double-Integrals-Applications-6"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.3</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Center of Mass</span>
+</h3>
+<div class="para" id="S-11-4-Double-Integrals-Applications-6-2">The center of mass of an object is a point at which the object will balance perfectly. For example, the center of mass of a circular disk of uniform density is located at its center. For any object, if we throw it through the air, it will spin around its center of mass and behave as if all the mass is located at the center of mass.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-11-4-Double-Integrals-Applications-6-3">In order to understand the role that integrals play in determining the center of mass of an object with a nonuniform mass distribution, we start by finding the center of mass of a collection of <span class="process-math">\(N\)</span> distinct point-masses in the plane.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-11-4-Double-Integrals-Applications-6-4">Let <span class="process-math">\(m_1\text{,}\)</span> <span class="process-math">\(m_2\text{,}\)</span> <span class="process-math">\(\ldots\text{,}\)</span> <span class="process-math">\(m_N\)</span> be <span class="process-math">\(N\)</span> masses located in the plane. Think of these masses as connected by rigid rods of negligible weight from some central point <span class="process-math">\((x,y)\text{.}\)</span> A picture with four masses is shown in <a href="S-11-4-Double-Integrals-Applications.html#F_11_4_COM" class="xref" data-knowl="./knowl/xref/F_11_4_COM.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 11.4.3">FigureÂ 11.4.3</a>. Now imagine balancing this system by placing it on a thin pole at the point <span class="process-math">\((x,y)\)</span> perpendicular to the plane containing the masses. Unless the masses are perfectly balanced, the system will fall off the pole. The point <span class="process-math">\((\overline{x}, \overline{y})\)</span> at which the system will balance perfectly is called the <em class="emphasis">center of mass</em> of the system. Our goal is to determine the center of mass of a system of discrete masses, then extend this to a continuous lamina.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_11_4_COM"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_11_4_masses.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_11_4_COM-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_11_4_COM-2-description"><div class="para" id="F_11_4_COM-2-1-1">A center of mass <span class="process-math">\((\overline{x}, \overline{y})\)</span> of four masses.<div class="autopermalink" data-description="Paragraph"><a href="#F_11_4_COM-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.3<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A center of mass <span class="process-math">\((\overline{x}, \overline{y})\)</span> of four masses.<div class="autopermalink" data-description="Figure 11.4.3"><a href="#F_11_4_COM" title="Copy heading and permalink for Figure 11.4.3" aria-label="Copy heading and permalink for Figure 11.4.3">ð</a></div></figcaption></figure><div class="para" id="S-11-4-Double-Integrals-Applications-6-6">Each mass exerts a force (called a <em class="emphasis">moment</em>) around the lines <span class="process-math">\(x=\overline{x}\)</span> and <span class="process-math">\(y=\overline{y}\)</span> that causes the system to tilt in the direction of the mass. These moments are dependent on the mass and the distance from the given line. Let <span class="process-math">\((x_1,y_1)\)</span> be the location of mass <span class="process-math">\(m_1\text{,}\)</span> <span class="process-math">\((x_2,y_2)\)</span> the location of mass <span class="process-math">\(m_2\text{,}\)</span> etc. In order to balance perfectly, the moments in the <span class="process-math">\(x\)</span> direction and in the <span class="process-math">\(y\)</span> direction must be in equilibrium. We determine these moments and solve the resulting system to find the equilibrium point <span class="process-math">\((\overline{x}, \overline{y})\)</span> at the center of mass.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-7">
+<div class="para">The force that mass <span class="process-math">\(m_1\)</span> exerts to tilt the system from the line <span class="process-math">\(y=\overline{y}\)</span> is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-7-3">
+\begin{equation*}
+m_1g(\overline{y} - y_1),
+\end{equation*}
+</div>
+<div class="para">where <span class="process-math">\(g\)</span> is the gravitational constant. Similarly, the force mass <span class="process-math">\(m_2\)</span> exerts to tilt the system from the line <span class="process-math">\(y= \overline{y}\)</span> is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-7-7">
+\begin{equation*}
+m_2g(\overline{y}-y_2).
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-8">
+<div class="para">In general, the force that mass <span class="process-math">\(m_k\)</span> exerts to tilt the system from the line <span class="process-math">\(y= \overline{y}\)</span> is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-8-3">
+\begin{equation*}
+m_kg(\overline{y}-y_k).
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-9">
+<div class="para">For the system to balance, we need the forces to sum to 0, so that</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-9-1">
+\begin{equation*}
+\sum_{k=1}^N m_kg(\overline{y}-y_k) = 0.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-9" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-10">
+<div class="para">Solving for <span class="process-math">\(\overline{y}\text{,}\)</span> we find that</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-10-2">
+\begin{equation*}
+\overline{y} = \frac{\sum_{k=1}^N m_ky_k}{\sum_{k=1}^N m_k}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-10" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-11">
+<div class="para">A similar argument shows that</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-11-1">
+\begin{equation*}
+\overline{x} = \frac{\sum_{k=1}^N m_kx_k}{\sum_{k=1}^N m_k}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-11" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-12">
+<div class="para">The value <span class="process-math">\(M_x~=~\sum_{k=1}^N m_ky_k\)</span> is called the <em class="emphasis">total moment</em> with respect to the <span class="process-math">\(x\)</span>-axis; <span class="process-math">\(M_y~=~\sum_{k=1}^N m_kx_k\)</span> is the <em class="emphasis">total moment</em> with respect to the <span class="process-math">\(y\)</span>-axis. Hence, the respective quotients of the moments to the total mass, <span class="process-math">\(M\text{,}\)</span> determines the center of mass of a point-mass system:</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-12-8">
+\begin{equation*}
+(\overline{x}, \overline{y}) = \left(\frac{M_y}{M}, \frac{M_x}{M}\right).
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-12" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-13">
+<div class="para">Now, suppose that rather than a point-mass system, we have a continuous lamina with a variable mass-density <span class="process-math">\(\delta(x, y)\text{.}\)</span> We may estimate its center of mass by partitioning the lamina into <span class="process-math">\(mn\)</span> subrectangles of equal area <span class="process-math">\(\Delta A\text{,}\)</span> and treating the resulting partitioned lamina as a point-mass system. In particular, we select a point <span class="process-math">\((x_{ij}^*,y_{ij}^*)\)</span> in the <span class="process-math">\(ij\)</span>th subrectangle, and observe that the quanity</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-13-6">
+\begin{equation*}
+\delta(x_{ij}^*,y_{ij}^*) \Delta A
+\end{equation*}
+</div>
+<div class="para">is density times area, so <span class="process-math">\(\delta(x_{ij}^*,y_{ij}^*) \Delta A\)</span> approximates the mass of the small portion of the lamina determined by the subrectangle <span class="process-math">\(R_{ij}\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-13" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-14">
+<div class="para">We now treat <span class="process-math">\(\delta(x_{ij}^*,y_{ij}^*) \Delta A\)</span> as a point mass at the point <span class="process-math">\((x_{ij}^*,y_{ij}^*)\text{.}\)</span> The coordinates <span class="process-math">\((\overline{x}, \overline{y})\)</span> of the center of mass of these <span class="process-math">\(mn\)</span> point masses are thus given by</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-14-5">
+\begin{equation*}
+\overline{x} = \frac{\sum_{j=1}^n \sum_{i=1}^m x_{ij}^*\delta(x_{ij}^*,y_{ij}^*) \Delta A}{\sum_{j=1}^n\sum_{i=1}^m \delta(x_{ij}^*,y_{ij}^*) \Delta A} \ \ \ \ \ \text{ and }  \ \ \ \ \ \overline{y} = \frac{\sum_{j=1}^n \sum_{i=1}^m y_{ij}^*\delta(x_{ij}^*,y_{ij}^*) \Delta A}{\sum_{j=1}^n\sum_{i=1}^m \delta(x_{ij}^*,y_{ij}^*) \Delta A}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-14" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-11-4-Double-Integrals-Applications-6-15">If we take the limit as <span class="process-math">\(m\)</span> and <span class="process-math">\(n\)</span> go to infinity, we obtain the exact center of mass <span class="process-math">\((\overline{x}, \overline{y})\)</span> of the continuous lamina.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-15" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Lamina-center-of-mass"><h4 class="heading"><span class="title">The center of mass of a lamina.</span></h4>
+<div class="para logical" id="Lamina-center-of-mass-2">
+<div class="para">The coordinates <span class="process-math">\((\overline{x}, \overline{y})\)</span> of the <em class="emphasis">center of mass of a lamina</em> <span class="process-math">\(D\)</span> with density <span class="process-math">\(\delta = \delta(x,y)\)</span> are given by</div>
+<div class="displaymath process-math" id="Lamina-center-of-mass-2-6">
+\begin{equation*}
+\overline{x} = \frac{\iint_D x\delta(x,y) \, dA}{\iint_D \delta(x,y) \, dA} \ \ \ \ \ \text{ and }  \ \ \ \ \ \overline{y} = \frac{\iint_D y\delta(x,y) \, dA}{\iint_D \delta(x,y) \, dA}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#Lamina-center-of-mass-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The center of mass of a lamina"><a href="#Lamina-center-of-mass" title="Copy heading and permalink for Assemblage: The center of mass of a lamina" aria-label="Copy heading and permalink for Assemblage: The center of mass of a lamina">ð</a></div></article><div class="para" id="S-11-4-Double-Integrals-Applications-6-17">The center of mass of a lamina can then be thought of as a weighted average of all of the points in the lamina with the weights given by the density at each point. The <em class="emphasis">centroid</em> of a lamina is the just the average of all of the points in the lamina, or the center of mass if the density at each point is 1.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-17" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-18">
+<div class="para">The numerators of <span class="process-math">\(\overline{x}\)</span> and <span class="process-math">\(\overline{y}\)</span> are called the respective <em class="emphasis">moments</em> of the lamina about the coordinate axes. Thus, the moment of a lamina <span class="process-math">\(D\)</span> with density <span class="process-math">\(\delta = \delta(x,y)\)</span> about the <span class="process-math">\(y\)</span>-axis is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-18-8">
+\begin{equation*}
+M_y = \iint_D x\delta(x,y) \, dA
+\end{equation*}
+</div>
+<div class="para">and the moment of <span class="process-math">\(D\)</span> about the <span class="process-math">\(x\)</span>-axis is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-18-11">
+\begin{equation*}
+M_x = \iint_D y\delta(x,y) \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-18" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-6-19">
+<div class="para">If <span class="process-math">\(M\)</span> is the mass of the lamina, it follows that the center of mass is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-6-19-2">
+\begin{equation*}
+(\overline{x}, \overline{y}) = \left(\frac{M_y}{M}, \frac{M_x}{M}\right)\text{.}
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-6-19" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_11_4_4"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.4</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para" id="A_11_4_4-1-1">In this activity we determine integrals that represent the center of mass of a lamina <span class="process-math">\(D\)</span> described by the triangular region bounded by the <span class="process-math">\(x\)</span>-axis and the lines <span class="process-math">\(x = 1\)</span> and <span class="process-math">\(y = 2x\)</span> in the first quadrant if the density at point <span class="process-math">\((x, y)\)</span> is <span class="process-math">\(\delta(x, y) = 6x + 6y + 6\text{.}\)</span> A picture of the lamina is shown in <a href="S-11-4-Double-Integrals-Applications.html#F_11_4_COM_ex_1" class="xref" data-knowl="./knowl/xref/F_11_4_COM_ex_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 11.4.4">FigureÂ 11.4.4</a>.<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_4-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <figure class="figure figure-like" id="F_11_4_COM_ex_1"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_11_4_triangle.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_11_4_COM_ex_1-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_11_4_COM_ex_1-2-description"><div class="para" id="F_11_4_COM_ex_1-2-1-1">The lamina bounded by the <span class="process-math">\(x\)</span>-axis and the lines <span class="process-math">\(x = 1\)</span> and <span class="process-math">\(y = 2x\)</span> in the first quadrant.<div class="autopermalink" data-description="Paragraph"><a href="#F_11_4_COM_ex_1-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.4<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>The lamina bounded by the <span class="process-math">\(x\)</span>-axis and the lines <span class="process-math">\(x = 1\)</span> and <span class="process-math">\(y = 2x\)</span> in the first quadrant.<div class="autopermalink" data-description="Figure 11.4.4"><a href="#F_11_4_COM_ex_1" title="Copy heading and permalink for Figure 11.4.4" aria-label="Copy heading and permalink for Figure 11.4.4">ð</a></div></figcaption></figure> <ol class="lower-alpha ol-marker-1" id="A_11_4_4-1-3">
+<li id="A_11_4_4-1-3-1">
+<div class="para" id="A_11_4_4-1-3-1-1">Set up an iterated integral that represents the mass of the lamina.<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_4-1-3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_11_4_4-1-3-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_11_4_4-1-3-2">
+<div class="para" id="A_11_4_4-1-3-2-1">Assume the mass of the lamina is 14. Set up two iterated integrals that represent the coordinates of the center of mass of the lamina.<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_4-1-3-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_11_4_4-1-3-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Activity 11.4.4"><a href="#A_11_4_4" title="Copy heading and permalink for Activity 11.4.4" aria-label="Copy heading and permalink for Activity 11.4.4">ð</a></div></article><div class="autopermalink" data-description="Subsection 11.4.3: Center of Mass"><a href="#S-11-4-Double-Integrals-Applications-6" title="Copy heading and permalink for Subsection 11.4.3: Center of Mass" aria-label="Copy heading and permalink for Subsection 11.4.3: Center of Mass">ð</a></div></section><section class="subsection" id="S-11-4-Double-Integrals-Applications-7"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.4</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Probability</span>
+</h3>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-2">
+<div class="para">Calculating probabilities is a very important application of integration in the physical, social, and life sciences. To understand the basics, consider the game of darts in which a player throws a dart at a board and tries to hit a particular target. Let us suppose that a dart board is in the form of a disk <span class="process-math">\(D\)</span> with radius 10 inches. If we assume that a player throws a dart at random, and is not aiming at any particular point, then it is equally probable that the dart will strike any single point on the board. For instance, the probability that the dart will strike a particular 1 square inch region is <span class="process-math">\(\frac{1}{100 \pi}\text{,}\)</span> or the ratio of the area of the desired target to the total area of <span class="process-math">\(D\)</span> (assuming that the dart thrower always hits the board itself at some point). Similarly, the probability that the dart strikes a point in the disk <span class="process-math">\(D_3\)</span> of radius 3 inches is given by the area of <span class="process-math">\(D_3\)</span> divided by the area of <span class="process-math">\(D\text{.}\)</span> In other words, the probability that the dart strikes the disk <span class="process-math">\(D_3\)</span> is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-2-8">
+\begin{equation*}
+\frac{9 \pi}{100\pi} = \iint_{D_3} \frac{1}{100 \pi} \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-3">
+<div class="para">The integrand, <span class="process-math">\(\frac{1}{100\pi}\text{,}\)</span> may be thought of as a <em class="emphasis">distribution function</em>, describing how the dart strikes are distributed across the board. In this case the distribution function is constant since we are assuming a uniform distribution, but we can easily envision situations where the distribution function varies. For example, if the player is fairly good and is aiming for the bulls eye (the center of <span class="process-math">\(D\)</span>), then the distribution function <span class="process-math">\(f\)</span> could be skewed toward the center, say</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-3-5">
+\begin{equation*}
+f(x,y) = K e^{-(x^2+y^2)}
+\end{equation*}
+</div>
+<div class="para">for some constant positive <span class="process-math">\(K\text{.}\)</span> If we assume that the player is consistent enough so that the dart always strikes the board, then the probability that the dart strikes the board somewhere is 1, and the distribution function <span class="process-math">\(f\)</span> will have to satisfy<details class="ptx-footnote" aria-live="polite" id="S-11-4-Double-Integrals-Applications-7-3-8"><summary class="ptx-footnote__number" title="Footnote 11.4.1"><sup>â1â</sup></summary><div class="ptx-footnote__contents" id="S-11-4-Double-Integrals-Applications-7-3-8">This makes <span class="process-math">\(K = \frac{1}{\pi\left(1-e^{-100}\right)}\text{,}\)</span> which you can check.</div></details>
+</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-3-9">
+\begin{equation*}
+\iint_D f(x,y) \, dA = 1.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-4">
+<div class="para">For such a function <span class="process-math">\(f\text{,}\)</span> the probability that the dart strikes in the disk <span class="process-math">\(D_1\)</span> of radius 1 would be</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-4-3">
+\begin{equation*}
+\iint_{D_1} f(x,y) \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-5">
+<div class="para">Indeed, the probability that the dart strikes in any region <span class="process-math">\(R\)</span> that lies within <span class="process-math">\(D\)</span> is given by</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-5-3">
+\begin{equation*}
+\iint_R f(x,y) \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-6">
+<div class="para">The preceding discussion highlights the general idea behind calculating probabilities. We assume we have a <em class="emphasis">joint probability density function</em> <span class="process-math">\(f\text{,}\)</span> a function of two independent variables <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> defined on a domain <span class="process-math">\(D\)</span> that satisfies the conditions</div>
+<ul class="disc" id="S-11-4-Double-Integrals-Applications-7-6-7">
+<li id="S-11-4-Double-Integrals-Applications-7-6-7-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-7-6-7-1-1">
+<span class="process-math">\(f(x,y) \geq 0\)</span> for all <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> in <span class="process-math">\(D\text{,}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-7-6-7-2">
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-6-7-2-1">
+<div class="para">the probability that <span class="process-math">\(x\)</span> is between some values <span class="process-math">\(a\)</span> and <span class="process-math">\(b\)</span> while <span class="process-math">\(y\)</span> is between some values <span class="process-math">\(c\)</span> and <span class="process-math">\(d\)</span> is given by</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-7-6-7-2-1-7">
+\begin{equation*}
+\int_a^b \int_c^d f(x,y) \, dy \, dx,
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-7-6-7-3">
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-6-7-3-1">
+<div class="para">The probability that the point <span class="process-math">\((x,y)\)</span> is in <span class="process-math">\(D\)</span> is 1, that is</div>
+<div class="displaymath process-math" id="eq_11_4_pdf">
+\begin{equation}
+\iint_D f(x,y) \, dA = 1.\tag{11.4.1}
+\end{equation}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-7-6-7-3" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-7-7">
+<div class="para">Note that it is possible that <span class="process-math">\(D\)</span> could be an infinite region and the limits on the integral in EquationÂ <a href="S-11-4-Double-Integrals-Applications.html#eq_11_4_pdf" class="xref" data-knowl="./knowl/xref/eq_11_4_pdf.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 11.4.1">(11.4.1)</a> could be infinite. When we have such a probability density function <span class="process-math">\(f=f(x,y)\text{,}\)</span> the probability that the point <span class="process-math">\((x,y)\)</span> is in some region <span class="process-math">\(R\)</span> contained in the domain <span class="process-math">\(D\)</span> (the notation we use here is â<span class="process-math">\(P((x,y)\in R)\)</span>â) is determined by</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_11_4_pdf.html" id="S-11-4-Double-Integrals-Applications-7-7-9">
+\begin{equation*}
+P((x,y)\in R) = \iint_R f(x,y) \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-7-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_11_4_6"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.5</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_11_4_6-1-1">
+<div class="para">A firm manufactures smoke detectors. Two components for the detectors come from different suppliers â one in Michigan and one in Ohio. The company studies these components for their reliability and their data suggests that if <span class="process-math">\(x\)</span> is the life span (in years) of a randomly chosen component from the Michigan supplier and <span class="process-math">\(y\)</span> the life span (in years) of a randomly chosen component from the Ohio supplier, then the joint probability density function <span class="process-math">\(f\)</span> might be given by</div>
+<div class="displaymath process-math" id="A_11_4_6-1-1-5">
+\begin{equation*}
+f(x,y) = e^{-x} e^{-y}.
+\end{equation*}
+</div>
+<ol class="lower-alpha ol-marker-1" id="A_11_4_6-1-1-6">
+<li id="A_11_4_6-1-1-6-1">
+<div class="para logical" id="A_11_4_6-1-1-6-1-1">
+<div class="para">Theoretically, the components might last forever, so the domain <span class="process-math">\(D\)</span> of the function <span class="process-math">\(f\)</span> is the set <span class="process-math">\(D\)</span> of all <span class="process-math">\((x,y)\)</span> such that <span class="process-math">\(x \ge 0\)</span> and <span class="process-math">\(y \ge 0\text{.}\)</span> To show that <span class="process-math">\(f\)</span> is a probability density function on <span class="process-math">\(D\)</span> we need to demonstrate that</div>
+<div class="displaymath process-math" id="A_11_4_6-1-1-6-1-1-9">
+\begin{equation*}
+\int \int_D f(x,y) \, dA = 1,
+\end{equation*}
+</div>
+<div class="para">or that</div>
+<div class="displaymath process-math" id="A_11_4_6-1-1-6-1-1-10">
+\begin{equation*}
+\int_0^{\infty} \int_0^{\infty} f(x,y) \, dy \, dx = 1.
+\end{equation*}
+</div>
+<div class="para">Use your knowledge of improper integrals to verify that <span class="process-math">\(f\)</span> is indeed a probability density function.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_6-1-1-6-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_11_4_6-1-1-6-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_11_4_6-1-1-6-2">
+<div class="para" id="A_11_4_6-1-1-6-2-1">Assume that the smoke detector fails only if both of the supplied components fail. To determine the probability that a randomly selected detector will fail within one year, we will need to determine the probability that the life span of each component is between 0 and 1 years. Set up an appropriate iterated integral, and evaluate the integral to determine the probability.<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_6-1-1-6-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_11_4_6-1-1-6-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_11_4_6-1-1-6-3">
+<div class="para" id="A_11_4_6-1-1-6-3-1">What is the probability that a randomly chosen smoke detector will fail between years 3 and 7?<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_6-1-1-6-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_11_4_6-1-1-6-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_11_4_6-1-1-6-4">
+<div class="para" id="A_11_4_6-1-1-6-4-1">Suppose that the manufacturer determines that one of the components is more likely to fail than the other, and hence conjectures that the probability density function is instead <span class="process-math">\(f(x,y) = K e^{-x} e^{-2y}.\)</span>  What is the value of <span class="process-math">\(K\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_6-1-1-6-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_11_4_6-1-1-6-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_11_4_6-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 11.4.5"><a href="#A_11_4_6" title="Copy heading and permalink for Activity 11.4.5" aria-label="Copy heading and permalink for Activity 11.4.5">ð</a></div></article><div class="autopermalink" data-description="Subsection 11.4.4: Probability"><a href="#S-11-4-Double-Integrals-Applications-7" title="Copy heading and permalink for Subsection 11.4.4: Probability" aria-label="Copy heading and permalink for Subsection 11.4.4: Probability">ð</a></div></section><section class="subsection" id="S-11-4-Double-Integrals-Applications-8"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.5</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Summary</span>
+</h3>
+<ul class="disc" id="S-11-4-Double-Integrals-Applications-8-2">
+<li id="S-11-4-Double-Integrals-Applications-8-2-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-8-2-1-1">The mass of a lamina <span class="process-math">\(D\)</span> with a mass density function <span class="process-math">\(\delta = \delta(x,y)\)</span> is  <span class="process-math">\(\iint_D \delta(x,y) \, dA.\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-8-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-8-2-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-8-2-2">
+<div class="para" id="S-11-4-Double-Integrals-Applications-8-2-2-1">The area of a region <span class="process-math">\(D\)</span> in the plane has the same numerical value as the volume of a solid of uniform height 1 and base <span class="process-math">\(D\text{,}\)</span> so the area of <span class="process-math">\(D\)</span> is given by <span class="process-math">\(\iint_D 1 \, dA.\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-8-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-8-2-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-8-2-3">
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-8-2-3-1">
+<div class="para">The center of mass, <span class="process-math">\((\overline{x},\overline{y})\text{,}\)</span> of a continuous lamina with a variable density <span class="process-math">\(\delta(x,y)\)</span> is given by</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-8-2-3-1-3">
+\begin{equation*}
+\overline{x} = \frac{\iint_D x\delta(x,y) \, dA}{\iint_D \delta(x,y) \, dA} \ \ \ \ \ \text{ and }  \ \ \ \ \ \overline{y} = \frac{\iint_D y\delta(x,y) \, dA}{\iint_D \delta(x,y) \, dA}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-8-2-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-8-2-3" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-8-2-4">
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-8-2-4-1">
+<div class="para">Given a joint probability density function <span class="process-math">\(f\)</span> is a function of two independent variables <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> defined on a domain <span class="process-math">\(D\text{,}\)</span> if <span class="process-math">\(R\)</span> is some subregion of <span class="process-math">\(D\text{,}\)</span> then the probability that <span class="process-math">\((x,y)\)</span> is in <span class="process-math">\(R\)</span> is given by</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-8-2-4-1-9">
+\begin{equation*}
+\iint_R f(x,y) \, dA.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-8-2-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-11-4-Double-Integrals-Applications-8-2-4" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Subsection 11.4.5: Summary"><a href="#S-11-4-Double-Integrals-Applications-8" title="Copy heading and permalink for Subsection 11.4.5: Summary" aria-label="Copy heading and permalink for Subsection 11.4.5: Summary">ð</a></div></section><section class="exercises" id="S-11-4-Double-Integrals-Applications-9"><h3 class="heading hide-type">
+<span class="type">Exercises</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">11.4.6</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Exercises</span>
+</h3>
+<article class="exercise exercise-like" id="Library__Rochester__setIntegrals24Centroid__ur_in_24_1.pg"><h4 class="heading"><span class="codenumber">1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-210" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="210" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Rochester/setIntegrals24Centroid/ur_in_24_1.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-210')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-210-1-1-1">The masses <span class="process-math">\(m_i\)</span> are located at the points <span class="process-math">\(P_i\text{.}\)</span> Find the center of mass of the system.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-210-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-210-1-1-2">
+<span class="process-math">\(m_1=1\text{,}\)</span> <span class="process-math">\(m_2=2\text{,}\)</span> <span class="process-math">\(m_3=3\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-210-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-210-1-1-3">
+<span class="process-math">\(P_1=(9,-4)\text{,}\)</span> <span class="process-math">\(P_2=(-6,-8)\text{,}\)</span> <span class="process-math">\(P_3=(5,2)\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-210-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-210-1-1-4">
+<span class="process-math">\(\bar x\)</span>= <span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-210-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-210-1-1-5">
+<span class="process-math">\(\bar y\)</span>= <span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-210-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.1"><a href="#Library__Rochester__setIntegrals24Centroid__ur_in_24_1.pg" title="Copy heading and permalink for Exercise 11.4.6.1" aria-label="Copy heading and permalink for Exercise 11.4.6.1">ð</a></div></article><article class="exercise exercise-like" id="Library__Rochester__setIntegrals24Centroid__ur_in_24_2.pg"><h4 class="heading"><span class="codenumber">2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-211" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="211" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Rochester/setIntegrals24Centroid/ur_in_24_2.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-211')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-211-1-1-1">Find the centroid <span class="process-math">\((\bar x,\bar y)\)</span> of the triangle with vertices at <span class="process-math">\((0,0)\text{,}\)</span> <span class="process-math">\((7,0)\text{,}\)</span> and <span class="process-math">\((0,4)\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-211-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-211-1-1-2">
+<span class="process-math">\(\bar x\)</span>= <span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-211-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-211-1-1-3">
+<span class="process-math">\(\bar y\)</span>= <span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-211-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.2"><a href="#Library__Rochester__setIntegrals24Centroid__ur_in_24_2.pg" title="Copy heading and permalink for Exercise 11.4.6.2" aria-label="Copy heading and permalink for Exercise 11.4.6.2">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart15_5__problem_3.pg"><h4 class="heading"><span class="codenumber">3<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-212" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="212" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart15_5/problem_3.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-212')">Activate</button></div>
+<div class="problem-contents"><div class="para" id="extracted-webwork-212-1-1-1">Find the mass of the rectangular region <span class="process-math">\(0 \leq x \leq 2\text{,}\)</span> <span class="process-math">\(0
+\leq y \leq 2\)</span> with density function <span class="process-math">\(\rho \left( x, y \right) = 2 - y\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-212-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.3"><a href="#Library__272__setStewart15_5__problem_3.pg" title="Copy heading and permalink for Exercise 11.4.6.3" aria-label="Copy heading and permalink for Exercise 11.4.6.3">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart15_5__problem_3a.pg"><h4 class="heading"><span class="codenumber">4<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-213" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="213" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart15_5/problem_3a.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-213')">Activate</button></div>
+<div class="problem-contents"><div class="para" id="extracted-webwork-213-1-1-1">Find the mass of the triangular region with vertices (0, 0), (4, 0), and (0, 1), with density function <span class="process-math">\(\rho \left( x, y \right) = x^2 + y^2\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-213-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.4"><a href="#Library__272__setStewart15_5__problem_3a.pg" title="Copy heading and permalink for Exercise 11.4.6.4" aria-label="Copy heading and permalink for Exercise 11.4.6.4">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart15_5__problem_5.pg"><h4 class="heading"><span class="codenumber">5<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-214" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="214" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart15_5/problem_5.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-214')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-214-1-1-1">A lamina occupies the region inside the circle <span class="process-math">\(x^2 + y^2 = 12 y\)</span> but outside the circle <span class="process-math">\(x^2 + y^2 = 36\text{.}\)</span> The density at each point is inversely proportional to its distance from the orgin.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-214-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-214-1-1-2">Where is the center of mass?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-214-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-214-1-1-3">( <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, <span class="fillin underline" role="img" aria-label="40-character blank" style="width: 18.1818181818182em;"></span> )<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-214-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.5"><a href="#Library__272__setStewart15_5__problem_5.pg" title="Copy heading and permalink for Exercise 11.4.6.5" aria-label="Copy heading and permalink for Exercise 11.4.6.5">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart15_5__problem_1.pg"><h4 class="heading"><span class="codenumber">6<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-215" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="215" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart15_5/problem_1.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-215')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-215-1-1-1">A sprinkler distributes water in a circular pattern, supplying water to a depth of <span class="process-math">\(e^{-r}\)</span> feet per hour at a distance of r feet from the sprinkler.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-215-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-215-1-1-2">A. What is the total amount of water supplied per hour inside of a circle of radius 9?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-215-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-215-1-1-3">
+<span class="fillin underline" role="img" aria-label="40-character blank" style="width: 18.1818181818182em;"></span> <span class="process-math">\({ft}^3\)</span> per hour<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-215-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-215-1-1-4">B. What is the total amount of water that goes through the sprinkler per hour?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-215-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-215-1-1-5">
+<span class="fillin underline" role="img" aria-label="40-character blank" style="width: 18.1818181818182em;"></span> <span class="process-math">\({ft}^3\)</span> per hour<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-215-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.6"><a href="#Library__272__setStewart15_5__problem_1.pg" title="Copy heading and permalink for Exercise 11.4.6.6" aria-label="Copy heading and permalink for Exercise 11.4.6.6">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap16Sec6__Q03.pg"><h4 class="heading"><span class="codenumber">7<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-216" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="216" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap16Sec6/Q03.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-216')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-216-1-1-1">Let <span class="process-math">\(p\)</span> be the joint density function such that <span class="process-math">\(p(x,y) = \frac{1}{9} xy\)</span> in <span class="process-math">\(R\text{,}\)</span> the rectangle <span class="process-math">\(0 \le x \le 6, 0\le y \le 1\text{,}\)</span> and <span class="process-math">\(p(x,y)=0\)</span> outside <span class="process-math">\(R\text{.}\)</span>  Find the fraction of the population satisfying the constraint <span class="process-math">\(x+y \le 7\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-216-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-216-1-1-2">fraction = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-216-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.7"><a href="#Library__Michigan__Chap16Sec6__Q03.pg" title="Copy heading and permalink for Exercise 11.4.6.7" aria-label="Copy heading and permalink for Exercise 11.4.6.7">ð</a></div></article><article class="exercise exercise-like" id="Library__maCalcDB__setVMultIntegrals3Appl__UR_VC_9_9.pg"><h4 class="heading"><span class="codenumber">8<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-217" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="217" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/maCalcDB/setVMultIntegrals3Appl/UR_VC_9_9.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-217')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-217-1-1-1">A lamp has two bulbs, each of a type with an average lifetime of 2 hours.  The probability density function for the lifetime of a bulb is <span class="process-math">\(f(t) = \frac{1}{2}
+e^{-t/2}, t \geq 0\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-217-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-217-1-1-2">What is the probability that both of the bulbs will fail within 5 hours?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-217-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.8"><a href="#Library__maCalcDB__setVMultIntegrals3Appl__UR_VC_9_9.pg" title="Copy heading and permalink for Exercise 11.4.6.8" aria-label="Copy heading and permalink for Exercise 11.4.6.8">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap16Sec6__Q09.pg"><h4 class="heading"><span class="codenumber">9<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-218" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="218" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap16Sec6/Q09.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-218')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-218-1-1-1">For the following two functions <span class="process-math">\(p(x,y)\text{,}\)</span> check whether <span class="process-math">\(p\)</span> is a joint density function.  Assume <span class="process-math">\(p(x,y)=0\)</span> outside the region <span class="process-math">\(R\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-218-1-1-2">
+<em class="alert">(a)</em> <span class="process-math">\(p(x,y)=1\text{,}\)</span> where <span class="process-math">\(R\)</span> is <span class="process-math">\(0 \le x \le 1,
+2 \le y \le 2.5\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para logical" id="extracted-webwork-218-1-1-3">
+<div class="para"><span class="process-math">\(p(x,y)\)</span></div>
+<ul class="square" id="extracted-webwork-218-1-1-3-2">
+<li id="extracted-webwork-218-1-1-3-2-1">
+<div class="para" id="extracted-webwork-218-1-1-3-2-1-1">is a joint density function<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-3-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#extracted-webwork-218-1-1-3-2-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="extracted-webwork-218-1-1-3-2-2">
+<div class="para" id="extracted-webwork-218-1-1-3-2-2-1">is not a joint density function<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-3-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#extracted-webwork-218-1-1-3-2-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-218-1-1-4">
+<em class="alert">(b)</em> <span class="process-math">\(p(x,y)=2\text{,}\)</span> where <span class="process-math">\(R\)</span> is <span class="process-math">\(2 \le x \le 2.5,
+-1 \le y \le 3\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para logical" id="extracted-webwork-218-1-1-5">
+<div class="para"><span class="process-math">\(p(x,y)\)</span></div>
+<ul class="square" id="extracted-webwork-218-1-1-5-2">
+<li id="extracted-webwork-218-1-1-5-2-1">
+<div class="para" id="extracted-webwork-218-1-1-5-2-1-1">is a joint density function<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-5-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#extracted-webwork-218-1-1-5-2-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="extracted-webwork-218-1-1-5-2-2">
+<div class="para" id="extracted-webwork-218-1-1-5-2-2-1">is not a joint density function<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-5-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#extracted-webwork-218-1-1-5-2-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-218-1-1-6">Then, for the region <span class="process-math">\(R\)</span> given by <span class="process-math">\(2 \le x \le 3,
+0 \le y \le 2\text{,}\)</span> what constant function <span class="process-math">\(p(x,y)\)</span> is a joint density function?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-218-1-1-7">
+<span class="process-math">\(p(x,y) =\)</span> <span class="fillin underline" role="img" aria-label="15-character blank" style="width: 6.818181818181818em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-218-1-1-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.9"><a href="#Library__Michigan__Chap16Sec6__Q09.pg" title="Copy heading and permalink for Exercise 11.4.6.9" aria-label="Copy heading and permalink for Exercise 11.4.6.9">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap16Sec6__Q15.pg"><h4 class="heading"><span class="codenumber">10<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-219" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="219" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap16Sec6/Q15.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-219')">Activate</button></div>
+<div class="problem-contents">
+<div class="para logical" id="extracted-webwork-219-1-1-1">
+<div class="para">Let <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> have joint density function</div>
+<div class="displaymath process-math" id="extracted-webwork-219-1-1-1-3">
+\begin{equation*}
+p(x,y) = 
+\begin{cases}
+{2 \over 3}(x + 2y)\quad\amp \mbox{for  } 0 \le x \le 1, 0 \le y \le 1,\\
+0 \amp  \mbox{otherwise.}
+\end{cases}
+\end{equation*}
+</div>
+<div class="para">Find the probability that</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-219-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-219-1-1-2">
+<em class="alert">(a)</em> <span class="process-math">\(x &gt; 1/3\text{:}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-219-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-219-1-1-3">probability = <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-219-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-219-1-1-4">
+<em class="alert">(b)</em> <span class="process-math">\(x \lt  \frac{1}{3} + y\text{:}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-219-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-219-1-1-5">probability = <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-219-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.10"><a href="#Library__Michigan__Chap16Sec6__Q15.pg" title="Copy heading and permalink for Exercise 11.4.6.10" aria-label="Copy heading and permalink for Exercise 11.4.6.10">ð</a></div></article><article class="exercise exercise-like" id="S-11-4-Double-Integrals-Applications-9-11"><h4 class="heading"><span class="codenumber">11<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-9-11-1-1">
+<div class="para">A triangular plate is bounded by the graphs of the equations <span class="process-math">\(y = 2x\text{,}\)</span> <span class="process-math">\(y = 4x\text{,}\)</span> and <span class="process-math">\(y = 4\text{.}\)</span> The plateâs density at <span class="process-math">\((x,y)\)</span> is given by <span class="process-math">\(\delta(x,y) = 4xy^2 + 1\text{,}\)</span> measured in grams per square centimeter (and <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> are measured in centimeters).</div>
+<ol class="lower-alpha ol-marker-1" id="S-11-4-Double-Integrals-Applications-9-11-1-1-8">
+<li id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-1-1">Set up an iterated integral whose value is the mass of the plate. Include a labeled sketch of the region of integration.  Why did you choose the order of integration you did?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.11.a"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-1" title="Copy heading and permalink for Item 11.4.6.11.a" aria-label="Copy heading and permalink for Item 11.4.6.11.a">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-2">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-2-1">Determine the mass of the plate.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.11.b"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-2" title="Copy heading and permalink for Item 11.4.6.11.b" aria-label="Copy heading and permalink for Item 11.4.6.11.b">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-3">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-3-1">Determine the exact center of mass of the plate.  Draw and label the point you find on your sketch from (a).<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.11.c"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-3" title="Copy heading and permalink for Item 11.4.6.11.c" aria-label="Copy heading and permalink for Item 11.4.6.11.c">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-4">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-11-1-1-8-4-1">What is the average density of the plate?  Include units on your answer.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.11.d"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1-8-4" title="Copy heading and permalink for Item 11.4.6.11.d" aria-label="Copy heading and permalink for Item 11.4.6.11.d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-11-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.11"><a href="#S-11-4-Double-Integrals-Applications-9-11" title="Copy heading and permalink for Exercise 11.4.6.11" aria-label="Copy heading and permalink for Exercise 11.4.6.11">ð</a></div></article><article class="exercise exercise-like" id="S-11-4-Double-Integrals-Applications-9-12"><h4 class="heading"><span class="codenumber">12<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-9-12-1-1">
+<div class="para">Let <span class="process-math">\(D\)</span> be a half-disk lamina of radius 3 in quadrants IV and I, centered at the origin as in <a href="S-11-4-Double-Integrals-Applications.html#A_11_4_3" class="xref" data-knowl="./knowl/xref/A_11_4_3.html" data-reveal-label="Reveal" data-close-label="Close" title="Activity 11.4.2">ActivityÂ 11.4.2</a>. Assume the density at point <span class="process-math">\((x,y)\)</span> is equal to <span class="process-math">\(x\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="S-11-4-Double-Integrals-Applications-9-12-1-1-5">
+<li id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-1-1">Before doing any calculations, what do you expect the <span class="process-math">\(y\)</span>-coordinate of the center of mass to be? Why?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.12.a"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-1" title="Copy heading and permalink for Item 11.4.6.12.a" aria-label="Copy heading and permalink for Item 11.4.6.12.a">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-2">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-2-1">Set up iterated integral expressions which, if evaluated, will determine the exact center of mass of the lamina.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.12.b"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-2" title="Copy heading and permalink for Item 11.4.6.12.b" aria-label="Copy heading and permalink for Item 11.4.6.12.b">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-3">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-12-1-1-5-3-1">Use appropriate technology to evaluate the integrals to find the center of mass numerically.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.12.c"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1-5-3" title="Copy heading and permalink for Item 11.4.6.12.c" aria-label="Copy heading and permalink for Item 11.4.6.12.c">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-12-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.12"><a href="#S-11-4-Double-Integrals-Applications-9-12" title="Copy heading and permalink for Exercise 11.4.6.12" aria-label="Copy heading and permalink for Exercise 11.4.6.12">ð</a></div></article><article class="exercise exercise-like" id="S-11-4-Double-Integrals-Applications-9-13"><h4 class="heading"><span class="codenumber">13<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-11-4-Double-Integrals-Applications-9-13-1-1">
+<div class="para">Let <span class="process-math">\(x\)</span> denote the time (in minutes) that a person spends waiting in a checkout line at a grocery store and <span class="process-math">\(y\)</span> the time (in minutes) that it takes to check out. Suppose the joint probability density for <span class="process-math">\(x\)</span> and <span class="process-math">\(y\)</span> is</div>
+<div class="displaymath process-math" id="S-11-4-Double-Integrals-Applications-9-13-1-1-5">
+\begin{equation*}
+f(x,y) = \frac{1}{8} e^{-x/4-y/2}.
+\end{equation*}
+</div>
+<ol class="lower-alpha ol-marker-1" id="S-11-4-Double-Integrals-Applications-9-13-1-1-6">
+<li id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-1">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-1-1">What is the exact probability that a person spends between 0 to 5 minutes waiting in line, and then 0 to 5 minutes waiting to check out?<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.13.a"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-1" title="Copy heading and permalink for Item 11.4.6.13.a" aria-label="Copy heading and permalink for Item 11.4.6.13.a">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-2">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-2-1">Set up, but do not evaluate, an iterated integral whose value determines the exact probability that a person spends at most 10 minutes total both waiting in line and checking out at this grocery store.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.13.b"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-2" title="Copy heading and permalink for Item 11.4.6.13.b" aria-label="Copy heading and permalink for Item 11.4.6.13.b">ð</a></div>
+</li>
+<li id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-3">
+<div class="para" id="S-11-4-Double-Integrals-Applications-9-13-1-1-6-3-1">Set up, but do not evaluate, an iterated integral expression whose value determines the exact probability that a person spends at least 10 minutes total both waiting in line and checking out, but not more than 20 minutes.<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 11.4.6.13.c"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1-6-3" title="Copy heading and permalink for Item 11.4.6.13.c" aria-label="Copy heading and permalink for Item 11.4.6.13.c">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-11-4-Double-Integrals-Applications-9-13-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 11.4.6.13"><a href="#S-11-4-Double-Integrals-Applications-9-13" title="Copy heading and permalink for Exercise 11.4.6.13" aria-label="Copy heading and permalink for Exercise 11.4.6.13">ð</a></div></article><div class="autopermalink" data-description="Exercises 11.4.6"><a href="#S-11-4-Double-Integrals-Applications-9" title="Copy heading and permalink for Exercises 11.4.6" aria-label="Copy heading and permalink for Exercises 11.4.6">ð</a></div></section><div class="autopermalink" data-description="Section 11.4: Applications of Double Integrals"><a href="#S-11-4-Double-Integrals-Applications" title="Copy heading and permalink for Section 11.4: Applications of Double Integrals" aria-label="Copy heading and permalink for Section 11.4: Applications of Double Integrals">ð</a></div></section></div>
+<div id="ptx-content-footer" class="ptx-content-footer">
+<a class="previous-button button" href="S-11-3-Double-Integrals-General.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="top-button button" href="#" title="Top"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Top</span></a><a class="next-button button" href="S-11-5-Double-Integrals-Polar.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a>
+</div></main>
+</div>
+<div id="ptx-page-footer" class="ptx-page-footer">
+<a class="pretext-link" href="https://pretextbook.org" title="PreTeXt"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="338 3000 8772 6866" role="img"><title>PreTeXt logo</title><g style="stroke-width:.025in; stroke:currentColor; fill:none"><polyline points="472,3590 472,9732 " style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round; "></polyline><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,9448 A 4660 4660  0  0  1  8598  9259"></path><path style="stroke-width:174;stroke-linecap:butt;" d="M 4488,9685 A 4228 4228  0  0  0   472  9732"></path><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,3590 A 4241 4241  0  0  1  8598  3496"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,3496  A 4241 4241  0  0  1  4724  3590"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,9259  A 4507 4507  0  0  1  4724  9448"></path><polyline points="5385,4299 4062,8125" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8598,3496 8598,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="850,3496 850,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="4960,9685 4488,9685" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="3070,4582 1889,6141 3070,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="6418,4582 7600,6141 6418,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8976,3590 8976,9732" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><path style="stroke-width:174;stroke-linecap:butt;" d="M 4960,9685 A 4228 4228  0  0  1  8976  9732"></path></g></svg></div></a><a class="runestone-link" href="https://runestone.academy" title="Runestone Academy"><img class="logo" src="https://runestone.academy/runestone/static/images/RAIcon_cropped.png" alt="Runstone Academy logo"></a><a class="mathjax-link" href="https://www.mathjax.org" title="MathJax"><img class="logo" src="https://www.mathjax.org/badge/badge-square-2.png" alt="MathJax logo"></a>
+</div>
+<!--Start: Google Global Site Tag code--><!--*** DO NOT COPY ANOTHER PROJECT'S MAGIC NUMBERS/ID ***--><!--***           GET YOUR OWN FROM GOOGLE             ***-->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-QJKN634F7R"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QJKN634F7R');
+</script><!--End: Google Global Site Tag code-->
+</body>
+</html>

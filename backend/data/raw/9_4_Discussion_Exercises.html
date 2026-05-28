@@ -1,0 +1,640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>9.4 Discussion and Exercises</TITLE>
+<META NAME="description" CONTENT="9.4 Discussion and Exercises">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="previous" HREF="9_3_Summary.html">
+<LINK REL="up" HREF="9_Red_Black_Trees.html">
+<LINK REL="next" HREF="10_Heaps.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html987"
+  HREF="10_Heaps.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html981"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html977"
+  HREF="9_3_Summary.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html983"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html985"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html988"
+  HREF="10_Heaps.html">10. Heaps</A>
+<B> Up:</B> <A NAME="tex2html982"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Previous:</B> <A NAME="tex2html978"
+  HREF="9_3_Summary.html">9.3 Summary</A>
+ &nbsp; <B>  <A NAME="tex2html984"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html986"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001240000000000000000">
+<SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</H1>
+
+<P>
+Red-black trees were first introduced by Guibas and Sedgewick [<A
+ HREF="Bibliography.html#gs78">38</A>].
+Despite their high implementation complexity they are found in some of
+the most commonly used libraries and applications.  Most algorithms and
+data structures textbooks discuss some variant of red-black trees.
+
+<P>
+Andersson [<A
+ HREF="Bibliography.html#a93">6</A>] describes a left-leaning version of balanced trees
+that is similar to red-black trees but has the additional constraint
+that any node has at most one red child.  This implies that these trees
+simulate 2-3 trees rather than 2-4 trees.  They are significantly simpler,
+though, than the <TT>RedBlackTree</TT> structure presented in this chapter.
+
+<P>
+Sedgewick [<A
+ HREF="Bibliography.html#s08">66</A>] describes two versions of left-leaning red-black
+trees.  These use recursion along with a simulation of top-down splitting
+and merging in 2-4 trees. The combination of these two techniques makes
+for particularly short and elegant code.
+
+<P>
+A related, and older, data structure is the <SPAN  CLASS="textit">AVL tree</SPAN> [<A
+ HREF="Bibliography.html#avl62">3</A>].
+<A NAME="25553"></A>AVL trees are <SPAN  CLASS="textit">height-balanced</SPAN>:
+<A NAME="25555"></A><A NAME="25556"></A>At each node <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3766.png"
+ ALT="$ u$"></SPAN>, the height
+of the subtree rooted at <!-- MATH
+ $\mathtt{u.left}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3767.png"
+ ALT="$ \mathtt{u.left}$"></SPAN> and the subtree rooted at <!-- MATH
+ $\mathtt{u.right}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3768.png"
+ ALT="$ \mathtt{u.right}$"></SPAN>
+differ by at most one.  It follows immediately that, if <SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3769.png"
+ ALT="$ F(h)$"></SPAN> is the
+minimum number of leaves in a tree of height <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3770.png"
+ ALT="$ h$"></SPAN>, then <SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3771.png"
+ ALT="$ F(h)$"></SPAN> obeys the
+Fibonacci recurrence
+<P><!-- MATH
+ \begin{displaymath}
+F(h) = F(h-1) + F(h-2)
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="171" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3772.png"
+ ALT="$\displaystyle F(h) = F(h-1) + F(h-2)
+$">
+</DIV><P></P>
+with base cases <SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3773.png"
+ ALT="$ F(0)=1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3774.png"
+ ALT="$ F(1)=1$"></SPAN>.  This means <SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3775.png"
+ ALT="$ F(h)$"></SPAN> is approximately
+<!-- MATH
+ $\varphi^h/\sqrt{5}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3776.png"
+ ALT="$ \varphi^h/\sqrt{5}$"></SPAN>, where <!-- MATH
+ $\varphi=(1+\sqrt{5})/2\approx1.61803399$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="203" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3777.png"
+ ALT="$ \varphi=(1+\sqrt{5})/2\approx1.61803399$"></SPAN> is the
+<SPAN  CLASS="textit">golden ratio</SPAN>.  (More precisely, <!-- MATH
+ $|\varphi^h/\sqrt{5} - F(h)|\le 1/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3778.png"
+ ALT="$ \vert\varphi^h/\sqrt{5} - F(h)\vert\le 1/2$"></SPAN>.)
+Arguing as in the proof of Lemma&nbsp;<A HREF="9_1_2_4_Trees.html#lem:twofour-height">9.1</A>, this implies
+<P><!-- MATH
+ \begin{displaymath}
+h \le \log_\varphi \ensuremath{\mathtt{n}} \approx 1.440420088\log \ensuremath{\mathtt{n}} \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="226" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3779.png"
+ ALT="$\displaystyle h \le \log_\varphi \ensuremath{\mathtt{n}} \approx 1.440420088\log \ensuremath{\mathtt{n}} \enspace ,
+$">
+</DIV><P></P>
+so AVL trees have smaller height than red-black trees.  The height
+balancing can be maintained during <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3780.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3781.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations
+by walking back up the path to the root and performing a rebalancing
+operation at each node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3782.png"
+ ALT="$ \mathtt{u}$"></SPAN> where the height of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3783.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s left and right
+subtrees differ by two.  See Figure&nbsp;<A HREF="#fig:avl-rebalance">9.10</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:avl-rebalance"></A><A NAME="25575"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 9.10:</STRONG>
+Rebalancing in an AVL tree.  At most two rotations are required
+  to convert a node whose subtrees have a height of <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3785.png"
+ ALT="$ h$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3786.png"
+ ALT="$ h+2$"></SPAN> into a node
+  whose subtrees each have a height of at most <SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3787.png"
+ ALT="$ h+1$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="344" HEIGHT="471" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3784.png"
+ ALT="\includegraphics[scale=0.90909]{figs/avl-rebalance}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Andersson's variant of red-black trees, Sedgewick's variant of red-black
+trees, and AVL trees are all simpler to implement than the <TT>RedBlackTree</TT>
+structure defined here.  Unfortunately, none of them can guarantee that
+the amortized time spent rebalancing is <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3791.png"
+ ALT="$ O(1)$"></SPAN> per update.  In particular,
+there is no analogue of Theorem&nbsp;<A HREF="9_3_Summary.html#thm:redblack-amortized">9.2</A> for those structures.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:redblack-example2"></A><A NAME="25582"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 9.11:</STRONG>
+A red-black tree on which to practice.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+
+</DIV><IMG
+ WIDTH="286" HEIGHT="165" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3792.png"
+ ALT="\includegraphics[scale=0.90909]{figs/redblack-example}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+Illustrate the 2-4 tree that corresponds to the <TT>RedBlackTree</TT> in
+  Figure&nbsp;<A HREF="#fig:redblack-example2">9.11</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+Illustrate the addition of 13, then 3.5, then 3.3 on the <TT>RedBlackTree</TT>
+  in Figure&nbsp;<A HREF="#fig:redblack-example2">9.11</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+Illustrate the removal of 11, then 9, then 5 on the <TT>RedBlackTree</TT> in 
+  Figure&nbsp;<A HREF="#fig:redblack-example2">9.11</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+Show that, for arbitrarily large values of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3793.png"
+ ALT="$ \mathtt{n}$"></SPAN>, there are red-black
+  trees with <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3794.png"
+ ALT="$ \mathtt{n}$"></SPAN> nodes that have height <!-- MATH
+ $2\log \ensuremath{\mathtt{n}}-O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3795.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}}-O(1)$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">5</SPAN></B> &nbsp; 
+Consider the operations <!-- MATH
+ $\mathtt{pushBlack(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="99" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3796.png"
+ ALT="$ \mathtt{pushBlack(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{pullBlack(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="99" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3797.png"
+ ALT="$ \mathtt{pullBlack(u)}$"></SPAN>.  What do
+  these operations do to the underlying 2-4 tree that is being simulated
+  by the red-black tree?</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">6</SPAN></B> &nbsp; 
+Show that, for arbitrarily large values of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3798.png"
+ ALT="$ \mathtt{n}$"></SPAN>, there exist sequences
+  of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3799.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3800.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations that lead to red-black trees
+  with <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3801.png"
+ ALT="$ \mathtt{n}$"></SPAN> nodes that have height <!-- MATH
+ $2\log \ensuremath{\mathtt{n}}-O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3802.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}}-O(1)$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">7</SPAN></B> &nbsp; 
+Why does the method <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3803.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> in the <TT>RedBlackTree</TT> implementation
+  perform the assignment <!-- MATH
+ $\mathtt{u.parent=w.parent}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="147" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3804.png"
+ ALT="$ \mathtt{u.parent=w.parent}$"></SPAN>?  Shouldn't this already
+  be done by the call to <!-- MATH
+ $\mathtt{splice(w)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3805.png"
+ ALT="$ \mathtt{splice(w)}$"></SPAN>?</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">8</SPAN></B> &nbsp; 
+Suppose a 2-4 tree, <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3806.png"
+ ALT="$ T$"></SPAN>, has <!-- MATH
+ $\ensuremath{\mathtt{n}}_\ell$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3807.png"
+ ALT="$ \ensuremath{\mathtt{n}}_\ell$"></SPAN> leaves and <!-- MATH
+ $\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3808.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i$"></SPAN> internal nodes.
+  
+<OL>
+<LI>What is the minimum value of <!-- MATH
+ $\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3809.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i$"></SPAN>, as a function of <!-- MATH
+ $\ensuremath{\mathtt{n}}_\ell$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3810.png"
+ ALT="$ \ensuremath{\mathtt{n}}_\ell$"></SPAN>?
+</LI>
+<LI>What is the maximum value of <!-- MATH
+ $\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3811.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i$"></SPAN>, as a function of <!-- MATH
+ $\ensuremath{\mathtt{n}}_\ell$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3812.png"
+ ALT="$ \ensuremath{\mathtt{n}}_\ell$"></SPAN>?
+</LI>
+<LI>If <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3813.png"
+ ALT="$ T'$"></SPAN> is a red-black tree that represents <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3814.png"
+ ALT="$ T$"></SPAN>, then how many red
+     nodes does <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3815.png"
+ ALT="$ T'$"></SPAN> have?
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">9</SPAN></B> &nbsp; 
+Suppose you are given a binary search tree with <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3816.png"
+ ALT="$ \mathtt{n}$"></SPAN> nodes and a
+  height of at most <!-- MATH
+ $2\log \ensuremath{\mathtt{n}}-2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3817.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}}-2$"></SPAN>.  Is it always possible to colour the
+  nodes red and black so that the tree satisfies the black-height and
+  no-red-edge properties?  If so, can it also be made to satisfy the
+  left-leaning property?</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:redblack-merge"><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">10</SPAN></B></A> &nbsp; 
+Suppose you have two red-black trees <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3818.png"
+ ALT="$ T_1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3819.png"
+ ALT="$ T_2$"></SPAN> that have the
+  same black height, <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3820.png"
+ ALT="$ h$"></SPAN>, and such that the largest key in <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3821.png"
+ ALT="$ T_1$"></SPAN> is smaller
+  than the smallest key in <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3822.png"
+ ALT="$ T_2$"></SPAN>.  Show how to merge <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3823.png"
+ ALT="$ T_1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3824.png"
+ ALT="$ T_2$"></SPAN>
+  into a single red-black tree in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3825.png"
+ ALT="$ O(h)$"></SPAN> time.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">11</SPAN></B> &nbsp; 
+Extend your solution to Exercise&nbsp;<A HREF="#exc:redblack-merge">9.10</A> to the case where the
+  two trees <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3826.png"
+ ALT="$ T_1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3827.png"
+ ALT="$ T_2$"></SPAN> have different black heights, <!-- MATH
+ $h_1\neq h_2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3828.png"
+ ALT="$ h_1\neq h_2$"></SPAN>.
+  The running-time should be <!-- MATH
+ $O(\max\{h_1,h_2\})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="106" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3829.png"
+ ALT="$ O(\max\{h_1,h_2\})$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">12</SPAN></B> &nbsp; 
+Prove that, during an <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3830.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation, an AVL tree must perform
+  at most one rebalancing operation (that involves at most two rotations;
+  see Figure&nbsp;<A HREF="#fig:avl-rebalance">9.10</A>).  Give an example of an AVL tree and a
+  <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3831.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation on that tree that requires on the order of <!-- MATH
+ $\log
+  \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3832.png"
+ ALT="$ \log
+\ensuremath{\mathtt{n}}$"></SPAN> rebalancing operations.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">13</SPAN></B> &nbsp; 
+Implement an <TT>AVLTree</TT> class that implements AVL trees as described
+  above.  Compare its performance to that of the <TT>RedBlackTree</TT>
+  implementation.   Which implementation has a faster <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3833.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation?</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">14</SPAN></B> &nbsp; 
+Design and implement a series of experiments that compare the relative
+  performance of <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3834.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3835.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3836.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> for the <TT>SSet</TT> implemeentations <TT>SkiplistSSet</TT>,
+  <TT>ScapegoatTree</TT>, <TT>Treap</TT>, and <TT>RedBlackTree</TT>.  Be sure to include
+  multiple test scenarios, including cases where the data is random,
+  already sorted, is removed in random order, is removed in sorted order,
+  and so on.</DIV><P></P>
+
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html987"
+  HREF="10_Heaps.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html981"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html977"
+  HREF="9_3_Summary.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html983"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html985"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html988"
+  HREF="10_Heaps.html">10. Heaps</A>
+<B> Up:</B> <A NAME="tex2html982"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Previous:</B> <A NAME="tex2html978"
+  HREF="9_3_Summary.html">9.3 Summary</A>
+ &nbsp; <B>  <A NAME="tex2html984"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html986"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

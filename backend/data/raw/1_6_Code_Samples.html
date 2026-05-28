@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>1.6 Code Samples</TITLE>
+<META NAME="description" CONTENT="1.6 Code Samples">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="1_7_List_Data_Structures.html">
+<LINK REL="previous" HREF="1_5_Correctness_Time_Comple.html">
+<LINK REL="up" HREF="1_Introduction.html">
+<LINK REL="next" HREF="1_7_List_Data_Structures.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html337"
+  HREF="1_7_List_Data_Structures.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html331"
+  HREF="1_Introduction.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html325"
+  HREF="1_5_Correctness_Time_Comple.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html333"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html335"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html338"
+  HREF="1_7_List_Data_Structures.html">1.7 List of Data</A>
+<B> Up:</B> <A NAME="tex2html332"
+  HREF="1_Introduction.html">1. Introduction</A>
+<B> Previous:</B> <A NAME="tex2html326"
+  HREF="1_5_Correctness_Time_Comple.html">1.5 Correctness, Time Complexity,</A>
+ &nbsp; <B>  <A NAME="tex2html334"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html336"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00460000000000000000">
+<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">6</SPAN> Code Samples</A>
+</H1>
+
+<P>
+
+<P>
+The code samples in this book are written in the Java programming
+language.  However, to make the book accessible to readers not familiar
+with all of Java's constructs and keywords, the code samples have
+been simplified.  For example, a reader won't find any of the keywords
+<!-- MATH
+ $\mathtt{public}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img392.png"
+ ALT="$ \mathtt{public}$"></SPAN>, <!-- MATH
+ $\mathtt{protected}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img393.png"
+ ALT="$ \mathtt{protected}$"></SPAN>, <!-- MATH
+ $\mathtt{private}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img394.png"
+ ALT="$ \mathtt{private}$"></SPAN>, or <!-- MATH
+ $\mathtt{static}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img395.png"
+ ALT="$ \mathtt{static}$"></SPAN>.  A reader also won't find
+much discussion about class hierarchies.  Which interfaces a particular
+class implements or which class it extends, if relevant to the discussion,
+should be clear from the accompanying text.
+
+<P>
+These conventions should make the code samples understandable by
+anyone with a background in any of the languages from the ALGOL tradition,
+including B, C, C++, C#, Objective-C, D, Java, JavaScript, and so on.
+Readers who want the full details of all implementations are encouraged
+to look at the Java source code that accompanies this book.
+
+<P>
+This book mixes mathematical analyses of running times with Java source code for the algorithms being analyzed.  This means that
+some equations contain variables also found in the source code.
+These variables are typeset consistently, both within the source code
+and within equations.  The most common such variable is the variable <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img396.png"
+ ALT="$ \mathtt{n}$"></SPAN>
+<A NAME="2883"></A>that, without exception, always refers to the number of items currently
+stored in the data structure.
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html337"
+  HREF="1_7_List_Data_Structures.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html331"
+  HREF="1_Introduction.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html325"
+  HREF="1_5_Correctness_Time_Comple.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html333"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html335"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html338"
+  HREF="1_7_List_Data_Structures.html">1.7 List of Data</A>
+<B> Up:</B> <A NAME="tex2html332"
+  HREF="1_Introduction.html">1. Introduction</A>
+<B> Previous:</B> <A NAME="tex2html326"
+  HREF="1_5_Correctness_Time_Comple.html">1.5 Correctness, Time Complexity,</A>
+ &nbsp; <B>  <A NAME="tex2html334"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html336"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

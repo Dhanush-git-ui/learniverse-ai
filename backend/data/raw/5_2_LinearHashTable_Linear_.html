@@ -1,0 +1,1937 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>5.2 LinearHashTable: Linear Probing</TITLE>
+<META NAME="description" CONTENT="5.2 LinearHashTable: Linear Probing">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="5_3_Hash_Codes.html">
+<LINK REL="previous" HREF="5_1_ChainedHashTable_Hashin.html">
+<LINK REL="up" HREF="5_Hash_Tables.html">
+<LINK REL="next" HREF="5_3_Hash_Codes.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html710"
+  HREF="5_3_Hash_Codes.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html704"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html698"
+  HREF="5_1_ChainedHashTable_Hashin.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html706"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html708"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html711"
+  HREF="5_3_Hash_Codes.html">5.3 Hash Codes</A>
+<B> Up:</B> <A NAME="tex2html705"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Previous:</B> <A NAME="tex2html699"
+  HREF="5_1_ChainedHashTable_Hashin.html">5.1 ChainedHashTable: Hashing with</A>
+ &nbsp; <B>  <A NAME="tex2html707"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html709"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html712"
+  HREF="5_2_LinearHashTable_Linear_.html#SECTION00821000000000000000"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Linear Probing</A>
+<LI><A NAME="tex2html713"
+  HREF="5_2_LinearHashTable_Linear_.html#SECTION00822000000000000000"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+<LI><A NAME="tex2html714"
+  HREF="5_2_LinearHashTable_Linear_.html#SECTION00823000000000000000"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Tabulation Hashing</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00820000000000000000"></A>
+<A NAME="sec:linearhashtable"></A>
+<BR>
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>LinearHashTable</TT>: Linear Probing
+</H1>
+
+<P>
+<A NAME="15746"></A>The <TT>ChainedHashTable</TT> data structure uses an array of lists, where the <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2116.png"
+ ALT="$ \mathtt{i}$"></SPAN>th
+list stores all elements <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2117.png"
+ ALT="$ \mathtt{x}$"></SPAN> such that <!-- MATH
+ $\ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{i}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2118.png"
+ ALT="$ \ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{i}}$"></SPAN>.  An alternative,
+called <SPAN  CLASS="textit">open addressing</SPAN>
+<A NAME="14434"></A>is to store the elements directly in an
+array, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2119.png"
+ ALT="$ \mathtt{t}$"></SPAN>, with each array location in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2120.png"
+ ALT="$ \mathtt{t}$"></SPAN> storing at most one value.
+This approach is taken by the <TT>LinearHashTable</TT> described in this
+section.  In some places, this data structure is described as <SPAN  CLASS="textit">open
+addressing with linear probing</SPAN>.
+<A NAME="14439"></A>
+<P>
+The main idea behind a <TT>LinearHashTable</TT> is that we would, ideally, like
+to store the element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2121.png"
+ ALT="$ \mathtt{x}$"></SPAN> with hash value <!-- MATH
+ $\mathtt{i=hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2122.png"
+ ALT="$ \mathtt{i=hash(x)}$"></SPAN> in the table location
+<!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2123.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>.  If we cannot do this (because some element is already stored
+there) then we try to store it at location <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod\ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2124.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod\ensuremath{\mathtt{t.length}}]$"></SPAN>;
+if that's not possible, then we try <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod\ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2125.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod\ensuremath{\mathtt{t.length}}]$"></SPAN>,
+and so on, until we find a place for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2126.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+
+<P>
+There are three types of entries stored in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2127.png"
+ ALT="$ \mathtt{t}$"></SPAN>: 
+
+<OL>
+<LI>data values: actual values in the <TT>USet</TT> that we are representing;
+</LI>
+<LI><!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2128.png"
+ ALT="$ \mathtt{null}$"></SPAN> values: at array locations where no data has ever been
+  stored; and
+</LI>
+<LI><!-- MATH
+ $\mathtt{del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2129.png"
+ ALT="$ \mathtt{del}$"></SPAN> values: at array locations where data was once stored but that
+   has since been deleted.
+</LI>
+</OL>
+In addition to the counter, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2130.png"
+ ALT="$ \mathtt{n}$"></SPAN>, that keeps track of the number of elements
+in the <TT>LinearHashTable</TT>, a counter, <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2131.png"
+ ALT="$ \mathtt{q}$"></SPAN>, keeps track of the number of
+elements of Types&nbsp;1 and 3.  That is, <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2132.png"
+ ALT="$ \mathtt{q}$"></SPAN> is equal to <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2133.png"
+ ALT="$ \mathtt{n}$"></SPAN> plus the number
+of <!-- MATH
+ $\mathtt{del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2134.png"
+ ALT="$ \mathtt{del}$"></SPAN> values in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2135.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  To make this work efficiently, we need
+<!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2136.png"
+ ALT="$ \mathtt{t}$"></SPAN> to be considerably larger than <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2137.png"
+ ALT="$ \mathtt{q}$"></SPAN>, so that there are lots of <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2138.png"
+ ALT="$ \mathtt{null}$"></SPAN>
+values in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2139.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  The operations on a <TT>LinearHashTable</TT> therefore maintain
+the invariant that <!-- MATH
+ $\ensuremath{\mathtt{t.length}}\ge 2\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2140.png"
+ ALT="$ \ensuremath{\mathtt{t.length}}\ge 2\ensuremath{\mathtt{q}}$"></SPAN>.
+
+<P>
+To summarize, a <TT>LinearHashTable</TT> contains an array, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2141.png"
+ ALT="$ \mathtt{t}$"></SPAN>, that stores
+data elements, and integers <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2142.png"
+ ALT="$ \mathtt{n}$"></SPAN> and <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2143.png"
+ ALT="$ \mathtt{q}$"></SPAN> that keep track of the number of
+data elements and non-<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2144.png"
+ ALT="$ \mathtt{null}$"></SPAN> values of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2145.png"
+ ALT="$ \mathtt{t}$"></SPAN>, respectively.  Because many
+hash functions only work for table sizes that are a power of 2, we also
+keep an integer <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2146.png"
+ ALT="$ \mathtt{d}$"></SPAN> and maintain the invariant that <!-- MATH
+ $\ensuremath{\mathtt{t.length}}=2^\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="100" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2147.png"
+ ALT="$ \ensuremath{\mathtt{t.length}}=2^\ensuremath{\mathtt{d}}$"></SPAN>.
+<PRE>
+    T[] t;   // the table
+    int n;   // the size
+    int d;   // t.length = 2^d
+    int q;   // number of non-null entries in t
+</PRE>
+
+<P>
+The <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2148.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>LinearHashTable</TT> is simple.  We start
+at array entry <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2149.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN> where <!-- MATH
+ $\ensuremath{\mathtt{i}}=\ensuremath{\mathtt{hash(x)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2150.png"
+ ALT="$ \ensuremath{\mathtt{i}}=\ensuremath{\mathtt{hash(x)}}$"></SPAN> and search entries <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2151.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>,
+<!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2152.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod \ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2153.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod \ensuremath{\mathtt{t.length}}]$"></SPAN>, and so on,
+until we find an index <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2154.png"
+ ALT="$ \mathtt{i'}$"></SPAN> such that, either, <!-- MATH
+ $\mathtt{t[i']=x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2155.png"
+ ALT="$ \mathtt{t[i']=x}$"></SPAN>, or <!-- MATH
+ $\mathtt{t[i']=null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2156.png"
+ ALT="$ \mathtt{t[i']=null}$"></SPAN>.
+In the former case we return <!-- MATH
+ $\mathtt{t[i']}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2157.png"
+ ALT="$ \mathtt{t[i']}$"></SPAN>. In the latter case, we conclude
+that <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2158.png"
+ ALT="$ \mathtt{x}$"></SPAN> is not contained in the hash table and return <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2159.png"
+ ALT="$ \mathtt{null}$"></SPAN>.
+<PRE>
+    T find(T x) {
+        int i = hash(x);
+        while (t[i] != null) {
+            if (t[i] != del &amp;&amp; x.equals(t[i])) return t[i];
+            i = (i == t.length-1) ? 0 : i + 1; // increment i
+        }
+        return null;
+    }
+</PRE>
+
+<P>
+The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2160.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation is also fairly easy to implement. After checking
+that <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2161.png"
+ ALT="$ \mathtt{x}$"></SPAN> is not already stored in the table (using <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2162.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>), we search
+<!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2163.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2164.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod \ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2165.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod \ensuremath{\mathtt{t.length}}]$"></SPAN>,
+and so on, until we find a <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2166.png"
+ ALT="$ \mathtt{null}$"></SPAN> or <!-- MATH
+ $\mathtt{del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2167.png"
+ ALT="$ \mathtt{del}$"></SPAN> and store <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2168.png"
+ ALT="$ \mathtt{x}$"></SPAN> at that location,
+increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2169.png"
+ ALT="$ \mathtt{n}$"></SPAN>, and <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2170.png"
+ ALT="$ \mathtt{q}$"></SPAN>, if appropriate.
+<PRE>
+    boolean add(T x) {
+        if (find(x) != null) return false;
+        if (2*(q+1) &gt; t.length) resize(); // max 50% occupancy
+        int i = hash(x);
+        while (t[i] != null &amp;&amp; t[i] != del)
+            i = (i == t.length-1) ? 0 : i + 1; // increment i
+        if (t[i] == null) q++;
+        n++;
+        t[i] = x;
+        return true;
+    }
+</PRE>
+
+<P>
+By now, the implementation of the <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2171.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation should be obvious.
+We search <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2172.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2173.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+1)\bmod \ensuremath{\mathtt{t.length}}]$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod
+\ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="169" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2174.png"
+ ALT="$ \ensuremath{\mathtt{t}}[(\ensuremath{\mathtt{i}}+2)\bmod
+\ensuremath{\mathtt{t.length}}]$"></SPAN>, and so on until we find an index <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2175.png"
+ ALT="$ \mathtt{i'}$"></SPAN> such that <!-- MATH
+ $\mathtt{t[i']=x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2176.png"
+ ALT="$ \mathtt{t[i']=x}$"></SPAN>
+or <!-- MATH
+ $\mathtt{t[i']=null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2177.png"
+ ALT="$ \mathtt{t[i']=null}$"></SPAN>.  In the former case, we set <!-- MATH
+ $\mathtt{t[i']=del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="79" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2178.png"
+ ALT="$ \mathtt{t[i']=del}$"></SPAN> and return
+<!-- MATH
+ $\mathtt{true}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2179.png"
+ ALT="$ \mathtt{true}$"></SPAN>.  In the latter case we conclude that <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2180.png"
+ ALT="$ \mathtt{x}$"></SPAN> was not stored in the
+table (and therefore cannot be deleted) and return <!-- MATH
+ $\mathtt{false}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2181.png"
+ ALT="$ \mathtt{false}$"></SPAN>.
+<PRE>
+    T remove(T x) {
+        int i = hash(x);
+        while (t[i] != null) {
+            T y = t[i];
+            if (y != del &amp;&amp; x.equals(y)) { 
+                t[i] = del;
+                n--;
+                if (8*n &lt; t.length) resize(); // min 12.5% occupancy
+                return y;
+            }
+            i = (i == t.length-1) ? 0 : i + 1;  // increment i
+        }
+        return null;
+    }
+</PRE>
+
+<P>
+The correctness of the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2182.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2183.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2184.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> methods is
+easy to verify, though it relies on the use of <!-- MATH
+ $\mathtt{del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2185.png"
+ ALT="$ \mathtt{del}$"></SPAN> values.  Notice
+that none of these operations ever sets a non-<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2186.png"
+ ALT="$ \mathtt{null}$"></SPAN> entry to <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2187.png"
+ ALT="$ \mathtt{null}$"></SPAN>.
+Therefore, when we reach an index <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2188.png"
+ ALT="$ \mathtt{i'}$"></SPAN> such that <!-- MATH
+ $\mathtt{t[i']=null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2189.png"
+ ALT="$ \mathtt{t[i']=null}$"></SPAN>, this is
+a proof that the element, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2190.png"
+ ALT="$ \mathtt{x}$"></SPAN>, that we are searching for is not stored
+in the table; <!-- MATH
+ $\mathtt{t[i']}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2191.png"
+ ALT="$ \mathtt{t[i']}$"></SPAN> has always been <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2192.png"
+ ALT="$ \mathtt{null}$"></SPAN>, so there is no reason that
+a previous <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2193.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation would have proceeded beyond index <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2194.png"
+ ALT="$ \mathtt{i'}$"></SPAN>.
+
+<P>
+The <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2195.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> method is called by <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2196.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> when the number of non-<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2197.png"
+ ALT="$ \mathtt{null}$"></SPAN>
+entries exceeds <!-- MATH
+ $\ensuremath{\mathtt{t.length}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2198.png"
+ ALT="$ \ensuremath{\mathtt{t.length}}/2$"></SPAN> or by <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2199.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> when the number of
+data entries is less than <!-- MATH
+ $\mathtt{t.length/8}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2200.png"
+ ALT="$ \mathtt{t.length/8}$"></SPAN>.  The <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2201.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> method works
+like the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2202.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> methods in other array-based data structures.
+We find the smallest non-negative integer <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2203.png"
+ ALT="$ \mathtt{d}$"></SPAN> such that <!-- MATH
+ $2^{\ensuremath{\mathtt{d}}}
+\ge 3\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2204.png"
+ ALT="$ 2^{\ensuremath{\mathtt{d}}}
+\ge 3\ensuremath{\mathtt{n}}$"></SPAN>.  We reallocate the array <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2205.png"
+ ALT="$ \mathtt{t}$"></SPAN> so that it has size <!-- MATH
+ $2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2206.png"
+ ALT="$ 2^{\ensuremath{\mathtt{d}}}$"></SPAN>,
+and then we insert all the elements in the old version of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2207.png"
+ ALT="$ \mathtt{t}$"></SPAN> into the
+newly-resized copy of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2208.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  While doing this, we reset <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2209.png"
+ ALT="$ \mathtt{q}$"></SPAN> equal to <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2210.png"
+ ALT="$ \mathtt{n}$"></SPAN>
+since the newly-allocated <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2211.png"
+ ALT="$ \mathtt{t}$"></SPAN> contains no <!-- MATH
+ $\mathtt{del}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2212.png"
+ ALT="$ \mathtt{del}$"></SPAN> values.
+<PRE>
+    void resize() {
+        d = 1;
+        while ((1&lt;&lt;d) &lt; 3*n) d++;
+        T[] told = t;
+        t = newArray(1&lt;&lt;d);
+        q = n;
+        // insert everything from told
+        for (int k = 0; k &lt; told.length; k++) {
+            if (told[k] != null &amp;&amp; told[k] != del) {
+                int i = hash(told[k]);
+                while (t[i] != null) 
+                    i = (i == t.length-1) ? 0 : i + 1;
+                t[i] = told[k];
+            }
+        }
+    }
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION00821000000000000000">
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Linear Probing</A>
+</H2>
+
+<P>
+Notice that each operation, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2213.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2214.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, or <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2215.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>, finishes
+as soon as (or before) it discovers the first <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2216.png"
+ ALT="$ \mathtt{null}$"></SPAN> entry in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2217.png"
+ ALT="$ \mathtt{t}$"></SPAN>.
+The intuition behind the analysis of linear probing is that, since at
+least half the elements in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2218.png"
+ ALT="$ \mathtt{t}$"></SPAN> are equal to <!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2219.png"
+ ALT="$ \mathtt{null}$"></SPAN>, an operation should
+not take long to complete because it will very quickly come across a
+<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2220.png"
+ ALT="$ \mathtt{null}$"></SPAN> entry.  We shouldn't rely too heavily on this intuition, though,
+because it would lead us to (the incorrect) conclusion that the expected
+number of locations in <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2221.png"
+ ALT="$ \mathtt{t}$"></SPAN> examined by an operation is at most 2.
+
+<P>
+For the rest of this section, we will assume that all hash values are
+independently and uniformly distributed in <!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2222.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN>.
+This is not a realistic assumption, but it will make it possible for
+us to analyze linear probing.  Later in this section we will describe a
+method, called tabulation hashing, that produces a hash function that is
+``good enough'' for linear probing.  We will also assume that all indices
+into the positions of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2223.png"
+ ALT="$ \mathtt{t}$"></SPAN> are taken modulo <!-- MATH
+ $\mathtt{t.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2224.png"
+ ALT="$ \mathtt{t.length}$"></SPAN>, so that <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2225.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>
+is really a shorthand for <!-- MATH
+ $\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}\bmod\ensuremath{\mathtt{t.length}}]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="135" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2226.png"
+ ALT="$ \ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}\bmod\ensuremath{\mathtt{t.length}}]$"></SPAN>.
+
+<P>
+<A NAME="14587"></A>We say that a <SPAN  CLASS="textit">run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2227.png"
+ ALT="$ k$"></SPAN> that starts at <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2228.png"
+ ALT="$ \mathtt{i}$"></SPAN></SPAN> occurs when all
+the table entries <!-- MATH
+ $\ensuremath{\mathtt{t[i]}}, \ensuremath{\mathtt{t[i+1]}},\ldots,\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k-1]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="191" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2229.png"
+ ALT="$ \ensuremath{\mathtt{t[i]}}, \ensuremath{\mathtt{t[i+1]}},\ldots,\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k-1]$"></SPAN> are non-<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2230.png"
+ ALT="$ \mathtt{null}$"></SPAN>
+and <!-- MATH
+ $\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}-1]=\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k]=\ensuremath{\mathtt{null}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="175" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2231.png"
+ ALT="$ \ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}-1]=\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k]=\ensuremath{\mathtt{null}}$"></SPAN>.  The number of non-<!-- MATH
+ $\mathtt{null}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2232.png"
+ ALT="$ \mathtt{null}$"></SPAN> elements of
+<!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2233.png"
+ ALT="$ \mathtt{t}$"></SPAN> is exactly <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2234.png"
+ ALT="$ \mathtt{q}$"></SPAN> and the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2235.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> method ensures that, at all times,
+<!-- MATH
+ $\ensuremath{\mathtt{q}}\le\ensuremath{\mathtt{t.length}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2236.png"
+ ALT="$ \ensuremath{\mathtt{q}}\le\ensuremath{\mathtt{t.length}}/2$"></SPAN>.  There are <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2237.png"
+ ALT="$ \mathtt{q}$"></SPAN> elements <!-- MATH
+ $\ensuremath{\mathtt{x}}_1,\ldots,\ensuremath{\mathtt{x}}_{\ensuremath{\mathtt{q}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2238.png"
+ ALT="$ \ensuremath{\mathtt{x}}_1,\ldots,\ensuremath{\mathtt{x}}_{\ensuremath{\mathtt{q}}}$"></SPAN>
+that have been inserted into <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2239.png"
+ ALT="$ \mathtt{t}$"></SPAN> since the last <!-- MATH
+ $\mathtt{rebuild()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2240.png"
+ ALT="$ \mathtt{rebuild()}$"></SPAN> operation.
+By our assumption, each of these has a hash value, <!-- MATH
+ $\ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_j)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2241.png"
+ ALT="$ \ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_j)$"></SPAN>,
+that is uniform and independent of the rest.  With this setup, we can
+prove the main lemma required to analyze linear probing.
+
+<P>
+<P>
+<DIV><A NAME="lem:linear-probing"><B>Lemma  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">4</SPAN></B></A> &nbsp; 
+<I>Fix a value <!-- MATH
+ $\ensuremath{\mathtt{i}}\in\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="163" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2242.png"
+ ALT="$ \ensuremath{\mathtt{i}}\in\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN>.  Then the probability that
+a run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2243.png"
+ ALT="$ k$"></SPAN> starts at <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2244.png"
+ ALT="$ \mathtt{i}$"></SPAN> is <SPAN CLASS="MATH"><IMG
+ WIDTH="42" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2245.png"
+ ALT="$ O(c^k)$"></SPAN> for some constant <SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2246.png"
+ ALT="$ 0&lt;c&lt;1$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+If a run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2248.png"
+ ALT="$ k$"></SPAN> starts at <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2249.png"
+ ALT="$ \mathtt{i}$"></SPAN>, then there are exactly <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2250.png"
+ ALT="$ k$"></SPAN>
+elements <!-- MATH
+ $\ensuremath{\mathtt{x}}_j$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2251.png"
+ ALT="$ \ensuremath{\mathtt{x}}_j$"></SPAN> such that <!-- MATH
+ $\ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_j)\in\{\ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{i}}+k-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="182" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2252.png"
+ ALT="$ \ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_j)\in\{\ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{i}}+k-1\}$"></SPAN>.
+The probability that this occurs is exactly
+<P><!-- MATH
+ \begin{displaymath}
+p_k  = \binom{\ensuremath{\mathtt{q}}}{k}\left(\frac{k}{\ensuremath{\mathtt{t.length}}}\right)^k\left(\frac{\ensuremath{\mathtt{t.length}}-k}{\ensuremath{\mathtt{t.length}}}\right)^{\ensuremath{\mathtt{q}}-k} \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="288" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2253.png"
+ ALT="$\displaystyle p_k = \binom{\ensuremath{\mathtt{q}}}{k}\left(\frac{k}{\ensuremat...
+...{\ensuremath{\mathtt{t.length}}}\right)^{\ensuremath{\mathtt{q}}-k} \enspace ,
+$">
+</DIV><P></P>
+since, for each choice of <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2254.png"
+ ALT="$ k$"></SPAN> elements, these <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2255.png"
+ ALT="$ k$"></SPAN> elements must hash to
+one of the <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2256.png"
+ ALT="$ k$"></SPAN> locations and the remaining <!-- MATH
+ $\ensuremath{\mathtt{q}}-k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2257.png"
+ ALT="$ \ensuremath{\mathtt{q}}-k$"></SPAN> elements must hash to
+the other <!-- MATH
+ $\ensuremath{\mathtt{t.length}}-k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="90" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2258.png"
+ ALT="$ \ensuremath{\mathtt{t.length}}-k$"></SPAN> table locations.<A NAME="tex2html45"
+  HREF="#foot16514"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A>
+<P>
+In the following derivation we will cheat a little and replace <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2264.png"
+ ALT="$ r!$"></SPAN> with
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2265.png"
+ ALT="$ (r/e)^r$"></SPAN>. Stirling's Approximation (Section&nbsp;<A HREF="1_3_Mathematical_Background.html#sec:factorials">1.3.2</A>) shows that this
+is only a factor of <!-- MATH
+ $O(\sqrt{r})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2266.png"
+ ALT="$ O(\sqrt{r})$"></SPAN> from the truth.  This is just done to
+make the derivation simpler; Exercise&nbsp;<A HREF="5_4_Discussion_Exercises.html#exc:linear-probing">5.4</A> asks the reader to
+redo the calculation more rigorously using Stirling's Approximation in
+its entirety.
+
+<P>
+The value of <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2267.png"
+ ALT="$ p_k$"></SPAN> is maximized when <!-- MATH
+ $\mathtt{t.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2268.png"
+ ALT="$ \mathtt{t.length}$"></SPAN> is minimum, and the data
+structure maintains the invariant that <!-- MATH
+ $\ensuremath{\mathtt{t.length}} \ge 2\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2269.png"
+ ALT="$ \ensuremath{\mathtt{t.length}} \ge 2\ensuremath{\mathtt{q}}$"></SPAN>, so
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2270.png"
+ ALT="$\displaystyle p_k$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="164" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2271.png"
+ ALT="$\displaystyle \le \binom{\ensuremath{\mathtt{q}}}{k}\left(\frac{k}{2\ensuremath...
+...ath{\mathtt{q}}-k}{2\ensuremath{\mathtt{q}}}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="219" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2272.png"
+ ALT="$\displaystyle = \left(\frac{\ensuremath{\mathtt{q}}!}{(\ensuremath{\mathtt{q}}-...
+...ath{\mathtt{q}}-k}{2\ensuremath{\mathtt{q}}}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="238" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2273.png"
+ ALT="$\displaystyle \approx \left(\frac{\ensuremath{\mathtt{q}}^{\ensuremath{\mathtt{...
+...ath{\mathtt{q}}-k}{2\ensuremath{\mathtt{q}}}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH">[Stirling's approximation]</SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="238" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2274.png"
+ ALT="$\displaystyle = \left(\frac{\ensuremath{\mathtt{q}}^{k}\ensuremath{\mathtt{q}}^...
+...ath{\mathtt{q}}-k}{2\ensuremath{\mathtt{q}}}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="167" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2275.png"
+ ALT="$\displaystyle = \left(\frac{\ensuremath{\mathtt{q}}k}{2\ensuremath{\mathtt{q}}k...
+...math{\mathtt{q}}(\ensuremath{\mathtt{q}}-k)}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2276.png"
+ ALT="$\displaystyle = \left(\frac{1}{2}\right)^k \left(\frac{(2\ensuremath{\mathtt{q}}-k)}{2(\ensuremath{\mathtt{q}}-k)}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="166" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2277.png"
+ ALT="$\displaystyle = \left(\frac{1}{2}\right)^k \left(1+\frac{k}{2(\ensuremath{\mathtt{q}}-k)}\right)^{\ensuremath{\mathtt{q}}-k}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="75" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2278.png"
+ ALT="$\displaystyle \le \left(\frac{\sqrt{e}}{2}\right)^k \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+(In the last step, we use the inequality <!-- MATH
+ $(1+1/x)^x \le e$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2279.png"
+ ALT="$ (1+1/x)^x \le e$"></SPAN>, which holds
+for all <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2280.png"
+ ALT="$ x&gt;0$"></SPAN>.)  Since <!-- MATH
+ $\sqrt{e}/{2}< 0.824360636 < 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="171" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2281.png"
+ ALT="$ \sqrt{e}/{2}&lt; 0.824360636 &lt; 1$"></SPAN>, this completes
+the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2247.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Using Lemma&nbsp;<A HREF="#lem:linear-probing">5.4</A> to prove upper-bounds on the expected
+running time of <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2282.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2283.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2284.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> is now fairly
+straightforward.  Consider the simplest case, where we execute
+<!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2285.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> for some value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2286.png"
+ ALT="$ \mathtt{x}$"></SPAN> that has never been stored in the
+<TT>LinearHashTable</TT>.  In this case, <!-- MATH
+ $\ensuremath{\mathtt{i}}=\ensuremath{\mathtt{hash(x)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2287.png"
+ ALT="$ \ensuremath{\mathtt{i}}=\ensuremath{\mathtt{hash(x)}}$"></SPAN> is a random value in
+<!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2288.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN> independent of the contents of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2289.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  If <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2290.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+is part of a run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2291.png"
+ ALT="$ k$"></SPAN>, then the time it takes to execute the
+<!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2292.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation is at most <SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2293.png"
+ ALT="$ O(1+k)$"></SPAN>.  Thus, the expected running time
+can be upper-bounded by
+<P><!-- MATH
+ \begin{displaymath}
+O\left(1 + \left(\frac{1}{\ensuremath{\mathtt{t.length}}}\right)\sum_{i=1}^{\ensuremath{\mathtt{t.length}}}\sum_{k=0}^{\infty} k\Pr\{\text{\ensuremath{\mathtt{i}} is part of a run of length $k$}\}\right) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="459" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2294.png"
+ ALT="$\displaystyle O\left(1 + \left(\frac{1}{\ensuremath{\mathtt{t.length}}}\right)\...
+...xt{\ensuremath{\mathtt{i}} is part of a run of length $k$}\}\right) \enspace .
+$">
+</DIV><P></P>
+Note that each run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2295.png"
+ ALT="$ k$"></SPAN> contributes to the inner sum <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2296.png"
+ ALT="$ k$"></SPAN> times for a total contribution of <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2297.png"
+ ALT="$ k^2$"></SPAN>,  so the above sum can be rewritten as
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="429" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2298.png"
+ ALT="$\displaystyle { } O\left(1 + \left(\frac{1}{\ensuremath{\mathtt{t.length}}}\rig...
+...fty} k^2\Pr\{\mbox{\ensuremath{\mathtt{i}} starts a run of length $k$}\}\right)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="258" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2299.png"
+ ALT="$\displaystyle \le O\left(1 + \left(\frac{1}{\ensuremath{\mathtt{t.length}}}\right)\sum_{i=1}^{\ensuremath{\mathtt{t.length}}}\sum_{k=0}^{\infty} k^2p_k\right)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="127" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2300.png"
+ ALT="$\displaystyle = O\left(1 + \sum_{k=0}^{\infty} k^2p_k\right)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="158" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2301.png"
+ ALT="$\displaystyle = O\left(1 + \sum_{k=0}^{\infty} k^2\cdot O(c^k)\right)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2302.png"
+ ALT="$\displaystyle = O(1) \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+The last step in this derivation comes from the fact that
+<!-- MATH
+ $\sum_{k=0}^{\infty} k^2\cdot O(c^k)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="104" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2303.png"
+ ALT="$ \sum_{k=0}^{\infty} k^2\cdot O(c^k)$"></SPAN> is an exponentially decreasing
+series.<A NAME="tex2html46"
+  HREF="#foot16556"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A>Therefore, we conclude that the expected running time of the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2307.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation
+for a value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2308.png"
+ ALT="$ \mathtt{x}$"></SPAN> that is not contained in a <TT>LinearHashTable</TT> is <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2309.png"
+ ALT="$ O(1)$"></SPAN>.
+
+<P>
+If we ignore the cost of the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2310.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> operation, then the above
+analysis gives us all we need to analyze the cost of operations on a
+<TT>LinearHashTable</TT>.
+
+<P>
+First of all, the analysis of <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2311.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> given above applies to the
+<!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2312.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation when <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2313.png"
+ ALT="$ \mathtt{x}$"></SPAN> is not contained in the table.  To analyze
+the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2314.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation when <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2315.png"
+ ALT="$ \mathtt{x}$"></SPAN> is contained in the table, we need only
+note that this is the same as the cost of the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2316.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation that
+previously added <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2317.png"
+ ALT="$ \mathtt{x}$"></SPAN> to the table.  Finally, the cost of a <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2318.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+operation is the same as the cost of a <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2319.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation.
+
+<P>
+In summary, if we ignore the cost of calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2320.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, all operations
+on a <TT>LinearHashTable</TT> run in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2321.png"
+ ALT="$ O(1)$"></SPAN> expected time.  Accounting for the
+cost of resize can be done using the same type of amortized analysis
+performed for the <TT>ArrayStack</TT> data structure in Section&nbsp;<A HREF="2_1_ArrayStack_Fast_Stack_O.html#sec:arraystack">2.1</A>.
+
+<P>
+
+<H2><A NAME="SECTION00822000000000000000">
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of the <TT>LinearHashTable</TT>
+data structure:
+
+<P>
+<P>
+<DIV><A NAME="thm:linear-probing"><B>Theorem  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">2</SPAN></B></A> &nbsp; 
+<I>A <TT>LinearHashTable</TT> implements the <TT>USet</TT> interface.  Ignoring the
+  cost of calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2322.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, a <TT>LinearHashTable</TT> supports the operations
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2323.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2324.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2325.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2326.png"
+ ALT="$ O(1)$"></SPAN> expected time per
+  operation.  
+</I>
+<P>
+<I>Furthermore, beginning with an empty <TT>LinearHashTable</TT>, any
+  sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2327.png"
+ ALT="$ m$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2328.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2329.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations results in a total
+  of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2330.png"
+ ALT="$ O(m)$"></SPAN> time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2331.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00823000000000000000"></A>
+<A NAME="sec:tabulation"></A>
+<BR>
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> Tabulation Hashing
+</H2>
+
+<P>
+<A NAME="14786"></A>While analyzing the <TT>LinearHashTable</TT> structure, we made a very strong
+assumption:  That for any set of elements, <!-- MATH
+ $\{\ensuremath{\mathtt{x}}_1,\ldots,\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}}\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2332.png"
+ ALT="$ \{\ensuremath{\mathtt{x}}_1,\ldots,\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}}\}$"></SPAN>,
+the hash values <!-- MATH
+ $\ensuremath{\mathtt{hash}}($
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2333.png"
+ ALT="$ \ensuremath{\mathtt{hash}}($"></SPAN>x<!-- MATH
+ $_1),\ldots,\ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2334.png"
+ ALT="$ _1),\ldots,\ensuremath{\mathtt{hash}}(\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}})$"></SPAN> are independently and
+uniformly distributed over the set <!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2335.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN>.  One way to
+achieve this is to store a giant array, <!-- MATH
+ $\mathtt{tab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2336.png"
+ ALT="$ \mathtt{tab}$"></SPAN>, of length <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2337.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}$"></SPAN>,
+where each entry is a random <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2338.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integer, independent of all the
+other entries.  In this way, we could implement <!-- MATH
+ $\mathtt{hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2339.png"
+ ALT="$ \mathtt{hash(x)}$"></SPAN> by extracting
+a <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2340.png"
+ ALT="$ \mathtt{d}$"></SPAN>-bit integer from <!-- MATH
+ $\mathtt{tab[x.hashCode()]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="130" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2341.png"
+ ALT="$ \mathtt{tab[x.hashCode()]}$"></SPAN>:
+<PRE>
+    int idealHash(T x) {
+        return tab[x.hashCode() &gt;&gt;&gt; w-d];
+    }
+</PRE>
+
+<P>
+Unfortunately, storing an array of size <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2342.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}$"></SPAN> is prohibitive in terms
+of memory usage.  The approach used by <SPAN  CLASS="textit">tabulation hashing</SPAN> is to,
+instead, treat <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2343.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers as being comprised of <!-- MATH
+ $\ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2344.png"
+ ALT="$ \ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$"></SPAN>
+integers, each having only <!-- MATH
+ $\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2345.png"
+ ALT="$ \ensuremath{\mathtt{r}}$"></SPAN> bits.  In this way, tabulation hashing
+only needs <!-- MATH
+ $\ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2346.png"
+ ALT="$ \ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$"></SPAN> arrays each of length <!-- MATH
+ $2^{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2347.png"
+ ALT="$ 2^{\ensuremath{\mathtt{r}}}$"></SPAN>.  All the entries
+in these arrays are independent random <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2348.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers.  To obtain the value
+of <!-- MATH
+ $\mathtt{hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2349.png"
+ ALT="$ \mathtt{hash(x)}$"></SPAN> we split <!-- MATH
+ $\mathtt{x.hashCode()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2350.png"
+ ALT="$ \mathtt{x.hashCode()}$"></SPAN> up into <!-- MATH
+ $\ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2351.png"
+ ALT="$ \ensuremath{\mathtt{w}}/\ensuremath{\mathtt{r}}$"></SPAN> <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2352.png"
+ ALT="$ \mathtt{r}$"></SPAN>-bit integers
+and use these as indices into these arrays.  We then combine all these
+values with the bitwise exclusive-or operator to obtain <!-- MATH
+ $\mathtt{hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2353.png"
+ ALT="$ \mathtt{hash(x)}$"></SPAN>.
+The following code shows how this works when <!-- MATH
+ $\ensuremath{\mathtt{w}}=32$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2354.png"
+ ALT="$ \ensuremath{\mathtt{w}}=32$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{r}}=4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2355.png"
+ ALT="$ \ensuremath{\mathtt{r}}=4$"></SPAN>:
+<PRE>
+    int hash(T x) {
+        int h = x.hashCode();
+        return (tab[0][h&amp;0xff] 
+                 ^ tab[1][(h&gt;&gt;&gt;8)&amp;0xff]
+                 ^ tab[2][(h&gt;&gt;&gt;16)&amp;0xff] 
+                 ^ tab[3][(h&gt;&gt;&gt;24)&amp;0xff])
+                  &gt;&gt;&gt; (w-d);
+    }
+</PRE>
+In this case, <!-- MATH
+ $\mathtt{tab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2356.png"
+ ALT="$ \mathtt{tab}$"></SPAN> is a two-dimensional array with four columns and
+<!-- MATH
+ $2^{32/4}=256$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2357.png"
+ ALT="$ 2^{32/4}=256$"></SPAN> rows.
+
+<P>
+One can easily verify that, for any <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2358.png"
+ ALT="$ \mathtt{x}$"></SPAN>, <!-- MATH
+ $\mathtt{hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2359.png"
+ ALT="$ \mathtt{hash(x)}$"></SPAN> is uniformly
+distributed over <!-- MATH
+ $\{0,\ldots,2^{\ensuremath{\mathtt{d}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2360.png"
+ ALT="$ \{0,\ldots,2^{\ensuremath{\mathtt{d}}}-1\}$"></SPAN>.  With a little work, one
+can even verify that any pair of values have independent hash values.
+This implies tabulation hashing could be used in place of multiplicative
+hashing for the <TT>ChainedHashTable</TT> implementation.
+
+<P>
+However, it is not true that any set of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2361.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct values gives a set
+of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2362.png"
+ ALT="$ \mathtt{n}$"></SPAN> independent hash values.  Nevertheless, when tabulation hashing is
+used, the bound of Theorem&nbsp;<A HREF="#thm:linear-probing">5.2</A> still holds.  References for
+this are provided at the end of this chapter.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot16514">... locations.</A><A
+ HREF="5_2_LinearHashTable_Linear_.html#tex2html45"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A></DT>
+<DD>Note that <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2259.png"
+ ALT="$ p_k$"></SPAN> is greater
+than the probability that a run of length <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2260.png"
+ ALT="$ k$"></SPAN> starts at <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2261.png"
+ ALT="$ \mathtt{i}$"></SPAN>, since the definition of <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2262.png"
+ ALT="$ p_k$"></SPAN> does not include the requirement <!-- MATH
+ $\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}-1]=\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k]=\ensuremath{\mathtt{null}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="175" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2263.png"
+ ALT="$ \ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}-1]=\ensuremath{\mathtt{t}}[\ensuremath{\mathtt{i}}+k]=\ensuremath{\mathtt{null}}$"></SPAN>.
+
+</DD>
+<DT><A NAME="foot16556">...
+series.</A><A
+ HREF="5_2_LinearHashTable_Linear_.html#tex2html46"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A></DT>
+<DD>In the terminology of many calculus texts, this sum
+passes the ratio test:  There exists a positive integer <SPAN CLASS="MATH"><IMG
+ WIDTH="19" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2304.png"
+ ALT="$ k_0$"></SPAN> such
+that, for all <SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2305.png"
+ ALT="$ k\ge k_0$"></SPAN>, <!-- MATH
+ $\frac{(k+1)^2c^{k+1}}{k^2c^k} < 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="90" HEIGHT="46" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2306.png"
+ ALT="$ \frac{(k+1)^2c^{k+1}}{k^2c^k} &lt; 1$"></SPAN>.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html710"
+  HREF="5_3_Hash_Codes.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html704"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html698"
+  HREF="5_1_ChainedHashTable_Hashin.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html706"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html708"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html711"
+  HREF="5_3_Hash_Codes.html">5.3 Hash Codes</A>
+<B> Up:</B> <A NAME="tex2html705"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Previous:</B> <A NAME="tex2html699"
+  HREF="5_1_ChainedHashTable_Hashin.html">5.1 ChainedHashTable: Hashing with</A>
+ &nbsp; <B>  <A NAME="tex2html707"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html709"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

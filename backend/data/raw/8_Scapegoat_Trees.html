@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>8. Scapegoat Trees</TITLE>
+<META NAME="description" CONTENT="8. Scapegoat Trees">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="9_Red_Black_Trees.html">
+<LINK REL="previous" HREF="7_Random_Binary_Search_Tree.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="8_1_ScapegoatTree_Binary_Se.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html879"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html873"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html867"
+  HREF="7_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html875"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html877"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html880"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">8.1 ScapegoatTree: A Binary</A>
+<B> Up:</B> <A NAME="tex2html874"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html868"
+  HREF="7_3_Discussion_Exercises.html">7.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html876"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html878"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001100000000000000000"></A>
+<A NAME="chap:scapegoat"></A>
+<BR>
+<SPAN CLASS="arabic">8</SPAN>. Scapegoat Trees
+</H1>
+
+<P>
+In this chapter, we study a binary search tree data structure, the
+<TT>ScapegoatTree</TT>.  This structure is based on the common wisdom that,
+when something goes wrong, the first thing people tend to do is find
+someone to blame (the <SPAN  CLASS="textit">scapegoat</SPAN>).
+<A NAME="23382"></A>Once blame is firmly
+established, we can leave the scapegoat to fix the problem.
+
+<P>
+A <TT>ScapegoatTree</TT> keeps itself balanced by <SPAN  CLASS="textit">partial rebuilding
+operations</SPAN>.
+<A NAME="23385"></A><A NAME="23386"></A>During a partial rebuilding operation, an entire subtree is
+deconstructed and rebuilt into a perfectly balanced subtree.  There are
+many ways of rebuilding a subtree rooted at node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3208.png"
+ ALT="$ \mathtt{u}$"></SPAN> into a perfectly
+balanced tree.  One of the simplest is to traverse <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3209.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s subtree,
+gathering all its nodes into an array, <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3210.png"
+ ALT="$ \mathtt{a}$"></SPAN>, and then to recursively
+build a balanced subtree using <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3211.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  If we let <!-- MATH
+ $\ensuremath{\mathtt{m}}=\ensuremath{\mathtt{a.length}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3212.png"
+ ALT="$ \ensuremath{\mathtt{m}}=\ensuremath{\mathtt{a.length}}/2$"></SPAN>,
+then the element <!-- MATH
+ $\mathtt{a[m]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3213.png"
+ ALT="$ \mathtt{a[m]}$"></SPAN> becomes the root of the new subtree,
+<!-- MATH
+ $\ensuremath{\mathtt{a}}[0],\ldots,\ensuremath{\mathtt{a}}[\ensuremath{\mathtt{m}}-1]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="111" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3214.png"
+ ALT="$ \ensuremath{\mathtt{a}}[0],\ldots,\ensuremath{\mathtt{a}}[\ensuremath{\mathtt{m}}-1]$"></SPAN> get stored recursively in the left subtree
+and <!-- MATH
+ $\ensuremath{\mathtt{a}}[\ensuremath{\mathtt{m}}+1],\ldots,\ensuremath{\mathtt{a}}[\ensuremath{\mathtt{a.length}}-1]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="189" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3215.png"
+ ALT="$ \ensuremath{\mathtt{a}}[\ensuremath{\mathtt{m}}+1],\ldots,\ensuremath{\mathtt{a}}[\ensuremath{\mathtt{a.length}}-1]$"></SPAN> get stored recursively in the
+right subtree.
+<PRE>
+    void rebuild(Node&lt;T&gt; u) {
+        int ns = size(u);
+        Node&lt;T&gt; p = u.parent;
+        Node&lt;T&gt;[] a = (Node&lt;T&gt;[]) Array.newInstance(Node.class, ns);
+        packIntoArray(u, a, 0);
+        if (p == nil) {
+            r = buildBalanced(a, 0, ns);
+            r.parent = nil;
+        } else if (p.right == u) {
+            p.right = buildBalanced(a, 0, ns);
+            p.right.parent = p;
+        } else {
+            p.left = buildBalanced(a, 0, ns);
+            p.left.parent = p;
+        }
+    }
+    int packIntoArray(Node&lt;T&gt; u, Node&lt;T&gt;[] a, int i) {
+        if (u == nil) {
+            return i;
+        }
+        i = packIntoArray(u.left, a, i);
+        a[i++] = u;
+        return packIntoArray(u.right, a, i);
+    }
+    Node&lt;T&gt; buildBalanced(Node&lt;T&gt;[] a, int i, int ns) {
+        if (ns == 0)
+            return nil;
+        int m = ns / 2;
+        a[i + m].left = buildBalanced(a, i, m);
+        if (a[i + m].left != nil)
+            a[i + m].left.parent = a[i + m];
+        a[i + m].right = buildBalanced(a, i + m + 1, ns - m - 1);
+        if (a[i + m].right != nil)
+            a[i + m].right.parent = a[i + m];
+        return a[i + m];
+    }
+</PRE>
+A call to <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3216.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> takes <!-- MATH
+ $O(\ensuremath{\mathtt{size(u)}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3217.png"
+ ALT="$ O(\ensuremath{\mathtt{size(u)}})$"></SPAN> time.  The resulting subtree
+has minimum height; there is no tree of smaller height that
+has <!-- MATH
+ $\mathtt{size(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3218.png"
+ ALT="$ \mathtt{size(u)}$"></SPAN> nodes.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html881"
+  HREF="8_1_ScapegoatTree_Binary_Se.html"><SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>ScapegoatTree</TT>: A Binary Search Tree with Partial Rebuilding</A>
+<LI><A NAME="tex2html882"
+  HREF="8_2_Discussion_Exercises.html"><SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">2</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html879"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html873"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html867"
+  HREF="7_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html875"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html877"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html880"
+  HREF="8_1_ScapegoatTree_Binary_Se.html">8.1 ScapegoatTree: A Binary</A>
+<B> Up:</B> <A NAME="tex2html874"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html868"
+  HREF="7_3_Discussion_Exercises.html">7.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html876"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html878"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

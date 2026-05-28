@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>4. Skiplists</TITLE>
+<META NAME="description" CONTENT="4. Skiplists">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="5_Hash_Tables.html">
+<LINK REL="previous" HREF="3_Linked_Lists.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="4_1_Basic_Structure.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html587"
+  HREF="4_1_Basic_Structure.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html581"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html575"
+  HREF="3_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html583"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html585"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html588"
+  HREF="4_1_Basic_Structure.html">4.1 The Basic Structure</A>
+<B> Up:</B> <A NAME="tex2html582"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html576"
+  HREF="3_4_Discussion_Exercises.html">3.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html584"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html586"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00700000000000000000">
+<SPAN CLASS="arabic">4</SPAN>. Skiplists</A>
+</H1>
+
+<P>
+<A NAME="chap:skiplists"></A>
+<P>
+In this chapter, we discuss a beautiful data structure: the skiplist,
+which has a variety of applications.  Using a skiplist we can implement a
+<TT>List</TT> that has <SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1594.png"
+ ALT="$ O(\log n)$"></SPAN> time implementations of <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1595.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN>, <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1596.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN>,
+<!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1597.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1598.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>. We can also implement an <TT>SSet</TT> in which
+all operations run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1599.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> expected time.
+
+<P>
+The efficiency of skiplists relies on their use of randomization.
+When a new element is added to a skiplist, the skiplist uses random coin
+tosses to determine the height of the new element.  The performance of
+skiplists is expressed in terms of expected running times and path
+lengths. This expectation is taken over the random coin tosses used by
+the skiplist.  In the implementation, the random coin tosses used by a
+skiplist are simulated using a pseudo-random number (or bit) generator.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html589"
+  HREF="4_1_Basic_Structure.html"><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">1</SPAN> The Basic Structure</A>
+<LI><A NAME="tex2html590"
+  HREF="4_2_SkiplistSSet_Efficient_.html"><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>SkiplistSSet</TT>: An Efficient <TT>SSet</TT></A>
+<LI><A NAME="tex2html591"
+  HREF="4_3_SkiplistList_Efficient_.html"><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">3</SPAN> <TT>SkiplistList</TT>: An Efficient Random-Access <TT>List</TT></A>
+<LI><A NAME="tex2html592"
+  HREF="4_4_Analysis_Skiplists.html"><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">4</SPAN> Analysis of Skiplists</A>
+<LI><A NAME="tex2html593"
+  HREF="4_5_Discussion_Exercises.html"><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">5</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

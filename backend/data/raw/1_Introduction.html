@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>1. Introduction</TITLE>
+<META NAME="description" CONTENT="1. Introduction">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="2_Array_Based_Lists.html">
+<LINK REL="previous" HREF="Why_This_Book.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="1_1_Need_Efficiency.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html237"
+  HREF="1_1_Need_Efficiency.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html231"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html225"
+  HREF="Why_This_Book.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html233"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html235"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html238"
+  HREF="1_1_Need_Efficiency.html">1.1 The Need for</A>
+<B> Up:</B> <A NAME="tex2html232"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html226"
+  HREF="Why_This_Book.html">Why This Book?</A>
+ &nbsp; <B>  <A NAME="tex2html234"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html236"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00400000000000000000">
+<SPAN CLASS="arabic">1</SPAN>. Introduction</A>
+</H1>
+
+<P>
+Every computer science curriculum in the world includes a course on data
+structures and algorithms.  Data structures are <SPAN  CLASS="textit">that</SPAN> important;
+they improve our quality of life and even save lives on a regular basis.
+Many multi-million and several multi-billion dollar companies have been
+built around data structures.
+
+<P>
+How can this be?  If we stop to think about it, we realize that we
+interact with data structures constantly.
+
+<UL>
+<LI>Open a file: File system 
+    <A NAME="587"></A>data structures are used to locate
+    the parts of that file on disk so they can be retrieved.  This isn't
+    easy; disks contain hundreds of millions of blocks.  The contents of your
+    file could be stored on any one of them.
+</LI>
+<LI>Look up a contact on your phone:  A data
+    structure is used to look up a phone number in your contact list
+    <A NAME="588"></A>based on partial
+    information even before you finish dialing/typing.  This isn't easy;
+    your phone may contain information about a lot of people--everyone
+    you have ever contacted via phone or email--and your phone doesn't
+    have a very fast processor or a lot of memory.
+</LI>
+<LI>Log in to your favourite social network:
+    <A NAME="589"></A>The network servers
+    use your login information to look up your account information.
+    This isn't easy; the most popular social networks have hundreds of
+    millions of active users.
+</LI>
+<LI>Do a web search:
+    <A NAME="590"></A>The search engine uses data structures to find
+    the web pages containing your search terms.  This isn't easy; there
+    are over 8.5 billion web pages on the Internet and each page contains
+    a lot of potential search terms.
+</LI>
+<LI>Phone emergency services (9-1-1):
+    <A NAME="591"></A><A NAME="592"></A>The emergency services network
+    looks up your phone number in a data structure that maps phone numbers
+    to addresses so that police cars, ambulances, or fire trucks can be
+    sent there without delay. This is important;  the person making the
+    call may not be able to provide the exact address they are calling
+    from and a delay can mean the difference between life or death.
+</LI>
+</UL>
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html239"
+  HREF="1_1_Need_Efficiency.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> The Need for Efficiency</A>
+<LI><A NAME="tex2html240"
+  HREF="1_2_Interfaces.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Interfaces</A>
+<LI><A NAME="tex2html241"
+  HREF="1_3_Mathematical_Background.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">3</SPAN> Mathematical Background</A>
+<LI><A NAME="tex2html242"
+  HREF="1_4_Model_Computation.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">4</SPAN> The Model of Computation</A>
+<LI><A NAME="tex2html243"
+  HREF="1_5_Correctness_Time_Comple.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">5</SPAN> Correctness, Time Complexity, and Space Complexity</A>
+<LI><A NAME="tex2html244"
+  HREF="1_6_Code_Samples.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">6</SPAN> Code Samples</A>
+<LI><A NAME="tex2html245"
+  HREF="1_7_List_Data_Structures.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">7</SPAN> List of Data Structures</A>
+<LI><A NAME="tex2html246"
+  HREF="1_8_Discussion_Exercises.html"><SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">8</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html237"
+  HREF="1_1_Need_Efficiency.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html231"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html225"
+  HREF="Why_This_Book.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html233"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html235"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html238"
+  HREF="1_1_Need_Efficiency.html">1.1 The Need for</A>
+<B> Up:</B> <A NAME="tex2html232"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html226"
+  HREF="Why_This_Book.html">Why This Book?</A>
+ &nbsp; <B>  <A NAME="tex2html234"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html236"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,794 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>4.4 Analysis of Skiplists</TITLE>
+<META NAME="description" CONTENT="4.4 Analysis of Skiplists">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="4_5_Discussion_Exercises.html">
+<LINK REL="previous" HREF="4_3_SkiplistList_Efficient_.html">
+<LINK REL="up" HREF="4_Skiplists.html">
+<LINK REL="next" HREF="4_5_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html650"
+  HREF="4_5_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html644"
+  HREF="4_Skiplists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html638"
+  HREF="4_3_SkiplistList_Efficient_.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html646"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html648"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html651"
+  HREF="4_5_Discussion_Exercises.html">4.5 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html645"
+  HREF="4_Skiplists.html">4. Skiplists</A>
+<B> Previous:</B> <A NAME="tex2html639"
+  HREF="4_3_SkiplistList_Efficient_.html">4.3 SkiplistList: An Efficient</A>
+ &nbsp; <B>  <A NAME="tex2html647"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html649"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00740000000000000000"></A>
+<A NAME="sec:skiplist-analysis"></A>
+<BR>
+<SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">4</SPAN> Analysis of Skiplists
+</H1>
+
+<P>
+In this section, we analyze the expected height, size, and length of
+the search path in a skiplist.  This section requires a background in
+basic probability.  Several proofs are based on the following basic
+observation about coin tosses.
+
+<P>
+<P>
+<DIV><A NAME="lem:coin-tosses"><B>Lemma  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">2</SPAN></B></A> &nbsp; 
+<I><A NAME="12061"></A>Let <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1786.png"
+ ALT="$ T$"></SPAN> be the number of times a fair coin is tossed up to and including
+  the first time the coin comes up heads.  Then <!-- MATH
+ $\mathrm{E}[T]=2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1787.png"
+ ALT="$ \mathrm{E}[T]=2$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  Suppose we stop tossing the coin the first time it comes up
+  heads. Define the indicator variable
+  <P><!-- MATH
+ \begin{displaymath}
+I_{i} = \left\{\begin{array}{ll}
+     0 & \mbox{if the coin is tossed less than $i$\  times} \\
+     1 & \mbox{if the coin is tossed $i$\  or more times}
+     \end{array}\right.
+  
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="338" HEIGHT="56" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1789.png"
+ ALT="$\displaystyle I_{i} = \left\{\begin{array}{ll}
+0 &amp; \mbox{if the coin is tossed...
+...\\
+1 &amp; \mbox{if the coin is tossed $i$\ or more times}
+\end{array}\right.
+$">
+</DIV><P></P>
+Note that <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1790.png"
+ ALT="$ I_i=1$"></SPAN> if and only if the first <SPAN CLASS="MATH"><IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1791.png"
+ ALT="$ i-1$"></SPAN> coin tosses are tails,
+  so <!-- MATH
+ $\mathrm{E}[I_i]=\Pr\{I_i=1\}=1/2^{i-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="177" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1792.png"
+ ALT="$ \mathrm{E}[I_i]=\Pr\{I_i=1\}=1/2^{i-1}$"></SPAN>.  Observe that <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1793.png"
+ ALT="$ T$"></SPAN>, the total
+  number of coin tosses, can be written as <!-- MATH
+ $T=\sum_{i=1}^{\infty} I_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1794.png"
+ ALT="$ T=\sum_{i=1}^{\infty} I_i$"></SPAN>.
+  Therefore,
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1795.png"
+ ALT="$\displaystyle \mathrm{E}[T]$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1796.png"
+ ALT="$\displaystyle = \mathrm{E}\left[\sum_{i=1}^\infty I_i\right]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="75" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1797.png"
+ ALT="$\displaystyle = \sum_{i=1}^\infty \mathrm{E}\left[I_i\right]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="85" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1798.png"
+ ALT="$\displaystyle = \sum_{i=1}^\infty 1/2^{i-1}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="176" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1799.png"
+ ALT="$\displaystyle = 1 + 1/2 + 1/4 + 1/8 + \cdots$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1800.png"
+ ALT="$\displaystyle = 2 \enspace . \qedhere$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1788.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+The next two lemmata tell us that skiplists have linear size:
+
+<P>
+<P>
+<DIV><A NAME="lem:skiplist-size1"><B>Lemma  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>The expected number of nodes in a skiplist containing <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1801.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> elements,
+  not including occurrences of the sentinel, is <!-- MATH
+ $2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1802.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  The probability that any particular element, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1804.png"
+ ALT="$ \mathtt{x}$"></SPAN>, is included in list
+  <!-- MATH
+ $L_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1805.png"
+ ALT="$ L_{\ensuremath{\mathtt{r}}}$"></SPAN> is <!-- MATH
+ $1/2^{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1806.png"
+ ALT="$ 1/2^{\ensuremath{\mathtt{r}}}$"></SPAN>, so the expected number of nodes in <!-- MATH
+ $L_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1807.png"
+ ALT="$ L_{\ensuremath{\mathtt{r}}}$"></SPAN>
+  is <!-- MATH
+ $\ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1808.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}}$"></SPAN>.<A NAME="tex2html40"
+  HREF="#foot12534"><SUP><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A>  Therefore, the total expected number of nodes in all lists is
+  <P><!-- MATH
+ \begin{displaymath}
+\sum_{\ensuremath{\mathtt{r}}=0}^\infty \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}} = \ensuremath{\mathtt{n}}(1+1/2+1/4+1/8+\cdots) = 2\ensuremath{\mathtt{n}} \enspace . \qedhere
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="300" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1809.png"
+ ALT="$\displaystyle \sum_{\ensuremath{\mathtt{r}}=0}^\infty \ensuremath{\mathtt{n}}/2...
+...athtt{n}}(1+1/2+1/4+1/8+\cdots) = 2\ensuremath{\mathtt{n}} \enspace . \qedhere $">
+</DIV><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1803.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="lem:skiplist-height"><B>Lemma  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">4</SPAN></B></A> &nbsp; 
+<I>The expected height of a skiplist containing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1810.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements is at most
+  <!-- MATH
+ $\log \ensuremath{\mathtt{n}} + 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1811.png"
+ ALT="$ \log \ensuremath{\mathtt{n}} + 2$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  For each <!-- MATH
+ $\ensuremath{\mathtt{r}}\in\{1,2,3,\ldots,\infty\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="119" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1813.png"
+ ALT="$ \ensuremath{\mathtt{r}}\in\{1,2,3,\ldots,\infty\}$"></SPAN>, 
+  define the indicator random variable
+  <P><!-- MATH
+ \begin{displaymath}
+I_{\ensuremath{\mathtt{r}}} = \left\{\begin{array}{ll}
+     0 & \mbox{if $L_{\ensuremath{\mathtt{r}}}$\  is empty} \\
+     1 & \mbox{if $L_{\ensuremath{\mathtt{r}}}$\  is non-empty}
+     \end{array}\right.
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="215" HEIGHT="56" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1814.png"
+ ALT="$\displaystyle I_{\ensuremath{\mathtt{r}}} = \left\{\begin{array}{ll}
+0 &amp; \mbox...
+...1 &amp; \mbox{if $L_{\ensuremath{\mathtt{r}}}$\ is non-empty}
+\end{array}\right.
+$">
+</DIV><P></P>
+The height, <!-- MATH
+ $\mathtt{h}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1815.png"
+ ALT="$ \mathtt{h}$"></SPAN>, of the skiplist is then given by
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{h}} = \sum_{i=1}^\infty I_{\ensuremath{\mathtt{r}}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="79" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1816.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{h}} = \sum_{i=1}^\infty I_{\ensuremath{\mathtt{r}}} \enspace .
+$">
+</DIV><P></P>
+Note that <!-- MATH
+ $I_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1817.png"
+ ALT="$ I_{\ensuremath{\mathtt{r}}}$"></SPAN> is never more than the length, <!-- MATH
+ $|L_{\ensuremath{\mathtt{r}}}|$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1818.png"
+ ALT="$ \vert L_{\ensuremath{\mathtt{r}}}\vert$"></SPAN>, of <!-- MATH
+ $L_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1819.png"
+ ALT="$ L_{\ensuremath{\mathtt{r}}}$"></SPAN>, so 
+  <P><!-- MATH
+ \begin{displaymath}
+\mathrm{E}[I_{\ensuremath{\mathtt{r}}}] \le \mathrm{E}[|L_{\ensuremath{\mathtt{r}}}|] = \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="158" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1820.png"
+ ALT="$\displaystyle \mathrm{E}[I_{\ensuremath{\mathtt{r}}}] \le \mathrm{E}[\vert L_{\...
+...t{r}}}\vert] = \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}} \enspace .
+$">
+</DIV><P></P>
+Therefore, we have
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1821.png"
+ ALT="$\displaystyle \mathrm{E}[\ensuremath{\mathtt{h}}]$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1822.png"
+ ALT="$\displaystyle = \mathrm{E}\left[\sum_{r=1}^\infty I_{\ensuremath{\mathtt{r}}}\right]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1823.png"
+ ALT="$\displaystyle = \sum_{\ensuremath{\mathtt{r}}=1}^{\infty} E[I_{\ensuremath{\mathtt{r}}}]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="199" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1824.png"
+ ALT="$\displaystyle = \sum_{\ensuremath{\mathtt{r}}=1}^{\lfloor\log \ensuremath{\math...
+...r\log \ensuremath{\mathtt{n}}\rfloor+1}^{\infty} E[I_{\ensuremath{\mathtt{r}}}]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="171" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1825.png"
+ ALT="$\displaystyle \le \sum_{\ensuremath{\mathtt{r}}=1}^{\lfloor\log \ensuremath{\ma...
+...thtt{n}}\rfloor+1}^{\infty} \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="121" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1826.png"
+ ALT="$\displaystyle \le \log \ensuremath{\mathtt{n}} + \sum_{\ensuremath{\mathtt{r}}=0}^\infty 1/2^{\ensuremath{\mathtt{r}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1827.png"
+ ALT="$\displaystyle = \log \ensuremath{\mathtt{n}} + 2 \enspace . \qedhere$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1812.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="lem:skiplist-size2"><B>Lemma  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">5</SPAN></B></A> &nbsp; 
+<I>The expected number of nodes in a skiplist containing <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1828.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> elements,
+  including all occurrences of the sentinel, is <!-- MATH
+ $2\ensuremath{\mathtt{n}}+O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="92" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1829.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}+O(\log \ensuremath{\mathtt{n}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  By Lemma&nbsp;<A HREF="#lem:skiplist-size1">4.3</A>, the expected number of nodes, not
+  including the sentinel, is <!-- MATH
+ $2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1831.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}$"></SPAN>.  The number of occurrences of
+  the sentinel is equal to the height, <!-- MATH
+ $\ensuremath{\mathtt{h}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1832.png"
+ ALT="$ \ensuremath{\mathtt{h}}$"></SPAN>, of the skiplist so, by
+  Lemma&nbsp;<A HREF="#lem:skiplist-height">4.4</A> the expected number of occurrences of the
+  sentinel is at most <!-- MATH
+ $\log \ensuremath{\mathtt{n}}+2 = O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="133" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1833.png"
+ ALT="$ \log \ensuremath{\mathtt{n}}+2 = O(\log \ensuremath{\mathtt{n}})$"></SPAN>.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1830.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Lemma  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">6</SPAN></B> &nbsp; 
+<I>The expected length of a search path in a skiplist is at most <!-- MATH
+ $2\log \ensuremath{\mathtt{n}} + O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1834.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}} + O(1)$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  The easiest way to see this is to consider the <SPAN  CLASS="textit">reverse search
+  path</SPAN> for a node, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1836.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  This path starts at the predecessor of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1837.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+  in <SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1838.png"
+ ALT="$ L_0$"></SPAN>.  At any point in time, if the path can go up a level, then
+  it does.  If it cannot go up a level then it goes left.  Thinking about
+  this for a few moments will convince us that the reverse search path for
+  <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1839.png"
+ ALT="$ \mathtt{x}$"></SPAN> is identical to the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1840.png"
+ ALT="$ \mathtt{x}$"></SPAN>, except that it is reversed.
+
+<P>
+The number of nodes that the reverse search path visits at a particular
+  level, <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1841.png"
+ ALT="$ \mathtt{r}$"></SPAN>, is related to the following experiment:  Toss a coin.
+  If the coin comes up as heads, then move up and stop. Otherwise, move
+  left and repeat the experiment.  The number of coin tosses before
+  the heads represents the number of steps to the left that a reverse
+  search path takes at a particular level.<A NAME="tex2html41"
+  HREF="#foot12172"><SUP><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A> Lemma&nbsp;<A HREF="#lem:coin-tosses">4.2</A> tells us
+  that the expected number of coin tosses before the first heads is 1.
+
+<P>
+Let <!-- MATH
+ $S_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1842.png"
+ ALT="$ S_{\ensuremath{\mathtt{r}}}$"></SPAN> denote the number of steps the forward search path takes at level
+  <!-- MATH
+ $\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1843.png"
+ ALT="$ \ensuremath{\mathtt{r}}$"></SPAN> that go to the right.   We have just argued that <!-- MATH
+ $\mathrm{E}[S_{\ensuremath{\mathtt{r}}}]\le
+  1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1844.png"
+ ALT="$ \mathrm{E}[S_{\ensuremath{\mathtt{r}}}]\le
+1$"></SPAN>.  Furthermore, <!-- MATH
+ $S_{\ensuremath{\mathtt{r}}}\le |L_{\ensuremath{\mathtt{r}}}|$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1845.png"
+ ALT="$ S_{\ensuremath{\mathtt{r}}}\le \vert L_{\ensuremath{\mathtt{r}}}\vert$"></SPAN>, since we can't take more steps
+  in <!-- MATH
+ $L_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1846.png"
+ ALT="$ L_{\ensuremath{\mathtt{r}}}$"></SPAN> than the length of <!-- MATH
+ $L_{\ensuremath{\mathtt{r}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1847.png"
+ ALT="$ L_{\ensuremath{\mathtt{r}}}$"></SPAN>, so
+  <P><!-- MATH
+ \begin{displaymath}
+\mathrm{E}[S_{\ensuremath{\mathtt{r}}}] \le \mathrm{E}[|L_{\ensuremath{\mathtt{r}}}|] = \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="161" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1848.png"
+ ALT="$\displaystyle \mathrm{E}[S_{\ensuremath{\mathtt{r}}}] \le \mathrm{E}[\vert L_{\...
+...t{r}}}\vert] = \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}} \enspace .
+$">
+</DIV><P></P>
+We can now finish as in the proof of Lemma&nbsp;<A HREF="#lem:skiplist-height">4.4</A>.
+  Let <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1849.png"
+ ALT="$ S$"></SPAN> be  the length of the search path for some node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1850.png"
+ ALT="$ \mathtt{u}$"></SPAN>, in a
+  skiplist, and let <!-- MATH
+ $\ensuremath{\mathtt{h}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1851.png"
+ ALT="$ \ensuremath{\mathtt{h}}$"></SPAN> be the height of the skiplist.  Then
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="34" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1852.png"
+ ALT="$\displaystyle \mathrm{E}[S]$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="106" HEIGHT="64" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1853.png"
+ ALT="$\displaystyle = \mathrm{E}\left[ \ensuremath{\mathtt{h}} + \sum_{\ensuremath{\mathtt{r}}=0}^\infty S_{\ensuremath{\mathtt{r}}} \right]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="122" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1854.png"
+ ALT="$\displaystyle = \mathrm{E}[\ensuremath{\mathtt{h}}] + \sum_{\ensuremath{\mathtt{r}}=0}^\infty \mathrm{E}[S_{\ensuremath{\mathtt{r}}}]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="248" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1855.png"
+ ALT="$\displaystyle = \mathrm{E}[\ensuremath{\mathtt{h}}] + \sum_{\ensuremath{\mathtt...
+...ensuremath{\mathtt{n}}\rfloor+1}^\infty \mathrm{E}[S_{\ensuremath{\mathtt{r}}}]$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="215" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1856.png"
+ ALT="$\displaystyle \le \mathrm{E}[\ensuremath{\mathtt{h}}] + \sum_{\ensuremath{\math...
+...mathtt{n}}\rfloor+1}^\infty \ensuremath{\mathtt{n}}/2^{\ensuremath{\mathtt{r}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="177" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1857.png"
+ ALT="$\displaystyle \le \mathrm{E}[\ensuremath{\mathtt{h}}] + \sum_{\ensuremath{\math...
+...or} 1 + \sum_{\ensuremath{\mathtt{r}}=0}^{\infty} 1/2^{\ensuremath{\mathtt{r}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="177" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1858.png"
+ ALT="$\displaystyle \le \mathrm{E}[\ensuremath{\mathtt{h}}] + \sum_{\ensuremath{\math...
+...or} 1 + \sum_{\ensuremath{\mathtt{r}}=0}^{\infty} 1/2^{\ensuremath{\mathtt{r}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="118" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1859.png"
+ ALT="$\displaystyle \le \mathrm{E}[\ensuremath{\mathtt{h}}] + \log \ensuremath{\mathtt{n}} + 3$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1860.png"
+ ALT="$\displaystyle \le 2\log \ensuremath{\mathtt{n}} + 5 \enspace . \qedhere$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1835.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+The following theorem summarizes the results in this section:
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+<I>A skiplist containing <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1861.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> elements has expected size <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1862.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> and the
+expected length of the search path for any particular element is at most
+<!-- MATH
+ $2\log \ensuremath{\mathtt{n}} + O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="94" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1863.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}} + O(1)$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot12534">....</A><A
+ HREF="4_4_Analysis_Skiplists.html#tex2html40"><SUP><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A></DT>
+<DD>See Section&nbsp;<A HREF="1_3_Mathematical_Background.html#sec:randomization">1.3.4</A> to see how this
+  is derived using indicator variables and linearity of expectation.
+
+</DD>
+<DT><A NAME="foot12172">... level.</A><A
+ HREF="4_4_Analysis_Skiplists.html#tex2html41"><SUP><SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A></DT>
+<DD>Note that this
+  might overcount the number of steps to the left, since the experiment
+  should end either at the first heads or when the search path reaches
+  the sentinel, whichever comes first. This is not a problem since the
+  lemma is only stating an upper bound.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html650"
+  HREF="4_5_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html644"
+  HREF="4_Skiplists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html638"
+  HREF="4_3_SkiplistList_Efficient_.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html646"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html648"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html651"
+  HREF="4_5_Discussion_Exercises.html">4.5 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html645"
+  HREF="4_Skiplists.html">4. Skiplists</A>
+<B> Previous:</B> <A NAME="tex2html639"
+  HREF="4_3_SkiplistList_Efficient_.html">4.3 SkiplistList: An Efficient</A>
+ &nbsp; <B>  <A NAME="tex2html647"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html649"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

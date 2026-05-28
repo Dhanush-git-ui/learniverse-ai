@@ -1,0 +1,1405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>13.3 YFastTrie: A Doubly-Logarithmic Time SSet</TITLE>
+<META NAME="description" CONTENT="13.3 YFastTrie: A Doubly-Logarithmic Time SSet">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="13_4_Discussion_Exercises.html">
+<LINK REL="previous" HREF="13_2_XFastTrie_Searching_in.html">
+<LINK REL="up" HREF="13_Data_Structures_Integers.html">
+<LINK REL="next" HREF="13_4_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1244"
+  HREF="13_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1238"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1232"
+  HREF="13_2_XFastTrie_Searching_in.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1240"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1242"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1245"
+  HREF="13_4_Discussion_Exercises.html">13.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html1239"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1233"
+  HREF="13_2_XFastTrie_Searching_in.html">13.2 XFastTrie: Searching in</A>
+ &nbsp; <B>  <A NAME="tex2html1241"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1243"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001630000000000000000"></A>
+<A NAME="sec:yfast"></A>
+<BR>
+<SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">3</SPAN> <TT>YFastTrie</TT>: A Doubly-Logarithmic Time <TT>SSet</TT>
+</H1>
+
+<P>
+The <TT>XFastTrie</TT> is a vast--even exponential--improvement over the
+<TT>BinaryTrie</TT> in terms of query time, but the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5056.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5057.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+operations are still not terribly fast.  Furthermore, the space usage,
+<!-- MATH
+ $O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5058.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$"></SPAN>, is higher than the other <TT>SSet</TT> implementations
+described in this book, which all use <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5059.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> space.  These two
+problems are related; if <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5060.png"
+ ALT="$ \mathtt{n}$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5061.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operations build a structure of
+size <!-- MATH
+ $\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="30" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5062.png"
+ ALT="$ \ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}}$"></SPAN>, then the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5063.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation requires at least on the
+order of <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5064.png"
+ ALT="$ \mathtt{w}$"></SPAN> time (and space) per operation.
+
+<P>
+<A NAME="34600"></A>The <TT>YFastTrie</TT>, discussed next, simultaneously improves the space and
+speed of <TT>XFastTrie</TT>s.  A <TT>YFastTrie</TT> uses an <TT>XFastTrie</TT>, <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5065.png"
+ ALT="$ \mathtt{xft}$"></SPAN>, but only
+stores <!-- MATH
+ $O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5066.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{w}})$"></SPAN> values in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5067.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.  In this way, the total space used by
+<!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5068.png"
+ ALT="$ \mathtt{xft}$"></SPAN> is only <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5069.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>.  Furthermore, only one out of every <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5070.png"
+ ALT="$ \mathtt{w}$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5071.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+or <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5072.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations in the <TT>YFastTrie</TT> results in an <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5073.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> or
+<!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5074.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5075.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.  By doing this, the average cost incurred
+by calls to <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5076.png"
+ ALT="$ \mathtt{xft}$"></SPAN>'s <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5077.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5078.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations is only constant.
+
+<P>
+The obvious question becomes:  If <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5079.png"
+ ALT="$ \mathtt{xft}$"></SPAN> only stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5080.png"
+ ALT="$ \mathtt{n}$"></SPAN>/<!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5081.png"
+ ALT="$ \mathtt{w}$"></SPAN> elements,
+where do the remaining <!-- MATH
+ $\ensuremath{\mathtt{n}}(1-1/\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5082.png"
+ ALT="$ \ensuremath{\mathtt{n}}(1-1/\ensuremath{\mathtt{w}})$"></SPAN> elements go?  These elements move 
+into <SPAN  CLASS="textit">secondary structures</SPAN>,
+<A NAME="34043"></A>in this case an extended version of
+treaps (Section&nbsp;<A HREF="7_2_Treap_Randomized_Binary.html#sec:treap">7.2</A>).  There are roughly <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5083.png"
+ ALT="$ \mathtt{n}$"></SPAN>/<!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5084.png"
+ ALT="$ \mathtt{w}$"></SPAN> of these secondary
+structures so, on average, each of them stores <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5085.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> items.  Treaps
+support logarithmic time <TT>SSet</TT> operations, so the operations on these
+treaps will run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5086.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> time, as required.
+
+<P>
+More concretely, a <TT>YFastTrie</TT> contains an <TT>XFastTrie</TT>, <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5087.png"
+ ALT="$ \mathtt{xft}$"></SPAN>,
+that contains a random sample of the data, where each element
+appears in the sample independently with probability <!-- MATH
+ $1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5088.png"
+ ALT="$ 1/\ensuremath{\mathtt{w}}$"></SPAN>.
+For convenience, the value <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5089.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}-1$"></SPAN>, is always contained in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5090.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.
+Let <!-- MATH
+ $\ensuremath{\mathtt{x}}_0<\ensuremath{\mathtt{x}}_1<\cdots<\ensuremath{\mathtt{x}}_{k-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="131" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5091.png"
+ ALT="$ \ensuremath{\mathtt{x}}_0&lt;\ensuremath{\mathtt{x}}_1&lt;\cdots&lt;\ensuremath{\mathtt{x}}_{k-1}$"></SPAN> denote the elements stored in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5092.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.
+Associated with each element, <!-- MATH
+ $\ensuremath{\mathtt{x}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5093.png"
+ ALT="$ \ensuremath{\mathtt{x}}_i$"></SPAN>, is a treap, <!-- MATH
+ $\ensuremath{\mathtt{t}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5094.png"
+ ALT="$ \ensuremath{\mathtt{t}}_i$"></SPAN>, that stores
+all values in the range <!-- MATH
+ $\ensuremath{\mathtt{x}}_{i-1}+1,\ldots,\ensuremath{\mathtt{x}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5095.png"
+ ALT="$ \ensuremath{\mathtt{x}}_{i-1}+1,\ldots,\ensuremath{\mathtt{x}}_i$"></SPAN>.  This is illustrated
+in Figure&nbsp;<A HREF="#fig:yfast">13.7</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:yfast"></A><A NAME="34637"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.7:</STRONG>
+A <TT>YFastTrie</TT> containing the values 0, 1, 3, 4,
+  6, 8, 9, 10, 11, and 13.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="374" HEIGHT="303" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5096.png"
+ ALT="\includegraphics[scale=0.90909]{figs/yfast}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5097.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>YFastTrie</TT> is fairly easy.  We search
+for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5098.png"
+ ALT="$ \mathtt{x}$"></SPAN> in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5099.png"
+ ALT="$ \mathtt{xft}$"></SPAN> and find some value <!-- MATH
+ $\ensuremath{\mathtt{x}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5100.png"
+ ALT="$ \ensuremath{\mathtt{x}}_i$"></SPAN> associated with the treap
+<!-- MATH
+ $\ensuremath{\mathtt{t}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5101.png"
+ ALT="$ \ensuremath{\mathtt{t}}_i$"></SPAN>.  We then use the treap <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5102.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> method on <!-- MATH
+ $\ensuremath{\mathtt{t}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5103.png"
+ ALT="$ \ensuremath{\mathtt{t}}_i$"></SPAN> to answer
+the query.  The entire method is a one-liner:
+<PRE>
+    T find(T x) {
+        return xft.find(new Pair&lt;T&gt;(it.intValue(x))).t.find(x);
+    }
+</PRE>
+The first <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5104.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation (on <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5105.png"
+ ALT="$ \mathtt{xft}$"></SPAN>) takes <!-- MATH
+ $O(\log\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5106.png"
+ ALT="$ O(\log\ensuremath{\mathtt{w}})$"></SPAN> time.
+The second <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5107.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation (on a treap) takes <SPAN CLASS="MATH"><IMG
+ WIDTH="58" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5108.png"
+ ALT="$ O(\log r)$"></SPAN> time, where
+<SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5109.png"
+ ALT="$ r$"></SPAN> is the size of the treap.  Later in this section, we will show that
+the expected size of the treap is <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5110.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> so that this operation takes
+<!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5111.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> time.<A NAME="tex2html112"
+  HREF="#foot34839"><SUP><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A>
+<P>
+Adding an element to a <TT>YFastTrie</TT> is also fairly simple--most of
+the time.  The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5114.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> method calls <!-- MATH
+ $\mathtt{xft.find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5115.png"
+ ALT="$ \mathtt{xft.find(x)}$"></SPAN> to locate the treap,
+<!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5116.png"
+ ALT="$ \mathtt{t}$"></SPAN>, into which <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5117.png"
+ ALT="$ \mathtt{x}$"></SPAN> should be inserted.  It then calls <!-- MATH
+ $\mathtt{t.add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5118.png"
+ ALT="$ \mathtt{t.add(x)}$"></SPAN> to
+add <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5119.png"
+ ALT="$ \mathtt{x}$"></SPAN> to <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5120.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  At this point, it tosses a biased coin that comes up as
+heads with probability <!-- MATH
+ $1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5121.png"
+ ALT="$ 1/\ensuremath{\mathtt{w}}$"></SPAN> and as tails with probability <!-- MATH
+ $1-1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5122.png"
+ ALT="$ 1-1/\ensuremath{\mathtt{w}}$"></SPAN>.
+If this coin comes up heads, then <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5123.png"
+ ALT="$ \mathtt{x}$"></SPAN> will be added to <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5124.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.
+
+<P>
+This is where things get a little more complicated.  When <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5125.png"
+ ALT="$ \mathtt{x}$"></SPAN> is added to
+<!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5126.png"
+ ALT="$ \mathtt{xft}$"></SPAN>, the treap <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5127.png"
+ ALT="$ \mathtt{t}$"></SPAN> needs to be split into two treaps, <!-- MATH
+ $\mathtt{t1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5128.png"
+ ALT="$ \mathtt{t1}$"></SPAN> and <!-- MATH
+ $\mathtt{t'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5129.png"
+ ALT="$ \mathtt{t'}$"></SPAN>.
+The treap <!-- MATH
+ $\mathtt{t1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5130.png"
+ ALT="$ \mathtt{t1}$"></SPAN> contains all the values less than or equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5131.png"
+ ALT="$ \mathtt{x}$"></SPAN>;
+<!-- MATH
+ $\mathtt{t'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5132.png"
+ ALT="$ \mathtt{t'}$"></SPAN> is the original treap, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5133.png"
+ ALT="$ \mathtt{t}$"></SPAN>, with the elements of <!-- MATH
+ $\mathtt{t1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5134.png"
+ ALT="$ \mathtt{t1}$"></SPAN> removed.
+Once this is done, we add the pair <!-- MATH
+ $\mathtt{(x,t1)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5135.png"
+ ALT="$ \mathtt{(x,t1)}$"></SPAN> to <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5136.png"
+ ALT="$ \mathtt{xft}$"></SPAN>.  Figure&nbsp;<A HREF="#fig:yfast-add">13.8</A>
+shows an example.
+<PRE>
+    boolean add(T x) {
+        int ix = it.intValue(x);
+        STreap&lt;T&gt; t = xft.find(new Pair&lt;T&gt;(ix)).t;
+        if (t.add(x)) {
+            n++;
+            if (rand.nextInt(w) == 0) {
+                STreap&lt;T&gt; t1 = t.split(x);
+                xft.add(new Pair&lt;T&gt;(ix, t1));
+            }
+            return true;
+        } 
+        return false;
+    }
+</PRE>
+
+<DIV ALIGN="CENTER"><A NAME="fig:yfast-add"></A><A NAME="34840"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.8:</STRONG>
+Adding the values 2 and 6 to a <TT>YFastTrie</TT>. The coin toss
+    for 6 came up heads, so 6 was added to <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5138.png"
+ ALT="$ \mathtt{xft}$"></SPAN> and the treap containing
+    <SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5139.png"
+ ALT="$ 4,5,6,8,9$"></SPAN> was split.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="374" HEIGHT="303" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5137.png"
+ ALT="\includegraphics[scale=0.90909]{figs/yfast-add}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+Adding <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5140.png"
+ ALT="$ \mathtt{x}$"></SPAN> to <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5141.png"
+ ALT="$ \mathtt{t}$"></SPAN> takes <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5142.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> time.  Exercise&nbsp;<A HREF="7_3_Discussion_Exercises.html#exc:treap-split">7.12</A> shows
+that splitting <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5143.png"
+ ALT="$ \mathtt{t}$"></SPAN> into <!-- MATH
+ $\mathtt{t1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5144.png"
+ ALT="$ \mathtt{t1}$"></SPAN> and <!-- MATH
+ $\mathtt{t'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5145.png"
+ ALT="$ \mathtt{t'}$"></SPAN> can also be done in <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5146.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN>
+expected time.  Adding the pair (<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5147.png"
+ ALT="$ \mathtt{x}$"></SPAN>,<!-- MATH
+ $\mathtt{t1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5148.png"
+ ALT="$ \mathtt{t1}$"></SPAN>) to <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5149.png"
+ ALT="$ \mathtt{xft}$"></SPAN> takes <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5150.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time,
+but only happens with probability <!-- MATH
+ $1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5151.png"
+ ALT="$ 1/\ensuremath{\mathtt{w}}$"></SPAN>.  Therefore, the expected
+running time of the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5152.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation is
+<P><!-- MATH
+ \begin{displaymath}
+O(\log\ensuremath{\mathtt{w}}) + \frac{1}{\ensuremath{\mathtt{w}}}O(\ensuremath{\mathtt{w}}) = O(\log \ensuremath{\mathtt{w}}) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="204" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5153.png"
+ ALT="$\displaystyle O(\log\ensuremath{\mathtt{w}}) + \frac{1}{\ensuremath{\mathtt{w}}}O(\ensuremath{\mathtt{w}}) = O(\log \ensuremath{\mathtt{w}}) \enspace .
+$">
+</DIV><P></P>
+
+<P>
+The <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5154.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> method undoes the work performed by <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5155.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>.
+We use <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5156.png"
+ ALT="$ \mathtt{xft}$"></SPAN> to find the leaf, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5157.png"
+ ALT="$ \mathtt{u}$"></SPAN>, in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5158.png"
+ ALT="$ \mathtt{xft}$"></SPAN> that contains the answer
+to <!-- MATH
+ $\mathtt{xft.find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5159.png"
+ ALT="$ \mathtt{xft.find(x)}$"></SPAN>.  From <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5160.png"
+ ALT="$ \mathtt{u}$"></SPAN>, we get the treap, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5161.png"
+ ALT="$ \mathtt{t}$"></SPAN>, containing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5162.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+and remove <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5163.png"
+ ALT="$ \mathtt{x}$"></SPAN> from <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5164.png"
+ ALT="$ \mathtt{t}$"></SPAN>.  If <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5165.png"
+ ALT="$ \mathtt{x}$"></SPAN> was also stored in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5166.png"
+ ALT="$ \mathtt{xft}$"></SPAN> (and <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5167.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+is not equal to <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5168.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}-1$"></SPAN>) then we remove <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5169.png"
+ ALT="$ \mathtt{x}$"></SPAN> from <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5170.png"
+ ALT="$ \mathtt{xft}$"></SPAN> and add the
+elements from <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5171.png"
+ ALT="$ \mathtt{x}$"></SPAN>'s treap to the treap, <!-- MATH
+ $\mathtt{t2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5172.png"
+ ALT="$ \mathtt{t2}$"></SPAN>, that is stored by <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5173.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s
+successor in the linked list.   This is illustrated in
+Figure&nbsp;<A HREF="#fig:yfast-remove">13.9</A>.
+<PRE>
+    boolean remove(T x) {
+        int ix = it.intValue(x);
+        Node&lt;T&gt; u = xft.findNode(ix);
+        boolean ret = u.x.t.remove(x);
+        if (ret) n--;
+        if (u.x.x == ix &amp;&amp; ix != 0xffffffff) {
+            STreap&lt;T&gt; t2 = u.child[1].x.t;
+            t2.absorb(u.x.t);
+            xft.remove(u.x);
+        }
+        return ret;
+    }
+</PRE>
+
+<DIV ALIGN="CENTER"><A NAME="fig:yfast-remove"></A><A NAME="34713"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.9:</STRONG>
+Removing the values 1 and 9 from a <TT>YFastTrie</TT> in Figure&nbsp;<A HREF="#fig:yfast-add">13.8</A>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="385" HEIGHT="304" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5174.png"
+ ALT="\includegraphics[scale=0.90909]{figs/yfast-remove}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+Finding the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5175.png"
+ ALT="$ \mathtt{u}$"></SPAN> in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5176.png"
+ ALT="$ \mathtt{xft}$"></SPAN> takes <!-- MATH
+ $O(\log\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5177.png"
+ ALT="$ O(\log\ensuremath{\mathtt{w}})$"></SPAN> expected time.
+Removing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5178.png"
+ ALT="$ \mathtt{x}$"></SPAN> from <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5179.png"
+ ALT="$ \mathtt{t}$"></SPAN> takes <!-- MATH
+ $O(\log\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5180.png"
+ ALT="$ O(\log\ensuremath{\mathtt{w}})$"></SPAN> expected time.  Again,
+Exercise&nbsp;<A HREF="7_3_Discussion_Exercises.html#exc:treap-split">7.12</A> shows that merging all the elements of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5181.png"
+ ALT="$ \mathtt{t}$"></SPAN> into
+<!-- MATH
+ $\mathtt{t2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5182.png"
+ ALT="$ \mathtt{t2}$"></SPAN> can be done in <!-- MATH
+ $O(\log\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5183.png"
+ ALT="$ O(\log\ensuremath{\mathtt{w}})$"></SPAN> time.  If necessary, removing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5184.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+from <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5185.png"
+ ALT="$ \mathtt{xft}$"></SPAN> takes <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5186.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time, but <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5187.png"
+ ALT="$ \mathtt{x}$"></SPAN> is only contained in <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5188.png"
+ ALT="$ \mathtt{xft}$"></SPAN> with
+probability <!-- MATH
+ $1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5189.png"
+ ALT="$ 1/\ensuremath{\mathtt{w}}$"></SPAN>.  Therefore, the expected time to remove an element
+from a <TT>YFastTrie</TT> is <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5190.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN>.
+
+<P>
+Earlier in the discussion, we delayed arguing about the sizes of treaps
+in this structure until later.  Before finishing this chapter, we prove
+the result we need.
+
+<P>
+<P>
+<DIV><A NAME="lem:yfast-subtreesize"><B>Lemma  <SPAN CLASS="arabic">13</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>Let <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5191.png"
+ ALT="$ \mathtt{x}$"></SPAN> be an integer stored in a <TT>YFastTrie</TT> and let <!-- MATH
+ $\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5192.png"
+ ALT="$ \ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}$"></SPAN>
+denote the number of elements in the treap, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5193.png"
+ ALT="$ \mathtt{t}$"></SPAN>, that contains <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5194.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+Then <!-- MATH
+ $\mathrm{E}[\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}] \le 2\ensuremath{\mathtt{w}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5195.png"
+ ALT="$ \mathrm{E}[\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}] \le 2\ensuremath{\mathtt{w}}-1$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+Refer to Figure&nbsp;<A HREF="#fig:yfast-sample">13.10</A>. Let
+<!-- MATH
+ $\ensuremath{\mathtt{x}}_1<\ensuremath{\mathtt{x}}_2<\cdots<\ensuremath{\mathtt{x}}_i=\ensuremath{\mathtt{x}}<\ensuremath{\mathtt{x}}_{i+1}<\cdots<\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="251" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5197.png"
+ ALT="$ \ensuremath{\mathtt{x}}_1&lt;\ensuremath{\mathtt{x}}_2&lt;\cdots&lt;\ensuremath{\mathtt...
+...remath{\mathtt{x}}_{i+1}&lt;\cdots&lt;\ensuremath{\mathtt{x}}_\ensuremath{\mathtt{n}}$"></SPAN> denote
+the elements stored
+in the <TT>YFastTrie</TT>.  The treap <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5198.png"
+ ALT="$ \mathtt{t}$"></SPAN> contains some elements greater than
+or equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5199.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  These are <!-- MATH
+ $\ensuremath{\mathtt{x}}_i,\ensuremath{\mathtt{x}}_{i+1},\ldots,\ensuremath{\mathtt{x}}_{i+j-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5200.png"
+ ALT="$ \ensuremath{\mathtt{x}}_i,\ensuremath{\mathtt{x}}_{i+1},\ldots,\ensuremath{\mathtt{x}}_{i+j-1}$"></SPAN>,
+where <!-- MATH
+ $\ensuremath{\mathtt{x}}_{i+j-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5201.png"
+ ALT="$ \ensuremath{\mathtt{x}}_{i+j-1}$"></SPAN> is the only one of these elements in which the
+biased coin toss performed in the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5202.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> method turned up as heads.
+In other words, <!-- MATH
+ $\mathrm{E}[j]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5203.png"
+ ALT="$ \mathrm{E}[j]$"></SPAN> is equal to the expected number of biased coin
+tosses required to obtain the first heads.<A NAME="tex2html115"
+  HREF="#foot34843"><SUP><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A>  Each coin toss is independent
+and turns up as heads with probability <!-- MATH
+ $1/\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5207.png"
+ ALT="$ 1/\ensuremath{\mathtt{w}}$"></SPAN>, so <!-- MATH
+ $\mathrm{E}[j]\le\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5208.png"
+ ALT="$ \mathrm{E}[j]\le\ensuremath{\mathtt{w}}$"></SPAN>.
+(See Lemma&nbsp;<A HREF="4_4_Analysis_Skiplists.html#lem:coin-tosses">4.2</A> for an analysis of this for the case <!-- MATH
+ $\ensuremath{\mathtt{w}}=2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5209.png"
+ ALT="$ \ensuremath{\mathtt{w}}=2$"></SPAN>.)
+
+<P>
+Similarly, the elements of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5210.png"
+ ALT="$ \mathtt{t}$"></SPAN> smaller than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5211.png"
+ ALT="$ \mathtt{x}$"></SPAN> are
+<!-- MATH
+ $\ensuremath{\mathtt{x}}_{i-1},\ldots,\ensuremath{\mathtt{x}}_{i-k}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5212.png"
+ ALT="$ \ensuremath{\mathtt{x}}_{i-1},\ldots,\ensuremath{\mathtt{x}}_{i-k}$"></SPAN> where all these <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5213.png"
+ ALT="$ k$"></SPAN> coin tosses turn up as
+tails and the coin toss for <!-- MATH
+ $\ensuremath{\mathtt{x}}_{i-k-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5214.png"
+ ALT="$ \ensuremath{\mathtt{x}}_{i-k-1}$"></SPAN> turns up as heads.  Therefore,
+<!-- MATH
+ $\mathrm{E}[k]\le\ensuremath{\mathtt{w}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5215.png"
+ ALT="$ \mathrm{E}[k]\le\ensuremath{\mathtt{w}}-1$"></SPAN>, since this is the same coin tossing experiment considered
+in the preceding paragraph, but one in which the last toss is not counted.
+In summary, <!-- MATH
+ $\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}=j+k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="68" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5216.png"
+ ALT="$ \ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}=j+k$"></SPAN>, so
+<P><!-- MATH
+ \begin{displaymath}
+\mathrm{E}[\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}] = \mathrm{E}[j+k] = \mathrm{E}[j] + \mathrm{E}[k] \le 2\ensuremath{\mathtt{w}}-1 \enspace .  \qedhere
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="266" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5217.png"
+ ALT="$\displaystyle \mathrm{E}[\ensuremath{\mathtt{n}}_\ensuremath{\mathtt{x}}] = \ma...
+...athrm{E}[j] + \mathrm{E}[k] \le 2\ensuremath{\mathtt{w}}-1 \enspace . \qedhere $">
+</DIV><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5196.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:yfast-sample"></A><A NAME="34844"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.10:</STRONG>
+The number of elements in
+  the treap <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5219.png"
+ ALT="$ \mathtt{t}$"></SPAN> containing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5220.png"
+ ALT="$ \mathtt{x}$"></SPAN> is determined by two coin tossing
+  experiments.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="552" HEIGHT="109" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5218.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/yfast-sample}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Lemma&nbsp;<A HREF="#lem:yfast-subtreesize">13.1</A> was the last piece in the proof of the
+following theorem, which summarizes the performance of the <TT>YFastTrie</TT>:
+
+<P>
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">13</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+<I>A <TT>YFastTrie</TT> implements the <TT>SSet</TT> interface for <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5221.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers. A
+<TT>YFastTrie</TT> supports the operations <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5222.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5223.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5224.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>
+in <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5225.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> expected time per operation.  The space used by a
+<TT>YFastTrie</TT> that stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5226.png"
+ ALT="$ \mathtt{n}$"></SPAN> values is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5227.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{w}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+The <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5228.png"
+ ALT="$ \mathtt{w}$"></SPAN> term in the space requirement comes from the fact that <!-- MATH
+ $\mathtt{xft}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5229.png"
+ ALT="$ \mathtt{xft}$"></SPAN> always
+stores the value <!-- MATH
+ $2^\ensuremath{\mathtt{w}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5230.png"
+ ALT="$ 2^\ensuremath{\mathtt{w}}-1$"></SPAN>.  The implementation could be modified (at the
+expense of adding some extra cases to the code) so that it is unnecessary
+to store this value.  In this case, the space requirement in the theorem
+becomes <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5231.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot34839">... time.</A><A
+ HREF="13_3_YFastTrie_Doubly_Logar.html#tex2html112"><SUP><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>This is an application of <SPAN  CLASS="textit">Jensen's Inequality</SPAN>: If <!-- MATH
+ $\mathrm{E}[r]=\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5112.png"
+ ALT="$ \mathrm{E}[r]=\ensuremath{\mathtt{w}}$"></SPAN>, then <!-- MATH
+ $\mathrm{E}[\log r]
+\le \log w$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5113.png"
+ ALT="$ \mathrm{E}[\log r]
+\le \log w$"></SPAN>.
+
+</DD>
+<DT><A NAME="foot34843">... heads.</A><A
+ HREF="13_3_YFastTrie_Doubly_Logar.html#tex2html115"><SUP><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A></DT>
+<DD>This analysis ignores
+the fact that <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5204.png"
+ ALT="$ j$"></SPAN> never exceeds <!-- MATH
+ $\ensuremath{\mathtt{n}}-i+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5205.png"
+ ALT="$ \ensuremath{\mathtt{n}}-i+1$"></SPAN>.  However, this only decreases
+<!-- MATH
+ $\mathrm{E}[j]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5206.png"
+ ALT="$ \mathrm{E}[j]$"></SPAN>, so the upper bound still holds.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1244"
+  HREF="13_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1238"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1232"
+  HREF="13_2_XFastTrie_Searching_in.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1240"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1242"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1245"
+  HREF="13_4_Discussion_Exercises.html">13.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html1239"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1233"
+  HREF="13_2_XFastTrie_Searching_in.html">13.2 XFastTrie: Searching in</A>
+ &nbsp; <B>  <A NAME="tex2html1241"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1243"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

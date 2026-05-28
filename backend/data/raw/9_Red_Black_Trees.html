@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>9. Red-Black Trees</TITLE>
+<META NAME="description" CONTENT="9. Red-Black Trees">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="10_Heaps.html">
+<LINK REL="previous" HREF="8_Scapegoat_Trees.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="9_1_2_4_Trees.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html923"
+  HREF="9_1_2_4_Trees.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html917"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html911"
+  HREF="8_2_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html919"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html921"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html924"
+  HREF="9_1_2_4_Trees.html">9.1 2-4 Trees</A>
+<B> Up:</B> <A NAME="tex2html918"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html912"
+  HREF="8_2_Discussion_Exercises.html">8.2 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html920"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html922"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001200000000000000000"></A>
+<A NAME="chap:redblack"></A>
+<BR>
+<SPAN CLASS="arabic">9</SPAN>. Red-Black Trees
+</H1>
+
+<P>
+<A NAME="25054"></A><A NAME="25055"></A>In this chapter, we present red-black trees, a version of binary search
+trees with logarithmic height.  Red-black trees are one of the most
+widely used data structures.  They appear as the primary search structure
+in many library implementations, including the Java Collections Framework
+and several implementations of the C++ Standard Template Library. They
+are also used within the Linux operating system kernel.  There are
+several reasons for the popularity of red-black trees:
+
+<OL>
+<LI>A red-black tree storing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3443.png"
+ ALT="$ \mathtt{n}$"></SPAN> values has height at most <!-- MATH
+ $2\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3444.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}}$"></SPAN>.
+</LI>
+<LI>The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3445.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3446.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations on a red-black tree run
+   in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3447.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> <SPAN  CLASS="textit">worst-case</SPAN> time.
+</LI>
+<LI>The amortized number of rotations performed during an <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3448.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+   or <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3449.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation is constant.
+</LI>
+</OL>
+The first two of these properties already put red-black trees 
+ahead of skiplists, treaps, and scapegoat trees.
+Skiplists and treaps rely on randomization and their <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3450.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN>
+running times are only expected. Scapegoat trees have a guaranteed
+bound on their height, but <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3451.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3452.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> only run in <!-- MATH
+ $O(\log
+\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3453.png"
+ ALT="$ O(\log
+\ensuremath{\mathtt{n}})$"></SPAN> amortized time.  The third property is just icing on the cake. It
+tells us that  that the time needed to add or remove an element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3454.png"
+ ALT="$ \mathtt{x}$"></SPAN> is
+dwarfed by the time it takes to find <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3455.png"
+ ALT="$ \mathtt{x}$"></SPAN>.<A NAME="tex2html70"
+  HREF="#foot25673"><SUP><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A>
+<P>
+However, the nice properties of red-black trees come with a price:
+implementation complexity. Maintaining a bound of <!-- MATH
+ $2\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3456.png"
+ ALT="$ 2\log \ensuremath{\mathtt{n}}$"></SPAN> on the
+height is not easy. It requires a careful analysis of a number of cases.
+We must ensure that the implementation does exactly the right
+thing in each case.  One misplaced rotation or change of colour produces
+a bug that can be very difficult to understand and track down.
+
+<P>
+Rather than jumping directly into the implementation of red-black trees,
+we will first provide some background on a related data structure:
+2-4 trees.  This will give some insight into how red-black trees were
+discovered and why efficiently maintaining them is even possible.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot25673">....</A><A
+ HREF="9_Red_Black_Trees.html#tex2html70"><SUP><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>Note that skiplists and
+treaps also have this property in the expected sense. See
+Exercises&nbsp;<A HREF="4_5_Discussion_Exercises.html#exc:skiplist-changes">4.6</A> and <A HREF="7_3_Discussion_Exercises.html#exc:treap-rotates">7.5</A>.
+
+</DD>
+</DL>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html925"
+  HREF="9_1_2_4_Trees.html"><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">1</SPAN> 2-4 Trees</A>
+<LI><A NAME="tex2html926"
+  HREF="9_2_RedBlackTree_Simulated_.html"><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>RedBlackTree</TT>: A Simulated 2-4 Tree</A>
+<LI><A NAME="tex2html927"
+  HREF="9_3_Summary.html"><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary</A>
+<LI><A NAME="tex2html928"
+  HREF="9_4_Discussion_Exercises.html"><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html923"
+  HREF="9_1_2_4_Trees.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html917"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html911"
+  HREF="8_2_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html919"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html921"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html924"
+  HREF="9_1_2_4_Trees.html">9.1 2-4 Trees</A>
+<B> Up:</B> <A NAME="tex2html918"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html912"
+  HREF="8_2_Discussion_Exercises.html">8.2 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html920"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html922"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,746 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>14.3 Discussion and Exercises</TITLE>
+<META NAME="description" CONTENT="14.3 Discussion and Exercises">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="previous" HREF="14_2_B_Trees.html">
+<LINK REL="up" HREF="14_External_Memory_Searchin.html">
+<LINK REL="next" HREF="Bibliography.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1317"
+  HREF="Bibliography.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1311"
+  HREF="14_External_Memory_Searchin.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1307"
+  HREF="14_2_B_Trees.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1313"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1315"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1318"
+  HREF="Bibliography.html">Bibliography</A>
+<B> Up:</B> <A NAME="tex2html1312"
+  HREF="14_External_Memory_Searchin.html">14. External Memory Searching</A>
+<B> Previous:</B> <A NAME="tex2html1308"
+  HREF="14_2_B_Trees.html">14.2 B-Trees</A>
+ &nbsp; <B>  <A NAME="tex2html1314"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1316"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001730000000000000000">
+<SPAN CLASS="arabic">14</SPAN>.<SPAN CLASS="arabic">3</SPAN> Discussion and Exercises</A>
+</H1>
+
+<P>
+The external memory model of computation was introduced by Aggarwal and
+Vitter [<A
+ HREF="Bibliography.html#av88">4</A>].  It is sometimes also called the <SPAN  CLASS="textit">I/O model</SPAN>
+<A NAME="36776"></A>or the <SPAN  CLASS="textit">disk access model</SPAN>. 
+<A NAME="36778"></A>
+<P>
+<SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5774.png"
+ ALT="$ B$"></SPAN>-Trees are to external memory searching what binary search trees
+are to internal memory searching.  <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5775.png"
+ ALT="$ B$"></SPAN>-trees were introduced by Bayer
+and McCreight [<A
+ HREF="Bibliography.html#bm70">9</A>] in 1970 and, less than ten years later, the
+title of Comer's ACM Computing Surveys article referred to
+them as ubiquitous [<A
+ HREF="Bibliography.html#c79">15</A>].
+
+<P>
+Like binary search trees, there are many variants of <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5776.png"
+ ALT="$ B$"></SPAN>-Trees, including
+<SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5777.png"
+ ALT="$ B^+$"></SPAN>-trees,
+<A NAME="36781"></A><SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5779.png"
+ ALT="$ B^*$"></SPAN>-trees,
+<A NAME="36782"></A>and counted <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5781.png"
+ ALT="$ B$"></SPAN>-trees.
+<A NAME="36783"></A><SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5783.png"
+ ALT="$ B$"></SPAN>-trees are indeed
+ubiquitous and are the primary data structure in many file systems,
+including Apple's HFS+,
+<A NAME="36784"></A>Microsoft's NTFS, 
+<A NAME="36785"></A>and Linux's Ext4;
+<A NAME="36786"></A>every
+major database system; and key-value stores used in cloud computing.
+Graefe's recent survey [<A
+ HREF="Bibliography.html#g10">36</A>] provides a 200+ page overview of the
+many modern applications, variants, and optimizations of <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5784.png"
+ ALT="$ B$"></SPAN>-trees.
+
+<P>
+<SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5785.png"
+ ALT="$ B$"></SPAN>-trees implement the <TT>SSet</TT> interface.  If only the <TT>USet</TT> interface
+is needed, then external memory hashing
+<A NAME="36790"></A>could be used as an alternative
+to <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5786.png"
+ ALT="$ B$"></SPAN>-trees.  External memory hashing schemes do exist; see, for example,
+Jensen and Pagh&nbsp;[<A
+ HREF="Bibliography.html#jp08">43</A>].  These schemes implement the <TT>USet</TT> operations
+in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5787.png"
+ ALT="$ O(1)$"></SPAN> expected time in the external memory model. However, for a
+variety of reasons, many applications still use <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5788.png"
+ ALT="$ B$"></SPAN>-trees even though
+they only require <TT>USet</TT> operations.
+
+<P>
+One reason <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5789.png"
+ ALT="$ B$"></SPAN>-trees are such a popular choice is that they often perform
+better than their <!-- MATH
+ $O(\log_B \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="68" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5790.png"
+ ALT="$ O(\log_B \ensuremath{\mathtt{n}})$"></SPAN> running time bounds suggest. The
+reason for this is that, in external memory settings, the value of <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5791.png"
+ ALT="$ B$"></SPAN>
+is typically quite large--in the hundreds or even thousands.  This means
+that 99% or even 99.9% of the data in a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5792.png"
+ ALT="$ B$"></SPAN>-tree is stored in the
+leaves.  In a database system with a large memory, it may be possible
+to cache all the internal nodes of a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5793.png"
+ ALT="$ B$"></SPAN>-tree in RAM, since they only
+represent 1% or 0.1% of the total data set.  When this happens,
+this means that a search in a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5794.png"
+ ALT="$ B$"></SPAN>-tree involves a very fast search in
+RAM, through the internal nodes, followed by a single external memory
+access to retrieve a leaf.
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+Show what happens when the keys 1.5 and then 7.5 are added to the
+  <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5795.png"
+ ALT="$ B$"></SPAN>-tree in Figure&nbsp;<A HREF="14_2_B_Trees.html#fig:btree">14.2</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+Show what happens when the keys 3 and then 4 are removed from the
+  <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5796.png"
+ ALT="$ B$"></SPAN>-tree in Figure&nbsp;<A HREF="14_2_B_Trees.html#fig:btree">14.2</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+What is the maximum number of internal nodes in a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5797.png"
+ ALT="$ B$"></SPAN>-tree that stores
+  <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5798.png"
+ ALT="$ \mathtt{n}$"></SPAN> keys (as a function of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5799.png"
+ ALT="$ \mathtt{n}$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5800.png"
+ ALT="$ B$"></SPAN>)?</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+The introduction to this chapter claims that <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5801.png"
+ ALT="$ B$"></SPAN>-trees only need an
+  internal memory of size <!-- MATH
+ $O(B+\log_B\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5802.png"
+ ALT="$ O(B+\log_B\ensuremath{\mathtt{n}})$"></SPAN>.  However, the implementation
+  given here actually requires more memory.
+  
+<OL>
+<LI>Show that the implementation of the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5803.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5804.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+      methods given in this chapter use an internal memory
+      proportional to <!-- MATH
+ $B\log_B \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5805.png"
+ ALT="$ B\log_B \ensuremath{\mathtt{n}}$"></SPAN>.
+</LI>
+<LI>Describe how these methods could be modified in order to reduce their memory
+      consumption to <!-- MATH
+ $O(B + \log_B \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5806.png"
+ ALT="$ O(B + \log_B \ensuremath{\mathtt{n}})$"></SPAN>.
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">5</SPAN></B> &nbsp; 
+Draw the credits used in the proof of Lemma&nbsp;<A HREF="14_2_B_Trees.html#lem:btree-split">14.1</A> on the trees
+  in Figures&nbsp;<A HREF="14_2_B_Trees.html#fig:btree-add">14.6</A> and <A HREF="14_2_B_Trees.html#fig:btree-remove-full">14.7</A>.  Verify
+  that (with three additional credits) it is possible to pay for the splits, 
+  merges, and borrows and maintain the credit invariant.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">6</SPAN></B> &nbsp; 
+Design a modified version of a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5807.png"
+ ALT="$ B$"></SPAN>-tree in which nodes can have anywhere
+  from <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5808.png"
+ ALT="$ B$"></SPAN> up to <SPAN CLASS="MATH"><IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5809.png"
+ ALT="$ 3B$"></SPAN> children (and hence <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5810.png"
+ ALT="$ B-1$"></SPAN> up to <SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5811.png"
+ ALT="$ 3B-1$"></SPAN> keys).
+  Show that this new version of <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5812.png"
+ ALT="$ B$"></SPAN>-trees performs only <SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5813.png"
+ ALT="$ O(m/B)$"></SPAN> splits,
+  merges, and borrows during a sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5814.png"
+ ALT="$ m$"></SPAN> operations.  (Hint:
+  For this to work, you will have to be more agressive with merging,
+  sometimes merging two nodes before it is strictly necessary.)</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">7</SPAN></B> &nbsp; 
+In this exercise, you will design a modified method of splitting and
+  merging in <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5815.png"
+ ALT="$ B$"></SPAN>-trees that asymptotically reduces the number of splits,
+  borrows and merges by considering up to three nodes at a time.
+  
+<OL>
+<LI>Let <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5816.png"
+ ALT="$ \mathtt{u}$"></SPAN> be an overfull node and let <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5817.png"
+ ALT="$ \mathtt{v}$"></SPAN> be a sibling immediately
+    to the right of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5818.png"
+ ALT="$ \mathtt{u}$"></SPAN>.  There are two ways to fix the overflow at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5819.png"
+ ALT="$ \mathtt{u}$"></SPAN>:
+    
+<OL>
+<LI><!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5820.png"
+ ALT="$ \mathtt{u}$"></SPAN> can give some of its keys to <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5821.png"
+ ALT="$ \mathtt{v}$"></SPAN>; or
+</LI>
+<LI><!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5822.png"
+ ALT="$ \mathtt{u}$"></SPAN> can be split and the keys of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5823.png"
+ ALT="$ \mathtt{u}$"></SPAN> and <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5824.png"
+ ALT="$ \mathtt{v}$"></SPAN> can be evenly
+        distributed among <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5825.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5826.png"
+ ALT="$ \mathtt{v}$"></SPAN>, and the newly created node, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5827.png"
+ ALT="$ \mathtt{w}$"></SPAN>.
+    
+</LI>
+</OL>
+    Show that this can always be done in such a way that, after the
+    operation, each of the (at most 3) affected nodes has at least
+    <!-- MATH
+ $B+\alpha B$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5828.png"
+ ALT="$ B+\alpha B$"></SPAN> keys and at most <!-- MATH
+ $2B-\alpha B$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5829.png"
+ ALT="$ 2B-\alpha B$"></SPAN> keys, for some constant
+    <!-- MATH
+ $\alpha > 0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5830.png"
+ ALT="$ \alpha &gt; 0$"></SPAN>.
+</LI>
+<LI>Let <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5831.png"
+ ALT="$ \mathtt{u}$"></SPAN> be an underfull node and let <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5832.png"
+ ALT="$ \mathtt{v}$"></SPAN> and <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5833.png"
+ ALT="$ \mathtt{w}$"></SPAN> be siblings of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5834.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+    There are two ways to fix the underflow at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5835.png"
+ ALT="$ \mathtt{u}$"></SPAN>:
+    
+<OL>
+<LI>keys can be redistributed among <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5836.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5837.png"
+ ALT="$ \mathtt{v}$"></SPAN>, and <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5838.png"
+ ALT="$ \mathtt{w}$"></SPAN>; or
+</LI>
+<LI><!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5839.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5840.png"
+ ALT="$ \mathtt{v}$"></SPAN>, and <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5841.png"
+ ALT="$ \mathtt{w}$"></SPAN> can be merged into two nodes and the keys
+        of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5842.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5843.png"
+ ALT="$ \mathtt{v}$"></SPAN>, and <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5844.png"
+ ALT="$ \mathtt{w}$"></SPAN> can be redistributed amongst these nodes.
+    
+</LI>
+</OL>
+    Show that this can always be done in such a way that, after the
+    operation, each of the (at most 3) affected nodes has at least
+    <!-- MATH
+ $B+\alpha B$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5845.png"
+ ALT="$ B+\alpha B$"></SPAN> keys and at most <!-- MATH
+ $2B-\alpha B$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5846.png"
+ ALT="$ 2B-\alpha B$"></SPAN> keys, for some constant
+    <!-- MATH
+ $\alpha > 0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5847.png"
+ ALT="$ \alpha &gt; 0$"></SPAN>.
+</LI>
+<LI>Show that, with these modifications, the number of 
+      merges, borrows, and splits that occur during <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5848.png"
+ ALT="$ m$"></SPAN> operations is <SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5849.png"
+ ALT="$ O(m/B)$"></SPAN>.
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">14</SPAN>..<SPAN CLASS="arabic">8</SPAN></B> &nbsp; 
+A <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5850.png"
+ ALT="$ B^+$"></SPAN>-tree, illustrated in Figure&nbsp;<A HREF="#fig:bplustree">14.11</A> stores every key in a
+  leaf and keeps its leaves stored as a doubly-linked list.  As usual,
+  each leaf stores between <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5851.png"
+ ALT="$ B-1$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5852.png"
+ ALT="$ 2B-1$"></SPAN> keys.  Above this list is
+  a standard <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5853.png"
+ ALT="$ B$"></SPAN>-tree that stores the largest value from each leaf but
+  the last.
+  
+<OL>
+<LI>Describe fast implementations of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5854.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5855.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>,
+      and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5856.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in a <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5857.png"
+ ALT="$ B^+$"></SPAN>-tree.
+</LI>
+<LI>Explain how to efficiently implement the <!-- MATH
+ $\mathtt{findRange(x,y)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5858.png"
+ ALT="$ \mathtt{findRange(x,y)}$"></SPAN> method,
+      that reports all values
+      greater than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5859.png"
+ ALT="$ \mathtt{x}$"></SPAN> and less than or equal to <!-- MATH
+ $\mathtt{y}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5860.png"
+ ALT="$ \mathtt{y}$"></SPAN>, in
+      a <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5861.png"
+ ALT="$ B^+$"></SPAN>-tree.
+</LI>
+<LI>Implement a class, <TT>BPlusTree</TT>, that implements <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5862.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>,
+      <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5863.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5864.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{findRange(x,y)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5865.png"
+ ALT="$ \mathtt{findRange(x,y)}$"></SPAN>.
+      <A NAME="37296"></A></LI>
+<LI><SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5866.png"
+ ALT="$ B^+$"></SPAN>-trees duplicate some of the keys because they are stored
+      both in the <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5867.png"
+ ALT="$ B$"></SPAN>-tree and in the list.  Explain why this duplication
+      does not add up to much for large values of <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5868.png"
+ ALT="$ B$"></SPAN>.
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:bplustree"></A><A NAME="36874"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 14.11:</STRONG>
+A <SPAN CLASS="MATH"><IMG
+ WIDTH="22" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5870.png"
+ ALT="$ B^+$"></SPAN>-tree is a <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5871.png"
+ ALT="$ B$"></SPAN>-tree on top of a doubly-linked list of blocks.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+
+</DIV><IMG
+ WIDTH="553" HEIGHT="160" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5869.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/bplustree}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<P>
+  
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1317"
+  HREF="Bibliography.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1311"
+  HREF="14_External_Memory_Searchin.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1307"
+  HREF="14_2_B_Trees.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1313"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1315"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1318"
+  HREF="Bibliography.html">Bibliography</A>
+<B> Up:</B> <A NAME="tex2html1312"
+  HREF="14_External_Memory_Searchin.html">14. External Memory Searching</A>
+<B> Previous:</B> <A NAME="tex2html1308"
+  HREF="14_2_B_Trees.html">14.2 B-Trees</A>
+ &nbsp; <B>  <A NAME="tex2html1314"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1316"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

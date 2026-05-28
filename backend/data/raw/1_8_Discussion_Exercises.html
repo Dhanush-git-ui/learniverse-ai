@@ -1,0 +1,423 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>1.8 Discussion and Exercises</TITLE>
+<META NAME="description" CONTENT="1.8 Discussion and Exercises">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="previous" HREF="1_7_List_Data_Structures.html">
+<LINK REL="up" HREF="1_Introduction.html">
+<LINK REL="next" HREF="2_Array_Based_Lists.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html363"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html357"
+  HREF="1_Introduction.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html353"
+  HREF="1_7_List_Data_Structures.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html359"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html361"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html364"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Up:</B> <A NAME="tex2html358"
+  HREF="1_Introduction.html">1. Introduction</A>
+<B> Previous:</B> <A NAME="tex2html354"
+  HREF="1_7_List_Data_Structures.html">1.7 List of Data</A>
+ &nbsp; <B>  <A NAME="tex2html360"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html362"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00480000000000000000">
+<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">8</SPAN> Discussion and Exercises</A>
+</H1>
+
+<P>
+The <TT>List</TT>, <TT>USet</TT>, and <TT>SSet</TT> interfaces described in
+Section&nbsp;<A HREF="1_2_Interfaces.html#sec:interfaces">1.2</A> are influenced by the Java Collections Framework
+[<A
+ HREF="Bibliography.html#oracle_collections">54</A>].
+<A NAME="2565"></A>These are essentially simplified versions of
+the <TT>List</TT>, <TT>Set</TT>, <TT>Map</TT>, <TT>SortedSet</TT>, and <TT>SortedMap</TT> interfaces found in
+the Java Collections Framework.  The accompanying source
+code includes wrapper classes for making <TT>USet</TT> and <TT>SSet</TT> implementations
+into <TT>Set</TT>, <TT>Map</TT>, <TT>SortedSet</TT>, and <TT>SortedMap</TT> implementations.
+
+<P>
+For a superb (and free) treatment of the mathematics discussed in this
+chapter, including asymptotic notation, logarithms, factorials, Stirling's
+approximation, basic probability, and lots more, see the textbook by
+Leyman, Leighton, and Meyer [<A
+ HREF="Bibliography.html#llm11">50</A>].  For a gentle calculus text
+that includes formal definitions of exponentials and logarithms, see the
+(freely available) classic text by Thompson [<A
+ HREF="Bibliography.html#t14">73</A>].
+
+<P>
+For more information on basic probability, especially as it relates to
+computer science, see the textbook by Ross [<A
+ HREF="Bibliography.html#r01">65</A>].  Another good
+reference, which covers both asymptotic notation and probability, is
+the textbook by Graham, Knuth, and Patashnik [<A
+ HREF="Bibliography.html#gkp94">37</A>].
+
+<P>
+Readers wanting to brush up on their Java programming can find
+many Java tutorials online [<A
+ HREF="Bibliography.html#oracle_tutorials">56</A>].
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+This exercise is designed to help familiarize the reader with choosing
+  the right data structure for the right problem.  If implemented, the
+  parts of this exercise should be done by making use of an implementation
+  of the relevant interface (<TT>Stack</TT>, <TT>Queue</TT>, <TT>Deque</TT>, <TT>USet</TT>, or <TT>SSet</TT>)
+  provided by the Java Collections Framework.
+
+<P>
+Solve the following problems by reading a text file one line at a
+  time and performing operations on each line in the appropriate data
+  structure(s).  Your implementations should be fast enough that even
+  files containing a million lines can be processed in a few seconds.
+  
+<OL>
+<LI>Read the input one line at a time and then write the lines out
+      in reverse order, so that the last input line is printed first,
+      then the second last input line, and so on.
+
+<P>
+</LI>
+<LI>Read the first 50 lines of input and then write them out in
+      reverse order. Read the next 50 lines and then write them out in
+      reverse order. Do this until there are no more lines left to read,
+      at which point any remaining lines should be output in reverse
+      order.
+
+<P>
+In other words, your output will start with the 50th line, then
+      the 49th, then the 48th, and so on down to the first line. This
+      will be followed by the 100th line, followed by the 99th, and so
+      on down to the 51st line. And so on.
+
+<P>
+Your code should never have to store more than 50 lines at any
+      given time.
+
+<P>
+</LI>
+<LI>Read the input one line at a time.
+      At any point after reading the first 42 lines, if some line is blank
+      (i.e., a string of length 0), then output the line that occured
+      42 lines prior to that one. For example, if Line 242 is blank,
+      then your program should output line 200. This program should
+      be implemented so that it never stores more than 43 lines of the
+      input at any given time.
+
+<P>
+</LI>
+<LI>Read the input one line at a time and write each line to the
+      output if it is not a duplicate of some previous input line. Take
+      special care so that a file with a lot of duplicate lines does not
+      use more memory than what is required for the number of unique lines.
+
+<P>
+</LI>
+<LI>Read the input one line at a time and write each line to the
+      output only if you have already read this line before. (The end
+      result is that you remove the first occurrence of each line.)
+      Take special care so that a file with a lot of duplicate lines
+      does not use more memory than what is required for the number of
+      unique lines.
+
+<P>
+</LI>
+<LI>Read the entire input one line at a time. Then output all lines
+      sorted by length, with the shortest lines first. In the case where
+      two lines have the same length, resolve their order using the usual
+      ``sorted order.''  Duplicate lines should be printed only once.
+
+<P>
+</LI>
+<LI>Do the same as the previous question except that duplicate lines
+      should be printed the same number of times that they appear in the input.
+
+<P>
+</LI>
+<LI>Read the entire input one line at a time and then output the
+      even numbered lines (starting with the first line, line 0) followed
+      by the odd-numbered lines.
+
+<P>
+</LI>
+<LI>Read the entire input one line at a time and randomly permute
+      the lines before outputting them.  To be clear: You should not
+      modify the contents of any line. Instead, the same collection of
+      lines should be printed, but in a random order.
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+<A NAME="2594"></A>A <SPAN  CLASS="textit">Dyck word</SPAN> is a sequence of +1's and -1's with the property that
+  the sum of any prefix of the sequence is never negative.  For example,
+  <!-- MATH
+ $+1,-1,+1,-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img401.png"
+ ALT="$ +1,-1,+1,-1$"></SPAN> is a Dyck word, but <!-- MATH
+ $+1,-1,-1,+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img402.png"
+ ALT="$ +1,-1,-1,+1$"></SPAN> is not a Dyck word
+  since the prefix <SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img403.png"
+ ALT="$ +1-1-1&lt;0$"></SPAN>.  Describe any relationship
+  between Dyck words and <TT>Stack</TT> <!-- MATH
+ $\mathtt{push(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img404.png"
+ ALT="$ \mathtt{push(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{pop()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img405.png"
+ ALT="$ \mathtt{pop()}$"></SPAN> operations.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+<A NAME="2601"></A><A NAME="2602"></A>A <SPAN  CLASS="textit">matched string</SPAN> is a sequence of {, }, (, ), [, and ]
+  characters that are properly matched.  For example, ``{{()[]}}''
+  is a matched string, but this ``{{()]}'' is not, since the second {
+  is matched with a ].  Show how to use a stack so that, given a string
+  of length <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img406.png"
+ ALT="$ \mathtt{n}$"></SPAN>, you can determine if it is a matched string in <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img407.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>
+  time.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+Suppose you have a <TT>Stack</TT>, <!-- MATH
+ $\mathtt{s}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img408.png"
+ ALT="$ \mathtt{s}$"></SPAN>, that supports only the <!-- MATH
+ $\mathtt{push(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img409.png"
+ ALT="$ \mathtt{push(x)}$"></SPAN>
+  and <!-- MATH
+ $\mathtt{pop()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img410.png"
+ ALT="$ \mathtt{pop()}$"></SPAN> operations. Show how, using only a FIFO <TT>Queue</TT>, <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img411.png"
+ ALT="$ \mathtt{q}$"></SPAN>,
+  you can reverse the order of all elements in <!-- MATH
+ $\mathtt{s}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img412.png"
+ ALT="$ \mathtt{s}$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">5</SPAN></B> &nbsp; 
+<A NAME="2803"></A>Using a <TT>USet</TT>, implement a <TT>Bag</TT>.  A <TT>Bag</TT> is like a <TT>USet</TT>--it
+  supports the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img413.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img414.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img415.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> methods--but it allows
+  duplicate elements to be stored.  The <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img416.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>Bag</TT>
+  returns some element (if any) that is equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img417.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  In addition,
+  a <TT>Bag</TT> supports the <!-- MATH
+ $\mathtt{findAll(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img418.png"
+ ALT="$ \mathtt{findAll(x)}$"></SPAN> operation that returns a list of
+  all elements in the <TT>Bag</TT> that are equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img419.png"
+ ALT="$ \mathtt{x}$"></SPAN>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">6</SPAN></B> &nbsp; 
+From scratch, write and test implementations of the <TT>List</TT>, <TT>USet</TT>
+  and <TT>SSet</TT> interfaces.  These do not have to be efficient.  They can
+  be used later to test the correctness and performance of more efficient
+  implementations.  (The easiest way to do this is to store the elements
+  in an array.)</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">1</SPAN>..<SPAN CLASS="arabic">7</SPAN></B> &nbsp; 
+Work to improve the performance of your implementations from the
+  previous question using any tricks you can think of.  Experiment and
+  think about how you could improve the performance of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img420.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and
+  <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img421.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> in your <TT>List</TT> implementation.  Think about how you could
+  improve the performance of the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img422.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in your <TT>USet</TT>
+  and <TT>SSet</TT> implementations.  This exercise is designed to give you a
+  feel for  how difficult it can be to obtain efficient implementations
+  of these interfaces.</DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html363"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html357"
+  HREF="1_Introduction.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html353"
+  HREF="1_7_List_Data_Structures.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html359"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html361"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html364"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Up:</B> <A NAME="tex2html358"
+  HREF="1_Introduction.html">1. Introduction</A>
+<B> Previous:</B> <A NAME="tex2html354"
+  HREF="1_7_List_Data_Structures.html">1.7 List of Data</A>
+ &nbsp; <B>  <A NAME="tex2html360"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html362"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

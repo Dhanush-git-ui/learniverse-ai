@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<!--********************************************-->
+<!--*       Generated from PreTeXt source      *-->
+<!--*                                          *-->
+<!--*         https://pretextbook.org          *-->
+<!--*                                          *-->
+<!--********************************************-->
+<html lang="en-US" dir="ltr">
+<!--******************************************-->
+<!--*  Authored with PreTeXt                 *-->
+<!--*  pretextbook.org                       *-->
+<!--*  Theme: default-modern                 *-->
+<!--*  Palette:                              *-->
+<!--******************************************-->
+<head xmlns:og="http://ogp.me/ns#" xmlns:book="https://ogp.me/ns/book#">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Lines and Planes in Space</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<link href="_static/pretext/css/theme.css" rel="stylesheet" type="text/css">
+<link href="_static/pretext/css/ol-markers.css" rel="stylesheet" type="text/css">
+<script>
+var runestoneMathReady = new Promise((resolve) => window.rsMathReady = resolve);
+window.MathJax = {
+  "tex": {
+    "inlineMath": [
+      [
+        "\\(",
+        "\\)"
+      ]
+    ],
+    "tags": "none",
+    "tagSide": "right",
+    "tagIndent": ".8em",
+    "packages": {
+      "[+]": [
+        "base",
+        "extpfeil",
+        "ams",
+        "amscd",
+        "color",
+        "newcommand",
+        "knowl"
+      ]
+    }
+  },
+  "options": {
+    "ignoreHtmlClass": "tex2jax_ignore|ignore-math",
+    "processHtmlClass": "process-math",
+    "renderActions": {
+      "findScript": [
+        10,
+        function (doc) {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(function(node) {
+                var display = !!node.type.match(/; *mode=display/);
+                var math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                var text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = {node: text, delim: '', n: 0};
+                math.end = {node: text, delim: '', n: 0};
+                doc.math.push(math);
+            });
+        },
+        ""
+      ]
+    }
+  },
+  "chtml": {
+    "scale": 0.98,
+    "mtextInheritFont": true
+  },
+  "loader": {
+    "load": [
+      "input/asciimath",
+      "[tex]/extpfeil",
+      "[tex]/amscd",
+      "[tex]/color",
+      "[tex]/newcommand",
+      "[pretext]/mathjaxknowl3.js"
+    ],
+    "paths": {
+      "pretext": "_static/pretext/js/lib"
+    }
+  },
+  "startup": {
+    pageReady() {
+      return MathJax.startup.defaultPageReady().then(function () {
+      console.log("in ready function");
+      rsMathReady();
+      }
+    )}
+  }
+};
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><meta name="Keywords" content="Authored in PreTeXt">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:type" content="book">
+<meta property="book:title" content="Active Calculus - Multivariable">
+<meta property="book:author" content="Steve Schlicker">
+<meta property="book:author" content="Mitchel T. Keller">
+<meta property="book:author" content="Nicholas Long">
+<script src="_static/pretext/js/lib/jquery.min.js"></script><script src="_static/pretext/js/lib/jquery.sticky.js"></script><script src="_static/pretext/js/lib/jquery.espy.min.js"></script><script src="_static/pretext/js/pretext.js"></script><script src="_static/pretext/js/pretext_add_on.js?x=1"></script><script src="_static/pretext/js/user_preferences.js"></script><!--** eBookCongig is necessary to configure interactive       **-->
+<!--** Runestone components to run locally in reader's browser **-->
+<!--** No external communication:                              **-->
+<!--**     log level is 0, Runestone Services are disabled     **-->
+<script type="text/javascript">
+eBookConfig = {};
+eBookConfig.useRunestoneServices = false;
+eBookConfig.host = 'http://127.0.0.1:8000';
+eBookConfig.course = 'PTX_Course_Title_Here';
+eBookConfig.basecourse = 'PTX_Base_Course';
+eBookConfig.isLoggedIn = false;
+eBookConfig.email = '';
+eBookConfig.isInstructor = false;
+eBookConfig.logLevel = 0;
+eBookConfig.username = '';
+eBookConfig.readings = null;
+eBookConfig.activities = null;
+eBookConfig.downloadsEnabled = false;
+eBookConfig.allow_pairs = false;
+eBookConfig.enableScratchAC = false;
+eBookConfig.build_info = "";
+eBookConfig.python3 = null;
+eBookConfig.runestone_version = '7.11.0';
+eBookConfig.jobehost = '';
+eBookConfig.proxyuri_runs = '';
+eBookConfig.proxyuri_files = '';
+eBookConfig.enable_chatcodes =  false;
+</script>
+<!--*** Runestone Services ***-->
+<script src="_static/prefix-runtime.f91c1a4dc12163f2.bundle.js"></script><script src="_static/prefix-723.3e6434f80549315a.bundle.js"></script><script src="_static/prefix-runestone.731d8387162b79c1.bundle.js"></script><link rel="stylesheet" type="text/css" href="_static/prefix-723.3bccd435914aa0ff.css">
+<link rel="stylesheet" type="text/css" href="_static/prefix-runestone.557d81b04b3ec0e4.css">
+<script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script><script src="_static/pretext/js/pretext-webwork/2.20/pretext-webwork.js"></script><script src="https://webwork-ptx.aimath.org/webwork2_files/node_modules/iframe-resizer/js/iframeResizer.min.js"></script><script src="_static/pretext/js/lti_iframe_resizer.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/autoloader/prism-autoloader.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" integrity="sha512-dubtf8xMHSQlExGRQ5R7toxHLgSDZ0K7AunqPWHXmJQ8XyVIG19S1T95gBxlAeGOK02P4Da2RTnQz0Za0H0ebQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-highlight/prism-line-highlight.min.js" integrity="sha512-93uCmm0q+qO5Lb1huDqr7tywS8A2TFA+1/WHvyiWaK6/pvsFl6USnILagntBx8JnVbQH5s3n0vQZY6xNthNfKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js" integrity="sha512-4xUl/d6D6THrAnXAwGajXkoWaeMNwEKK4iNfq5DotEbLPAfk6FSxSP3ydNxqDgCw1c/0Z1Jg6L8h2j+++9BZmg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="lunr-pretext-search-index.js" async=""></script><script src="_static/pretext/js/pretext_search.js"></script><script src="_static/pretext/js/lib/knowl.js"></script><!--knowl.js code controls Sage Cells within knowls--><script>sagecellEvalName='Evaluate (Sage)';
+</script>
+</head>
+<body id="acmulti" class="pretext book ignore-math">
+<a class="assistive" href="#ptx-content">Skip to main content</a><header id="ptx-masthead" class="ptx-masthead"><div class="ptx-banner"><div class="title-container">
+<h1 class="heading"><a href="root-1-2.html"><span class="title">Active Calculus - Multivariable</span></a></h1>
+<p class="byline">Steve Schlicker, Mitchel T. Keller, Nicholas Long</p>
+</div></div></header><nav id="ptx-navbar" class="ptx-navbar navbar"><div class="ptx-navbar-contents">
+<button class="toc-toggle button" title="Contents"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5d2;</span><span class="name">Contents</span></button><a class="index-button button" href="root-1-2-7-1.html" title="Index"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span><span class="name">Index</span></a><div class="searchbox">
+<div class="searchwidget"><button id="searchbutton" class="searchbutton button" type="button" title="Search book"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe8b6;</span><span class="name">Search Book</span></button></div>
+<div id="searchresultsplaceholder" class="searchresultsplaceholder" style="display: none">
+<div class="search-results-controls">
+<input aria-label="Search term" id="ptxsearch" class="ptxsearch" type="text" name="terms" placeholder="Search term"><button title="Close search" id="closesearchresults" class="closesearchresults"><span class="material-symbols-outlined">close</span></button>
+</div>
+<h2 class="search-results-heading">Search Results: </h2>
+<div id="searchempty" class="searchempty"><span>No results.</span></div>
+<ol id="searchresults" class="searchresults"></ol>
+</div>
+</div>
+<span class="nav-other-controls"><button id="light-dark-button" class="light-dark-button button" title="Dark Mode"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe51c;</span><span class="name">Dark Mode</span></button></span><span class="treebuttons"><a class="previous-button button" href="S-9-4-Cross-Product.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="up-button button" href="C-9.html" title="Up"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Up</span></a><a class="next-button button" href="S-9-6-Vector-Valued-Functions.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a></span>
+</div></nav><div id="latex-macros" class="hidden-content process-math" style="display:none"><span class="process-math">\(\newcommand{\R}{\mathbb{R}}
+\newcommand{\va}{\mathbf{a}}
+\newcommand{\vb}{\mathbf{b}}
+\newcommand{\vc}{\mathbf{c}}
+\newcommand{\vC}{\mathbf{C}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\ve}{\mathbf{e}}
+\newcommand{\vi}{\mathbf{i}}
+\newcommand{\vj}{\mathbf{j}}
+\newcommand{\vk}{\mathbf{k}}
+\newcommand{\vn}{\mathbf{n}}
+\newcommand{\vm}{\mathbf{m}}
+\newcommand{\vr}{\mathbf{r}}
+\newcommand{\vs}{\mathbf{s}}
+\newcommand{\vu}{\mathbf{u}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vz}{\mathbf{z}}
+\newcommand{\vzero}{\mathbf{0}}
+\newcommand{\vF}{\mathbf{F}}
+\newcommand{\vG}{\mathbf{G}}
+\newcommand{\vH}{\mathbf{H}}
+\newcommand{\vR}{\mathbf{R}}
+\newcommand{\vT}{\mathbf{T}}
+\newcommand{\vN}{\mathbf{N}}
+\newcommand{\vL}{\mathbf{L}}
+\newcommand{\vB}{\mathbf{B}}
+\newcommand{\vS}{\mathbf{S}}
+\newcommand{\proj}{\text{proj}}
+\newcommand{\comp}{\text{comp}}
+\newcommand{\nin}{}
+\newcommand{\vecmag}[1]{|#1|}
+\newcommand{\grad}{\nabla}
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\divg}{div}
+\newcommand{\lt}{&lt;}
+\newcommand{\gt}{&gt;}
+\newcommand{\amp}{&amp;}
+\definecolor{fillinmathshade}{gray}{0.9}
+\newcommand{\fillinmath}[1]{\mathchoice{\colorbox{fillinmathshade}{$\displaystyle     \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\textstyle        \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptstyle      \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptscriptstyle\phantom{\,#1\,}$}}}
+\)</span></div>
+<div class="ptx-page">
+<div id="ptx-sidebar" class="ptx-sidebar"><nav id="ptx-toc" class="ptx-toc depth2 focused" data-preexpanded-levels="0" data-max-levels="2"><ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-frontmatter">
+<div class="toc-title-box"><a href="frontmatter.html" class="internal"><span class="title">Front Matter</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-colophon"><div class="toc-title-box"><a href="front-colophon.html" class="internal"><span class="title">Colophon</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-4.html" class="internal"><span class="title">Features of the Text</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-5.html" class="internal"><span class="title">Vector Calculus Preface</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-6.html" class="internal"><span class="title">Acknowledgments</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-7.html" class="internal"><span class="title">Active Calculus - Multivariable: our goals</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-8.html" class="internal"><span class="title">How to Use this Text</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-chapter contains-active">
+<div class="toc-title-box"><a href="C-9.html" class="internal"><span class="codenumber">9</span> <span class="title">Multivariable and Vector Functions</span></a></div>
+<ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-1-Functions.html" class="internal"><span class="codenumber">9.1</span> <span class="title">Functions of Several Variables and Three Dimensional Space</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-4" class="internal"><span class="codenumber">9.1.1</span> <span class="title">Functions of Several Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-5" class="internal"><span class="codenumber">9.1.2</span> <span class="title">Representing Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-6" class="internal"><span class="codenumber">9.1.3</span> <span class="title">Some Standard Equations in Three-Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-7" class="internal"><span class="codenumber">9.1.4</span> <span class="title">Traces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-8" class="internal"><span class="codenumber">9.1.5</span> <span class="title">Contour Maps and Level Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-9" class="internal"><span class="codenumber">9.1.6</span> <span class="title">A gallery of functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-10" class="internal"><span class="codenumber">9.1.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-11" class="internal"><span class="codenumber">9.1.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-2-Vectors.html" class="internal"><span class="codenumber">9.2</span> <span class="title">Vectors</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-4" class="internal"><span class="codenumber">9.2.1</span> <span class="title">Representations of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-5" class="internal"><span class="codenumber">9.2.2</span> <span class="title">Equality of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-6" class="internal"><span class="codenumber">9.2.3</span> <span class="title">Operations on Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-7" class="internal"><span class="codenumber">9.2.4</span> <span class="title">Properties of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-8" class="internal"><span class="codenumber">9.2.5</span> <span class="title">Geometric Interpretation of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-9" class="internal"><span class="codenumber">9.2.6</span> <span class="title">The Magnitude of a Vector</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-10" class="internal"><span class="codenumber">9.2.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-11" class="internal"><span class="codenumber">9.2.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-3-Dot-Product.html" class="internal"><span class="codenumber">9.3</span> <span class="title">The Dot Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-4" class="internal"><span class="codenumber">9.3.1</span> <span class="title">The Dot Product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-5" class="internal"><span class="codenumber">9.3.2</span> <span class="title">The angle between vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-6" class="internal"><span class="codenumber">9.3.3</span> <span class="title">The Dot Product and Orthogonality</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-7" class="internal"><span class="codenumber">9.3.4</span> <span class="title">Work, Force, and Displacement</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-8" class="internal"><span class="codenumber">9.3.5</span> <span class="title">Projections</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-9" class="internal"><span class="codenumber">9.3.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-10" class="internal"><span class="codenumber">9.3.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-4-Cross-Product.html" class="internal"><span class="codenumber">9.4</span> <span class="title">The Cross Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-4" class="internal"><span class="codenumber">9.4.1</span> <span class="title">Computing the cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-5" class="internal"><span class="codenumber">9.4.2</span> <span class="title">The Length of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-6" class="internal"><span class="codenumber">9.4.3</span> <span class="title">The Direction of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-7" class="internal"><span class="codenumber">9.4.4</span> <span class="title">Torque is measured by a cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-8" class="internal"><span class="codenumber">9.4.5</span> <span class="title">Comparing the dot and cross products</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-9" class="internal"><span class="codenumber">9.4.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-10" class="internal"><span class="codenumber">9.4.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section contains-active">
+<div class="toc-title-box"><a href="S-9-5-Lines-Planes.html" class="internal"><span class="codenumber">9.5</span> <span class="title">Lines and Planes in Space</span></a></div>
+<ul class="structural toc-item-list active">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-4" class="internal"><span class="codenumber">9.5.1</span> <span class="title">Lines in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-5" class="internal"><span class="codenumber">9.5.2</span> <span class="title">The Parametric Equations of a Line</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-6" class="internal"><span class="codenumber">9.5.3</span> <span class="title">Planes in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-7" class="internal"><span class="codenumber">9.5.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-8" class="internal"><span class="codenumber">9.5.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html" class="internal"><span class="codenumber">9.6</span> <span class="title">Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-4" class="internal"><span class="codenumber">9.6.1</span> <span class="title">Vector-Valued Functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-5" class="internal"><span class="codenumber">9.6.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-6" class="internal"><span class="codenumber">9.6.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html" class="internal"><span class="codenumber">9.7</span> <span class="title">Derivatives and Integrals of Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-4" class="internal"><span class="codenumber">9.7.1</span> <span class="title">The Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-5" class="internal"><span class="codenumber">9.7.2</span> <span class="title">Computing Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-6" class="internal"><span class="codenumber">9.7.3</span> <span class="title">Tangent Lines</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-7" class="internal"><span class="codenumber">9.7.4</span> <span class="title">Integrating a Vector-Valued Function</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-8" class="internal"><span class="codenumber">9.7.5</span> <span class="title">Projectile Motion</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-9" class="internal"><span class="codenumber">9.7.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-10" class="internal"><span class="codenumber">9.7.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html" class="internal"><span class="codenumber">9.8</span> <span class="title">Arc Length and Curvature</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-4" class="internal"><span class="codenumber">9.8.1</span> <span class="title">Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-5" class="internal"><span class="codenumber">9.8.2</span> <span class="title">Parameterizing With Respect To Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-6" class="internal"><span class="codenumber">9.8.3</span> <span class="title">Curvature</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-7" class="internal"><span class="codenumber">9.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-8" class="internal"><span class="codenumber">9.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-10.html" class="internal"><span class="codenumber">10</span> <span class="title">Derivatives of Multivariable Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-1-Limits.html" class="internal"><span class="codenumber">10.1</span> <span class="title">Limits</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-4" class="internal"><span class="codenumber">10.1.1</span> <span class="title">Limits of Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-5" class="internal"><span class="codenumber">10.1.2</span> <span class="title">Continuity</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-6" class="internal"><span class="codenumber">10.1.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-7" class="internal"><span class="codenumber">10.1.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.2</span> <span class="title">First-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.2.1</span> <span class="title">First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.2.2</span> <span class="title">Interpretations of First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.2.3</span> <span class="title">Using tables and contours to estimate partial derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.2.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-8" class="internal"><span class="codenumber">10.2.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.3</span> <span class="title">Second-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.3.1</span> <span class="title">Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.3.2</span> <span class="title">Interpreting the Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.3.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.3.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-4-Linearization.html" class="internal"><span class="codenumber">10.4</span> <span class="title">Linearization: Tangent Planes and Differentials</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-4" class="internal"><span class="codenumber">10.4.1</span> <span class="title">The Tangent Plane</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-5" class="internal"><span class="codenumber">10.4.2</span> <span class="title">Linearization</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-6" class="internal"><span class="codenumber">10.4.3</span> <span class="title">Differentials</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-7" class="internal"><span class="codenumber">10.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-8" class="internal"><span class="codenumber">10.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-5-Chain-Rule.html" class="internal"><span class="codenumber">10.5</span> <span class="title">The Chain Rule</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-4" class="internal"><span class="codenumber">10.5.1</span> <span class="title">The Chain Rule</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-5" class="internal"><span class="codenumber">10.5.2</span> <span class="title">Tree Diagrams</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-6" class="internal"><span class="codenumber">10.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-7" class="internal"><span class="codenumber">10.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html" class="internal"><span class="codenumber">10.6</span> <span class="title">Directional Derivatives and the Gradient</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-4" class="internal"><span class="codenumber">10.6.1</span> <span class="title">Directional Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-5" class="internal"><span class="codenumber">10.6.2</span> <span class="title">Computing the Directional Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#gradient_ss" class="internal"><span class="codenumber">10.6.3</span> <span class="title">The Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-7" class="internal"><span class="codenumber">10.6.4</span> <span class="title">The Direction of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-8" class="internal"><span class="codenumber">10.6.5</span> <span class="title">The Length of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-9" class="internal"><span class="codenumber">10.6.6</span> <span class="title">Applications</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-10" class="internal"><span class="codenumber">10.6.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-11" class="internal"><span class="codenumber">10.6.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-7-Optimization.html" class="internal"><span class="codenumber">10.7</span> <span class="title">Optimization</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-4" class="internal"><span class="codenumber">10.7.1</span> <span class="title">Extrema and Critical Points</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-5" class="internal"><span class="codenumber">10.7.2</span> <span class="title">Classifying Critical Points: The Second Derivative Test</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-6" class="internal"><span class="codenumber">10.7.3</span> <span class="title">Optimization on a Restricted Domain</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-7" class="internal"><span class="codenumber">10.7.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-8" class="internal"><span class="codenumber">10.7.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html" class="internal"><span class="codenumber">10.8</span> <span class="title">Constrained Optimization: Lagrange Multipliers</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4" class="internal"><span class="codenumber">10.8.1</span> <span class="title">Constrained Optimization and Lagrange Multipliers</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-5" class="internal"><span class="codenumber">10.8.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-6" class="internal"><span class="codenumber">10.8.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-11.html" class="internal"><span class="codenumber">11</span> <span class="title">Multiple Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html" class="internal"><span class="codenumber">11.1</span> <span class="title">Double Riemann Sums and Double Integrals over Rectangles</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-4" class="internal"><span class="codenumber">11.1.1</span> <span class="title">Double Riemann Sums over Rectangles</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-5" class="internal"><span class="codenumber">11.1.2</span> <span class="title">Double Riemann Sums and Double Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-6" class="internal"><span class="codenumber">11.1.3</span> <span class="title">Interpretation of Double Riemann Sums and Double integrals.</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-7" class="internal"><span class="codenumber">11.1.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-8" class="internal"><span class="codenumber">11.1.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html" class="internal"><span class="codenumber">11.2</span> <span class="title">Iterated Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-4" class="internal"><span class="codenumber">11.2.1</span> <span class="title">Iterated Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-5" class="internal"><span class="codenumber">11.2.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-6" class="internal"><span class="codenumber">11.2.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html" class="internal"><span class="codenumber">11.3</span> <span class="title">Double Integrals over General Regions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-4" class="internal"><span class="codenumber">11.3.1</span> <span class="title">Double Integrals over General Regions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-5" class="internal"><span class="codenumber">11.3.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-6" class="internal"><span class="codenumber">11.3.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html" class="internal"><span class="codenumber">11.4</span> <span class="title">Applications of Double Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-4" class="internal"><span class="codenumber">11.4.1</span> <span class="title">Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-5" class="internal"><span class="codenumber">11.4.2</span> <span class="title">Area</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-6" class="internal"><span class="codenumber">11.4.3</span> <span class="title">Center of Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-7" class="internal"><span class="codenumber">11.4.4</span> <span class="title">Probability</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-8" class="internal"><span class="codenumber">11.4.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-9" class="internal"><span class="codenumber">11.4.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html" class="internal"><span class="codenumber">11.5</span> <span class="title">Double Integrals in Polar Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-4" class="internal"><span class="codenumber">11.5.1</span> <span class="title">Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-5" class="internal"><span class="codenumber">11.5.2</span> <span class="title">Integrating in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-6" class="internal"><span class="codenumber">11.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-7" class="internal"><span class="codenumber">11.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html" class="internal"><span class="codenumber">11.6</span> <span class="title">Surfaces Defined Parametrically and Surface Area</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-4" class="internal"><span class="codenumber">11.6.1</span> <span class="title">Parametric Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#SS-11-6-2-Surface-Area-Parametrically-Defined-Surfaces" class="internal"><span class="codenumber">11.6.2</span> <span class="title">The Surface Area of Parametrically Defined Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-6" class="internal"><span class="codenumber">11.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-7" class="internal"><span class="codenumber">11.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html" class="internal"><span class="codenumber">11.7</span> <span class="title">Triple Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-4" class="internal"><span class="codenumber">11.7.1</span> <span class="title">Triple Riemann Sums and Triple Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-5" class="internal"><span class="codenumber">11.7.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-6" class="internal"><span class="codenumber">11.7.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html" class="internal"><span class="codenumber">11.8</span> <span class="title">Triple Integrals in Cylindrical and Spherical Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-4" class="internal"><span class="codenumber">11.8.1</span> <span class="title">Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-5" class="internal"><span class="codenumber">11.8.2</span> <span class="title">Triple Integrals in Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-6" class="internal"><span class="codenumber">11.8.3</span> <span class="title">Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-7" class="internal"><span class="codenumber">11.8.4</span> <span class="title">Triple Integrals in Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-8" class="internal"><span class="codenumber">11.8.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-9" class="internal"><span class="codenumber">11.8.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html" class="internal"><span class="codenumber">11.9</span> <span class="title">Change of Variables</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-4" class="internal"><span class="codenumber">11.9.1</span> <span class="title">Change of Variables in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-5" class="internal"><span class="codenumber">11.9.2</span> <span class="title">General Change of Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-6" class="internal"><span class="codenumber">11.9.3</span> <span class="title">Change of Variables in a Triple Integral</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-7" class="internal"><span class="codenumber">11.9.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-8" class="internal"><span class="codenumber">11.9.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C_Vector.html" class="internal"><span class="codenumber">12</span> <span class="title">Vector Calculus</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_VectorFields.html" class="internal"><span class="codenumber">12.1</span> <span class="title">Vector Fields</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Examples" class="internal"><span class="codenumber">12.1.1</span> <span class="title">Examples of Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Mathematical" class="internal"><span class="codenumber">12.1.2</span> <span class="title">Mathematical Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Plotting" class="internal"><span class="codenumber">12.1.3</span> <span class="title">Plotting Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Gradient" class="internal"><span class="codenumber">12.1.4</span> <span class="title">Gradient Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-8" class="internal"><span class="codenumber">12.1.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-9" class="internal"><span class="codenumber">12.1.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html" class="internal"><span class="codenumber">12.2</span> <span class="title">The Idea of a Line Integral</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_OrientCurve" class="internal"><span class="codenumber">12.2.1</span> <span class="title">Orientations of Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_LineIntegrals" class="internal"><span class="codenumber">12.2.2</span> <span class="title">Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Properties" class="internal"><span class="codenumber">12.2.3</span> <span class="title">Properties of Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Circulation" class="internal"><span class="codenumber">12.2.4</span> <span class="title">The Circulation of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-8" class="internal"><span class="codenumber">12.2.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-9" class="internal"><span class="codenumber">12.2.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html" class="internal"><span class="codenumber">12.3</span> <span class="title">Using Parametrizations to Calculate Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#SS_Vector_ParamLineIntegrals_Evaluation" class="internal"><span class="codenumber">12.3.1</span> <span class="title">Parametrizations in the Definition of <span class="process-math">\(\int_C\vF\cdot d\vr\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#alt_li_notation" class="internal"><span class="codenumber">12.3.2</span> <span class="title">Alternative Notation for Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-6" class="internal"><span class="codenumber">12.3.3</span> <span class="title">Independence of Parametrization for a Fixed Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-7" class="internal"><span class="codenumber">12.3.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-8" class="internal"><span class="codenumber">12.3.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FTCLI.html" class="internal"><span class="codenumber">12.4</span> <span class="title">Path-Independent Vector Fields and the Fundamental Theorem of Calculus for Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-4" class="internal"><span class="codenumber">12.4.1</span> <span class="title">Path-Independent Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-5" class="internal"><span class="codenumber">12.4.2</span> <span class="title">Line Integrals Along Closed Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#SS_Vector_FTCLI_Other" class="internal"><span class="codenumber">12.4.3</span> <span class="title">What other vector fields are path-independent?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-7" class="internal"><span class="codenumber">12.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-8" class="internal"><span class="codenumber">12.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html" class="internal"><span class="codenumber">12.5</span> <span class="title">Line Integrals of Scalar Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-4" class="internal"><span class="codenumber">12.5.1</span> <span class="title">Defining line integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-5" class="internal"><span class="codenumber">12.5.2</span> <span class="title">Using Parameterizations to Calculate Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-6" class="internal"><span class="codenumber">12.5.3</span> <span class="title">Properties of Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#SS_Vector_ScalarLineIntegral_Visualizations" class="internal"><span class="codenumber">12.5.4</span> <span class="title">Visualizations of Scalar Line Integrals as Area Under a Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-8" class="internal"><span class="codenumber">12.5.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#ez_Vector_ScalarLineIntegral" class="internal"><span class="codenumber">12.5.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Div.html" class="internal"><span class="codenumber">12.6</span> <span class="title">The Divergence of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Defn" class="internal"><span class="codenumber">12.6.1</span> <span class="title">Definition of the Divergence of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Development" class="internal"><span class="codenumber">12.6.2</span> <span class="title">Measuring the Change in Strength of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-6" class="internal"><span class="codenumber">12.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-7" class="internal"><span class="codenumber">12.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Curl.html" class="internal"><span class="codenumber">12.7</span> <span class="title">The Curl of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development" class="internal"><span class="codenumber">12.7.1</span> <span class="title">Measuring the Circulation Density of Vector Field in <span class="process-math">\(\R^2\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development3D" class="internal"><span class="codenumber">12.7.2</span> <span class="title">Measuring Rotation in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-6" class="internal"><span class="codenumber">12.7.3</span> <span class="title">Circulation Density in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Interpretation" class="internal"><span class="codenumber">12.7.4</span> <span class="title">Interpretation and Usage of Curl</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-8" class="internal"><span class="codenumber">12.7.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-9" class="internal"><span class="codenumber">12.7.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_GreensTheorem.html" class="internal"><span class="codenumber">12.8</span> <span class="title">Greenâs Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#SS_Vector_GreensTheorem_Circulation" class="internal"><span class="codenumber">12.8.1</span> <span class="title">Circulation</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-5" class="internal"><span class="codenumber">12.8.2</span> <span class="title">Greenâs Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-6" class="internal"><span class="codenumber">12.8.3</span> <span class="title">What happens when vector fields are not smooth?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-7" class="internal"><span class="codenumber">12.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-8" class="internal"><span class="codenumber">12.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FluxInt.html" class="internal"><span class="codenumber">12.9</span> <span class="title">Flux Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#SS_Vector_FluxInt_Idea" class="internal"><span class="codenumber">12.9.1</span> <span class="title">The Idea of the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-5" class="internal"><span class="codenumber">12.9.2</span> <span class="title">The Details of Measuring the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-6" class="internal"><span class="codenumber">12.9.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-7" class="internal"><span class="codenumber">12.9.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html" class="internal"><span class="codenumber">12.10</span> <span class="title">Surface Integrals of Scalar Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-4" class="internal"><span class="codenumber">12.10.1</span> <span class="title">Defining surface integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-5" class="internal"><span class="codenumber">12.10.2</span> <span class="title">Properties of Scalar Surface Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-6" class="internal"><span class="codenumber">12.10.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-7" class="internal"><span class="codenumber">12.10.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_StokesThm.html" class="internal"><span class="codenumber">12.11</span> <span class="title">Stokesâ Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Development" class="internal"><span class="codenumber">12.11.1</span> <span class="title">Circulation in three dimensions and Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Verify" class="internal"><span class="codenumber">12.11.2</span> <span class="title">Verifying and Applying Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#surfaceboundaries" class="internal"><span class="codenumber">12.11.3</span> <span class="title">Practice with Surfaces and their Boundaries</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-7" class="internal"><span class="codenumber">12.11.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-8" class="internal"><span class="codenumber">12.11.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_DivThm.html" class="internal"><span class="codenumber">12.12</span> <span class="title">The Divergence Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#SS_Vector_DivThm_Verify" class="internal"><span class="codenumber">12.12.1</span> <span class="title">The Divergence Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-5" class="internal"><span class="codenumber">12.12.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-6" class="internal"><span class="codenumber">12.12.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-backmatter">
+<div class="toc-title-box"><a href="root-1-2-7.html" class="internal"><span class="title">Back Matter</span></a></div>
+<ul class="structural toc-item-list"><li class="toc-item toc-index"><div class="toc-title-box"><a href="root-1-2-7-1.html" class="internal"><span class="title">Index</span></a></div></li></ul>
+</li>
+</ul></nav></div>
+<main class="ptx-main"><div id="ptx-content" class="ptx-content"><section class="section" id="S-9-5-Lines-Planes"><h2 class="heading hide-type">
+<span class="type">Section</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Lines and Planes in Space</span>
+</h2>
+<article class="objectives goal-like" id="S-9-5-Lines-Planes-2"><h3 class="heading"><span class="type">Motivating Questions</span></h3>
+<ul class="disc" id="S-9-5-Lines-Planes-2-1">
+<li id="S-9-5-Lines-Planes-2-1-1">
+<div class="para" id="S-9-5-Lines-Planes-2-1-1-1">How are lines in <span class="process-math">\(\R^3\)</span> similar to and different from lines in <span class="process-math">\(\R^2\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-9-5-Lines-Planes-2-1-1" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-2-1-2">
+<div class="para" id="S-9-5-Lines-Planes-2-1-2-1">What is the role that vectors play in representing equations of lines, particularly in <span class="process-math">\(\R^3\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-2-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-9-5-Lines-Planes-2-1-2" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-2-1-3">
+<div class="para" id="S-9-5-Lines-Planes-2-1-3-1">How can we think of a plane as a set of points determined by a point and a vector?<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-2-1-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-9-5-Lines-Planes-2-1-3" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-2-1-4">
+<div class="para" id="S-9-5-Lines-Planes-2-1-4-1">How do we find the equation of a plane through three given non-collinear points?<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-2-1-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-9-5-Lines-Planes-2-1-4" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Motivating Questions 9.5"><a href="#S-9-5-Lines-Planes-2" title="Copy heading and permalink for Motivating Questions 9.5" aria-label="Copy heading and permalink for Motivating Questions 9.5">ð</a></div></article><section class="introduction" id="S-9-5-Lines-Planes-3"><div class="para" id="S-9-5-Lines-Planes-3-1">In single variable calculus, we learn that a differentiable function is <em class="emphasis">locally linear</em>.  In other words, if we zoom in on the graph of a differentiable function at a point, the graph looks like the tangent line to the function at that point. Linear functions played important roles in single variable calculus, useful in approximating differentiable functions, in approximating roots of functions (see Newtonâs Method), and approximating solutions to first order differential equations (see Eulerâs Method). In multivariable calculus, we will soon study curves in space; differentiable curves turn out to be locally linear as well. In addition, as we study functions of two variables, we will see that such a function is locally linear at a point if the surface defined by the function looks like a plane (the tangent plane) as we zoom in on the graph.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-9-5-Lines-Planes-3-2">Consequently, it is important for us to understand both lines and planes in space, as these define the linear functions in <span class="process-math">\(\R^2\)</span> and <span class="process-math">\(\R^3\text{.}\)</span> (Recall that a function is linear if it is a polynomial function whose terms all have degree less than or equal to 1. For example, <span class="process-math">\(x\)</span> defines a single variable linear function and <span class="process-math">\(x+y\)</span> a two variable linear function, but <span class="process-math">\(xy\)</span> is not linear since it has degree two, the sum of the degress of its factors.) We begin our work by considering some familiar ideas in <span class="process-math">\(\R^2\)</span> but from a new perspective.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-3-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="exploration project-like" id="PA_9_5"><h3 class="heading">
+<span class="type">Preview Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.1</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h3>
+<div class="para" id="PA_9_5-1-1">We are familiar with equations of lines in the plane in the form <span class="process-math">\(y = mx+b\text{,}\)</span> where <span class="process-math">\(m\)</span> is the slope of the line and <span class="process-math">\((0,b)\)</span> is the <span class="process-math">\(y\)</span>-intercept. In this activity, we explore a more flexible way of representing lines that we can use not only in the plane, but in higher dimensions as well.<div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="PA_9_5-1-2">To begin, consider the line through the point <span class="process-math">\((2,-1)\)</span> with slope <span class="process-math">\(\frac{2}{3}\)</span> as shown in <a href="S-9-5-Lines-Planes.html#F_9_5_PA_1" class="xref" data-knowl="./knowl/xref/F_9_5_PA_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.1">FigureÂ 9.5.1</a>.<div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <figure class="figure figure-like" id="F_9_5_PA_1"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_9_5_PA1.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_PA_1-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_PA_1-2-description"><div class="para" id="F_9_5_PA_1-2-1-1">The line through <span class="process-math">\((2,-1)\)</span> with slope <span class="process-math">\(\frac{2}{3}\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_PA_1-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>The line through <span class="process-math">\((2,-1)\)</span> with slope <span class="process-math">\(\frac{2}{3}\text{.}\)</span><div class="autopermalink" data-description="Figure 9.5.1"><a href="#F_9_5_PA_1" title="Copy heading and permalink for Figure 9.5.1" aria-label="Copy heading and permalink for Figure 9.5.1">ð</a></div></figcaption></figure> <ol class="lower-alpha ol-marker-1" id="PA_9_5-1-4">
+<li id="PA_9_5-1-4-1">
+<div class="para" id="PA_9_5-1-4-1-1">Suppose we increase <span class="process-math">\(x\)</span> by 1 from the point <span class="process-math">\((2,-1)\text{.}\)</span> How does the <span class="process-math">\(y\)</span>-value change? What is the point on the line with <span class="process-math">\(x\)</span>-coordinate <span class="process-math">\(3\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#PA_9_5-1-4-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="PA_9_5-1-4-2">
+<div class="para" id="PA_9_5-1-4-2-1">Suppose we decrease <span class="process-math">\(x\)</span> by 3.25 from the point <span class="process-math">\((2,-1)\text{.}\)</span> How does the <span class="process-math">\(y\)</span>-value change? What is the point on the line with <span class="process-math">\(x\)</span>-coordinate <span class="process-math">\(-1.25\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#PA_9_5-1-4-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="PA_9_5-1-4-3">
+<div class="para" id="PA_9_5-1-4-3-1">Now, suppose we increase <span class="process-math">\(x\)</span> by some arbitrary value <span class="process-math">\(3t\)</span> from the point <span class="process-math">\((2,-1)\text{.}\)</span> How does the <span class="process-math">\(y\)</span>-value change? What is the point on the line with <span class="process-math">\(x\)</span>-coordinate <span class="process-math">\(2+3t\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#PA_9_5-1-4-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="PA_9_5-1-4-4">
+<div class="para logical" id="PA_9_5-1-4-4-1">
+<div class="para">Observe that the slope of the line is related to any vector whose <span class="process-math">\(y\)</span>-component divided by the <span class="process-math">\(x\)</span>-component is the slope of the line. For the line in this exercise, we might use the vector <span class="process-math">\(\langle 3,2 \rangle\text{,}\)</span> which describes the direction of the line. Explain why the terminal points of the vectors <span class="process-math">\(\vr(t)\text{,}\)</span> where</div>
+<div class="displaymath process-math" id="PA_9_5-1-4-4-1-5">
+\begin{equation*}
+\vr(t) = \langle 2,-1 \rangle + \langle 3,2 \rangle t,
+\end{equation*}
+</div>
+<div class="para">trace out the graph of the line through the point <span class="process-math">\((2,-1)\)</span> with slope <span class="process-math">\(\frac{2}{3}\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#PA_9_5-1-4-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+<li id="PA_9_5-1-4-5">
+<div class="para" id="PA_9_5-1-4-5-1">Now we extend this vector approach to <span class="process-math">\(\R^3\)</span> and consider a second example. Let <span class="process-math">\(\mathcal{L}\)</span> be the line in <span class="process-math">\(\R^3\)</span> through the point <span class="process-math">\((1,0,2)\)</span> in the direction of the vector <span class="process-math">\(\langle 2, -1, 4 \rangle\text{.}\)</span> Find the coordinates of three distinct points on line <span class="process-math">\(\mathcal{L}\text{.}\)</span> Explain your thinking.<div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item e"><a href="#PA_9_5-1-4-5" title="Copy heading and permalink for Item e" aria-label="Copy heading and permalink for Item e">ð</a></div>
+</li>
+<li id="PA_9_5-1-4-6">
+<div class="para logical" id="PA_9_5-1-4-6-1">
+<div class="para">Find a vector in the form</div>
+<div class="displaymath process-math" id="PA_9_5-1-4-6-1-1">
+\begin{equation*}
+\vr(t) = \langle x_0, y_0, z_0 \rangle + \langle a,b,c \rangle t
+\end{equation*}
+</div>
+<div class="para">whose terminal points trace out the line <span class="process-math">\(\mathcal{L}\)</span> that is described in (e).  That is, you should be able to locate any point on the line by determining a corresponding value of <span class="process-math">\(t\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#PA_9_5-1-4-6-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item f"><a href="#PA_9_5-1-4-6" title="Copy heading and permalink for Item f" aria-label="Copy heading and permalink for Item f">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Preview Activity 9.5.1"><a href="#PA_9_5" title="Copy heading and permalink for Preview Activity 9.5.1" aria-label="Copy heading and permalink for Preview Activity 9.5.1">ð</a></div></article></section><section class="subsection" id="S-9-5-Lines-Planes-4"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.1</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Lines in Space</span>
+</h3>
+<div class="para logical" id="S-9-5-Lines-Planes-4-2">
+<div class="para">In two-dimensional space, a non-vertical line is defined to be the set of points satisfying the equation</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/F_9_5_line.html" id="S-9-5-Lines-Planes-4-2-1">
+\begin{equation*}
+y = mx + b,
+\end{equation*}
+</div>
+<div class="para">for some constants <span class="process-math">\(m\)</span> and <span class="process-math">\(b\text{.}\)</span> The value of <span class="process-math">\(m\)</span> (the slope) tells us how the dependent variable changes for every one unit increase in the independent variable, while the point <span class="process-math">\((0,b)\)</span> is the <span class="process-math">\(y\)</span>-intercept and anchors the line to a location on the <span class="process-math">\(y\)</span>-axis. Alternatively, we can think of the slope as being related to the vector <span class="process-math">\(\langle 1, m \rangle\text{,}\)</span> which tells us the direction of the line, as shown on the left in <a href="S-9-5-Lines-Planes.html#F_9_5_line" class="xref" data-knowl="./knowl/xref/F_9_5_line.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.2">FigureÂ 9.5.2</a>. Thus, we can identify a line in space by fixing a point <span class="process-math">\(P\)</span> and a direction <span class="process-math">\(\vv\text{,}\)</span> as shown on the right. Since we also have vectors in space to provide direction, this same idea of a point and a direction determining a line works in <span class="process-math">\(\R^n\)</span> for any <span class="process-math">\(n\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-4-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_9_5_line"><div class="image-box" style="width: 100%; margin-left: 0%; margin-right: 0%;">
+<img src="external/images/fig_9_5_line_slope.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_line-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_line-2-description"><div class="para" id="F_9_5_line-2-1-1">A vector description of a line<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_line-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A vector description of a line<div class="autopermalink" data-description="Figure 9.5.2"><a href="#F_9_5_line" title="Copy heading and permalink for Figure 9.5.2" aria-label="Copy heading and permalink for Figure 9.5.2">ð</a></div></figcaption></figure><article class="definition definition-like" id="D_LineInSpace"><h4 class="heading">
+<span class="type">Definition</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.3</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para" id="D_LineInSpace-1-1">A <dfn class="terminology">line</dfn> in space is the set of terminal points of vectors emanating from a given point <span class="process-math">\(P\)</span> that are parallel to a fixed vector <span class="process-math">\(\vv\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#D_LineInSpace-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Definition 9.5.3"><a href="#D_LineInSpace" title="Copy heading and permalink for Definition 9.5.3" aria-label="Copy heading and permalink for Definition 9.5.3">ð</a></div></article><div class="para logical" id="S-9-5-Lines-Planes-4-5">
+<div class="para">The fixed vector <span class="process-math">\(\vv\)</span> in the definition is called a <em class="emphasis">direction vector</em> for the line. As we saw in <a href="S-9-5-Lines-Planes.html#PA_9_5" class="xref" data-knowl="./knowl/xref/PA_9_5.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 9.5.1">Preview ActivityÂ 9.5.1</a>, to find an equation for a line through point <span class="process-math">\(P\)</span> in the direction of vector <span class="process-math">\(\vv\text{,}\)</span> observe that any vector parallel to <span class="process-math">\(\vv\)</span> will have the form <span class="process-math">\(t \vv\)</span> for some scalar <span class="process-math">\(t\text{.}\)</span> So, any vector emanating from the point <span class="process-math">\(P\)</span> in a direction parallel to the vector <span class="process-math">\(\vv\)</span> will be of the form</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/PA_9_5.html" id="eq_9_5_lines_1">
+\begin{equation}
+\overrightarrow{OP} + \vv t\tag{9.5.1}
+\end{equation}
+</div>
+<div class="para">for some scalar <span class="process-math">\(t\)</span> (where <span class="process-math">\(O\)</span> is the origin).</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-4-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_9_5_Line_2D"><div class="sidebyside"><div class="sbsrow" style="margin-left:0%;margin-right:0%;grid-template-columns:33% 33% 33%;column-gap:0.5%;">
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_2d_01.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_2D-2-1-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_2D-2-1-description"><div class="para" id="F_9_5_Line_2D-2-1-1-1">A line in 2-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_2D-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_2d_10.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_2D-2-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_2D-2-2-description"><div class="para" id="F_9_5_Line_2D-2-2-1-1">A line in 2-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_2D-2-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_2d_20.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_2D-2-3-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_2D-2-3-description"><div class="para" id="F_9_5_Line_2D-2-3-1-1">A line in 2-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_2D-2-3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+</div></div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.4<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A line in 2-space.<div class="autopermalink" data-description="Figure 9.5.4"><a href="#F_9_5_Line_2D" title="Copy heading and permalink for Figure 9.5.4" aria-label="Copy heading and permalink for Figure 9.5.4">ð</a></div></figcaption></figure><div class="para" id="S-9-5-Lines-Planes-4-7">
+<a href="S-9-5-Lines-Planes.html#F_9_5_Line_2D" class="xref" data-knowl="./knowl/xref/F_9_5_Line_2D.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.4">FigureÂ 9.5.4</a> presents three images of a line in two-space in which we can identify the vector <span class="process-math">\(\overrightarrow{OP}\)</span> and the vector <span class="process-math">\(t \vv\)</span> as in Equation <a href="S-9-5-Lines-Planes.html#eq_9_5_lines_1" class="xref" data-knowl="./knowl/xref/eq_9_5_lines_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 9.5.1">(9.5.1)</a>. Here, <span class="process-math">\(\overrightarrow{OP}\)</span> is the fixed vector shown in blue, while the direction vector <span class="process-math">\(\vv\)</span> is the vector parallel to the vector shown in green (that is, the green vector represents <span class="process-math">\(t\vv\text{,}\)</span> and the line is traced out by the terminal points of the magenta vector). In other words, the tips (terminal points) of the magenta vectors (the vectors of the form <span class="process-math">\(\overrightarrow{OP} + t\vv\)</span>) trace out the line as <span class="process-math">\(t\)</span> changes.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-4-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-9-5-Lines-Planes-4-8">In particular, the terminal points of the vectors of the form in <a href="S-9-5-Lines-Planes.html#eq_9_5_lines_1" class="xref" data-knowl="./knowl/xref/eq_9_5_lines_1.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 9.5.1">(9.5.1)</a> define a linear function <span class="process-math">\(\vr\)</span> in space of the following form, which is valid in any dimension.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-4-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="LInes-vector-form"><h4 class="heading"><span class="title">The vector form of a line.</span></h4>
+<div class="para logical" id="LInes-vector-form-2">
+<div class="para">The <em class="emphasis">vector form</em> of a line through the point <span class="process-math">\(P\)</span> in the direction of the vector <span class="process-math">\(\vv\)</span> is</div>
+<div class="displaymath process-math" id="eq_9_5_line_vect">
+\begin{equation}
+\vr(t) = \vr_0 + t\vv,\tag{9.5.2}
+\end{equation}
+</div>
+<div class="para">where <span class="process-math">\(\vr_0\)</span> is the position vector <span class="process-math">\(\overrightarrow{OP}\)</span> from the origin to the point <span class="process-math">\(P\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#LInes-vector-form-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The vector form of a line"><a href="#LInes-vector-form" title="Copy heading and permalink for Assemblage: The vector form of a line" aria-label="Copy heading and permalink for Assemblage: The vector form of a line">ð</a></div></article><div class="para" id="S-9-5-Lines-Planes-4-10">Of course, it is common to represent lines in the plane using the slope-intercept equation <span class="process-math">\(y=mx
++ b\text{.}\)</span> The vector form of the line, described above, is an alternative way to represent lines that has the following two advantages. First, in two dimensions, we are able to represent vertical lines, whose slope <span class="process-math">\(m\)</span> is not defined, using a vertical direction vector, such as <span class="process-math">\(\vv=\langle 0, 1\rangle\text{.}\)</span> Second, this description of lines works in any dimension even though there is no concept of the slope of a line in more than two dimensions.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-4-10" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_9_5_Line_3D"><div class="sidebyside"><div class="sbsrow" style="margin-left:0%;margin-right:0%;grid-template-columns:33% 33% 33%;column-gap:0.5%;">
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_3d_01.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_3D-2-1-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_3D-2-1-description"><div class="para" id="F_9_5_Line_3D-2-1-1-1">A line in 3-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_3D-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_3d_10.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_3D-2-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_3D-2-2-description"><div class="para" id="F_9_5_Line_3D-2-2-1-1">A line in 3-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_3D-2-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<div class="sbspanel sbspanel--top top" style="">
+<img src="external/images/fig_9_5_line_3d_20.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Line_3D-2-3-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Line_3D-2-3-description"><div class="para" id="F_9_5_Line_3D-2-3-1-1">A line in 3-space.<div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Line_3D-2-3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+</div></div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.5<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A line in 3-space.<div class="autopermalink" data-description="Figure 9.5.5"><a href="#F_9_5_Line_3D" title="Copy heading and permalink for Figure 9.5.5" aria-label="Copy heading and permalink for Figure 9.5.5">ð</a></div></figcaption></figure><article class="activity project-like" id="A_9_5_2"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.2</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_9_5_2-1-1">
+<div class="para">Let <span class="process-math">\(P_1 = (1,2,-1)\)</span> and <span class="process-math">\(P_2 = (-2,1,-2)\text{.}\)</span> Let <span class="process-math">\(\mathcal{L}\)</span> be the line in <span class="process-math">\(\R^3\)</span> through <span class="process-math">\(P_1\)</span> and <span class="process-math">\(P_2\text{,}\)</span> and note that three snapshots of this line are shown in <a href="S-9-5-Lines-Planes.html#F_9_5_Line_3D" class="xref" data-knowl="./knowl/xref/F_9_5_Line_3D.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.5">FigureÂ 9.5.5</a>.</div>
+<ol class="lower-alpha ol-marker-1" id="A_9_5_2-1-1-8">
+<li id="A_9_5_2-1-1-8-1">
+<div class="para" id="A_9_5_2-1-1-8-1-1">Find a direction vector for the line <span class="process-math">\(\mathcal{L}\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_2-1-1-8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_9_5_2-1-1-8-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_9_5_2-1-1-8-2">
+<div class="para" id="A_9_5_2-1-1-8-2-1">Find a vector equation of <span class="process-math">\(\mathcal{L}\)</span> in the form <span class="process-math">\(\vr(t) = \vr_0 + t\vv\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_2-1-1-8-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_9_5_2-1-1-8-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_9_5_2-1-1-8-3">
+<div class="para" id="A_9_5_2-1-1-8-3-1">Consider the vector equation <span class="process-math">\(\vs(t) = \langle -5, 0, -3 \rangle + t \langle 6, 2, 2 \rangle.\)</span>  What is the direction of the line given by <span class="process-math">\(\vs(t)\text{?}\)</span>  Is this new line parallel to line <span class="process-math">\(\mathcal{L}\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_2-1-1-8-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_9_5_2-1-1-8-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_9_5_2-1-1-8-4">
+<div class="para" id="A_9_5_2-1-1-8-4-1">Do <span class="process-math">\(\vr(t)\)</span> and <span class="process-math">\(\vs(t)\)</span> represent the same line, <span class="process-math">\(\mathcal{L}\text{?}\)</span>  Explain.<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_2-1-1-8-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_9_5_2-1-1-8-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 9.5.2"><a href="#A_9_5_2" title="Copy heading and permalink for Activity 9.5.2" aria-label="Copy heading and permalink for Activity 9.5.2">ð</a></div></article><div class="autopermalink" data-description="Subsection 9.5.1: Lines in Space"><a href="#S-9-5-Lines-Planes-4" title="Copy heading and permalink for Subsection 9.5.1: Lines in Space" aria-label="Copy heading and permalink for Subsection 9.5.1: Lines in Space">ð</a></div></section><section class="subsection" id="S-9-5-Lines-Planes-5"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.2</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">The Parametric Equations of a Line</span>
+</h3>
+<div class="para logical" id="S-9-5-Lines-Planes-5-2">
+<div class="para">The vector form of a line, <span class="process-math">\(\vr(t) = \vr_0 + t\vv\)</span> in EquationÂ <a href="S-9-5-Lines-Planes.html#eq_9_5_line_vect" class="xref" data-knowl="./knowl/xref/eq_9_5_line_vect.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 9.5.2">(9.5.2)</a>, describes a line as the set of terminal points of the vectors <span class="process-math">\(\vr(t)\text{.}\)</span> If we write this in terms of components letting</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_9_5_line_vect.html" id="S-9-5-Lines-Planes-5-2-5">
+\begin{equation*}
+\vr(t) = \langle x(t), y(t), z(t) \rangle, \ \ \ \vr_0 = \langle x_0, y_0, z_0 \rangle, \ \ \ \text{ and }  \ \ \ \vv = \langle a, b, c \rangle,
+\end{equation*}
+</div>
+<div class="para">then we can equate the components on both sides of <span class="process-math">\(\vr(t) = \vr_0 +
+t\vv\)</span> to obtain the equations</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_9_5_line_vect.html" id="S-9-5-Lines-Planes-5-2-7">
+\begin{equation*}
+x(t) = x_0 + at, \ \ \ \ \ y(t) = y_0 + bt, \ \ \ \ \ \text{ and }  \ \ \ z(t) = z_0 +
+ct,
+\end{equation*}
+</div>
+<div class="para">which describe the coordinates of the points on the line. The variable <span class="process-math">\(t\)</span> represents an arbitrary scalar and is called a <em class="emphasis">parameter</em>. In particular, we use the following language.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-5-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Lines-parametric-equations"><h4 class="heading"><span class="title">The parametric equations of a line.</span></h4>
+<div class="para logical" id="Lines-parametric-equations-2">
+<div class="para">The <em class="emphasis">parametric equations</em> for a line through the point <span class="process-math">\(P = (x_0,
+y_0, z_0)\)</span> in the direction of the vector <span class="process-math">\(\vv = \langle a,b,c
+\rangle\)</span> are</div>
+<div class="displaymath process-math" id="Lines-parametric-equations-2-5">
+\begin{equation*}
+x(t) = x_0 + at, \ \ \ \ \ y(t) = y_0 + bt, \ \ \ \ \ z(t) = z_0 + ct.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#Lines-parametric-equations-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The parametric equations of a line"><a href="#Lines-parametric-equations" title="Copy heading and permalink for Assemblage: The parametric equations of a line" aria-label="Copy heading and permalink for Assemblage: The parametric equations of a line">ð</a></div></article><div class="para" id="S-9-5-Lines-Planes-5-4">Notice that there are many different parametric equations for the same line. For example, choosing another point <span class="process-math">\(P\)</span> on the line or another direction vector <span class="process-math">\(\vv\)</span> produces another set of parametric equations. It is sometimes useful to think of <span class="process-math">\(t\)</span> as a time parameter and the parametric equations as telling us where we are on the line at each time. In this way, the parametric equations describe a particular walk taken along the line; there are, of course, many possible ways to walk along a line.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-5-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_9_5_3"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.3</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_9_5_3-1-1">
+<div class="para">Let <span class="process-math">\(P_1 = (1,2,-1)\)</span> and <span class="process-math">\(P_2 = (-2,1,-2)\text{,}\)</span> and let <span class="process-math">\(\mathcal{L}\)</span> be the line in <span class="process-math">\(\R^3\)</span> through <span class="process-math">\(P_1\)</span> and <span class="process-math">\(P_2\text{,}\)</span> which is the same line as in <a href="S-9-5-Lines-Planes.html#A_9_5_2" class="xref" data-knowl="./knowl/xref/A_9_5_2.html" data-reveal-label="Reveal" data-close-label="Close" title="Activity 9.5.2">ActivityÂ 9.5.2</a>.</div>
+<ol class="lower-alpha ol-marker-1" id="A_9_5_3-1-1-8">
+<li id="A_9_5_3-1-1-8-1">
+<div class="para" id="A_9_5_3-1-1-8-1-1">Find parametric equations of the line <span class="process-math">\(\mathcal{L}\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_3-1-1-8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_9_5_3-1-1-8-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_9_5_3-1-1-8-2">
+<div class="para" id="A_9_5_3-1-1-8-2-1">Does the point <span class="process-math">\((1, 2, 1)\)</span> lie on <span class="process-math">\(\mathcal{L}\text{?}\)</span> If so, what value of <span class="process-math">\(t\)</span> results in this point?<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_3-1-1-8-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_9_5_3-1-1-8-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_9_5_3-1-1-8-3">
+<div class="para logical" id="A_9_5_3-1-1-8-3-1">
+<div class="para">Consider another line, <span class="process-math">\(\mathcal{K}\text{,}\)</span> whose parametric equations are</div>
+<div class="displaymath process-math" id="A_9_5_3-1-1-8-3-1-2">
+\begin{equation*}
+x(s) = 11 + 4s, \ \ y(s) = 1-3s, \ \ z(s) = 3 + 2s.
+\end{equation*}
+</div>
+<div class="para">What is the direction of the line <span class="process-math">\(\mathcal{K}\text{?}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_3-1-1-8-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_9_5_3-1-1-8-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_9_5_3-1-1-8-4">
+<div class="para" id="A_9_5_3-1-1-8-4-1">Do the lines <span class="process-math">\(\mathcal{L}\)</span> and <span class="process-math">\(\mathcal{K}\)</span> intersect?  If so, provide the point of intersection and the <span class="process-math">\(t\)</span> and <span class="process-math">\(s\)</span> values, respectively, that result in the point.  If not, explain why.<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_3-1-1-8-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_9_5_3-1-1-8-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 9.5.3"><a href="#A_9_5_3" title="Copy heading and permalink for Activity 9.5.3" aria-label="Copy heading and permalink for Activity 9.5.3">ð</a></div></article><div class="autopermalink" data-description="Subsection 9.5.2: The Parametric Equations of a Line"><a href="#S-9-5-Lines-Planes-5" title="Copy heading and permalink for Subsection 9.5.2: The Parametric Equations of a Line" aria-label="Copy heading and permalink for Subsection 9.5.2: The Parametric Equations of a Line">ð</a></div></section><section class="subsection" id="S-9-5-Lines-Planes-6"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.3</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Planes in Space</span>
+</h3>
+<div class="para" id="S-9-5-Lines-Planes-6-2">Now that we have a way of describing lines, we would like to develop a means of describing planes in three dimensions. We studied the coordinate planes and planes parallel to them in <a href="S-9-1-Functions.html" class="internal" title="Section 9.1: Functions of Several Variables and Three Dimensional Space">SectionÂ 9.1</a>. Each of those planes had one of the variables <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> or <span class="process-math">\(z\)</span> equal to a constant. We can note that any vector in a plane with <span class="process-math">\(x\)</span> constant is orthogonal to the vector <span class="process-math">\(\langle 1,0,0 \rangle\text{,}\)</span> any vector in a plane with <span class="process-math">\(y\)</span> constant is orthogonal to the vector <span class="process-math">\(\langle 0,1,0 \rangle\text{,}\)</span> and any vector in a plane with <span class="process-math">\(z\)</span> constant is orthogonal to the vector <span class="process-math">\(\langle 0,0,1 \rangle\text{.}\)</span> This idea works in general to define a plane.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="definition definition-like" id="S-9-5-Lines-Planes-6-3"><h4 class="heading">
+<span class="type">Definition</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.6</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para" id="S-9-5-Lines-Planes-6-3-1-1">A <dfn class="terminology">plane</dfn> <span class="process-math">\(p\)</span> in space is the set of all terminal points of vectors emanating from a given point <span class="process-math">\(P_0\)</span> perpendicular to a fixed vector <span class="process-math">\(\vn\text{,}\)</span> as shown in <a href="S-9-5-Lines-Planes.html#F_9_5_plane_normal" class="xref" data-knowl="./knowl/xref/F_9_5_plane_normal.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.7">FigureÂ 9.5.7</a>.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Definition 9.5.6"><a href="#S-9-5-Lines-Planes-6-3" title="Copy heading and permalink for Definition 9.5.6" aria-label="Copy heading and permalink for Definition 9.5.6">ð</a></div></article><figure class="figure figure-like" id="F_9_5_plane_normal"><div class="image-box" style="width: 73%; margin-left: 13.5%; margin-right: 13.5%;">
+<img src="external/images/fig_9_5_plane_normal.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_plane_normal-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_plane_normal-2-description"><div class="para" id="F_9_5_plane_normal-2-1-1">A point <span class="process-math">\(P_0\)</span> on a plane <span class="process-math">\(p\)</span> with a normal vector <span class="process-math">\(\vn\)</span><div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_plane_normal-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.7<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A point <span class="process-math">\(P_0\)</span> on a plane <span class="process-math">\(p\)</span> with a normal vector <span class="process-math">\(\vn\)</span><div class="autopermalink" data-description="Figure 9.5.7"><a href="#F_9_5_plane_normal" title="Copy heading and permalink for Figure 9.5.7" aria-label="Copy heading and permalink for Figure 9.5.7">ð</a></div></figcaption></figure><div class="para logical" id="S-9-5-Lines-Planes-6-5">
+<div class="para">The definition allows us to find the equation of a plane. Assume that <span class="process-math">\(\vn=\langle a,b,c\rangle\text{,}\)</span> <span class="process-math">\(P_0 =
+(x_0, y_0, z_0)\text{,}\)</span> and that <span class="process-math">\(P=(x,y,z)\)</span> is an arbitrary point on the plane. Since the vector <span class="process-math">\(\overrightarrow{P_0P}\)</span> lies in the plane, it must be perpendicular to <span class="process-math">\(\vn\text{.}\)</span> This means that</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-5-6">
+\begin{align*}
+0 =\mathstrut \amp  \vn\cdot\overrightarrow{P_0P}\\
+=\mathstrut \amp  \vn\cdot \big(\langle x,y,z \rangle - \langle x_0, y_0,
+z_0\rangle\big)\\
+=\mathstrut \amp  \vn \cdot \langle x-x_0, y-y_0, z-z_0 \rangle\\
+=\mathstrut \amp  a(x-x_0) + b(y-y_0) + c(z-z_0).
+\end{align*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-9-5-Lines-Planes-6-6">The fixed vector <span class="process-math">\(\vn\)</span> perpendicular to the plane is frequently called a <em class="emphasis">normal vector</em> to the plane. We may now summarize as follows.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Plane-scalar-equation"><h4 class="heading"><span class="title">Equations of a plane.</span></h4>
+<div class="para logical" id="Plane-scalar-equation-2">
+<ul class="disc" id="Plane-scalar-equation-2-1">
+<li id="Plane-scalar-equation-2-1-1">
+<div class="para logical" id="Plane-scalar-equation-2-1-1-1">
+<div class="para">The <em class="emphasis">scalar equation</em> of the plane with normal vector <span class="process-math">\(\vn =\langle a,b,c \rangle\)</span> containing the point <span class="process-math">\(P_0 = (x_0, y_0,z_0)\)</span> is</div>
+<div class="displaymath process-math" id="eq_9_5_plane_norm">
+\begin{equation}
+a(x-x_0) + b(y-y_0) + c(z-z_0) = 0.\tag{9.5.3}
+\end{equation}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#Plane-scalar-equation-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#Plane-scalar-equation-2-1-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="Plane-scalar-equation-2-1-2">
+<div class="para logical" id="Plane-scalar-equation-2-1-2-1">
+<div class="para">The <em class="emphasis">vector equation</em> of the plane with normal vector <span class="process-math">\(\vn =\langle a,b,c \rangle\)</span> containing the points <span class="process-math">\(P_0 = (x_0, y_0,z_0)\)</span> and <span class="process-math">\(P = (x,y,z)\)</span> is</div>
+<div class="displaymath process-math" id="eq_9_5_plane_norm_vector">
+\begin{equation}
+\vn \cdot \overrightarrow{P_0P} = 0.\tag{9.5.4}
+\end{equation}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#Plane-scalar-equation-2-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#Plane-scalar-equation-2-1-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Paragraph"><a href="#Plane-scalar-equation-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: Equations of a plane"><a href="#Plane-scalar-equation" title="Copy heading and permalink for Assemblage: Equations of a plane" aria-label="Copy heading and permalink for Assemblage: Equations of a plane">ð</a></div></article><div class="para logical" id="S-9-5-Lines-Planes-6-8">
+<div class="para">We may take the scalar equation of a plane a little further and note that since</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-8-1">
+\begin{equation*}
+a(x-x_0) + b(y-y_0) + c(z-z_0) = 0,
+\end{equation*}
+</div>
+<div class="para">it equivalently follows that</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-8-2">
+\begin{equation*}
+ax + by + cz = ax_0+by_0+cz_0.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-9-5-Lines-Planes-6-9">That is, we may write an equation of a plane as <span class="process-math">\(ax+by+cz = d\)</span> where <span class="process-math">\(d = \vn\cdot\langle x_0,y_0,z_0\rangle\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-9" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-9-5-Lines-Planes-6-10">
+<div class="para">For instance, if we would like to describe the plane passing through the point <span class="process-math">\(P_0=(4, -2,1)\)</span> and perpendicular to the vector <span class="process-math">\(\vn =
+\langle 1, 2, 1 \rangle\text{,}\)</span> we have</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-10-3">
+\begin{equation*}
+\langle 1,2,1 \rangle\cdot \langle x,y,z\rangle =
+\langle 1,2,1 \rangle\cdot \langle 4,-2,1\rangle
+\end{equation*}
+</div>
+<div class="para">or</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-10-4">
+\begin{equation*}
+x + 2y + z = 1.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-10" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-9-5-Lines-Planes-6-11">
+<div class="para">Notice that the coefficients of <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> and <span class="process-math">\(z\)</span> in this description give a vector perpendicular to the plane. For instance, if we are presented with the plane</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-11-4">
+\begin{equation*}
+-2x + y - 3z = 4,
+\end{equation*}
+</div>
+<div class="para">we know that <span class="process-math">\(\vn = \langle -2, 1, -3\rangle\)</span> is a vector perpendicular to the plane.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-11" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_9_5_9"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.4</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<ol class="lower-alpha ol-marker-1" id="A_9_5_9-1-1">
+<li id="A_9_5_9-1-1-1">
+<div class="para" id="A_9_5_9-1-1-1-1">Write a scalar equation of the plane <span class="process-math">\(p_1\)</span> passing through the point <span class="process-math">\((0,
+2, 4)\)</span> and perpendicular to the vector <span class="process-math">\(\vn=\langle 2, -1,
+1\rangle\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_9-1-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_9_5_9-1-1-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_9_5_9-1-1-2">
+<div class="para" id="A_9_5_9-1-1-2-1">Is the point <span class="process-math">\((2, 0, 2)\)</span> on the plane <span class="process-math">\(p_1\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_9-1-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_9_5_9-1-1-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_9_5_9-1-1-3">
+<div class="para" id="A_9_5_9-1-1-3-1">Write a scalar equation of the plane <span class="process-math">\(p_2\)</span> that is parallel to <span class="process-math">\(p_1\)</span> and passing through the point <span class="process-math">\((3, 0, 4)\text{.}\)</span> (Hint: Compare normal vectors of the planes.)<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_9-1-1-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_9_5_9-1-1-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_9_5_9-1-1-4">
+<div class="para" id="A_9_5_9-1-1-4-1">Write a parametric description of the line <span class="process-math">\(l\)</span> passing through the point <span class="process-math">\((2,0,2)\)</span> and perpendicular to the plane <span class="process-math">\(p_3\)</span> described by the equation <span class="process-math">\(x+2y-2z = 7\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_9-1-1-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_9_5_9-1-1-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+<li id="A_9_5_9-1-1-5">
+<div class="para" id="A_9_5_9-1-1-5-1">Find the point at which <span class="process-math">\(l\)</span> intersects the plane <span class="process-math">\(p_3\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_9-1-1-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item e"><a href="#A_9_5_9-1-1-5" title="Copy heading and permalink for Item e" aria-label="Copy heading and permalink for Item e">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Activity 9.5.4"><a href="#A_9_5_9" title="Copy heading and permalink for Activity 9.5.4" aria-label="Copy heading and permalink for Activity 9.5.4">ð</a></div></article><div class="para" id="S-9-5-Lines-Planes-6-13">Just as two distinct points in space determine a line, three non-collinear points in space determine a plane. Consider three points <span class="process-math">\(P_0\text{,}\)</span> <span class="process-math">\(P_1\text{,}\)</span> and <span class="process-math">\(P_2\)</span> in space, not all lying on the same line as shown in <a href="S-9-5-Lines-Planes.html#F_9_5_Plane" class="xref" data-knowl="./knowl/xref/F_9_5_Plane.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 9.5.8">FigureÂ 9.5.8</a>.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-13" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_9_5_Plane"><div class="image-box" style="width: 73%; margin-left: 13.5%; margin-right: 13.5%;">
+<img src="external/images/fig_9_5_plane_3pts.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_9_5_Plane-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_9_5_Plane-2-description"><div class="para" id="F_9_5_Plane-2-1-1">A plane determined by three points <span class="process-math">\(P_0\text{,}\)</span> <span class="process-math">\(P_1\text{,}\)</span> and <span class="process-math">\(P_2\)</span><div class="autopermalink" data-description="Paragraph"><a href="#F_9_5_Plane-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.8<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>A plane determined by three points <span class="process-math">\(P_0\text{,}\)</span> <span class="process-math">\(P_1\text{,}\)</span> and <span class="process-math">\(P_2\)</span><div class="autopermalink" data-description="Figure 9.5.8"><a href="#F_9_5_Plane" title="Copy heading and permalink for Figure 9.5.8" aria-label="Copy heading and permalink for Figure 9.5.8">ð</a></div></figcaption></figure><div class="para logical" id="S-9-5-Lines-Planes-6-15">
+<div class="para">Observe that the vectors <span class="process-math">\(\overrightarrow{P_0P_1}\)</span> and <span class="process-math">\(\overrightarrow{P_0P_2}\)</span> both lie in the plane <span class="process-math">\(p\text{.}\)</span> If we form their cross-product</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-6-15-4">
+\begin{equation*}
+\vn = \overrightarrow{P_0P_1} \times \overrightarrow{P_0P_2},
+\end{equation*}
+</div>
+<div class="para">we obtain a normal vector to the plane <span class="process-math">\(p\text{.}\)</span> Therefore, if <span class="process-math">\(P\)</span> is any other point on <span class="process-math">\(p\text{,}\)</span> it then follows that <span class="process-math">\(\overrightarrow{P_0P}\)</span> will be perpendicular to <span class="process-math">\(\vn\text{,}\)</span> and we have, as before, the equation</div>
+<div class="displaymath process-math" id="eq_9_5_plane_vect">
+\begin{equation}
+\vn \cdot \overrightarrow{P_0P} = 0.\tag{9.5.5}
+\end{equation}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-6-15" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_9_5_7"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.5</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_9_5_7-1-1">
+<div class="para">Let <span class="process-math">\(P_0 = (1,2,-1)\text{,}\)</span> <span class="process-math">\(P_1 = (1, 0 ,-1)\text{,}\)</span> and <span class="process-math">\(P_2 = (0,1,3)\)</span> and let <span class="process-math">\(p\)</span> be the plane containing <span class="process-math">\(P_0\text{,}\)</span> <span class="process-math">\(P_1\text{,}\)</span> and <span class="process-math">\(P_2\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="A_9_5_7-1-1-8">
+<li id="A_9_5_7-1-1-8-1">
+<div class="para" id="A_9_5_7-1-1-8-1-1">Determine the components of the vectors <span class="process-math">\(\overrightarrow{P_0P_1}\)</span> and <span class="process-math">\(\overrightarrow{P_0P_2}\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1-8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_9_5_7-1-1-8-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_9_5_7-1-1-8-2">
+<div class="para" id="A_9_5_7-1-1-8-2-1">Find a normal vector <span class="process-math">\(\vn\)</span> to the plane <span class="process-math">\(p\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1-8-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_9_5_7-1-1-8-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_9_5_7-1-1-8-3">
+<div class="para" id="A_9_5_7-1-1-8-3-1">Find a scalar equation of the plane <span class="process-math">\(p\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1-8-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_9_5_7-1-1-8-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_9_5_7-1-1-8-4">
+<div class="para" id="A_9_5_7-1-1-8-4-1">Consider a second plane, <span class="process-math">\(q\text{,}\)</span> with scalar equation <span class="process-math">\(-3(x-1) + 4(y+3) + 2(z-5)=0\text{.}\)</span>  Find two different points on plane <span class="process-math">\(q\text{,}\)</span> as well as a vector <span class="process-math">\(\vm\)</span> that is normal to <span class="process-math">\(q\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1-8-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_9_5_7-1-1-8-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+<li id="A_9_5_7-1-1-8-5">
+<div class="para" id="A_9_5_7-1-1-8-5-1">The angle between two planes is the acute angle between their respective normal vectors.  What is the angle between planes <span class="process-math">\(p\)</span> and <span class="process-math">\(q\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1-8-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item e"><a href="#A_9_5_7-1-1-8-5" title="Copy heading and permalink for Item e" aria-label="Copy heading and permalink for Item e">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_9_5_7-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 9.5.5"><a href="#A_9_5_7" title="Copy heading and permalink for Activity 9.5.5" aria-label="Copy heading and permalink for Activity 9.5.5">ð</a></div></article><div class="autopermalink" data-description="Subsection 9.5.3: Planes in Space"><a href="#S-9-5-Lines-Planes-6" title="Copy heading and permalink for Subsection 9.5.3: Planes in Space" aria-label="Copy heading and permalink for Subsection 9.5.3: Planes in Space">ð</a></div></section><section class="subsection" id="S-9-5-Lines-Planes-7"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.4</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Summary</span>
+</h3>
+<ul class="disc" id="S-9-5-Lines-Planes-7-2">
+<li id="S-9-5-Lines-Planes-7-2-1">
+<div class="para" id="S-9-5-Lines-Planes-7-2-1-1">While lines in <span class="process-math">\(\R^3\)</span> do not have a slope, like lines in <span class="process-math">\(\R^2\)</span> they can be characterized by a point and a direction vector.  Indeed, we define a line in space to be the set of terminal points of vectors emanating from a given point that are parallel to a fixed vector.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-7-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-9-5-Lines-Planes-7-2-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-7-2-2">
+<div class="para" id="S-9-5-Lines-Planes-7-2-2-1">Vectors play a critical role in representing the equation of a line.  In particular, the terminal points of the vector <span class="process-math">\(\vr(t) = \vr_0 + t\vv\)</span> define a linear function <span class="process-math">\(\vr\)</span> in space through the terminal point of the vector <span class="process-math">\(\vr_0\)</span> in the direction of the vector <span class="process-math">\(\vv\text{,}\)</span> tracing out a line in space.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-7-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-9-5-Lines-Planes-7-2-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-7-2-3">
+<div class="para" id="S-9-5-Lines-Planes-7-2-3-1">A plane in space is the set of all terminal points of vectors emanating from a given point perpendicular to a fixed vector.<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-7-2-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-9-5-Lines-Planes-7-2-3" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-9-5-Lines-Planes-7-2-4">
+<div class="para logical" id="S-9-5-Lines-Planes-7-2-4-1">
+<div class="para">If <span class="process-math">\(P_1\text{,}\)</span> <span class="process-math">\(P_2\text{,}\)</span> and <span class="process-math">\(P_3\)</span> are non-collinear points in space, the vectors <span class="process-math">\(\overrightarrow{P_1P_2}\)</span> and and <span class="process-math">\(\overrightarrow{P_1P_3}\)</span>  are vectors in the plane and the vector <span class="process-math">\(\vn = \overrightarrow{P_1P_2} \times \overrightarrow{P_1P_3}\)</span> is a normal vector to the plane. So any point <span class="process-math">\(P\)</span> in the plane satisfies the equation <span class="process-math">\(\overrightarrow{PP_1} \cdot \vn = 0\text{.}\)</span>  If we let <span class="process-math">\(P = (x,y,z)\text{,}\)</span> <span class="process-math">\(\vn = \langle a,b,c \rangle\)</span> be the normal vector, and <span class="process-math">\(P_1 = (x_0,y_0,z_0)\text{,}\)</span> we can also represent the plane with the equation</div>
+<div class="displaymath process-math" id="S-9-5-Lines-Planes-7-2-4-1-12">
+\begin{equation*}
+a(x-x_0) + b(y-y_0) + c(z-z_0) = 0.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-9-5-Lines-Planes-7-2-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-9-5-Lines-Planes-7-2-4" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Subsection 9.5.4: Summary"><a href="#S-9-5-Lines-Planes-7" title="Copy heading and permalink for Subsection 9.5.4: Summary" aria-label="Copy heading and permalink for Subsection 9.5.4: Summary">ð</a></div></section><section class="exercises" id="S-9-5-Lines-Planes-8"><h3 class="heading hide-type">
+<span class="type">Exercises</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">9.5.5</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Exercises</span>
+</h3>
+<article class="exercise exercise-like" id="Library__Rochester__setVectors4PlanesLines__ur_vc_2_10.pg"><h4 class="heading"><span class="codenumber">1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-52" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="52" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Rochester/setVectors4PlanesLines/ur_vc_2_10.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-52')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-52-1-1-1">Rewrite the vector equation <span class="process-math">\(\mathbf{r} (t) = 
+(3 + 3 t) \mathbf{i}  + 
+(-5  - 3 t) \mathbf{j}  +
+(-1+ 3 t) \mathbf{k}\)</span> as the corresponding parametric equations for the line.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-52-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-52-1-1-2">
+<span class="process-math">\(x(t) =\)</span> <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-52-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-52-1-1-3">
+<span class="process-math">\(y(t) =\)</span> <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-52-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-52-1-1-4">
+<span class="process-math">\(z(t) =\)</span> <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-52-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.1"><a href="#Library__Rochester__setVectors4PlanesLines__ur_vc_2_10.pg" title="Copy heading and permalink for Exercise 9.5.5.1" aria-label="Copy heading and permalink for Exercise 9.5.5.1">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart12_5__problem_2.pg"><h4 class="heading"><span class="codenumber">2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-53" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="53" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart12_5/problem_2.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-53')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-53-1-1-1">Find the vector and parametric equations for the line through the point P(4, 2, 4) and parallel to the vector <span class="process-math">\(0\mathbf i  - 3\mathbf j  - 3\mathbf k\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-53-1-1-2">Vector Form: <span class="process-math">\(\mathbf r = \langle\)</span><span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, 4 <span class="process-math">\(\rangle + t \langle\)</span> <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, -3 <span class="process-math">\(\rangle\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-53-1-1-3">Parametric form (parameter t, and passing through P when t = 0):<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-53-1-1-4">
+<span class="process-math">\(x = x(t) =\)</span><span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-53-1-1-5">
+<span class="process-math">\(y = y(t) =\)</span><span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-53-1-1-6">
+<span class="process-math">\(z = z(t) =\)</span><span class="fillin underline" role="img" aria-label="30-character blank" style="width: 13.6363636363636em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-53-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.2"><a href="#Library__272__setStewart12_5__problem_2.pg" title="Copy heading and permalink for Exercise 9.5.5.2" aria-label="Copy heading and permalink for Exercise 9.5.5.2">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart12_5__problem_7.pg"><h4 class="heading"><span class="codenumber">3<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-54" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="54" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart12_5/problem_7.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-54')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-54-1-1-1">Consider the line which passes through the point P(5, -2, -2), and which is parallel to the line <span class="process-math">\(x = 1 + 2t, y = 2 + 2t, z = 3 + 6t\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-54-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-54-1-1-2">Find the point of intersection of this new line with each of the coordinate planes:<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-54-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-54-1-1-3">xy-plane: (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>,<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>)<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-54-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-54-1-1-4">xz-plane: (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>,<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>)<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-54-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-54-1-1-5">yz-plane: (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>,<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>)<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-54-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.3"><a href="#Library__272__setStewart12_5__problem_7.pg" title="Copy heading and permalink for Exercise 9.5.5.3" aria-label="Copy heading and permalink for Exercise 9.5.5.3">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh13S5__problem_14.pg"><h4 class="heading"><span class="codenumber">4<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-55" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="55" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh13S5/problem_14.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-55')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-55-1-1-1">Find the point at which the line <span class="process-math">\(\langle -5, 5, 2 \rangle + t \langle 5, -3, -3 \rangle\)</span> intersects the plane <span class="process-math">\(-2 x+ 4 y+ z = -18\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-55-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-55-1-1-2">(<span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>)<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-55-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.4"><a href="#Library__Dartmouth__setStewartCh13S5__problem_14.pg" title="Copy heading and permalink for Exercise 9.5.5.4" aria-label="Copy heading and permalink for Exercise 9.5.5.4">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart12_5__problem_13.pg"><h4 class="heading"><span class="codenumber">5<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-56" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="56" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart12_5/problem_13.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-56')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-56-1-1-1">Find an equation of a plane containing the three points (-3, 2, -4), (-1, -2, -1), (-1, -1, 1) in which the coefficient of <span class="process-math">\(x\)</span> is -11.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-56-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-56-1-1-2">
+<span class="fillin underline" role="img" aria-label="60-character blank" style="width: 27.2727272727273em;"></span> = 0.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-56-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.5"><a href="#Library__272__setStewart12_5__problem_13.pg" title="Copy heading and permalink for Exercise 9.5.5.5" aria-label="Copy heading and permalink for Exercise 9.5.5.5">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap12Sec4__Q11.pg"><h4 class="heading"><span class="codenumber">6<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-57" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="57" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap12Sec4/Q11.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-57')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-57-1-1-1">Find an equation for the plane containing the line in the <span class="process-math">\(xy\)</span>-plane where <span class="process-math">\(y = 2\text{,}\)</span> and the line in the <span class="process-math">\(x z\)</span>-plane where <span class="process-math">\(z = 3\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-57-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-57-1-1-2">equation: <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-57-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.6"><a href="#Library__Michigan__Chap12Sec4__Q11.pg" title="Copy heading and permalink for Exercise 9.5.5.6" aria-label="Copy heading and permalink for Exercise 9.5.5.6">ð</a></div></article><article class="exercise exercise-like" id="Library__Rochester__setVectors4PlanesLines__ur_vc_2_18.pg"><h4 class="heading"><span class="codenumber">7<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-58" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="58" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Rochester/setVectors4PlanesLines/ur_vc_2_18.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-58')">Activate</button></div>
+<div class="problem-contents"><div class="para" id="extracted-webwork-58-1-1-1">Find the angle in radians between the planes <span class="process-math">\(2 x + z = 1\)</span> and <span class="process-math">\(-3 y + z = 1.\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-58-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.7"><a href="#Library__Rochester__setVectors4PlanesLines__ur_vc_2_18.pg" title="Copy heading and permalink for Exercise 9.5.5.7" aria-label="Copy heading and permalink for Exercise 9.5.5.7">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap12Sec4__Q15.pg"><h4 class="heading"><span class="codenumber">8<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-59" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="59" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap12Sec4/Q15.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-59')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-59-1-1-1">A store sells CDs at one price and DVDs at another price.  The figure below shows the revenue (in dollars) of the music store as a function of the number, <span class="process-math">\(c\text{,}\)</span> of CDs and the number, <span class="process-math">\(d\text{,}\)</span> of DVDs that it sells.  The values of the revenue are shown on each line.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-59-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;"><img src="generated/webwork/images/webwork-59-image-1.png" class="contained"></div> <div class="para" id="extracted-webwork-59-1-1-3">
+<em class="emphasis">(Hint: for this problem there are many possible ways to estimate the requisite values; you should be able to find information from the figure that allows you to give an answer that is essentially exact.)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-59-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-59-1-1-4">
+<em class="alert">(a)</em> What is the price of a CD? <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span> dollars<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-59-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-59-1-1-5">
+<em class="alert">(b)</em> What is the price of a DVD? <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span> dollars<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-59-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.8"><a href="#Library__Michigan__Chap12Sec4__Q15.pg" title="Copy heading and permalink for Exercise 9.5.5.8" aria-label="Copy heading and permalink for Exercise 9.5.5.8">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap12Sec4__Q19.pg"><h4 class="heading"><span class="codenumber">9<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-60" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="60" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap12Sec4/Q19.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-60')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-60-1-1-1">The table below gives the number of calories burned per minute for someone roller-blading, as a function of the personâs weight in pounds and speed in miles per hour [from the August 28,1994, issue of <em class="emphasis">Parade Magazine</em>].<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-2">
+<em class="alert">calories burned per minute</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="tabular-box natural-width"><table class="tabular">
+<tr>
+<td class="l m b2 r2 l2 t2 lines">weight<span class="process-math">\(\backslash\)</span>speed</td>
+<td class="l m b2 r2 l0 t2 lines">8</td>
+<td class="l m b2 r2 l0 t2 lines">9</td>
+<td class="l m b2 r2 l0 t2 lines">10</td>
+<td class="l m b2 r2 l0 t2 lines">11</td>
+</tr>
+<tr>
+<td class="l m b2 r2 l2 t0 lines">120</td>
+<td class="l m b2 r2 l0 t0 lines">4.2</td>
+<td class="l m b2 r2 l0 t0 lines">5.8</td>
+<td class="l m b2 r2 l0 t0 lines">7.4</td>
+<td class="l m b2 r2 l0 t0 lines">8.9</td>
+</tr>
+<tr>
+<td class="l m b2 r2 l2 t0 lines">140</td>
+<td class="l m b2 r2 l0 t0 lines">5.1</td>
+<td class="l m b2 r2 l0 t0 lines">6.7</td>
+<td class="l m b2 r2 l0 t0 lines">8.3</td>
+<td class="l m b2 r2 l0 t0 lines">9.9</td>
+</tr>
+<tr>
+<td class="l m b2 r2 l2 t0 lines">160</td>
+<td class="l m b2 r2 l0 t0 lines">6.1</td>
+<td class="l m b2 r2 l0 t0 lines">7.7</td>
+<td class="l m b2 r2 l0 t0 lines">9.2</td>
+<td class="l m b2 r2 l0 t0 lines">10.8</td>
+</tr>
+<tr>
+<td class="l m b2 r2 l2 t0 lines">180</td>
+<td class="l m b2 r2 l0 t0 lines">7</td>
+<td class="l m b2 r2 l0 t0 lines">8.6</td>
+<td class="l m b2 r2 l0 t0 lines">10.2</td>
+<td class="l m b2 r2 l0 t0 lines">11.7</td>
+</tr>
+<tr>
+<td class="l m b2 r2 l2 t0 lines">200</td>
+<td class="l m b2 r2 l0 t0 lines">7.9</td>
+<td class="l m b2 r2 l0 t0 lines">9.5</td>
+<td class="l m b2 r2 l0 t0 lines">11.1</td>
+<td class="l m b2 r2 l0 t0 lines">12.6</td>
+</tr>
+</table></div> <div class="para" id="extracted-webwork-60-1-1-4">
+<em class="alert">(a)</em> Suppose that a 140 lb person and a 200 person both go 10 miles, the first at 10 mph and the second at 9 mph.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-5">How many calories does the 140 lb person burn?  <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-6">How many calories does the 200 lb person burn?  <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-7">
+<em class="alert">(b)</em> We might also be interested in the number of calories each person burns per pound of their weight.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-8">How many calories per pound does the 140 lb person burn? <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-60-1-1-9">How many calories per pound does the 200 lb person burn? <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-60-1-1-9" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.9"><a href="#Library__Michigan__Chap12Sec4__Q19.pg" title="Copy heading and permalink for Exercise 9.5.5.9" aria-label="Copy heading and permalink for Exercise 9.5.5.9">ð</a></div></article><article class="exercise exercise-like" id="Ez_9_5_1"><h4 class="heading"><span class="codenumber">10<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para" id="Ez_9_5_1-1-1">The vector and parametric forms of a line allow us to easily describe line segments in space.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para logical" id="Ez_9_5_1-1-2">
+<div class="para">Let <span class="process-math">\(P_1 = (1,2,-1)\)</span> and <span class="process-math">\(P_2 = (-2,1,-2)\text{,}\)</span> and let <span class="process-math">\(\mathcal{L}\)</span> be the line in <span class="process-math">\(\R^3\)</span> through <span class="process-math">\(P_1\)</span> and <span class="process-math">\(P_2\)</span> as in <a href="S-9-5-Lines-Planes.html#A_9_5_2" class="xref" data-knowl="./knowl/xref/A_9_5_2.html" data-reveal-label="Reveal" data-close-label="Close" title="Activity 9.5.2">ActivityÂ 9.5.2</a>.</div>
+<ol class="lower-alpha ol-marker-1" id="Ez_9_5_1-1-2-8">
+<li id="Ez_9_5_1-1-2-8-1">
+<div class="para" id="Ez_9_5_1-1-2-8-1-1">What value of the parameter <span class="process-math">\(t\)</span> makes <span class="process-math">\((x(t), y(t), z(t)) = P_1\text{?}\)</span> What value of <span class="process-math">\(t\)</span> makes <span class="process-math">\((x(t), y(t), z(t)) = P_2\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-2-8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.10.a"><a href="#Ez_9_5_1-1-2-8-1" title="Copy heading and permalink for Item 9.5.5.10.a" aria-label="Copy heading and permalink for Item 9.5.5.10.a">ð</a></div>
+</li>
+<li id="Ez_9_5_1-1-2-8-2">
+<div class="para" id="Ez_9_5_1-1-2-8-2-1">What <span class="process-math">\(t\)</span> values describe the line segment between the points <span class="process-math">\(P_1\)</span> and <span class="process-math">\(P_2\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-2-8-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.10.b"><a href="#Ez_9_5_1-1-2-8-2" title="Copy heading and permalink for Item 9.5.5.10.b" aria-label="Copy heading and permalink for Item 9.5.5.10.b">ð</a></div>
+</li>
+<li id="Ez_9_5_1-1-2-8-3">
+<div class="para" id="Ez_9_5_1-1-2-8-3-1">What about the line segment (along the same line) from <span class="process-math">\((7,4,1)\)</span> to <span class="process-math">\((-8,-1,-4)\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-2-8-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.10.c"><a href="#Ez_9_5_1-1-2-8-3" title="Copy heading and permalink for Item 9.5.5.10.c" aria-label="Copy heading and permalink for Item 9.5.5.10.c">ð</a></div>
+</li>
+<li id="Ez_9_5_1-1-2-8-4">
+<div class="para" id="Ez_9_5_1-1-2-8-4-1">Now, consider a segment that lies on a different line:  parameterize the segment that connects point <span class="process-math">\(R=(4,-2,7)\)</span> to <span class="process-math">\(Q=(-11,4,27)\)</span> in such a way that <span class="process-math">\(t = 0\)</span> corresponds to point <span class="process-math">\(Q\text{,}\)</span> while <span class="process-math">\(t = 2\)</span> corresponds to <span class="process-math">\(R\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-2-8-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.10.d"><a href="#Ez_9_5_1-1-2-8-4" title="Copy heading and permalink for Item 9.5.5.10.d" aria-label="Copy heading and permalink for Item 9.5.5.10.d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.10"><a href="#Ez_9_5_1" title="Copy heading and permalink for Exercise 9.5.5.10" aria-label="Copy heading and permalink for Exercise 9.5.5.10">ð</a></div></article><article class="exercise exercise-like" id="Ez_9_5_2"><h4 class="heading"><span class="codenumber">11<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="Ez_9_5_2-1-1">
+<div class="para">This exercise explores key relationships between a pair of lines. Consider the following two lines: one with parametric equations <span class="process-math">\(x(s) = 4-2s\text{,}\)</span> <span class="process-math">\(y(s) = -2 + s\text{,}\)</span> <span class="process-math">\(z(s) = 1 + 3s\text{,}\)</span> and the other being the line through <span class="process-math">\((-4, 2, 17)\)</span> in the direction <span class="process-math">\(\vv = \langle -2, 1, 5 \rangle\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="Ez_9_5_2-1-1-6">
+<li id="Ez_9_5_2-1-1-6-1">
+<div class="para" id="Ez_9_5_2-1-1-6-1-1">Find a direction vector for the first line, which is given in parametric form.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1-6-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.11.a"><a href="#Ez_9_5_2-1-1-6-1" title="Copy heading and permalink for Item 9.5.5.11.a" aria-label="Copy heading and permalink for Item 9.5.5.11.a">ð</a></div>
+</li>
+<li id="Ez_9_5_2-1-1-6-2">
+<div class="para" id="Ez_9_5_2-1-1-6-2-1">Find parametric equations for the second line, written in terms of the parameter <span class="process-math">\(t\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1-6-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.11.b"><a href="#Ez_9_5_2-1-1-6-2" title="Copy heading and permalink for Item 9.5.5.11.b" aria-label="Copy heading and permalink for Item 9.5.5.11.b">ð</a></div>
+</li>
+<li id="Ez_9_5_2-1-1-6-3">
+<div class="para" id="Ez_9_5_2-1-1-6-3-1">Show that the two lines intersect at a single point by finding the values of <span class="process-math">\(s\)</span> and <span class="process-math">\(t\)</span> that result in the same point. Then find the point of intersection.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1-6-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.11.c"><a href="#Ez_9_5_2-1-1-6-3" title="Copy heading and permalink for Item 9.5.5.11.c" aria-label="Copy heading and permalink for Item 9.5.5.11.c">ð</a></div>
+</li>
+<li id="Ez_9_5_2-1-1-6-4">
+<div class="para" id="Ez_9_5_2-1-1-6-4-1">Find the acute angle formed where the two lines intersect, noting that this angle will be given by the acute angle between their respective direction vectors.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1-6-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.11.d"><a href="#Ez_9_5_2-1-1-6-4" title="Copy heading and permalink for Item 9.5.5.11.d" aria-label="Copy heading and permalink for Item 9.5.5.11.d">ð</a></div>
+</li>
+<li id="Ez_9_5_2-1-1-6-5">
+<div class="para" id="Ez_9_5_2-1-1-6-5-1">Find an equation for the plane that contains both of the lines described in this problem.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1-6-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.11.e"><a href="#Ez_9_5_2-1-1-6-5" title="Copy heading and permalink for Item 9.5.5.11.e" aria-label="Copy heading and permalink for Item 9.5.5.11.e">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.11"><a href="#Ez_9_5_2" title="Copy heading and permalink for Exercise 9.5.5.11" aria-label="Copy heading and permalink for Exercise 9.5.5.11">ð</a></div></article><article class="exercise exercise-like" id="Ez_9_5_3"><h4 class="heading"><span class="codenumber">12<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="Ez_9_5_3-1-1">
+<div class="para">This exercise explores key relationships between a pair of planes. Consider the following two planes: one with scalar equation <span class="process-math">\(4x - 5y + z = -2\text{,}\)</span> and the other which passes through the points <span class="process-math">\((1,1,1)\text{,}\)</span> <span class="process-math">\((0,1,-1)\text{,}\)</span> and <span class="process-math">\((4, 2, -1)\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="Ez_9_5_3-1-1-5">
+<li id="Ez_9_5_3-1-1-5-1">
+<div class="para" id="Ez_9_5_3-1-1-5-1-1">Find a vector normal to the first plane.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.a"><a href="#Ez_9_5_3-1-1-5-1" title="Copy heading and permalink for Item 9.5.5.12.a" aria-label="Copy heading and permalink for Item 9.5.5.12.a">ð</a></div>
+</li>
+<li id="Ez_9_5_3-1-1-5-2">
+<div class="para" id="Ez_9_5_3-1-1-5-2-1">Find a scalar equation for the second plane.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.b"><a href="#Ez_9_5_3-1-1-5-2" title="Copy heading and permalink for Item 9.5.5.12.b" aria-label="Copy heading and permalink for Item 9.5.5.12.b">ð</a></div>
+</li>
+<li id="Ez_9_5_3-1-1-5-3">
+<div class="para" id="Ez_9_5_3-1-1-5-3-1">Find the angle between the planes, where the angle between them is defined by the angle between their respective normal vectors.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.c"><a href="#Ez_9_5_3-1-1-5-3" title="Copy heading and permalink for Item 9.5.5.12.c" aria-label="Copy heading and permalink for Item 9.5.5.12.c">ð</a></div>
+</li>
+<li id="Ez_9_5_3-1-1-5-4">
+<div class="para" id="Ez_9_5_3-1-1-5-4-1">Find a point that lies on both planes.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.d"><a href="#Ez_9_5_3-1-1-5-4" title="Copy heading and permalink for Item 9.5.5.12.d" aria-label="Copy heading and permalink for Item 9.5.5.12.d">ð</a></div>
+</li>
+<li id="Ez_9_5_3-1-1-5-5">
+<div class="para" id="Ez_9_5_3-1-1-5-5-1">Since these two planes do not have parallel normal vectors, the planes must intersect, and thus must intersect in a line.  Observe that the line of intersection lies in both planes, and thus the direction vector of the line must be perpendicular to each of the respective normal vectors of the two planes.  Find a direction vector for the line of intersection for the two planes.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.e"><a href="#Ez_9_5_3-1-1-5-5" title="Copy heading and permalink for Item 9.5.5.12.e" aria-label="Copy heading and permalink for Item 9.5.5.12.e">ð</a></div>
+</li>
+<li id="Ez_9_5_3-1-1-5-6">
+<div class="para" id="Ez_9_5_3-1-1-5-6-1">Determine parametric equations for the line of intersection of the two planes.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1-5-6-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.12.f"><a href="#Ez_9_5_3-1-1-5-6" title="Copy heading and permalink for Item 9.5.5.12.f" aria-label="Copy heading and permalink for Item 9.5.5.12.f">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.12"><a href="#Ez_9_5_3" title="Copy heading and permalink for Exercise 9.5.5.12" aria-label="Copy heading and permalink for Exercise 9.5.5.12">ð</a></div></article><article class="exercise exercise-like" id="Ez_9_5_4"><h4 class="heading"><span class="codenumber">13<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para" id="Ez_9_5_4-1-1">In this problem, we explore how we can use what we know about vectors and projections to find the distance from a point to a plane.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para logical" id="Ez_9_5_4-1-2">
+<div class="para">Let <span class="process-math">\(p\)</span> be the plane with equation <span class="process-math">\(z=-4x+3y+4\text{,}\)</span> and let <span class="process-math">\(Q = (4,-1,8)\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="Ez_9_5_4-1-2-4">
+<li id="Ez_9_5_4-1-2-4-1">
+<div class="para" id="Ez_9_5_4-1-2-4-1-1">Show that <span class="process-math">\(Q\)</span> does not lie in the plane <span class="process-math">\(p\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2-4-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.13.a"><a href="#Ez_9_5_4-1-2-4-1" title="Copy heading and permalink for Item 9.5.5.13.a" aria-label="Copy heading and permalink for Item 9.5.5.13.a">ð</a></div>
+</li>
+<li id="Ez_9_5_4-1-2-4-2">
+<div class="para" id="Ez_9_5_4-1-2-4-2-1">Find a normal vector <span class="process-math">\(\vn\)</span> to the plane <span class="process-math">\(p\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2-4-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.13.b"><a href="#Ez_9_5_4-1-2-4-2" title="Copy heading and permalink for Item 9.5.5.13.b" aria-label="Copy heading and permalink for Item 9.5.5.13.b">ð</a></div>
+</li>
+<li id="Ez_9_5_4-1-2-4-3">
+<div class="para" id="Ez_9_5_4-1-2-4-3-1">Find the coordinates of a point <span class="process-math">\(P\)</span> in <span class="process-math">\(p\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2-4-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.13.c"><a href="#Ez_9_5_4-1-2-4-3" title="Copy heading and permalink for Item 9.5.5.13.c" aria-label="Copy heading and permalink for Item 9.5.5.13.c">ð</a></div>
+</li>
+<li id="Ez_9_5_4-1-2-4-4">
+<div class="para" id="Ez_9_5_4-1-2-4-4-1">Find the components of <span class="process-math">\(\overrightarrow{PQ}\text{.}\)</span> Draw a picture to illustrate the objects found so far.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2-4-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.13.d"><a href="#Ez_9_5_4-1-2-4-4" title="Copy heading and permalink for Item 9.5.5.13.d" aria-label="Copy heading and permalink for Item 9.5.5.13.d">ð</a></div>
+</li>
+<li id="Ez_9_5_4-1-2-4-5">
+<div class="para" id="Ez_9_5_4-1-2-4-5-1">Explain why <span class="process-math">\(|\comp_{\vn} \overrightarrow{PQ}|\)</span> gives the distance from the point <span class="process-math">\(Q\)</span> to the plane <span class="process-math">\(p\text{.}\)</span> Find this distance.<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2-4-5-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 9.5.5.13.e"><a href="#Ez_9_5_4-1-2-4-5" title="Copy heading and permalink for Item 9.5.5.13.e" aria-label="Copy heading and permalink for Item 9.5.5.13.e">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#Ez_9_5_4-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 9.5.5.13"><a href="#Ez_9_5_4" title="Copy heading and permalink for Exercise 9.5.5.13" aria-label="Copy heading and permalink for Exercise 9.5.5.13">ð</a></div></article><div class="autopermalink" data-description="Exercises 9.5.5"><a href="#S-9-5-Lines-Planes-8" title="Copy heading and permalink for Exercises 9.5.5" aria-label="Copy heading and permalink for Exercises 9.5.5">ð</a></div></section><div class="autopermalink" data-description="Section 9.5: Lines and Planes in Space"><a href="#S-9-5-Lines-Planes" title="Copy heading and permalink for Section 9.5: Lines and Planes in Space" aria-label="Copy heading and permalink for Section 9.5: Lines and Planes in Space">ð</a></div></section></div>
+<div id="ptx-content-footer" class="ptx-content-footer">
+<a class="previous-button button" href="S-9-4-Cross-Product.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="top-button button" href="#" title="Top"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Top</span></a><a class="next-button button" href="S-9-6-Vector-Valued-Functions.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a>
+</div></main>
+</div>
+<div id="ptx-page-footer" class="ptx-page-footer">
+<a class="pretext-link" href="https://pretextbook.org" title="PreTeXt"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="338 3000 8772 6866" role="img"><title>PreTeXt logo</title><g style="stroke-width:.025in; stroke:currentColor; fill:none"><polyline points="472,3590 472,9732 " style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round; "></polyline><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,9448 A 4660 4660  0  0  1  8598  9259"></path><path style="stroke-width:174;stroke-linecap:butt;" d="M 4488,9685 A 4228 4228  0  0  0   472  9732"></path><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,3590 A 4241 4241  0  0  1  8598  3496"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,3496  A 4241 4241  0  0  1  4724  3590"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,9259  A 4507 4507  0  0  1  4724  9448"></path><polyline points="5385,4299 4062,8125" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8598,3496 8598,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="850,3496 850,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="4960,9685 4488,9685" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="3070,4582 1889,6141 3070,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="6418,4582 7600,6141 6418,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8976,3590 8976,9732" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><path style="stroke-width:174;stroke-linecap:butt;" d="M 4960,9685 A 4228 4228  0  0  1  8976  9732"></path></g></svg></div></a><a class="runestone-link" href="https://runestone.academy" title="Runestone Academy"><img class="logo" src="https://runestone.academy/runestone/static/images/RAIcon_cropped.png" alt="Runstone Academy logo"></a><a class="mathjax-link" href="https://www.mathjax.org" title="MathJax"><img class="logo" src="https://www.mathjax.org/badge/badge-square-2.png" alt="MathJax logo"></a>
+</div>
+<!--Start: Google Global Site Tag code--><!--*** DO NOT COPY ANOTHER PROJECT'S MAGIC NUMBERS/ID ***--><!--***           GET YOUR OWN FROM GOOGLE             ***-->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-QJKN634F7R"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QJKN634F7R');
+</script><!--End: Google Global Site Tag code-->
+</body>
+</html>

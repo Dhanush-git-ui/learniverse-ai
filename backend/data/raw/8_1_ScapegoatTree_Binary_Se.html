@@ -1,0 +1,1358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>8.1 ScapegoatTree: A Binary Search Tree with Partial Rebuilding</TITLE>
+<META NAME="description" CONTENT="8.1 ScapegoatTree: A Binary Search Tree with Partial Rebuilding">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="8_2_Discussion_Exercises.html">
+<LINK REL="previous" HREF="8_Scapegoat_Trees.html">
+<LINK REL="up" HREF="8_Scapegoat_Trees.html">
+<LINK REL="next" HREF="8_2_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html895"
+  HREF="8_2_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html889"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html883"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html891"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html893"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html896"
+  HREF="8_2_Discussion_Exercises.html">8.2 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html890"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+<B> Previous:</B> <A NAME="tex2html884"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+ &nbsp; <B>  <A NAME="tex2html892"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html894"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html897"
+  HREF="8_1_ScapegoatTree_Binary_Se.html#SECTION001111000000000000000"><SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Correctness and Running-Time</A>
+<LI><A NAME="tex2html898"
+  HREF="8_1_ScapegoatTree_Binary_Se.html#SECTION001112000000000000000"><SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001110000000000000000"></A>
+<A NAME="sec:scapegoattree"></A>
+<BR>
+<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>ScapegoatTree</TT>: A Binary Search Tree with Partial Rebuilding
+</H1>
+
+<P>
+<A NAME="23913"></A>A <TT>ScapegoatTree</TT> is a <TT>BinarySearchTree</TT> that, in addition to keeping
+track of the number, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3219.png"
+ ALT="$ \mathtt{n}$"></SPAN>, of  nodes in the tree also keeps a counter, <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3220.png"
+ ALT="$ \mathtt{q}$"></SPAN>,
+that maintains an upper-bound on the number of nodes. 
+<PRE>
+    int q;
+</PRE>
+At all times, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3221.png"
+ ALT="$ \mathtt{n}$"></SPAN> and <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3222.png"
+ ALT="$ \mathtt{q}$"></SPAN> obey the following inequalities:
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{q}}/2 \le  \ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{q}}  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="91" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3223.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{q}}/2 \le \ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{q}} \enspace .
+$">
+</DIV><P></P>
+In addition, a <TT>ScapegoatTree</TT> has logarithmic height; at all times, the height of the scapegoat tree does not exceed
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:scapegoat-height"></A><!-- MATH
+ \begin{equation}
+\log_{3/2} \ensuremath{\mathtt{q}} \le \log_{3/2} 2\ensuremath{\mathtt{n}} < \log_{3/2} \ensuremath{\mathtt{n}} + 2\enspace .
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="235" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3224.png"
+ ALT="$\displaystyle \log_{3/2} \ensuremath{\mathtt{q}} \le \log_{3/2} 2\ensuremath{\mathtt{n}} &lt; \log_{3/2} \ensuremath{\mathtt{n}} + 2\enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+Even with this constraint, a <TT>ScapegoatTree</TT> can look surprisingly unbalanced.  The tree in Figure&nbsp;<A HREF="#fig:scapegoat-example">8.1</A> has <!-- MATH
+ $\ensuremath{\mathtt{q}}=\ensuremath{\mathtt{n}}=10$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3225.png"
+ ALT="$ \ensuremath{\mathtt{q}}=\ensuremath{\mathtt{n}}=10$"></SPAN> and height <!-- MATH
+ $5<\log_{3/2}10 \approx 5.679$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="145" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3226.png"
+ ALT="$ 5&lt;\log_{3/2}10 \approx 5.679$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:scapegoat-example"></A><A NAME="23926"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 8.1:</STRONG>
+A <TT>ScapegoatTree</TT> with 10 nodes and height 5.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="199" HEIGHT="219" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3227.png"
+ ALT="\includegraphics[scale=0.90909]{figs/scapegoat-insert-1}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Implementing the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3228.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>ScapegoatTree</TT> is done
+using the standard algorithm for searching in a <TT>BinarySearchTree</TT>
+(see Section&nbsp;<A HREF="6_2_BinarySearchTree_Unbala.html#sec:binarysearchtree">6.2</A>).  This takes time proportional to the
+height of the tree which, by (<A HREF="#eq:scapegoat-height">8.1</A>) is <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3229.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN>.
+
+<P>
+To implement the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3230.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation, we first increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3231.png"
+ ALT="$ \mathtt{n}$"></SPAN> and <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3232.png"
+ ALT="$ \mathtt{q}$"></SPAN>
+and then use the usual algorithm for adding <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3233.png"
+ ALT="$ \mathtt{x}$"></SPAN> to a binary search
+tree; we search for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3234.png"
+ ALT="$ \mathtt{x}$"></SPAN> and then add a new leaf <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3235.png"
+ ALT="$ \mathtt{u}$"></SPAN> with <!-- MATH
+ $\ensuremath{\mathtt{u.x}}=\ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3236.png"
+ ALT="$ \ensuremath{\mathtt{u.x}}=\ensuremath{\mathtt{x}}$"></SPAN>.
+At this point, we may get lucky and the depth of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3237.png"
+ ALT="$ \mathtt{u}$"></SPAN> might not exceed
+<!-- MATH
+ $\log_{3/2}\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3238.png"
+ ALT="$ \log_{3/2}\ensuremath{\mathtt{q}}$"></SPAN>. If so, then we leave well enough alone and don't do
+anything else.
+
+<P>
+Unfortunately, it will sometimes happen that <!-- MATH
+ $\ensuremath{\mathtt{depth(u)}} > \log_{3/2}
+\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="133" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3239.png"
+ ALT="$ \ensuremath{\mathtt{depth(u)}} &gt; \log_{3/2}
+\ensuremath{\mathtt{q}}$"></SPAN>.  In this case, we need to reduce the height.  This isn't a big
+job; there is only one node, namely <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3240.png"
+ ALT="$ \mathtt{u}$"></SPAN>, whose depth exceeds <!-- MATH
+ $\log_{3/2}
+\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3241.png"
+ ALT="$ \log_{3/2}
+\ensuremath{\mathtt{q}}$"></SPAN>.  To fix <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3242.png"
+ ALT="$ \mathtt{u}$"></SPAN>, we walk from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3243.png"
+ ALT="$ \mathtt{u}$"></SPAN> back up to the root looking for a
+<SPAN  CLASS="textit">scapegoat</SPAN>, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3244.png"
+ ALT="$ \mathtt{w}$"></SPAN>.  The scapegoat, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3245.png"
+ ALT="$ \mathtt{w}$"></SPAN>, is a very unbalanced node.
+It has the property that
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:scapegoat"></A><!-- MATH
+ \begin{equation}
+\frac{\ensuremath{\mathtt{size(w.child)}}}{\ensuremath{\mathtt{size(w)}}} > \frac{2}{3} \enspace ,
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="148" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3246.png"
+ ALT="$\displaystyle \frac{\ensuremath{\mathtt{size(w.child)}}}{\ensuremath{\mathtt{size(w)}}} &gt; \frac{2}{3} \enspace ,$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <!-- MATH
+ $\mathtt{w.child}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3247.png"
+ ALT="$ \mathtt{w.child}$"></SPAN> is the child of <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3248.png"
+ ALT="$ \mathtt{w}$"></SPAN> on the path from the root to <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3249.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+We'll very shortly prove that a scapegoat exists.  For now, we can
+take it for granted.  Once we've found the scapegoat <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3250.png"
+ ALT="$ \mathtt{w}$"></SPAN>, we completely
+destroy the subtree rooted at <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3251.png"
+ ALT="$ \mathtt{w}$"></SPAN> and rebuild it into a perfectly balanced
+binary search tree.  We know, from (<A HREF="#eq:scapegoat">8.2</A>), that, even before
+the addition of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3252.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3253.png"
+ ALT="$ \mathtt{w}$"></SPAN>'s subtree was not a complete binary tree.
+Therefore, when we rebuild <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3254.png"
+ ALT="$ \mathtt{w}$"></SPAN>, the height decreases by at least 1 so that the height of the <TT>ScapegoatTree</TT> is once again at most <!-- MATH
+ $\log_{3/2}\ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3255.png"
+ ALT="$ \log_{3/2}\ensuremath{\mathtt{q}}$"></SPAN>.
+
+<P>
+<PRE>
+    boolean add(T x) {
+        // first do basic insertion keeping track of depth
+        Node&lt;T&gt; u = newNode(x);
+        int d = addWithDepth(u);
+        if (d &gt; log32(q)) {
+            // depth exceeded, find scapegoat
+            Node&lt;T&gt; w = u.parent;
+            while (3*size(w) &lt;= 2*size(w.parent))
+                w = w.parent;
+            rebuild(w.parent);
+        }
+        return d &gt;= 0;
+    }
+</PRE>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="23958"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 8.2:</STRONG>
+Inserting 3.5 into a <TT>ScapegoatTree</TT> increases its height to 6, which violates (<A HREF="#eq:scapegoat-height">8.1</A>) since <!-- MATH
+ $6 > \log_{3/2} 11 \approx 5.914$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="145" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3258.png"
+ ALT="$ 6 &gt; \log_{3/2} 11 \approx 5.914$"></SPAN>.  A scapegoat is found at the node containing 5.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="CENTER"><IMG
+ WIDTH="199" HEIGHT="258" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3256.png"
+ ALT="\includegraphics[scale=0.90909]{figs/scapegoat-insert-3}"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="160" HEIGHT="179" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3257.png"
+ ALT="\includegraphics[scale=0.90909]{figs/scapegoat-insert-4}"></TD>
+</TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+If we ignore the cost of finding the scapegoat <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3259.png"
+ ALT="$ \mathtt{w}$"></SPAN> and rebuilding the
+subtree rooted at <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3260.png"
+ ALT="$ \mathtt{w}$"></SPAN>, then the running time of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3261.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> is dominated
+by the initial search, which takes <!-- MATH
+ $O(\log \ensuremath{\mathtt{q}}) = O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="132" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3262.png"
+ ALT="$ O(\log \ensuremath{\mathtt{q}}) = O(\log \ensuremath{\mathtt{n}})$"></SPAN> time.
+We will account for the cost of finding the scapegoat and rebuilding
+using amortized analysis in the next section.
+
+<P>
+The implementation of <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3263.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> in a <TT>ScapegoatTree</TT> is very simple.
+We search for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3264.png"
+ ALT="$ \mathtt{x}$"></SPAN> and remove it using the usual algorithm for removing a
+node from a <TT>BinarySearchTree</TT>.  (Note that this can never increase the
+height of the tree.)  Next, we decrement <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3265.png"
+ ALT="$ \mathtt{n}$"></SPAN>, but leave <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3266.png"
+ ALT="$ \mathtt{q}$"></SPAN> unchanged.
+Finally, we check if <!-- MATH
+ $\ensuremath{\mathtt{q}} > 2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3267.png"
+ ALT="$ \ensuremath{\mathtt{q}} &gt; 2\ensuremath{\mathtt{n}}$"></SPAN> and, if so, then we <SPAN  CLASS="textit">rebuild the entire
+tree</SPAN> into a perfectly balanced binary search tree and set <!-- MATH
+ $\ensuremath{\mathtt{q}}=\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3268.png"
+ ALT="$ \ensuremath{\mathtt{q}}=\ensuremath{\mathtt{n}}$"></SPAN>.
+<PRE>
+    boolean remove(T x) {
+        if (super.remove(x)) {
+            if (2*n &lt; q) {
+                rebuild(r);
+                q = n;
+            }
+            return true;
+        }
+        return false;
+    }
+</PRE>
+Again, if we ignore the cost of rebuilding, the running time of the
+<!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3269.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation is proportional to the height of the tree, and is
+therefore <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3270.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION001111000000000000000">
+<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Correctness and Running-Time</A>
+</H2>
+
+<P>
+In this section, we analyze the correctness and amortized running time
+of operations on a <TT>ScapegoatTree</TT>.  We first prove the correctness by
+showing that, when the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3271.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation results in a node that violates
+Condition (<A HREF="#eq:scapegoat-height">8.1</A>), then we can always find a scapegoat:
+
+<P>
+<P>
+<DIV><B>Lemma  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+<I>Let <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3272.png"
+ ALT="$ \mathtt{u}$"></SPAN> be a node of depth <!-- MATH
+ $h>\log_{3/2} \ensuremath{\mathtt{q}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3273.png"
+ ALT="$ h&gt;\log_{3/2} \ensuremath{\mathtt{q}}$"></SPAN> in a <TT>ScapegoatTree</TT>.
+  Then there exists a node <!-- MATH
+ $\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3274.png"
+ ALT="$ \ensuremath{\mathtt{w}}$"></SPAN> on the path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3275.png"
+ ALT="$ \mathtt{u}$"></SPAN> to the root
+  such that
+  </I><P><!-- MATH
+ \begin{displaymath}
+\frac{\ensuremath{\mathtt{size(w)}}}{\ensuremath{\mathtt{size(parent(w))}}} > 2/3 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="174" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3276.png"
+ ALT="$\displaystyle \frac{\ensuremath{\mathtt{size(w)}}}{\ensuremath{\mathtt{size(parent(w))}}} &gt; 2/3 \enspace .
+$">
+</DIV><P></P></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  Suppose, for the sake of contradiction, that this is not the case, and
+  <P><!-- MATH
+ \begin{displaymath}
+\frac{\ensuremath{\mathtt{size(w)}}}{\ensuremath{\mathtt{size(parent(w))}}} \le 2/3 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="175" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3278.png"
+ ALT="$\displaystyle \frac{\ensuremath{\mathtt{size(w)}}}{\ensuremath{\mathtt{size(parent(w))}}} \le 2/3 \enspace .
+$">
+</DIV><P></P>
+for all nodes <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3279.png"
+ ALT="$ \mathtt{w}$"></SPAN> on the path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3280.png"
+ ALT="$ \mathtt{u}$"></SPAN> to the root.  Denote the path
+  from the root to <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3281.png"
+ ALT="$ \mathtt{u}$"></SPAN> as <!-- MATH
+ $\ensuremath{\mathtt{r}}=\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_h=\ensuremath{\mathtt{u}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3282.png"
+ ALT="$ \ensuremath{\mathtt{r}}=\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_h=\ensuremath{\mathtt{u}}$"></SPAN>.  Then, we have
+  <!-- MATH
+ $\ensuremath{\mathtt{size(u}}_0\ensuremath{\mathtt{)}}=\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="90" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3283.png"
+ ALT="$ \ensuremath{\mathtt{size(u}}_0\ensuremath{\mathtt{)}}=\ensuremath{\mathtt{n}}$"></SPAN>,
+  <!-- MATH
+ $\ensuremath{\mathtt{size(u}}_1\ensuremath{\mathtt{)}}\le\frac{2}{3}\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3284.png"
+ ALT="$ \ensuremath{\mathtt{size(u}}_1\ensuremath{\mathtt{)}}\le\frac{2}{3}\ensuremath{\mathtt{n}}$"></SPAN>, 
+  <!-- MATH
+ $\ensuremath{\mathtt{size(u}}_2\ensuremath{\mathtt{)}}\le\frac{4}{9}\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3285.png"
+ ALT="$ \ensuremath{\mathtt{size(u}}_2\ensuremath{\mathtt{)}}\le\frac{4}{9}\ensuremath{\mathtt{n}}$"></SPAN> and, more generally,
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{size(u}}_i\ensuremath{\mathtt{)}}\le\left(\frac{2}{3}\right)^i\ensuremath{\mathtt{n}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="133" HEIGHT="57" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3286.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{size(u}}_i\ensuremath{\mathtt{)}}\le\left(\frac{2}{3}\right)^i\ensuremath{\mathtt{n}} \enspace .
+$">
+</DIV><P></P>
+But this gives a contradiction, since <!-- MATH
+ $\ensuremath{\mathtt{size(u)}}\ge 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3287.png"
+ ALT="$ \ensuremath{\mathtt{size(u)}}\ge 1$"></SPAN>, hence
+  <P><!-- MATH
+ \begin{displaymath}
+1 \le \ensuremath{\mathtt{size(u)}} \le \left(\frac{2}{3}\right)^h\ensuremath{\mathtt{n}}
+   < \left(\frac{2}{3}\right)^{\log_{3/2} \ensuremath{\mathtt{q}}}\ensuremath{\mathtt{n}}
+   \le \left(\frac{2}{3}\right)^{\log_{3/2} \ensuremath{\mathtt{n}}}\ensuremath{\mathtt{n}}
+   = \left(\frac{1}{\ensuremath{\mathtt{n}}}\right) \ensuremath{\mathtt{n}}
+   = 1 \enspace . \qedhere
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="421" HEIGHT="58" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3288.png"
+ ALT="$\displaystyle 1 \le \ensuremath{\mathtt{size(u)}} \le \left(\frac{2}{3}\right)^...
+...suremath{\mathtt{n}}}\right) \ensuremath{\mathtt{n}}
+= 1 \enspace . \qedhere
+$">
+</DIV><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3277.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Next, we analyze the parts of the running time that are not yet
+accounted for.  There are two parts:  The cost of calls to <!-- MATH
+ $\mathtt{size(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3289.png"
+ ALT="$ \mathtt{size(u)}$"></SPAN>
+when searching for scapegoat nodes, and the cost of calls to <!-- MATH
+ $\mathtt{rebuild(w)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3290.png"
+ ALT="$ \mathtt{rebuild(w)}$"></SPAN>
+when we find a scapegoat <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3291.png"
+ ALT="$ \mathtt{w}$"></SPAN>.  The cost of calls to <!-- MATH
+ $\mathtt{size(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3292.png"
+ ALT="$ \mathtt{size(u)}$"></SPAN> can be
+related to the cost of calls to <!-- MATH
+ $\mathtt{rebuild(w)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3293.png"
+ ALT="$ \mathtt{rebuild(w)}$"></SPAN>, as follows:
+<P>
+<DIV><B>Lemma  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+<I>During a call to <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3294.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> in a <TT>ScapegoatTree</TT>, the cost of finding the scapegoat <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3295.png"
+ ALT="$ \mathtt{w}$"></SPAN> and rebuilding the subtree rooted at <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3296.png"
+ ALT="$ \mathtt{w}$"></SPAN> is <!-- MATH
+ $O(\ensuremath{\mathtt{size(w)}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3297.png"
+ ALT="$ O(\ensuremath{\mathtt{size(w)}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+The cost of rebuilding the scapegoat node <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3299.png"
+ ALT="$ \mathtt{w}$"></SPAN>, once we find it, is
+<!-- MATH
+ $O(\ensuremath{\mathtt{size(w)}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3300.png"
+ ALT="$ O(\ensuremath{\mathtt{size(w)}})$"></SPAN>.  When searching for the scapegoat node, we call <!-- MATH
+ $\mathtt{size(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3301.png"
+ ALT="$ \mathtt{size(u)}$"></SPAN>
+on a sequence of nodes <!-- MATH
+ $\ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3302.png"
+ ALT="$ \ensuremath{\mathtt{u}}_0,\ldots,\ensuremath{\mathtt{u}}_k$"></SPAN> until we find the scapegoat
+<!-- MATH
+ $\ensuremath{\mathtt{u}}_k=\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3303.png"
+ ALT="$ \ensuremath{\mathtt{u}}_k=\ensuremath{\mathtt{w}}$"></SPAN>.  However, since <!-- MATH
+ $\ensuremath{\mathtt{u}}_k$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3304.png"
+ ALT="$ \ensuremath{\mathtt{u}}_k$"></SPAN> is the first node in this sequence
+that is a scapegoat, we know that
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{size(u}}_{i}\ensuremath{\mathtt{)}} < \frac{2}{3}\ensuremath{\mathtt{size(u}}_{i+1}\ensuremath{\mathtt{)}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="164" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3305.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{size(u}}_{i}\ensuremath{\mathtt{)}} &lt; \frac{2}{3}\ensuremath{\mathtt{size(u}}_{i+1}\ensuremath{\mathtt{)}}
+$">
+</DIV><P></P>
+for all <!-- MATH
+ $i\in\{0,\ldots,k-2\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="106" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3306.png"
+ ALT="$ i\in\{0,\ldots,k-2\}$"></SPAN>.  Therefore, the cost of all calls to <!-- MATH
+ $\mathtt{size(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3307.png"
+ ALT="$ \mathtt{size(u)}$"></SPAN> is
+<BR>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<!-- MATH
+ \begin{eqnarray*}
+O\left( \sum_{i=0}^k \ensuremath{\mathtt{size(u}}_{k-i}\ensuremath{\mathtt{)}} \right)
+ &=& O\left(
+  \ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}
+  + \sum_{i=0}^{k-1} \ensuremath{\mathtt{size(u}}_{k-i-1}\ensuremath{\mathtt{)}}
+  \right) \\
+ &=& O\left(
+  \ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}} 
+  + \sum_{i=0}^{k-1} \left(\frac{2}{3}\right)^i\ensuremath{\mathtt{size(u}}_{k}\ensuremath{\mathtt{)}}
+  \right) \\
+&=& O\left(
+  \ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}\left(1+ 
+   \sum_{i=0}^{k-1} \left(\frac{2}{3}\right)^i
+  \right)\right) \\
+&=& O(\ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}) = O(\ensuremath{\mathtt{size(w)}}) \enspace ,
+\end{eqnarray*}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="129" HEIGHT="68" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3308.png"
+ ALT="$\displaystyle O\left( \sum_{i=0}^k \ensuremath{\mathtt{size(u}}_{k-i}\ensuremath{\mathtt{)}} \right)$"></TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3309.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="218" HEIGHT="68" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3310.png"
+ ALT="$\displaystyle O\left(
+\ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}
++ \...
+...{i=0}^{k-1} \ensuremath{\mathtt{size(u}}_{k-i-1}\ensuremath{\mathtt{)}}
+\right)$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3311.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="225" HEIGHT="68" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3312.png"
+ ALT="$\displaystyle O\left(
+\ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}
++ \...
+...c{2}{3}\right)^i\ensuremath{\mathtt{size(u}}_{k}\ensuremath{\mathtt{)}}
+\right)$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3313.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="188" HEIGHT="68" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3314.png"
+ ALT="$\displaystyle O\left(
+\ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}\left(1+
+\sum_{i=0}^{k-1} \left(\frac{2}{3}\right)^i
+\right)\right)$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3315.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="193" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3316.png"
+ ALT="$\displaystyle O(\ensuremath{\mathtt{size(u}}_k\ensuremath{\mathtt{)}}) = O(\ensuremath{\mathtt{size(w)}}) \enspace ,$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL">
+
+where the last line follows from the fact that the sum is a geometrically decreasing series.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3298.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+All that remains is to prove an upper-bound on the cost of all calls to
+<!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3317.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> during a sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3318.png"
+ ALT="$ m$"></SPAN> operations:
+
+<P>
+<P>
+<DIV><A NAME="lem:scapegoat-amortized"><B>Lemma  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>Starting with an empty <TT>ScapegoatTree</TT> any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3319.png"
+ ALT="$ m$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3320.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+  and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3321.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations causes at most <!-- MATH
+ $O(m\log m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3322.png"
+ ALT="$ O(m\log m)$"></SPAN> time to be used
+  by <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3323.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> operations.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  To prove this, we will use a <SPAN  CLASS="textit">credit scheme</SPAN>.
+  <A NAME="23656"></A>We imagine that each node
+  stores a number of credits.  Each credit can pay for some constant,
+  <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3325.png"
+ ALT="$ c$"></SPAN>, units of time spent rebuilding.  The scheme gives out a total of
+  <!-- MATH
+ $O(m\log m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3326.png"
+ ALT="$ O(m\log m)$"></SPAN> credits and every call to <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3327.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> is paid for with
+  credits stored at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3328.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+
+<P>
+During an insertion or deletion, we give one credit to each node on the
+  path to the inserted node, or deleted node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3329.png"
+ ALT="$ \mathtt{u}$"></SPAN>.  In this way we hand
+  out at most <!-- MATH
+ $\log_{3/2}\ensuremath{\mathtt{q}}\le \log_{3/2}m$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="127" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3330.png"
+ ALT="$ \log_{3/2}\ensuremath{\mathtt{q}}\le \log_{3/2}m$"></SPAN> credits per operation.
+  During a deletion we also store an additional credit ``on the side.''
+  Thus, in total we give out at most <!-- MATH
+ $O(m\log m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3331.png"
+ ALT="$ O(m\log m)$"></SPAN> credits.  All that
+  remains is to show that these credits are sufficient to pay for all
+  calls to <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3332.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN>.
+
+<P>
+If we call <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3333.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> during an insertion, it is because <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3334.png"
+ ALT="$ \mathtt{u}$"></SPAN> is
+  a scapegoat.  Suppose, without loss of generality, that
+  <P><!-- MATH
+ \begin{displaymath}
+\frac{\ensuremath{\mathtt{size(u.left)}}}{\ensuremath{\mathtt{size(u)}}} > \frac{2}{3} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="140" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3335.png"
+ ALT="$\displaystyle \frac{\ensuremath{\mathtt{size(u.left)}}}{\ensuremath{\mathtt{size(u)}}} &gt; \frac{2}{3} \enspace .
+$">
+</DIV><P></P>
+Using the fact that
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{size(u)}} = 1 + \ensuremath{\mathtt{size(u.left)}} + \ensuremath{\mathtt{size(u.right)}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="303" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3336.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{size(u)}} = 1 + \ensuremath{\mathtt{size(u.left)}} + \ensuremath{\mathtt{size(u.right)}}
+$">
+</DIV><P></P>
+we deduce that
+  <P><!-- MATH
+ \begin{displaymath}
+\frac{1}{2}\ensuremath{\mathtt{size(u.left)}} > \ensuremath{\mathtt{size(u.right)}}  \enspace
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="231" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3337.png"
+ ALT="$\displaystyle \frac{1}{2}\ensuremath{\mathtt{size(u.left)}} &gt; \ensuremath{\mathtt{size(u.right)}} \enspace
+$">
+</DIV><P></P>
+and therefore
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{size(u.left)}} - \ensuremath{\mathtt{size(u.right)}} > \frac{1}{2}\ensuremath{\mathtt{size(u.left)}} >
+    \frac{1}{3}\ensuremath{\mathtt{size(u)}}  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="422" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3338.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{size(u.left)}} - \ensuremath{\mathtt{size(u.r...
+...\mathtt{size(u.left)}} &gt;
+\frac{1}{3}\ensuremath{\mathtt{size(u)}} \enspace .
+$">
+</DIV><P></P>
+Now, the last time a subtree containing <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3339.png"
+ ALT="$ \mathtt{u}$"></SPAN> was rebuilt (or when <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3340.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+  was inserted, if a subtree containing <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3341.png"
+ ALT="$ \mathtt{u}$"></SPAN> was never rebuilt), we had
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{size(u.left)}} - \ensuremath{\mathtt{size(u.right)}} \le 1 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="247" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3342.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{size(u.left)}} - \ensuremath{\mathtt{size(u.right)}} \le 1 \enspace .
+$">
+</DIV><P></P>
+Therefore, the number of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3343.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3344.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations that have
+  affected <!-- MATH
+ $\mathtt{u.left}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3345.png"
+ ALT="$ \mathtt{u.left}$"></SPAN> or <!-- MATH
+ $\mathtt{u.right}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3346.png"
+ ALT="$ \mathtt{u.right}$"></SPAN> since then is at least
+  <P><!-- MATH
+ \begin{displaymath}
+\frac{1}{3}\ensuremath{\mathtt{size(u)}} - 1 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="105" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3347.png"
+ ALT="$\displaystyle \frac{1}{3}\ensuremath{\mathtt{size(u)}} - 1 \enspace .
+$">
+</DIV><P></P>
+and there are therefore at least this many credits stored at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3348.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+  that are available to pay for the <!-- MATH
+ $O(\ensuremath{\mathtt{size(u)}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3349.png"
+ ALT="$ O(\ensuremath{\mathtt{size(u)}})$"></SPAN> time it takes to
+  call <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3350.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN>.
+
+<P>
+If we call <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3351.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> during a deletion, it is because <!-- MATH
+ $\ensuremath{\mathtt{q}} > 2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3352.png"
+ ALT="$ \ensuremath{\mathtt{q}} &gt; 2\ensuremath{\mathtt{n}}$"></SPAN>.
+  In this case, we have <!-- MATH
+ $\ensuremath{\mathtt{q}}-\ensuremath{\mathtt{n}}> \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3353.png"
+ ALT="$ \ensuremath{\mathtt{q}}-\ensuremath{\mathtt{n}}&gt; \ensuremath{\mathtt{n}}$"></SPAN> credits stored ``on the side,'' and
+  we use these to pay for the <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3354.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> time it takes to rebuild the root.
+  This completes the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3324.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001112000000000000000">
+<SPAN CLASS="arabic">8</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</H2>
+The following theorem summarizes the performance of the <TT>ScapegoatTree</TT> data structure:
+
+<P>
+<P>
+<DIV><A NAME="thm:scapegoat"><B>Theorem  <SPAN CLASS="arabic">8</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>A <TT>ScapegoatTree</TT> implements the <TT>SSet</TT> interface. Ignoring the cost
+  of <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3355.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN> operations, a <TT>ScapegoatTree</TT> supports the operations
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3356.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3357.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3358.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3359.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time per operation.
+</I>
+<P>
+<I>Furthermore, beginning with an empty <TT>ScapegoatTree</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3360.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3361.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3362.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations results in a total of <!-- MATH
+ $O(m\log m)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3363.png"
+ ALT="$ O(m\log m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{rebuild(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3364.png"
+ ALT="$ \mathtt{rebuild(u)}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html895"
+  HREF="8_2_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html889"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html883"
+  HREF="8_Scapegoat_Trees.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html891"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html893"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html896"
+  HREF="8_2_Discussion_Exercises.html">8.2 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html890"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+<B> Previous:</B> <A NAME="tex2html884"
+  HREF="8_Scapegoat_Trees.html">8. Scapegoat Trees</A>
+ &nbsp; <B>  <A NAME="tex2html892"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html894"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

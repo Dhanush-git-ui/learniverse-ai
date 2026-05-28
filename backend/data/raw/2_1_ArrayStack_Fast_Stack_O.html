@@ -1,0 +1,1277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2.1 ArrayStack: Fast Stack Operations Using an Array</TITLE>
+<META NAME="description" CONTENT="2.1 ArrayStack: Fast Stack Operations Using an Array">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="2_2_FastArrayStack_Optimize.html">
+<LINK REL="previous" HREF="2_Array_Based_Lists.html">
+<LINK REL="up" HREF="2_Array_Based_Lists.html">
+<LINK REL="next" HREF="2_2_FastArrayStack_Optimize.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html398"
+  HREF="2_2_FastArrayStack_Optimize.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html392"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html386"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html394"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html396"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html399"
+  HREF="2_2_FastArrayStack_Optimize.html">2.2 FastArrayStack: An Optimized</A>
+<B> Up:</B> <A NAME="tex2html393"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html387"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+ &nbsp; <B>  <A NAME="tex2html395"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html397"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html400"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html#SECTION00511000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> The Basics</A>
+<LI><A NAME="tex2html401"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html#SECTION00512000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Growing and Shrinking</A>
+<LI><A NAME="tex2html402"
+  HREF="2_1_ArrayStack_Fast_Stack_O.html#SECTION00513000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00510000000000000000"></A>
+<A NAME="sec:arraystack"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>ArrayStack</TT>: Fast Stack Operations Using an Array
+</H1>
+
+<P>
+<A NAME="4842"></A>An <TT>ArrayStack</TT> implements the list interface using an array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img448.png"
+ ALT="$ \mathtt{a}$"></SPAN>, called
+the <SPAN  CLASS="textit">backing array</SPAN>.  The list element with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img449.png"
+ ALT="$ \mathtt{i}$"></SPAN> is stored
+in <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img450.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>.  At most times, <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img451.png"
+ ALT="$ \mathtt{a}$"></SPAN> is larger than strictly necessary,
+so an integer <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img452.png"
+ ALT="$ \mathtt{n}$"></SPAN> is used to keep track of the number of elements
+actually stored in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img453.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  In this way, the list elements are stored in
+<!-- MATH
+ $\mathtt{a[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img454.png"
+ ALT="$ \mathtt{a[0]}$"></SPAN>,...,<!-- MATH
+ $\mathtt{a[n-1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img455.png"
+ ALT="$ \mathtt{a[n-1]}$"></SPAN> and, at all times, <!-- MATH
+ $\ensuremath{\mathtt{a.length}} \ge \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img456.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} \ge \ensuremath{\mathtt{n}}$"></SPAN>.
+
+<P>
+<PRE>
+    T[] a;
+    int n;
+    int size() {
+        return n;
+    }
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION00511000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> The Basics</A>
+</H2>
+
+<P>
+Accessing and modifying the elements of an <TT>ArrayStack</TT> using <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img457.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN>
+and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img458.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> is trivial. After performing any necessary bounds-checking
+we simply return or set, respectively, <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img459.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>.
+
+<P>
+<PRE>
+    T get(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        return a[i];
+    }
+    T set(int i, T x) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        T y = a[i];
+        a[i] = x;
+        return y;
+    }
+</PRE>
+
+<P>
+The operations of adding and removing elements from an <TT>ArrayStack</TT>
+are illustrated in Figure&nbsp;<A HREF="#fig:arraystack">2.1</A>.  To implement the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img460.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+operation, we first check if <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img461.png"
+ ALT="$ \mathtt{a}$"></SPAN> is already full.  If so, we call
+the method <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img462.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> to increase the size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img463.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  How <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img464.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>
+is implemented will be discussed later.  For now, it is sufficient to
+know that, after a call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img465.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, we can be sure that <!-- MATH
+ $\ensuremath{\mathtt{a.length}}
+> \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="92" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img466.png"
+ ALT="$ \ensuremath{\mathtt{a.length}}
+&gt; \ensuremath{\mathtt{n}}$"></SPAN>.  With this out of the way, we now shift the elements
+<!-- MATH
+ $\ensuremath{\mathtt{a[i]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="110" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img467.png"
+ ALT="$ \ensuremath{\mathtt{a[i]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN> right by one position to make room for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img468.png"
+ ALT="$ \mathtt{x}$"></SPAN>,
+set <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img469.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN> equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img470.png"
+ ALT="$ \mathtt{x}$"></SPAN>, and increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img471.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:arraystack"></A><A NAME="5703"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.1:</STRONG>
+A sequence of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img473.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img474.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations on an
+  <TT>ArrayStack</TT>.  Arrows denote elements being copied.  Operations that
+  result in a call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img475.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> are marked with an asterisk.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="365" HEIGHT="461" ALIGN="BOTTOM" BORDER="0"
+ SRC="img472.png"
+ ALT="\includegraphics[scale=0.90909]{figs/arraystack}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<PRE>
+    void add(int i, T x) {
+        if (i &lt; 0 || i &gt; n) throw new IndexOutOfBoundsException();
+        if (n + 1 &gt; a.length) resize();
+        for (int j = n; j &gt; i; j--) 
+            a[j] = a[j-1];
+        a[i] = x;
+        n++;
+    }
+</PRE>
+If we ignore the cost of the potential call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img476.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, then the cost
+of the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img477.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> operation is proportional to the number of elements we
+have to shift to make room for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img478.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  Therefore the cost of this operation
+(ignoring the cost of resizing <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img479.png"
+ ALT="$ \mathtt{a}$"></SPAN>) is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img480.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN>.
+
+<P>
+Implementing the <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img481.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation is similar.  We shift the elements
+<!-- MATH
+ $\ensuremath{\mathtt{a[i+1]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="134" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img482.png"
+ ALT="$ \ensuremath{\mathtt{a[i+1]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN> left by one position (overwriting <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img483.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>) and
+decrease the value of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img484.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  After doing this, we check if <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img485.png"
+ ALT="$ \mathtt{n}$"></SPAN> is getting
+much smaller than <!-- MATH
+ $\mathtt{a.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img486.png"
+ ALT="$ \mathtt{a.length}$"></SPAN> by checking if <!-- MATH
+ $\ensuremath{\mathtt{a.length}} \ge 3\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img487.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} \ge 3\ensuremath{\mathtt{n}}$"></SPAN>. If so,
+then we call <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img488.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> to reduce the size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img489.png"
+ ALT="$ \mathtt{a}$"></SPAN>.
+
+<P>
+<PRE>
+    T remove(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        T x = a[i];
+        for (int j = i; j &lt; n-1; j++) 
+            a[j] = a[j+1];
+        n--;
+        if (a.length &gt;= 3*n) resize();
+        return x;
+    }
+</PRE>
+If we ignore the cost of the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img490.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> method, the cost of a <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img491.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>
+operation is proportional to the number of elements we shift, which
+is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img492.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION00512000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Growing and Shrinking</A>
+</H2>
+
+<P>
+The <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img493.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> method is fairly straightforward; it allocates a new
+array <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img494.png"
+ ALT="$ \mathtt{b}$"></SPAN> whose size is <!-- MATH
+ $2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img495.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}$"></SPAN> and copies the <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img496.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img497.png"
+ ALT="$ \mathtt{a}$"></SPAN> into
+the first <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img498.png"
+ ALT="$ \mathtt{n}$"></SPAN> positions in <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img499.png"
+ ALT="$ \mathtt{b}$"></SPAN>, and then sets <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img500.png"
+ ALT="$ \mathtt{a}$"></SPAN> to <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img501.png"
+ ALT="$ \mathtt{b}$"></SPAN>. Thus, after a call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img502.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{a.length}} = 2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img503.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} = 2\ensuremath{\mathtt{n}}$"></SPAN>.
+
+<P>
+<PRE>
+    void resize() {
+        T[] b = newArray(Math.max(n*2,1));
+        for (int i = 0; i &lt; n; i++) {
+            b[i] = a[i];
+        }
+        a = b;
+    }
+</PRE>
+
+<P>
+Analyzing the actual cost of the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img504.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> operation is easy. It
+allocates an array <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img505.png"
+ ALT="$ \mathtt{b}$"></SPAN> of size <!-- MATH
+ $2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img506.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}$"></SPAN> and copies the <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img507.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img508.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+into <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img509.png"
+ ALT="$ \mathtt{b}$"></SPAN>.  This takes <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img510.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> time.
+
+<P>
+The running time analysis from the previous section ignored the cost
+of calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img511.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.  In this section we analyze this cost using a
+technique known as <SPAN  CLASS="textit">amortized analysis</SPAN>.  This technique does not
+try to determine the cost of resizing during each individual <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img512.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img513.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation.  Instead, it considers the cost of all calls to
+<!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img514.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> during a sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img515.png"
+ ALT="$ m$"></SPAN> calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img516.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img517.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>.
+In particular, we will show:
+
+<P>
+<P>
+<DIV><A NAME="lem:arraystack-amortized"><B>Lemma  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>If an empty <TT>ArrayStack</TT> is created and any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img518.png"
+ ALT="$ m\ge 1$"></SPAN> calls
+  to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img519.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img520.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> are performed, then the total time spent
+  during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img521.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img522.png"
+ ALT="$ O(m)$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  We will show that any time <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img524.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is called, the number of calls
+  to <!-- MATH
+ $\mathtt{add}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img525.png"
+ ALT="$ \mathtt{add}$"></SPAN> or <!-- MATH
+ $\mathtt{remove}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img526.png"
+ ALT="$ \mathtt{remove}$"></SPAN> since the last call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img527.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is at least
+  <!-- MATH
+ $\ensuremath{\mathtt{n}}/2-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img528.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2-1$"></SPAN>.  Therefore, if <!-- MATH
+ $\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img529.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i$"></SPAN> denotes the value of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img530.png"
+ ALT="$ \mathtt{n}$"></SPAN> during the
+  <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img531.png"
+ ALT="$ i$"></SPAN>th call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img532.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img533.png"
+ ALT="$ r$"></SPAN> denotes the number of calls to
+  <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img534.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, then the total number of calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img535.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or
+  <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img536.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> is at least
+  <P><!-- MATH
+ \begin{displaymath}
+\sum_{i=1}^{r} (\ensuremath{\mathtt{n}}_i/2-1) \le m  \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="132" HEIGHT="62" ALIGN="MIDDLE" BORDER="0"
+ SRC="img537.png"
+ ALT="$\displaystyle \sum_{i=1}^{r} (\ensuremath{\mathtt{n}}_i/2-1) \le m \enspace ,
+$">
+</DIV><P></P>
+which is equivalent to
+  <P><!-- MATH
+ \begin{displaymath}
+\sum_{i=1}^{r} \ensuremath{\mathtt{n}}_i \le 2m + 2r  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="124" HEIGHT="62" ALIGN="MIDDLE" BORDER="0"
+ SRC="img538.png"
+ ALT="$\displaystyle \sum_{i=1}^{r} \ensuremath{\mathtt{n}}_i \le 2m + 2r \enspace .
+$">
+</DIV><P></P>
+On the other hand, the total time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img539.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is 
+  <P><!-- MATH
+ \begin{displaymath}
+\sum_{i=1}^{r} O(\ensuremath{\mathtt{n}}_i) \le O(m+r) = O(m)  \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="208" HEIGHT="62" ALIGN="MIDDLE" BORDER="0"
+ SRC="img540.png"
+ ALT="$\displaystyle \sum_{i=1}^{r} O(\ensuremath{\mathtt{n}}_i) \le O(m+r) = O(m) \enspace ,
+$">
+</DIV><P></P>
+since <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img541.png"
+ ALT="$ r$"></SPAN> is not more than <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img542.png"
+ ALT="$ m$"></SPAN>.  All that remains is to show that the
+  number of calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img543.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img544.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> between the <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img545.png"
+ ALT="$ (i-1)$"></SPAN>th
+  and the <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img546.png"
+ ALT="$ i$"></SPAN>th call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img547.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is at least <!-- MATH
+ $\ensuremath{\mathtt{n}}_i/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img548.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i/2$"></SPAN>.
+
+<P>
+There are two cases to consider. In the first case, <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img549.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is
+  being called by <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img550.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> because the backing array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img551.png"
+ ALT="$ \mathtt{a}$"></SPAN> is full, i.e.,
+  <!-- MATH
+ $\ensuremath{\mathtt{a.length}} = \ensuremath{\mathtt{n}}=\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="124" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img552.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} = \ensuremath{\mathtt{n}}=\ensuremath{\mathtt{n}}_i$"></SPAN>.  Consider the previous call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img553.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>:
+  after this previous call, the size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img554.png"
+ ALT="$ \mathtt{a}$"></SPAN> was <!-- MATH
+ $\mathtt{a.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img555.png"
+ ALT="$ \mathtt{a.length}$"></SPAN>, but the
+  number of elements stored in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img556.png"
+ ALT="$ \mathtt{a}$"></SPAN> was at most <!-- MATH
+ $\ensuremath{\mathtt{a.length}}/2=\ensuremath{\mathtt{n}}_i/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="128" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img557.png"
+ ALT="$ \ensuremath{\mathtt{a.length}}/2=\ensuremath{\mathtt{n}}_i/2$"></SPAN>.
+  But now the number of elements stored in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img558.png"
+ ALT="$ \mathtt{a}$"></SPAN> is <!-- MATH
+ $\ensuremath{\mathtt{n}}_i=\ensuremath{\mathtt{a.length}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img559.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i=\ensuremath{\mathtt{a.length}}$"></SPAN>,
+  so there must have been at least <!-- MATH
+ $\ensuremath{\mathtt{n}}_i/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img560.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i/2$"></SPAN> calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img561.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> since
+  the previous call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img562.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.
+  
+<P>
+The second case occurs when <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img563.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is being called by
+  <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img564.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> because <!-- MATH
+ $\ensuremath{\mathtt{a.length}} \ge 3\ensuremath{\mathtt{n}}=3\ensuremath{\mathtt{n}}_i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img565.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} \ge 3\ensuremath{\mathtt{n}}=3\ensuremath{\mathtt{n}}_i$"></SPAN>.  Again, after the
+  previous call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img566.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> the number of elements stored in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img567.png"
+ ALT="$ \mathtt{a}$"></SPAN> was
+  at least <!-- MATH
+ $\ensuremath{\mathtt{a.length/2}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img568.png"
+ ALT="$ \ensuremath{\mathtt{a.length/2}}-1$"></SPAN>.<A NAME="tex2html17"
+  HREF="#foot5704"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A> Now there
+  are <!-- MATH
+ $\ensuremath{\mathtt{n}}_i\le\ensuremath{\mathtt{a.length}}/3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img572.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i\le\ensuremath{\mathtt{a.length}}/3$"></SPAN> elements stored in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img573.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  Therefore, the number
+  of <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img574.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations since the last call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img575.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is at least
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img576.png"
+ ALT="$\displaystyle R$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="213" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img577.png"
+ ALT="$\displaystyle \ge \ensuremath{\mathtt{a.length}}/2 - 1 - \ensuremath{\mathtt{a.length}}/3$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img578.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{a.length}}/6 - 1$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="145" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img579.png"
+ ALT="$\displaystyle = (\ensuremath{\mathtt{a.length}}/3)/2 - 1$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img580.png"
+ ALT="$\displaystyle \ge \ensuremath{\mathtt{n}}_i/2 -1\enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+In either case, the number of calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img581.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img582.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> that
+  occur between the <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img583.png"
+ ALT="$ (i-1)$"></SPAN>th call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img584.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> and the <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img585.png"
+ ALT="$ i$"></SPAN>th call to
+  <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img586.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is at least <!-- MATH
+ $\ensuremath{\mathtt{n}}_i/2-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img587.png"
+ ALT="$ \ensuremath{\mathtt{n}}_i/2-1$"></SPAN>, as required to complete the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img523.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00513000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of an <TT>ArrayStack</TT>:
+
+<P>
+<P>
+<DIV><A NAME="thm:arraystack"><B>Theorem  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>An <TT>ArrayStack</TT> implements the <TT>List</TT> interface.  Ignoring the cost of
+  calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img588.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, an <TT>ArrayStack</TT> supports the operations
+  </I>
+<UL>
+<LI><!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img589.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img590.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img591.png"
+ ALT="$ O(1)$"></SPAN> time per operation; and
+</LI>
+<LI><!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img592.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img593.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> in <!-- MATH
+ $O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img594.png"
+ ALT="$ O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN> time per operation.
+  
+</LI>
+</UL><I>
+  Furthermore, beginning with an empty <TT>ArrayStack</TT> and performing any
+  sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img595.png"
+ ALT="$ m$"></SPAN> <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img596.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img597.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations results in a
+  total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img598.png"
+ ALT="$ O(m)$"></SPAN> time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img599.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+The <TT>ArrayStack</TT> is an efficient way to implement a <TT>Stack</TT>.
+In particular, we can implement <!-- MATH
+ $\mathtt{push(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img600.png"
+ ALT="$ \mathtt{push(x)}$"></SPAN> as <!-- MATH
+ $\mathtt{add(n,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img601.png"
+ ALT="$ \mathtt{add(n,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{pop()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img602.png"
+ ALT="$ \mathtt{pop()}$"></SPAN>
+as <!-- MATH
+ $\mathtt{remove(n-1)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="97" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img603.png"
+ ALT="$ \mathtt{remove(n-1)}$"></SPAN>, in which case these operations will run in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img604.png"
+ ALT="$ O(1)$"></SPAN>
+amortized time.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot5704">....</A><A
+ HREF="2_1_ArrayStack_Fast_Stack_O.html#tex2html17"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>The <SPAN CLASS="MATH"><IMG
+ WIDTH="28" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img569.png"
+ ALT="$ {}-1$"></SPAN> in this formula accounts for
+  the special case that occurs when <!-- MATH
+ $\ensuremath{\mathtt{n}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img570.png"
+ ALT="$ \ensuremath{\mathtt{n}}=0$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{a.length}} = 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img571.png"
+ ALT="$ \ensuremath{\mathtt{a.length}} = 1$"></SPAN>.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html398"
+  HREF="2_2_FastArrayStack_Optimize.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html392"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html386"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html394"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html396"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html399"
+  HREF="2_2_FastArrayStack_Optimize.html">2.2 FastArrayStack: An Optimized</A>
+<B> Up:</B> <A NAME="tex2html393"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html387"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+ &nbsp; <B>  <A NAME="tex2html395"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html397"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

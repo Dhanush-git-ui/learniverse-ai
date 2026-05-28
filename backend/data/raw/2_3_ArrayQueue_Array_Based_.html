@@ -1,0 +1,749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2.3 ArrayQueue: An Array-Based Queue</TITLE>
+<META NAME="description" CONTENT="2.3 ArrayQueue: An Array-Based Queue">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<LINK REL="previous" HREF="2_2_FastArrayStack_Optimize.html">
+<LINK REL="up" HREF="2_Array_Based_Lists.html">
+<LINK REL="next" HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html429"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html423"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html417"
+  HREF="2_2_FastArrayStack_Optimize.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html425"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html427"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html430"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">2.4 ArrayDeque: Fast Deque</A>
+<B> Up:</B> <A NAME="tex2html424"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html418"
+  HREF="2_2_FastArrayStack_Optimize.html">2.2 FastArrayStack: An Optimized</A>
+ &nbsp; <B>  <A NAME="tex2html426"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html428"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html431"
+  HREF="2_3_ArrayQueue_Array_Based_.html#SECTION00531000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00530000000000000000"></A>
+<A NAME="sec:arrayqueue"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN> <TT>ArrayQueue</TT>: An Array-Based Queue
+</H1>
+
+<P>
+<A NAME="5016"></A>In this section, we present the <TT>ArrayQueue</TT> data structure, which
+implements a FIFO (first-in-first-out) queue; elements are removed (using
+the <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img618.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operation) from the queue in the same order they are added
+(using the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img619.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation).
+
+<P>
+Notice that an <TT>ArrayStack</TT> is a poor choice for an implementation of a
+FIFO queue.  It is not a good choice because we must choose one end of
+the list upon which to add elements and then remove elements from the
+other end.  One of the two operations must work on the head of the list,
+which involves calling <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img620.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img621.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> with a value of <!-- MATH
+ $\ensuremath{\mathtt{i}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img622.png"
+ ALT="$ \ensuremath{\mathtt{i}}=0$"></SPAN>.
+This gives a running time proportional to <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img623.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+
+<P>
+To obtain an efficient array-based implementation of a queue, we
+first notice that the problem would be easy if we had an infinite
+array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img624.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  We could maintain one index <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img625.png"
+ ALT="$ \mathtt{j}$"></SPAN> that keeps track of the
+next element to remove and an integer <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img626.png"
+ ALT="$ \mathtt{n}$"></SPAN> that counts the number of
+elements in the queue.  The queue elements would always be stored in
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{a[j]}},\ensuremath{\mathtt{a[j+1]}},\ldots,\ensuremath{\mathtt{a[j+n-1]}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="203" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img627.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{a[j]}},\ensuremath{\mathtt{a[j+1]}},\ldots,\ensuremath{\mathtt{a[j+n-1]}} \enspace . $">
+</DIV><P></P>
+Initially, both <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img628.png"
+ ALT="$ \mathtt{j}$"></SPAN> and <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img629.png"
+ ALT="$ \mathtt{n}$"></SPAN> would be 
+set to 0.  To add an element, we would place it in <!-- MATH
+ $\mathtt{a[j+n]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img630.png"
+ ALT="$ \mathtt{a[j+n]}$"></SPAN> and increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img631.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+To remove an element, we would remove it from <!-- MATH
+ $\mathtt{a[j]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img632.png"
+ ALT="$ \mathtt{a[j]}$"></SPAN>, increment <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img633.png"
+ ALT="$ \mathtt{j}$"></SPAN>, and
+decrement <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img634.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+
+<P>
+Of course, the problem with this solution is that it requires an infinite
+array.  An <TT>ArrayQueue</TT> simulates this by using a finite array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img635.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+and <SPAN  CLASS="textit">modular arithmetic</SPAN>.
+<A NAME="3831"></A>This is the kind of arithmetic used when
+we are talking about the time of day.  For example 10:00 plus five
+hours gives 3:00.  Formally, we say that
+<P><!-- MATH
+ \begin{displaymath}
+10 + 5 = 15 \equiv 3 \pmod{12} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="191" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img636.png"
+ ALT="$\displaystyle 10 + 5 = 15 \equiv 3 \pmod{12} \enspace .
+$">
+</DIV><P></P>
+We read the latter part of this equation as ``15 is congruent to 3 modulo
+12.'' We can also treat <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img637.png"
+ ALT="$ \bmod$"></SPAN> as a binary operator, so that
+<P><!-- MATH
+ \begin{displaymath}
+15 \bmod 12 = 3 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="118" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img638.png"
+ ALT="$\displaystyle 15 \bmod 12 = 3 \enspace .
+$">
+</DIV><P></P>
+
+<P>
+More generally, for an integer <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img639.png"
+ ALT="$ a$"></SPAN> and positive integer <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img640.png"
+ ALT="$ m$"></SPAN>, <SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img641.png"
+ ALT="$ a \bmod m$"></SPAN>
+is the unique integer <!-- MATH
+ $r\in\{0,\ldots,m-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="111" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img642.png"
+ ALT="$ r\in\{0,\ldots,m-1\}$"></SPAN> such that <!-- MATH
+ $a = r + km$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img643.png"
+ ALT="$ a = r + km$"></SPAN> for
+some integer <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img644.png"
+ ALT="$ k$"></SPAN>.  Less formally, the value <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img645.png"
+ ALT="$ r$"></SPAN> is the remainder we get
+when we divide <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img646.png"
+ ALT="$ a$"></SPAN> by <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img647.png"
+ ALT="$ m$"></SPAN>.
+
+In many programming languages, including
+Java, the <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img648.png"
+ ALT="$ \bmod$"></SPAN> operator is represented
+using the <!-- MATH
+ $\mathtt{\text{\ttfamily\%}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img649.png"
+ ALT="$ \mathtt{\text{\ttfamily\%}}$"></SPAN> symbol.<A NAME="tex2html18"
+  HREF="#foot5870"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A>
+<P>
+Modular arithmetic is useful for simulating an infinite array,
+since <!-- MATH
+ $\ensuremath{\mathtt{i}}\bmod \ensuremath{\mathtt{a.length}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img650.png"
+ ALT="$ \ensuremath{\mathtt{i}}\bmod \ensuremath{\mathtt{a.length}}$"></SPAN> always gives a value in the range
+<!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{a.length-1}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="128" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img651.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{a.length-1}}$"></SPAN>.  Using modular arithmetic we can store the
+queue elements at array locations
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{a[j\text{\ttfamily\%}a.length]}},\ensuremath{\mathtt{a[(j+1)\text{\ttfamily\%}a.length]}},\ldots,\ensuremath{\mathtt{a[(j+n-1)\text{\ttfamily\%}a.length]}}
+\enspace.
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="438" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img652.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{a[j\text{\ttfamily\%}a.length]}},\ensuremath{...
+...}},\ldots,\ensuremath{\mathtt{a[(j+n-1)\text{\ttfamily\%}a.length]}}
+\enspace. $">
+</DIV><P></P>
+This treats the array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img653.png"
+ ALT="$ \mathtt{a}$"></SPAN> like a <SPAN  CLASS="textit">circular array</SPAN>
+<A NAME="3846"></A><A NAME="3847"></A>in which array indices
+larger than <!-- MATH
+ $\ensuremath{\mathtt{a.length}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img654.png"
+ ALT="$ \ensuremath{\mathtt{a.length}}-1$"></SPAN> ``wrap around'' to the beginning of
+the array.
+
+<P>
+The only remaining thing to worry about is taking care that the number
+of elements in the <TT>ArrayQueue</TT> does not exceed the size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img655.png"
+ ALT="$ \mathtt{a}$"></SPAN>.
+
+<P>
+<PRE>
+    T[] a;
+    int j;
+    int n;
+</PRE>
+
+<P>
+A sequence of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img656.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img657.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operations on an <TT>ArrayQueue</TT> is
+illustrated in Figure&nbsp;<A HREF="#fig:arrayqueue">2.2</A>.  To implement <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img658.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, we first
+check if <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img659.png"
+ ALT="$ \mathtt{a}$"></SPAN> is full and, if necessary, call <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img660.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> to increase
+the size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img661.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  Next, we store <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img662.png"
+ ALT="$ \mathtt{x}$"></SPAN> in
+<!-- MATH
+ $\mathtt{a[(j+n)\text{\ttfamily\%}a.length]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="137" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img663.png"
+ ALT="$ \mathtt{a[(j+n)\text{\ttfamily\%}a.length]}$"></SPAN> and increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img664.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:arrayqueue"></A><A NAME="5717"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.2:</STRONG>
+A sequence of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img666.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img667.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations on an
+  <TT>ArrayQueue</TT>.  Arrows denote elements being copied.  Operations that
+  result in a call to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img668.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> are marked with an asterisk.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="441" HEIGHT="438" ALIGN="BOTTOM" BORDER="0"
+ SRC="img665.png"
+ ALT="\includegraphics[scale=0.90909]{figs/arrayqueue}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<PRE>
+    boolean add(T x) {
+        if (n + 1 &gt; a.length) resize();
+        a[(j+n) % a.length] = x;
+        n++;
+        return true;
+    }
+</PRE>
+
+<P>
+To implement <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img669.png"
+ ALT="$ \mathtt{remove()}$"></SPAN>, we first store <!-- MATH
+ $\mathtt{a[j]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img670.png"
+ ALT="$ \mathtt{a[j]}$"></SPAN> so that we can return
+it later.  Next, we decrement <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img671.png"
+ ALT="$ \mathtt{n}$"></SPAN> and increment <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img672.png"
+ ALT="$ \mathtt{j}$"></SPAN> (modulo <!-- MATH
+ $\mathtt{a.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img673.png"
+ ALT="$ \mathtt{a.length}$"></SPAN>)
+by setting <!-- MATH
+ $\ensuremath{\mathtt{j}}=(\ensuremath{\mathtt{j}}+1)\bmod \ensuremath{\mathtt{a.length}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="177" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img674.png"
+ ALT="$ \ensuremath{\mathtt{j}}=(\ensuremath{\mathtt{j}}+1)\bmod \ensuremath{\mathtt{a.length}}$"></SPAN>.  Finally, we return the stored
+value of <!-- MATH
+ $\mathtt{a[j]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img675.png"
+ ALT="$ \mathtt{a[j]}$"></SPAN>. If necessary, we may call <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img676.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> to decrease the
+size of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img677.png"
+ ALT="$ \mathtt{a}$"></SPAN>.
+
+<P>
+<PRE>
+    T remove() { 
+        if (n == 0) throw new NoSuchElementException();
+        T x = a[j];
+        j = (j + 1) % a.length;
+        n--;
+        if (a.length &gt;= 3*n) resize();
+        return x;
+    }
+</PRE>
+
+<P>
+Finally, the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img678.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> operation is very similar to the <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img679.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>
+operation of <TT>ArrayStack</TT>.  It allocates a new array, <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img680.png"
+ ALT="$ \mathtt{b}$"></SPAN>, of size <!-- MATH
+ $2\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img681.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}$"></SPAN>
+and copies
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{a[j]}},\ensuremath{\mathtt{a[(j+1)\text{\ttfamily\%}a.length]}},\ldots,\ensuremath{\mathtt{a[(j+n-1)\text{\ttfamily\%}a.length]}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="355" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img682.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{a[j]}},\ensuremath{\mathtt{a[(j+1)\text{\ttfa...
+...}a.length]}},\ldots,\ensuremath{\mathtt{a[(j+n-1)\text{\ttfamily\%}a.length]}}
+$">
+</DIV><P></P>
+onto
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{b[0]}},\ensuremath{\mathtt{b[1]}},\ldots,\ensuremath{\mathtt{b[n-1]}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="143" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img683.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{b[0]}},\ensuremath{\mathtt{b[1]}},\ldots,\ensuremath{\mathtt{b[n-1]}}
+$">
+</DIV><P></P>
+and sets <!-- MATH
+ $\ensuremath{\mathtt{j}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img684.png"
+ ALT="$ \ensuremath{\mathtt{j}}=0$"></SPAN>.
+
+<P>
+<PRE>
+    void resize() {
+        T[] b = newArray(Math.max(1,n*2));
+        for (int k = 0; k &lt; n; k++) 
+            b[k] = a[(j+k) % a.length];
+        a = b;
+        j = 0;
+    }
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION00531000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of the <TT>ArrayQueue</TT>
+data structure:
+
+<P>
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+<I>An <TT>ArrayQueue</TT> implements the (FIFO) <TT>Queue</TT> interface.  Ignoring the cost of
+calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img685.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, an <TT>ArrayQueue</TT> supports the operations
+<!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img686.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img687.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img688.png"
+ ALT="$ O(1)$"></SPAN> time per operation.
+Furthermore, beginning with an empty <TT>ArrayQueue</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img689.png"
+ ALT="$ m$"></SPAN>
+<!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img690.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img691.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img692.png"
+ ALT="$ O(m)$"></SPAN>
+time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img693.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot5870">... symbol.</A><A
+ HREF="2_3_ArrayQueue_Array_Based_.html#tex2html18"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A></DT>
+<DD>This is sometimes referred to as the
+<SPAN  CLASS="textit">brain-dead</SPAN> mod operator, since it does not correctly implement
+the mathematical mod operator when the first argument is negative.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html429"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html423"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html417"
+  HREF="2_2_FastArrayStack_Optimize.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html425"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html427"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html430"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">2.4 ArrayDeque: Fast Deque</A>
+<B> Up:</B> <A NAME="tex2html424"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html418"
+  HREF="2_2_FastArrayStack_Optimize.html">2.2 FastArrayStack: An Optimized</A>
+ &nbsp; <B>  <A NAME="tex2html426"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html428"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

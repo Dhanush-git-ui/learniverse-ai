@@ -1,0 +1,2459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>11.1 Comparison-Based Sorting</TITLE>
+<META NAME="description" CONTENT="11.1 Comparison-Based Sorting">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="11_2_Counting_Sort_Radix_So.html">
+<LINK REL="previous" HREF="11_Sorting_Algorithms.html">
+<LINK REL="up" HREF="11_Sorting_Algorithms.html">
+<LINK REL="next" HREF="11_2_Counting_Sort_Radix_So.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1078"
+  HREF="11_2_Counting_Sort_Radix_So.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1072"
+  HREF="11_Sorting_Algorithms.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1066"
+  HREF="11_Sorting_Algorithms.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1074"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1076"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1079"
+  HREF="11_2_Counting_Sort_Radix_So.html">11.2 Counting Sort and</A>
+<B> Up:</B> <A NAME="tex2html1073"
+  HREF="11_Sorting_Algorithms.html">11. Sorting Algorithms</A>
+<B> Previous:</B> <A NAME="tex2html1067"
+  HREF="11_Sorting_Algorithms.html">11. Sorting Algorithms</A>
+ &nbsp; <B>  <A NAME="tex2html1075"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1077"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1080"
+  HREF="11_1_Comparison_Based_Sorti.html#SECTION001411000000000000000"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Merge-Sort</A>
+<LI><A NAME="tex2html1081"
+  HREF="11_1_Comparison_Based_Sorti.html#SECTION001412000000000000000"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Quicksort</A>
+<LI><A NAME="tex2html1082"
+  HREF="11_1_Comparison_Based_Sorti.html#SECTION001413000000000000000"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">3</SPAN> Heap-sort</A>
+<LI><A NAME="tex2html1083"
+  HREF="11_1_Comparison_Based_Sorti.html#SECTION001414000000000000000"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">4</SPAN> A Lower-Bound for Comparison-Based Sorting</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001410000000000000000">
+<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN> Comparison-Based Sorting</A>
+</H1>
+
+<P>
+<A NAME="28471"></A><A NAME="28472"></A>In this section, we present three sorting algorithms: merge-sort,
+quicksort, and heap-sort.  Each of these algorithms takes an input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4047.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+and sorts the elements of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4048.png"
+ ALT="$ \mathtt{a}$"></SPAN> into non-decreasing order in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4049.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN>
+(expected) time.  These algorithms are all <SPAN  CLASS="textit">comparison-based</SPAN>.
+Their second argument, <!-- MATH
+ $\mathtt{c}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4050.png"
+ ALT="$ \mathtt{c}$"></SPAN>, is a <TT>Comparator</TT>
+<A NAME="29901"></A>that implements
+the <!-- MATH
+ $\mathtt{compare(a,b)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4051.png"
+ ALT="$ \mathtt{compare(a,b)}$"></SPAN>
+<A NAME="29903"></A>method.  These algorithms don't care what type
+of data is being sorted; the only operation they do on the data is
+comparisons using the <!-- MATH
+ $\mathtt{compare(a,b)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4053.png"
+ ALT="$ \mathtt{compare(a,b)}$"></SPAN> method. Recall, from Section&nbsp;<A HREF="1_2_Interfaces.html#sec:sset">1.2.4</A>,
+that <!-- MATH
+ $\mathtt{compare(a,b)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4054.png"
+ ALT="$ \mathtt{compare(a,b)}$"></SPAN> returns a negative value if <!-- MATH
+ $\ensuremath{\mathtt{a}}<\ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4055.png"
+ ALT="$ \ensuremath{\mathtt{a}}&lt;\ensuremath{\mathtt{b}}$"></SPAN>, a positive
+value if <!-- MATH
+ $\ensuremath{\mathtt{a}}>\ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4056.png"
+ ALT="$ \ensuremath{\mathtt{a}}&gt;\ensuremath{\mathtt{b}}$"></SPAN>, and zero if <!-- MATH
+ $\ensuremath{\mathtt{a}}=\ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4057.png"
+ ALT="$ \ensuremath{\mathtt{a}}=\ensuremath{\mathtt{b}}$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION001411000000000000000"></A>
+<A NAME="sec:merge-sort"></A>
+<BR>
+<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Merge-Sort
+</H2>
+
+<P>
+<A NAME="28494"></A>The <SPAN  CLASS="textit">merge-sort</SPAN> algorithm is a classic example of recursive divide
+and conquer: 
+<A NAME="28496"></A>If the length of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4058.png"
+ ALT="$ \mathtt{a}$"></SPAN> is at most 1, then <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4059.png"
+ ALT="$ \mathtt{a}$"></SPAN> is already
+sorted, so we do nothing.  Otherwise, we split <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4060.png"
+ ALT="$ \mathtt{a}$"></SPAN> into two halves,
+<!-- MATH
+ $\ensuremath{\mathtt{a0}}=\ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n/2-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="159" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4061.png"
+ ALT="$ \ensuremath{\mathtt{a0}}=\ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n/2-1]}}$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{a1}}=\ensuremath{\mathtt{a[n/2]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="159" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4062.png"
+ ALT="$ \ensuremath{\mathtt{a1}}=\ensuremath{\mathtt{a[n/2]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN>.
+We recursively sort <!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4063.png"
+ ALT="$ \mathtt{a0}$"></SPAN> and <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4064.png"
+ ALT="$ \mathtt{a1}$"></SPAN>, and then we merge (the now sorted)
+<!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4065.png"
+ ALT="$ \mathtt{a0}$"></SPAN> and <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4066.png"
+ ALT="$ \mathtt{a1}$"></SPAN> to get our fully sorted array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4067.png"
+ ALT="$ \mathtt{a}$"></SPAN>:
+<PRE>
+    &lt;T&gt; void mergeSort(T[] a, Comparator&lt;T&gt; c) {
+        if (a.length &lt;= 1) return;
+        T[] a0 = Arrays.copyOfRange(a, 0, a.length/2);
+        T[] a1 = Arrays.copyOfRange(a, a.length/2, a.length);
+        mergeSort(a0, c);
+        mergeSort(a1, c);
+        merge(a0, a1, a, c);
+    }
+</PRE>
+
+An example is shown in Figure&nbsp;<A HREF="#fig:merge-sort">11.1</A>.
+
+<DIV ALIGN="CENTER"><A NAME="fig:merge-sort"></A><A NAME="29807"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.1:</STRONG>
+The execution of <!-- MATH
+ $\mathtt{mergeSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4069.png"
+ ALT="$ \mathtt{mergeSort(a,c)}$"></SPAN></CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="550" HEIGHT="289" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4068.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/mergesort}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Compared to sorting, merging the two sorted arrays <!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4070.png"
+ ALT="$ \mathtt{a0}$"></SPAN> and <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4071.png"
+ ALT="$ \mathtt{a1}$"></SPAN> is
+fairly easy.  We add elements to <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4072.png"
+ ALT="$ \mathtt{a}$"></SPAN> one at a time.  If <!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4073.png"
+ ALT="$ \mathtt{a0}$"></SPAN> or <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4074.png"
+ ALT="$ \mathtt{a1}$"></SPAN>
+is empty, then we add the next elements from the other (non-empty)
+array. Otherwise, we take the minimum of the next element in <!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4075.png"
+ ALT="$ \mathtt{a0}$"></SPAN> and
+the next element in <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4076.png"
+ ALT="$ \mathtt{a1}$"></SPAN> and add it to <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4077.png"
+ ALT="$ \mathtt{a}$"></SPAN>:
+<PRE>
+    &lt;T&gt; void merge(T[] a0, T[] a1, T[] a, Comparator&lt;T&gt; c) {
+        int i0 = 0, i1 = 0;
+        for (int i = 0; i &lt; a.length; i++) {
+            if (i0 == a0.length)
+                a[i] = a1[i1++];
+            else if (i1 == a1.length)
+                a[i] = a0[i0++];
+            else if (compare(a0[i0], a1[i1]) &lt; 0)
+                a[i] = a0[i0++];
+            else 
+                a[i] = a1[i1++];
+        }
+    }
+</PRE>
+
+Notice that the <!-- MATH
+ $\mathtt{merge(a0,a1,a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="124" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4078.png"
+ ALT="$ \mathtt{merge(a0,a1,a,c)}$"></SPAN> algorithm performs at most <!-- MATH
+ $\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4079.png"
+ ALT="$ \ensuremath{\mathtt{n}}-1$"></SPAN>
+comparisons before running out of elements in one of <!-- MATH
+ $\mathtt{a0}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4080.png"
+ ALT="$ \mathtt{a0}$"></SPAN> or <!-- MATH
+ $\mathtt{a1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4081.png"
+ ALT="$ \mathtt{a1}$"></SPAN>.
+
+<P>
+To understand the running-time of merge-sort, it is easiest to think
+of it in terms of its recursion tree.  Suppose for now that <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4082.png"
+ ALT="$ \mathtt{n}$"></SPAN> is a
+power of two, so that <!-- MATH
+ $\ensuremath{\mathtt{n}}=2^{\log \ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4083.png"
+ ALT="$ \ensuremath{\mathtt{n}}=2^{\log \ensuremath{\mathtt{n}}}$"></SPAN>, and <!-- MATH
+ $\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4084.png"
+ ALT="$ \log \ensuremath{\mathtt{n}}$"></SPAN> is an integer.
+Refer to Figure&nbsp;<A HREF="#fig:mergesort-recursion">11.2</A>. Merge-sort turns the problem of
+sorting <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4085.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements into two problems, each of sorting <!-- MATH
+ $\ensuremath{\mathtt{n}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4086.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2$"></SPAN> elements.
+These two subproblem are then turned into two problems each, for a total
+of four subproblems, each of size <!-- MATH
+ $\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4087.png"
+ ALT="$ \ensuremath{\mathtt{n}}/4$"></SPAN>. These four subproblems become eight
+subproblems, each of size <!-- MATH
+ $\ensuremath{\mathtt{n}}/8$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4088.png"
+ ALT="$ \ensuremath{\mathtt{n}}/8$"></SPAN>, and so on.  At the bottom of this process,
+<!-- MATH
+ $\ensuremath{\mathtt{n}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4089.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2$"></SPAN> subproblems, each of size two, are converted into <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4090.png"
+ ALT="$ \mathtt{n}$"></SPAN> problems,
+each of size one.  For each subproblem of size <!-- MATH
+ $\ensuremath{\mathtt{n}}/2^{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4091.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2^{i}$"></SPAN>, the time
+spent merging and copying data is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}/2^i)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4092.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}/2^i)$"></SPAN>.  Since there are <SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4093.png"
+ ALT="$ 2^i$"></SPAN>
+subproblems of size <!-- MATH
+ $\ensuremath{\mathtt{n}}/2^i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4094.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2^i$"></SPAN>, the total time spent working on problems
+of size <SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4095.png"
+ ALT="$ 2^i$"></SPAN>, not counting recursive calls, is
+<P><!-- MATH
+ \begin{displaymath}
+2^i\times O(\ensuremath{\mathtt{n}}/2^i) = O(\ensuremath{\mathtt{n}}) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="146" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4096.png"
+ ALT="$\displaystyle 2^i\times O(\ensuremath{\mathtt{n}}/2^i) = O(\ensuremath{\mathtt{n}}) \enspace .
+$">
+</DIV><P></P>
+Therefore, the total amount of time taken by merge-sort is
+<P><!-- MATH
+ \begin{displaymath}
+\sum_{i=0}^{\log \ensuremath{\mathtt{n}}} O(\ensuremath{\mathtt{n}}) = O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="157" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4097.png"
+ ALT="$\displaystyle \sum_{i=0}^{\log \ensuremath{\mathtt{n}}} O(\ensuremath{\mathtt{n}}) = O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}) \enspace .
+$">
+</DIV><P></P>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:mergesort-recursion"></A><A NAME="28562"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.2:</STRONG>
+The merge-sort recursion tree.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="544" HEIGHT="263" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4098.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/mergesort-recursion}">
+    
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The proof of the following theorem is based on preceding analysis,
+but has to be a little more careful to deal with the cases where <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4099.png"
+ ALT="$ \mathtt{n}$"></SPAN>
+is not a power of 2.
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+<I>The <!-- MATH
+ $\mathtt{mergeSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4100.png"
+ ALT="$ \mathtt{mergeSort(a,c)}$"></SPAN> algorithm runs in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4101.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> time and
+  performs at most <!-- MATH
+ $\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4102.png"
+ ALT="$ \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$"></SPAN> comparisons.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+The proof is by induction on <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4104.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN>.  The base case, in which <!-- MATH
+ $\ensuremath{\mathtt{n}}=1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4105.png"
+ ALT="$ \ensuremath{\mathtt{n}}=1$"></SPAN>,
+is trivial; when presented with an array of length 0 or 1 the algorithm
+simply returns without performing any comparisons.
+
+<P>
+Merging two sorted lists of total length <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4106.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> requires at most <!-- MATH
+ $\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4107.png"
+ ALT="$ \ensuremath{\mathtt{n}}-1$"></SPAN>
+comparisons. Let <!-- MATH
+ $C(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4108.png"
+ ALT="$ C(\ensuremath{\mathtt{n}})$"></SPAN> denote the maximum number of comparisons performed by
+<!-- MATH
+ $\mathtt{mergeSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4109.png"
+ ALT="$ \mathtt{mergeSort(a,c)}$"></SPAN> on an array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4110.png"
+ ALT="$ \mathtt{a}$"></SPAN> of length <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4111.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  If <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4112.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> is even, then we apply the inductive hypothesis to
+the two subproblems and obtain
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4113.png"
+ ALT="$\displaystyle C(\ensuremath{\mathtt{n}})$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4114.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + 2C(\ensuremath{\mathtt{n}}/2)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="176" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4115.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + 2((\ensuremath{\mathtt{n}}/2)\log(\ensuremath{\mathtt{n}}/2))$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="131" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4116.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{n}}-1 + \ensuremath{\mathtt{n}}\log(\ensuremath{\mathtt{n}}/2)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="131" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4117.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{n}}-1 + \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}-\ensuremath{\mathtt{n}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4118.png"
+ ALT="$\displaystyle &lt; \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}} \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+The case where <!-- MATH
+ $\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4119.png"
+ ALT="$ \ensuremath{\mathtt{n}}$"></SPAN> is odd is slightly more complicated.  For this case,
+we use two inequalities that are easy to verify:
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:log-ineq-a"></A><!-- MATH
+ \begin{equation}
+\log(x+1) \le \log(x) + 1 \enspace ,
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="163" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4120.png"
+ ALT="$\displaystyle \log(x+1) \le \log(x) + 1 \enspace ,$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+for all <SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4121.png"
+ ALT="$ x\ge 1$"></SPAN> and
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:log-ineq-b"></A><!-- MATH
+ \begin{equation}
+\log(x+1/2) + \log(x-1/2) \le 2\log(x) \enspace ,
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="259" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4122.png"
+ ALT="$\displaystyle \log(x+1/2) + \log(x-1/2) \le 2\log(x) \enspace ,$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+for all <SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4123.png"
+ ALT="$ x\ge 1/2$"></SPAN>.  Inequality&nbsp;(<A HREF="#eq:log-ineq-a">11.1</A>) comes from the fact that <!-- MATH
+ $\log(x)+1 = \log(2x)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4124.png"
+ ALT="$ \log(x)+1 = \log(2x)$"></SPAN> while (<A HREF="#eq:log-ineq-b">11.2</A>) follows from the fact that <SPAN CLASS="MATH"><IMG
+ WIDTH="26" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4125.png"
+ ALT="$ \log$"></SPAN> is a concave function.  With these tools in hand we have, for odd <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4126.png"
+ ALT="$ \mathtt{n}$"></SPAN>,
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4127.png"
+ ALT="$\displaystyle C(\ensuremath{\mathtt{n}})$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="197" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4128.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + C(\lceil \ensuremath{\mathtt{n}}/2 \rceil) + C(\lfloor \ensuremath{\mathtt{n}}/2 \rfloor)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="271" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4129.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + \lceil \ensuremath{\mathtt{n}}/2 ...
+...\ensuremath{\mathtt{n}}/2 \rfloor\log \lfloor \ensuremath{\mathtt{n}}/2 \rfloor$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="418" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4130.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{n}}-1 + (\ensuremath{\mathtt{n}}/2 + 1/2)\l...
+...2+1/2) + (\ensuremath{\mathtt{n}}/2 - 1/2) \log (\ensuremath{\mathtt{n}}/2-1/2)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="395" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4131.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + \ensuremath{\mathtt{n}}\log(\ensu...
+...2)(\log (\ensuremath{\mathtt{n}}/2+1/2) - \log (\ensuremath{\mathtt{n}}/2-1/2))$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="170" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4132.png"
+ ALT="$\displaystyle \le \ensuremath{\mathtt{n}}-1 + \ensuremath{\mathtt{n}}\log(\ensuremath{\mathtt{n}}/2) + 1/2$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="107" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4133.png"
+ ALT="$\displaystyle &lt; \ensuremath{\mathtt{n}} + \ensuremath{\mathtt{n}}\log(\ensuremath{\mathtt{n}}/2)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4134.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{n}} + \ensuremath{\mathtt{n}}(\log\ensuremath{\mathtt{n}}-1)$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="72" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4135.png"
+ ALT="$\displaystyle = \ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}} \enspace . \qedhere$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4103.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001412000000000000000">
+<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Quicksort</A>
+</H2>
+
+<P>
+<A NAME="28647"></A>The <SPAN  CLASS="textit">quicksort</SPAN> algorithm is another classic divide and conquer
+algorithm.  Unlike merge-sort, which does merging after solving the two
+subproblems, quicksort does all of its work upfront.
+
+<P>
+Quicksort is simple to describe:  Pick a random <SPAN  CLASS="textit">pivot</SPAN> element,
+<A NAME="28650"></A><!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4136.png"
+ ALT="$ \mathtt{x}$"></SPAN>, from <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4137.png"
+ ALT="$ \mathtt{a}$"></SPAN>; partition <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4138.png"
+ ALT="$ \mathtt{a}$"></SPAN> into the set of elements less than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4139.png"
+ ALT="$ \mathtt{x}$"></SPAN>, the
+set of elements equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4140.png"
+ ALT="$ \mathtt{x}$"></SPAN>, and the set of elements greater than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4141.png"
+ ALT="$ \mathtt{x}$"></SPAN>;
+and, finally, recursively sort the first and third sets in this partition.
+An example is shown in Figure&nbsp;<A HREF="#fig:quicksort">11.3</A>.
+<PRE>
+    &lt;T&gt; void quickSort(T[] a, Comparator&lt;T&gt; c) {
+        quickSort(a, 0, a.length, c);
+    }
+    &lt;T&gt; void quickSort(T[] a, int i, int n, Comparator&lt;T&gt; c) {
+        if (n &lt;= 1) return;
+        T x = a[i + rand.nextInt(n)];
+        int p = i-1, j = i, q = i+n;
+        // a[i..p]&lt;x,  a[p+1..q-1]??x, a[q..i+n-1]&gt;x 
+        while (j &lt; q) {
+            int comp = compare(a[j], x);
+            if (comp &lt; 0) {       // move to beginning of array
+                swap(a, j++, ++p);
+            } else if (comp &gt; 0) {
+                swap(a, j, --q);  // move to end of array
+            } else {
+                j++;              // keep in the middle
+            }
+        }
+        // a[i..p]&lt;x,  a[p+1..q-1]=x, a[q..i+n-1]&gt;x 
+        quickSort(a, i, p-i+1, c);
+        quickSort(a, q, n-(q-i), c);
+    }
+</PRE>
+
+<DIV ALIGN="CENTER"><A NAME="fig:quicksort"></A><A NAME="29848"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.3:</STRONG>
+An example execution of <!-- MATH
+ $\mathtt{quickSort(a,0,14,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="150" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4142.png"
+ ALT="$ \mathtt{quickSort(a,0,14,c)}$"></SPAN></CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="337" HEIGHT="193" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4143.png"
+ ALT="\includegraphics[scale=0.90909]{figs/quicksort}">
+    
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+All of this is done in place, so that instead of making copies of
+subarrays being sorted, the <!-- MATH
+ $\mathtt{quickSort(a,i,n,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="141" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4144.png"
+ ALT="$ \mathtt{quickSort(a,i,n,c)}$"></SPAN> method only sorts the
+subarray <!-- MATH
+ $\ensuremath{\mathtt{a[i]}},\ldots,\ensuremath{\mathtt{a[i+n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="134" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4145.png"
+ ALT="$ \ensuremath{\mathtt{a[i]}},\ldots,\ensuremath{\mathtt{a[i+n-1]}}$"></SPAN>.  Initially, this method is invoked
+with the arguments
+<!-- MATH
+ $\mathtt{quickSort(a,0,a.length,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="196" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4146.png"
+ ALT="$ \mathtt{quickSort(a,0,a.length,c)}$"></SPAN>.
+
+<P>
+At the heart of the quicksort algorithm is the in-place partitioning
+algorithm.  This algorithm, without using any extra space, swaps elements
+in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4147.png"
+ ALT="$ \mathtt{a}$"></SPAN> and computes indices <!-- MATH
+ $\mathtt{p}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4148.png"
+ ALT="$ \mathtt{p}$"></SPAN> and <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4149.png"
+ ALT="$ \mathtt{q}$"></SPAN> so that
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{a[i]}} \begin{cases}
+         {}< \ensuremath{\mathtt{x}} & \text{if $0\le \ensuremath{\mathtt{i}}\le \ensuremath{\mathtt{p}}$} \\
+         {}= \ensuremath{\mathtt{x}} & \text{if $\ensuremath{\mathtt{p}}< \ensuremath{\mathtt{i}} < \ensuremath{\mathtt{q}}$} \\
+         {}> \ensuremath{\mathtt{x}} & \text{if $\ensuremath{\mathtt{q}}\le \ensuremath{\mathtt{i}} \le \ensuremath{\mathtt{n}}-1$}
+     \end{cases}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="186" HEIGHT="84" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4150.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{a[i]}} \begin{cases}
+{}&lt; \ensuremath{\mathtt...
+...htt{q}}\le \ensuremath{\mathtt{i}} \le \ensuremath{\mathtt{n}}-1$}
+\end{cases}$">
+</DIV><P></P>
+This partitioning, which is done by the <!-- MATH
+ $\mathtt{while}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4151.png"
+ ALT="$ \mathtt{while}$"></SPAN> loop in the code, works
+by iteratively increasing <!-- MATH
+ $\mathtt{p}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4152.png"
+ ALT="$ \mathtt{p}$"></SPAN> and decreasing <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4153.png"
+ ALT="$ \mathtt{q}$"></SPAN> while maintaining the
+first and last of these conditions.  At each step, the element at position
+<!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4154.png"
+ ALT="$ \mathtt{j}$"></SPAN> is either moved to the front, left where it is, or moved to the back.
+In the first two cases, <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4155.png"
+ ALT="$ \mathtt{j}$"></SPAN> is incremented, while in the last case, <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4156.png"
+ ALT="$ \mathtt{j}$"></SPAN>
+is not incremented since the new element at position <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4157.png"
+ ALT="$ \mathtt{j}$"></SPAN> has not yet been
+processed.
+
+<P>
+Quicksort is very closely related to the random binary search trees
+studied in Section&nbsp;<A HREF="7_1_Random_Binary_Search_Tr.html#sec:rbst">7.1</A>.  In fact, if the input to quicksort consists
+of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4158.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct elements, then the quicksort recursion tree is a random
+binary search tree.  To see this, recall that when constructing a random
+binary search tree the first thing we do is pick a random element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4159.png"
+ ALT="$ \mathtt{x}$"></SPAN> and
+make it the root of the tree.  After this, every element will eventually
+be compared to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4160.png"
+ ALT="$ \mathtt{x}$"></SPAN>, with smaller elements going into the left subtree
+and larger elements into the right.
+
+<P>
+In quicksort, we select a random element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4161.png"
+ ALT="$ \mathtt{x}$"></SPAN> and immediately compare
+everything to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4162.png"
+ ALT="$ \mathtt{x}$"></SPAN>, putting the smaller elements at the beginning of
+the array and larger elements at the end of the array.  Quicksort then
+recursively sorts the beginning of the array and the end of the array,
+while the random binary search tree recursively inserts smaller elements
+in the left subtree of the root and larger elements in the right subtree
+of the root.
+
+<P>
+The above correspondence between random binary search trees and quicksort
+means that we can translate Lemma&nbsp;<A HREF="7_1_Random_Binary_Search_Tr.html#lem:rbs">7.1</A> to a statement about quicksort:
+
+<P>
+<P>
+<DIV><A NAME="lem:quicksort"><B>Lemma  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>When quicksort is called to sort an array containing the integers
+  <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4163.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN>, the expected number of times element <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4164.png"
+ ALT="$ \mathtt{i}$"></SPAN> is compared
+  to a pivot element is at most <!-- MATH
+ $H_{\ensuremath{\mathtt{i}}+1} + H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4165.png"
+ ALT="$ H_{\ensuremath{\mathtt{i}}+1} + H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+A little summing up of harmonic numbers gives us the following theorem
+about the running time of quicksort:
+
+<P>
+<P>
+<DIV><A NAME="thm:quicksort-i"><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">2</SPAN></B></A> &nbsp; 
+<I>When quicksort is called to sort an array containing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4166.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct
+  elements, the expected number of comparisons performed is at most
+  <!-- MATH
+ $2\ensuremath{\mathtt{n}}\ln \ensuremath{\mathtt{n}} + O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4167.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}\ln \ensuremath{\mathtt{n}} + O(\ensuremath{\mathtt{n}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+Let <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4169.png"
+ ALT="$ T$"></SPAN> be the number of comparisons performed by quicksort when sorting
+<!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4170.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct elements.  Using Lemma&nbsp;<A HREF="#lem:quicksort">11.1</A> and linearity of
+expectation, we have:
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><TABLE CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="RIGHT"><SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4171.png"
+ ALT="$\displaystyle \mathrm{E}[T]$"></SPAN></TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="134" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4172.png"
+ ALT="$\displaystyle = \sum_{i=0}^{\ensuremath{\mathtt{n}}-1}(H_{\ensuremath{\mathtt{i}}+1}+H_{\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}})$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4173.png"
+ ALT="$\displaystyle = 2\sum_{i=1}^{\ensuremath{\mathtt{n}}}H_i$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="61" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4174.png"
+ ALT="$\displaystyle \le 2\sum_{i=1}^{\ensuremath{\mathtt{n}}}H_{\ensuremath{\mathtt{n}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE">
+<TD>&nbsp;</TD>
+<TD NOWRAP ALIGN="LEFT"><SPAN CLASS="MATH"><IMG
+ WIDTH="202" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4175.png"
+ ALT="$\displaystyle \le 2\ensuremath{\mathtt{n}}\ln\ensuremath{\mathtt{n}} + 2\ensure...
+...th{\mathtt{n}}\ln \ensuremath{\mathtt{n}} + O(\ensuremath{\mathtt{n}}) \qedhere$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+&nbsp;&nbsp;&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P> <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4168.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Theorem&nbsp;<A HREF="#thm:quicksort">11.3</A> describes the case where the elements being sorted are
+all distinct.  When the input array, <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4176.png"
+ ALT="$ \mathtt{a}$"></SPAN>, contains duplicate elements,
+the expected running time of quicksort is no worse, and can be even
+better; any time a duplicate element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4177.png"
+ ALT="$ \mathtt{x}$"></SPAN> is chosen as a pivot, all
+occurrences of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4178.png"
+ ALT="$ \mathtt{x}$"></SPAN> get grouped together and do not take part in either
+of the two subproblems.
+
+<P>
+<P>
+<DIV><A NAME="thm:quicksort"><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>The <!-- MATH
+ $\mathtt{quickSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4179.png"
+ ALT="$ \mathtt{quickSort(a,c)}$"></SPAN> 
+   method runs in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4180.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> expected
+  time and the expected number of comparisons it performs is at most
+  <!-- MATH
+ $2\ensuremath{\mathtt{n}}\ln \ensuremath{\mathtt{n}} +O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4181.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}\ln \ensuremath{\mathtt{n}} +O(\ensuremath{\mathtt{n}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001413000000000000000"></A>
+<A NAME="sec:heapsort"></A>
+<BR>
+<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">3</SPAN> Heap-sort
+</H2>
+
+<P>
+<A NAME="28762"></A>The <SPAN  CLASS="textit">heap-sort</SPAN> algorithm is another in-place sorting algorithm.
+Heap-sort uses the binary heaps discussed in Section&nbsp;<A HREF="10_1_BinaryHeap_Implicit_Bi.html#sec:binaryheap">10.1</A>.
+Recall that the <TT>BinaryHeap</TT> data structure represents a heap using
+a single array.  The heap-sort algorithm converts the input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4182.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+into a heap and then repeatedly extracts the minimum value.
+
+<P>
+More specifically, a heap stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4183.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements in an array, <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4184.png"
+ ALT="$ \mathtt{a}$"></SPAN>, at array locations
+<!-- MATH
+ $\ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="110" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4185.png"
+ ALT="$ \ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN> with the smallest value stored at the root,
+<!-- MATH
+ $\mathtt{a[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4186.png"
+ ALT="$ \mathtt{a[0]}$"></SPAN>.  After transforming <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4187.png"
+ ALT="$ \mathtt{a}$"></SPAN> into a <TT>BinaryHeap</TT>, the heap-sort
+algorithm repeatedly swaps <!-- MATH
+ $\mathtt{a[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4188.png"
+ ALT="$ \mathtt{a[0]}$"></SPAN> and <!-- MATH
+ $\mathtt{a[n-1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4189.png"
+ ALT="$ \mathtt{a[n-1]}$"></SPAN>, decrements <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4190.png"
+ ALT="$ \mathtt{n}$"></SPAN>, and
+calls <!-- MATH
+ $\mathtt{trickleDown(0)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4191.png"
+ ALT="$ \mathtt{trickleDown(0)}$"></SPAN> so that <!-- MATH
+ $\ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n-2]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="110" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4192.png"
+ ALT="$ \ensuremath{\mathtt{a[0]}},\ldots,\ensuremath{\mathtt{a[n-2]}}$"></SPAN> once again are
+a valid heap representation. When this process ends (because <!-- MATH
+ $\ensuremath{\mathtt{n}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4193.png"
+ ALT="$ \ensuremath{\mathtt{n}}=0$"></SPAN>)
+the elements of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4194.png"
+ ALT="$ \mathtt{a}$"></SPAN> are stored in decreasing order, so <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4195.png"
+ ALT="$ \mathtt{a}$"></SPAN> is reversed
+to obtain the final sorted order.<A NAME="tex2html90"
+  HREF="#foot29828"><SUP><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A>Figure&nbsp;<A HREF="#fig:heapsort">11.4</A> shows an example of the execution of <!-- MATH
+ $\mathtt{heapSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4197.png"
+ ALT="$ \mathtt{heapSort(a,c)}$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:heapsort"></A><A NAME="29829"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.4:</STRONG>
+A snapshot of the execution of <!-- MATH
+ $\mathtt{heapSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4199.png"
+ ALT="$ \mathtt{heapSort(a,c)}$"></SPAN>.
+      The shaded part of the
+      array is already sorted.  The unshaded part is a <TT>BinaryHeap</TT>.
+      During the next iteration, element <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4200.png"
+ ALT="$ 5$"></SPAN> will be placed into array
+      location <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4201.png"
+ ALT="$ 8$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="327" HEIGHT="201" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4198.png"
+ ALT="\includegraphics[scale=0.90909]{figs/heapsort}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<PRE>
+    &lt;T&gt; void sort(T[] a, Comparator&lt;T&gt; c) {
+        BinaryHeap&lt;T&gt; h = new BinaryHeap&lt;T&gt;(a, c);
+        while (h.n &gt; 1) {
+            h.swap(--h.n, 0);
+            h.trickleDown(0);
+        }
+        Collections.reverse(Arrays.asList(a));
+    }
+</PRE>
+
+<P>
+A key subroutine in heap sort is the constructor for turning
+an unsorted array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4202.png"
+ ALT="$ \mathtt{a}$"></SPAN> into a heap.  It would be easy to do this
+in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4203.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}})$"></SPAN> time by repeatedly calling the <TT>BinaryHeap</TT>
+<!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4204.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> method, but we can do better by using a bottom-up algorithm.
+Recall that, in a binary heap, the children of <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4205.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN> are stored at
+positions <!-- MATH
+ $\mathtt{a[2i+1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4206.png"
+ ALT="$ \mathtt{a[2i+1]}$"></SPAN> and <!-- MATH
+ $\mathtt{a[2i+2]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4207.png"
+ ALT="$ \mathtt{a[2i+2]}$"></SPAN>.  This implies that the elements
+<!-- MATH
+ $\ensuremath{\mathtt{a}}[\lfloor\ensuremath{\mathtt{n}}/2\rfloor],\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4208.png"
+ ALT="$ \ensuremath{\mathtt{a}}[\lfloor\ensuremath{\mathtt{n}}/2\rfloor],\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN> have no children. In other
+words, each of <!-- MATH
+ $\ensuremath{\mathtt{a}}[\lfloor\ensuremath{\mathtt{n}}/2\rfloor],\ldots,\ensuremath{\mathtt{a[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4209.png"
+ ALT="$ \ensuremath{\mathtt{a}}[\lfloor\ensuremath{\mathtt{n}}/2\rfloor],\ldots,\ensuremath{\mathtt{a[n-1]}}$"></SPAN> is a sub-heap
+of size 1.  Now, working backwards, we can call <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4210.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> for
+each <!-- MATH
+ $\ensuremath{\mathtt{i}}\in\{\lfloor \ensuremath{\mathtt{n}}/2\rfloor-1,\ldots,0\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4211.png"
+ ALT="$ \ensuremath{\mathtt{i}}\in\{\lfloor \ensuremath{\mathtt{n}}/2\rfloor-1,\ldots,0\}$"></SPAN>. This works, because by
+the time we call <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4212.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN>, each of the two children of <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4213.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>
+are the root of a sub-heap, so calling <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4214.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> makes <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4215.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>
+into the root of its own subheap.
+<PRE>
+    BinaryHeap(T[] a, Comparator&lt;T&gt; c) {
+        this.c = c;
+        this.a = a;
+        n = a.length;
+        for (int i = n/2-1; i &gt;= 0; i--) {
+            trickleDown(i);
+        }
+    }
+</PRE>
+
+<P>
+The interesting thing about this bottom-up strategy is that it is more
+efficient than calling <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4216.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4217.png"
+ ALT="$ \mathtt{n}$"></SPAN> times.  To see this, notice that,
+for <!-- MATH
+ $\ensuremath{\mathtt{n}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4218.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2$"></SPAN> elements, we do no work at all, for <!-- MATH
+ $\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4219.png"
+ ALT="$ \ensuremath{\mathtt{n}}/4$"></SPAN> elements, we call
+<!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4220.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> on a subheap rooted at <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4221.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN> and whose height is one, for
+<!-- MATH
+ $\ensuremath{\mathtt{n}}/8$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4222.png"
+ ALT="$ \ensuremath{\mathtt{n}}/8$"></SPAN> elements, we call <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4223.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> on a subheap whose height is two,
+and so on.  Since the work done by <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4224.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> is proportional to
+the height of the sub-heap rooted at <!-- MATH
+ $\mathtt{a[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4225.png"
+ ALT="$ \mathtt{a[i]}$"></SPAN>, this means that the total
+work done is at most
+<P><!-- MATH
+ \begin{displaymath}
+\sum_{i=1}^{\log\ensuremath{\mathtt{n}}} O((i-1)\ensuremath{\mathtt{n}}/2^{i})
+    \le \sum_{i=1}^{\infty} O(i\ensuremath{\mathtt{n}}/2^{i})
+    = O(\ensuremath{\mathtt{n}})\sum_{i=1}^{\infty} i/2^{i}
+    =  O(2\ensuremath{\mathtt{n}}) = O(\ensuremath{\mathtt{n}}) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="443" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4226.png"
+ ALT="$\displaystyle \sum_{i=1}^{\log\ensuremath{\mathtt{n}}} O((i-1)\ensuremath{\math...
+...i/2^{i}
+= O(2\ensuremath{\mathtt{n}}) = O(\ensuremath{\mathtt{n}}) \enspace .
+$">
+</DIV><P></P>
+The second-last equality follows by recognizing that the sum
+<!-- MATH
+ $\sum_{i=1}^{\infty} i/2^{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4227.png"
+ ALT="$ \sum_{i=1}^{\infty} i/2^{i}$"></SPAN> is equal, by definition of expected value,
+to the expected number of times we toss a coin up to and including the
+first time the coin comes up as heads and applying Lemma&nbsp;<A HREF="4_4_Analysis_Skiplists.html#lem:coin-tosses">4.2</A>.
+
+<P>
+The following theorem describes the performance of <!-- MATH
+ $\mathtt{heapSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4228.png"
+ ALT="$ \mathtt{heapSort(a,c)}$"></SPAN>.
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+<I>The <!-- MATH
+ $\mathtt{heapSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4229.png"
+ ALT="$ \mathtt{heapSort(a,c)}$"></SPAN> method runs in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4230.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> time and performs at
+  most <!-- MATH
+ $2\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}} + O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4231.png"
+ ALT="$ 2\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}} + O(\ensuremath{\mathtt{n}})$"></SPAN> comparisons.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+The algorithm runs in three steps:  (1)&nbsp;transforming <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4233.png"
+ ALT="$ \mathtt{a}$"></SPAN> into a heap,
+(2)&nbsp;repeatedly extracting the minimum element from <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4234.png"
+ ALT="$ \mathtt{a}$"></SPAN>, and (3)&nbsp;reversing
+the elements in <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4235.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  We have just argued that step&nbsp;1 takes <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4236.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>
+time and performs <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4237.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> comparisons.  Step&nbsp;3 takes <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4238.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> time and
+performs no comparisons.  Step&nbsp;2 performs <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4239.png"
+ ALT="$ \mathtt{n}$"></SPAN> calls to <!-- MATH
+ $\mathtt{trickleDown(0)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4240.png"
+ ALT="$ \mathtt{trickleDown(0)}$"></SPAN>.
+The <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4241.png"
+ ALT="$ i$"></SPAN>th such call operates on a heap of size <!-- MATH
+ $\ensuremath{\mathtt{n}}-i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4242.png"
+ ALT="$ \ensuremath{\mathtt{n}}-i$"></SPAN> and performs
+at most <!-- MATH
+ $2\log(\ensuremath{\mathtt{n}}-i)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4243.png"
+ ALT="$ 2\log(\ensuremath{\mathtt{n}}-i)$"></SPAN> comparisons.  Summing this over <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4244.png"
+ ALT="$ i$"></SPAN> gives
+<P><!-- MATH
+ \begin{displaymath}
+\sum_{i=0}^{\ensuremath{\mathtt{n}}-i} 2\log(\ensuremath{\mathtt{n}}-i)
+   \le \sum_{i=0}^{\ensuremath{\mathtt{n}}-i} 2\log \ensuremath{\mathtt{n}}
+   =  2\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="254" HEIGHT="67" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4245.png"
+ ALT="$\displaystyle \sum_{i=0}^{\ensuremath{\mathtt{n}}-i} 2\log(\ensuremath{\mathtt{...
+...ensuremath{\mathtt{n}}
+= 2\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}
+$">
+</DIV><P></P>
+Adding the number of comparisons performed in each of the three steps
+completes the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4232.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001414000000000000000">
+<SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">4</SPAN> A Lower-Bound for Comparison-Based Sorting</A>
+</H2>
+
+<P>
+<A NAME="28878"></A><A NAME="28879"></A>We have now seen three comparison-based sorting algorithms that each run
+in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4246.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> time.  By now, we should be wondering if faster
+algorithms exist.  The short answer to this question is no.  If the
+only operations allowed on the elements of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4247.png"
+ ALT="$ \mathtt{a}$"></SPAN> are comparisons, then no
+algorithm can avoid doing roughly <!-- MATH
+ $\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4248.png"
+ ALT="$ \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}}$"></SPAN> comparisons.  This is
+not difficult to prove, but requires a little imagination.  Ultimately,
+it follows from the fact that
+<P><!-- MATH
+ \begin{displaymath}
+\log(\ensuremath{\mathtt{n}}!)
+     = \log \ensuremath{\mathtt{n}} + \log (\ensuremath{\mathtt{n}}-1) + \dots + \log(1) 
+     = \ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}} - O(\ensuremath{\mathtt{n}})
+    \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="384" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4249.png"
+ ALT="$\displaystyle \log(\ensuremath{\mathtt{n}}!)
+= \log \ensuremath{\mathtt{n}} +...
+...athtt{n}}\log \ensuremath{\mathtt{n}} - O(\ensuremath{\mathtt{n}})
+\enspace .
+$">
+</DIV><P></P>
+(Proving this fact is left as Exercise&nbsp;<A HREF="11_3_Discussion_Exercises.html#exc:log-factorial">11.11</A>.)
+
+<P>
+We will start by focusing our attention on deterministic algorithms like
+merge-sort and heap-sort and on a particular fixed value of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4250.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  Imagine
+such an algorithm is being used to sort <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4251.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct elements.  The key
+to proving the lower-bound is to observe that, for a deterministic
+algorithm with a fixed value of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4252.png"
+ ALT="$ \mathtt{n}$"></SPAN>, the first pair of elements that are
+compared is always the same.  For example, in <!-- MATH
+ $\mathtt{heapSort(a,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4253.png"
+ ALT="$ \mathtt{heapSort(a,c)}$"></SPAN>, when <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4254.png"
+ ALT="$ \mathtt{n}$"></SPAN>
+is even, the first call to <!-- MATH
+ $\mathtt{trickleDown(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4255.png"
+ ALT="$ \mathtt{trickleDown(i)}$"></SPAN> is with <!-- MATH
+ $\mathtt{i=n/2-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4256.png"
+ ALT="$ \mathtt{i=n/2-1}$"></SPAN> and the
+first comparison is between elements <!-- MATH
+ $\mathtt{a[n/2-1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="69" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4257.png"
+ ALT="$ \mathtt{a[n/2-1]}$"></SPAN> and <!-- MATH
+ $\mathtt{a[n-1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4258.png"
+ ALT="$ \mathtt{a[n-1]}$"></SPAN>.
+
+<P>
+Since all input elements are distinct, this first comparison has only
+two possible outcomes.  The second comparison done by the algorithm may
+depend on the outcome of the first comparison.  The third comparison
+may depend on the results of the first two, and so on.  In this way,
+any deterministic comparison-based sorting algorithm can be viewed
+as a rooted binary <SPAN  CLASS="textit">comparison tree</SPAN>.
+<A NAME="28902"></A>Each internal node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4259.png"
+ ALT="$ \mathtt{u}$"></SPAN>,
+of this tree is labelled with a pair of indices <!-- MATH
+ $\mathtt{u.i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4260.png"
+ ALT="$ \mathtt{u.i}$"></SPAN> and <!-- MATH
+ $\mathtt{u.j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4261.png"
+ ALT="$ \mathtt{u.j}$"></SPAN>.
+If <!-- MATH
+ $\ensuremath{\mathtt{a[u.i]}}<\ensuremath{\mathtt{a[u.j]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="100" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4262.png"
+ ALT="$ \ensuremath{\mathtt{a[u.i]}}&lt;\ensuremath{\mathtt{a[u.j]}}$"></SPAN> the algorithm proceeds to the left subtree,
+otherwise it proceeds to the right subtree.  Each leaf <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4263.png"
+ ALT="$ \mathtt{w}$"></SPAN> of this
+tree is labelled with a permutation <!-- MATH
+ $\ensuremath{\mathtt{w.p[0]}},\ldots,\ensuremath{\mathtt{w.p[n-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="135" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4264.png"
+ ALT="$ \ensuremath{\mathtt{w.p[0]}},\ldots,\ensuremath{\mathtt{w.p[n-1]}}$"></SPAN> of
+<!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4265.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN>.  This permutation represents the one that is
+required to sort <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4266.png"
+ ALT="$ \mathtt{a}$"></SPAN> if the comparison tree reaches this leaf.  That is,
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{a[w.p[0]]}}<\ensuremath{\mathtt{a[w.p[1]]}}<\cdots<\ensuremath{\mathtt{a[w.p[n-1]]}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="280" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4267.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{a[w.p[0]]}}&lt;\ensuremath{\mathtt{a[w.p[1]]}}&lt;\cdots&lt;\ensuremath{\mathtt{a[w.p[n-1]]}} \enspace .
+$">
+</DIV><P></P>
+An example of a comparison tree for an array of size <!-- MATH
+ $\mathtt{n=3}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4268.png"
+ ALT="$ \mathtt{n=3}$"></SPAN> is shown in
+Figure&nbsp;<A HREF="#fig:comparison-tree">11.5</A>.
+
+<DIV ALIGN="CENTER"><A NAME="fig:comparison-tree"></A><A NAME="29833"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.5:</STRONG>
+A comparison tree for sorting an array <!-- MATH
+ $\ensuremath{\mathtt{a[0]}},\ensuremath{\mathtt{a[1]}},\ensuremath{\mathtt{a[2]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="97" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4270.png"
+ ALT="$ \ensuremath{\mathtt{a[0]}},\ensuremath{\mathtt{a[1]}},\ensuremath{\mathtt{a[2]}}$"></SPAN> of length <!-- MATH
+ $\mathtt{n=3}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4271.png"
+ ALT="$ \mathtt{n=3}$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="553" HEIGHT="143" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4269.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/comparison-tree}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The comparison tree for a sorting algorithm tells us everything about
+the algorithm.  It tells us exactly the sequence of comparisons that
+will be performed for any input array, <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4272.png"
+ ALT="$ \mathtt{a}$"></SPAN>, having <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4273.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct elements
+and it tells us how the algorithm will reorder <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4274.png"
+ ALT="$ \mathtt{a}$"></SPAN> in order to sort it.
+Consequently, the comparison tree must have at least <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4275.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> leaves;
+if not, then there are two distinct permutations that lead to the same
+leaf; therefore, the algorithm does not correctly sort at least one of
+these permutations.
+
+<P>
+For example, the comparison tree in Figure&nbsp;<A HREF="#fig:comparison-tree-2">11.6</A> has only
+<SPAN CLASS="MATH"><IMG
+ WIDTH="69" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4276.png"
+ ALT="$ 4&lt; 3!=6$"></SPAN> leaves. Inspecting this tree, we see that the two input arrays
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4277.png"
+ ALT="$ 3,1,2$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4278.png"
+ ALT="$ 3,2,1$"></SPAN> both lead to the rightmost leaf.  On the input <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4279.png"
+ ALT="$ 3,1,2$"></SPAN>
+this leaf correctly outputs <!-- MATH
+ $\ensuremath{\mathtt{a[1]}}=1,\ensuremath{\mathtt{a[2]}}=2,\ensuremath{\mathtt{a[0]}}=3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="176" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4280.png"
+ ALT="$ \ensuremath{\mathtt{a[1]}}=1,\ensuremath{\mathtt{a[2]}}=2,\ensuremath{\mathtt{a[0]}}=3$"></SPAN>.  However, on the
+input <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4281.png"
+ ALT="$ 3,2,1$"></SPAN>, this node incorrectly outputs <!-- MATH
+ $\ensuremath{\mathtt{a[1]}}=2,\ensuremath{\mathtt{a[2]}}=1,\ensuremath{\mathtt{a[0]}}=3$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="176" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4282.png"
+ ALT="$ \ensuremath{\mathtt{a[1]}}=2,\ensuremath{\mathtt{a[2]}}=1,\ensuremath{\mathtt{a[0]}}=3$"></SPAN>.
+This discussion leads to the primary lower-bound for comparison-based
+algorithms.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:comparison-tree-2"></A><A NAME="28943"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 11.6:</STRONG>
+A comparison tree that does not correctly sort every input
+  permutation.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="552" HEIGHT="114" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4283.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/comparison-tree-b}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<P>
+<DIV><A NAME="thm:deterministic-sorting-lower-bound"><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">5</SPAN></B></A> &nbsp; 
+<I>For any deterministic comparison-based sorting algorithm <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4284.png"
+ ALT="$ \mathcal{A}$"></SPAN>
+  and any integer <!-- MATH
+ $\ensuremath{\mathtt{n}}\ge 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4285.png"
+ ALT="$ \ensuremath{\mathtt{n}}\ge 1$"></SPAN>, there exists an input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4286.png"
+ ALT="$ \mathtt{a}$"></SPAN> of
+  length <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4287.png"
+ ALT="$ \mathtt{n}$"></SPAN> such that <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4288.png"
+ ALT="$ \mathcal{A}$"></SPAN> performs at least <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!) =
+  \ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}}-O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="156" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4289.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!) =
+\ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}}-O(\ensuremath{\mathtt{n}})$"></SPAN> comparisons when sorting <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4290.png"
+ ALT="$ \mathtt{a}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  By the preceding discussion, the comparison tree defined by <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4292.png"
+ ALT="$ \mathcal{A}$"></SPAN>
+  must have at least <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4293.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> leaves.  An easy inductive proof shows that
+  any binary tree with <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4294.png"
+ ALT="$ k$"></SPAN> leaves has a height of at least <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4295.png"
+ ALT="$ \log k$"></SPAN>.
+  Therefore, the comparison tree for <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4296.png"
+ ALT="$ \mathcal{A}$"></SPAN> has a leaf, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4297.png"
+ ALT="$ \mathtt{w}$"></SPAN>,
+  with a depth of at least <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4298.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!)$"></SPAN> and there is an input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4299.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+  that leads to this leaf.  The input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4300.png"
+ ALT="$ \mathtt{a}$"></SPAN> is an input for which
+  <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4301.png"
+ ALT="$ \mathcal{A}$"></SPAN> does at least <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4302.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!)$"></SPAN> comparisons.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4291.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Theorem&nbsp;<A HREF="#thm:deterministic-sorting-lower-bound">11.5</A> deals with deterministic
+algorithms like merge-sort and heap-sort, but doesn't tell us anything
+about randomized algorithms like quicksort.  Could a randomized algorithm
+beat the <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4303.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!)$"></SPAN> lower bound on the number of comparisons?
+The answer, again, is no.  Again, the way to prove it is to think
+differently about what a randomized algorithm is.
+
+<P>
+In the following discussion, we will assume that our decision
+trees have been ``cleaned up'' in the following way: Any node that can not
+be reached by some input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4304.png"
+ ALT="$ \mathtt{a}$"></SPAN> is removed.  This cleaning up implies
+that the tree has exactly <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4305.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> leaves.  It has at least <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4306.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> leaves
+because, otherwise, it could not sort correctly.  It has at most <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4307.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN>
+leaves since each of the possible <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4308.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> permutation of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4309.png"
+ ALT="$ \mathtt{n}$"></SPAN> distinct
+elements follows exactly one root to leaf path in the decision tree.
+
+<P>
+We can think of a randomized sorting algorithm, <!-- MATH
+ $\mathcal{R}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4310.png"
+ ALT="$ \mathcal{R}$"></SPAN>, as a
+deterministic algorithm that takes two inputs: The input array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4311.png"
+ ALT="$ \mathtt{a}$"></SPAN>
+that should be sorted and a long sequence <!-- MATH
+ $b=b_1,b_2,b_3,\ldots,b_m$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="134" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4312.png"
+ ALT="$ b=b_1,b_2,b_3,\ldots,b_m$"></SPAN>
+of random real numbers in the range <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4313.png"
+ ALT="$ [0,1]$"></SPAN>.  The random numbers provide
+the randomization for the algorithm.  When the algorithm wants to toss a
+coin or make a random choice, it does so by using some element from <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4314.png"
+ ALT="$ b$"></SPAN>.
+For example, to compute the index of the first pivot in quicksort,
+the algorithm could use the formula <!-- MATH
+ $\lfloor n b_1\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4315.png"
+ ALT="$ \lfloor n b_1\rfloor$"></SPAN>.
+
+<P>
+Now, notice that if we fix <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4316.png"
+ ALT="$ b$"></SPAN> to some particular sequence <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4317.png"
+ ALT="$ \hat{b}$"></SPAN>
+then <!-- MATH
+ $\mathcal{R}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4318.png"
+ ALT="$ \mathcal{R}$"></SPAN> becomes a deterministic sorting algorithm,
+<!-- MATH
+ $\mathcal{R}(\hat{b})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4319.png"
+ ALT="$ \mathcal{R}(\hat{b})$"></SPAN>, that has an associated comparison tree,
+<!-- MATH
+ $\mathcal{T}(\hat{b})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4320.png"
+ ALT="$ \mathcal{T}(\hat{b})$"></SPAN>.  Next, notice that if we select <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4321.png"
+ ALT="$ \mathtt{a}$"></SPAN> to be a random
+permutation of <!-- MATH
+ $\{1,\ldots,\ensuremath{\mathtt{n}}\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4322.png"
+ ALT="$ \{1,\ldots,\ensuremath{\mathtt{n}}\}$"></SPAN>, then this is equivalent to selecting
+a random leaf, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4323.png"
+ ALT="$ \mathtt{w}$"></SPAN>, from the <!-- MATH
+ $\ensuremath{\mathtt{n}}!$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4324.png"
+ ALT="$ \ensuremath{\mathtt{n}}!$"></SPAN> leaves of <!-- MATH
+ $\mathcal{T}(\hat{b})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4325.png"
+ ALT="$ \mathcal{T}(\hat{b})$"></SPAN>.
+
+<P>
+Exercise&nbsp;<A HREF="11_3_Discussion_Exercises.html#exc:randomized-lower-bound">11.13</A> asks you to prove that, if we select
+a random leaf from any binary tree with <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4326.png"
+ ALT="$ k$"></SPAN> leaves, then the expected
+depth of that leaf is at least <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4327.png"
+ ALT="$ \log k$"></SPAN>.  Therefore, the expected
+number of comparisons performed by the (deterministic) algorithm
+<!-- MATH
+ $\mathcal{R}(\hat{b})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4328.png"
+ ALT="$ \mathcal{R}(\hat{b})$"></SPAN> when given an input array containing a random
+permutation of <!-- MATH
+ $\{1,\ldots,n\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4329.png"
+ ALT="$ \{1,\ldots,n\}$"></SPAN> is at least <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4330.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!)$"></SPAN>.  Finally,
+notice that this is true for every choice of <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4331.png"
+ ALT="$ \hat{b}$"></SPAN>, therefore it holds even for <!-- MATH
+ $\mathcal{R}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4332.png"
+ ALT="$ \mathcal{R}$"></SPAN>.  This completes the proof of the lower-bound for randomized algorithms.
+
+<P>
+<P>
+<DIV><A NAME="thm:randomized-sorting-lower-bound"><B>Theorem  <SPAN CLASS="arabic">11</SPAN>..<SPAN CLASS="arabic">6</SPAN></B></A> &nbsp; 
+<I>For any integer <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4333.png"
+ ALT="$ n\ge 1$"></SPAN> and any  (deterministic or randomized)
+  comparison-based sorting algorithm <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4334.png"
+ ALT="$ \mathcal{A}$"></SPAN>, the expected number
+  of comparisons done by <!-- MATH
+ $\mathcal{A}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4335.png"
+ ALT="$ \mathcal{A}$"></SPAN> when sorting a random permutation
+  of <!-- MATH
+ $\{1,\ldots,n\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4336.png"
+ ALT="$ \{1,\ldots,n\}$"></SPAN> is at least <!-- MATH
+ $\log(\ensuremath{\mathtt{n}}!) = \ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}}-O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="156" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4337.png"
+ ALT="$ \log(\ensuremath{\mathtt{n}}!) = \ensuremath{\mathtt{n}}\log\ensuremath{\mathtt{n}}-O(\ensuremath{\mathtt{n}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot29828">... order.</A><A
+ HREF="11_1_Comparison_Based_Sorti.html#tex2html90"><SUP><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>The algorithm
+could alternatively redefine the <!-- MATH
+ $\mathtt{compare(x,y)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4196.png"
+ ALT="$ \mathtt{compare(x,y)}$"></SPAN> function so that the
+heap sort algorithm stores the elements directly in ascending order.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1078"
+  HREF="11_2_Counting_Sort_Radix_So.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1072"
+  HREF="11_Sorting_Algorithms.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1066"
+  HREF="11_Sorting_Algorithms.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1074"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1076"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1079"
+  HREF="11_2_Counting_Sort_Radix_So.html">11.2 Counting Sort and</A>
+<B> Up:</B> <A NAME="tex2html1073"
+  HREF="11_Sorting_Algorithms.html">11. Sorting Algorithms</A>
+<B> Previous:</B> <A NAME="tex2html1067"
+  HREF="11_Sorting_Algorithms.html">11. Sorting Algorithms</A>
+ &nbsp; <B>  <A NAME="tex2html1075"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1077"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

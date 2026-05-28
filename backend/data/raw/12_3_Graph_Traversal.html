@@ -1,0 +1,1119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>12.3 Graph Traversal</TITLE>
+<META NAME="description" CONTENT="12.3 Graph Traversal">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="12_4_Discussion_Exercises.html">
+<LINK REL="previous" HREF="12_2_AdjacencyLists_Graph_a.html">
+<LINK REL="up" HREF="12_Graphs.html">
+<LINK REL="next" HREF="12_4_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1170"
+  HREF="12_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1164"
+  HREF="12_Graphs.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1158"
+  HREF="12_2_AdjacencyLists_Graph_a.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1166"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1168"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1171"
+  HREF="12_4_Discussion_Exercises.html">12.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html1165"
+  HREF="12_Graphs.html">12. Graphs</A>
+<B> Previous:</B> <A NAME="tex2html1159"
+  HREF="12_2_AdjacencyLists_Graph_a.html">12.2 AdjacencyLists: A Graph</A>
+ &nbsp; <B>  <A NAME="tex2html1167"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1169"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1172"
+  HREF="12_3_Graph_Traversal.html#SECTION001531000000000000000"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Breadth-First Search</A>
+<LI><A NAME="tex2html1173"
+  HREF="12_3_Graph_Traversal.html#SECTION001532000000000000000"><SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">2</SPAN> Depth-First Search</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001530000000000000000">
+<SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN> Graph Traversal</A>
+</H1>
+
+<P>
+In this section we present two algorithms for exploring a graph,
+starting at one of its vertices, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4633.png"
+ ALT="$ \mathtt{i}$"></SPAN>, and finding all vertices that
+are reachable from <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4634.png"
+ ALT="$ \mathtt{i}$"></SPAN>.  Both of these algorithms are best suited to
+graphs represented using an adjacency list representation.  Therefore,
+when analyzing these algorithms we will assume that the underlying
+representation is an <TT>AdjacencyLists</TT>.
+
+<P>
+
+<H2><A NAME="SECTION001531000000000000000">
+<SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">1</SPAN> Breadth-First Search</A>
+</H2>
+
+<P>
+<A NAME="31867"></A>The <SPAN  CLASS="textit">bread-first-search</SPAN> algorithm starts at a vertex <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4635.png"
+ ALT="$ \mathtt{i}$"></SPAN> and visits,
+first the neighbours of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4636.png"
+ ALT="$ \mathtt{i}$"></SPAN>, then the neighbours of the neighbours of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4637.png"
+ ALT="$ \mathtt{i}$"></SPAN>,
+then the neighbours of the neighbours of the neighbours of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4638.png"
+ ALT="$ \mathtt{i}$"></SPAN>, and so on.
+
+<P>
+This algorithm is a generalization of the breadth-first traversal
+algorithm for binary trees (Section&nbsp;<A HREF="6_1_BinaryTree_Basic_Binary.html#sec:bintree:traversal">6.1.2</A>), and is
+very similar; it uses a queue, <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4639.png"
+ ALT="$ \mathtt{q}$"></SPAN>, that initially contains only <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4640.png"
+ ALT="$ \mathtt{i}$"></SPAN>.
+It then repeatedly extracts an element from <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4641.png"
+ ALT="$ \mathtt{q}$"></SPAN> and adds its neighbours
+to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4642.png"
+ ALT="$ \mathtt{q}$"></SPAN>, provided that these neighbours have never been in <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4643.png"
+ ALT="$ \mathtt{q}$"></SPAN> before.
+The only major difference between the breadth-first-search algorithm
+for graphs and the one for trees is that the algorithm for graphs has
+to ensure that it does not add the same vertex to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4644.png"
+ ALT="$ \mathtt{q}$"></SPAN> more than once.
+It does this by using an auxiliary boolean array, <!-- MATH
+ $\mathtt{seen}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4645.png"
+ ALT="$ \mathtt{seen}$"></SPAN>, that tracks
+which vertices have already been discovered.
+<PRE>
+    void bfs(Graph g, int r) {
+        boolean[] seen = new boolean[g.nVertices()];
+        Queue&lt;Integer&gt; q = new SLList&lt;Integer&gt;();
+        q.add(r);
+        seen[r] = true;
+        while (!q.isEmpty()) {
+            int i = q.remove();
+            for (Integer j : g.outEdges(i)) {
+                if (!seen[j]) {
+                    q.add(j);
+                    seen[j] = true;
+                }
+            }
+        }
+    }
+</PRE>
+An example of running <!-- MATH
+ $\mathtt{bfs(g,0)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4646.png"
+ ALT="$ \mathtt{bfs(g,0)}$"></SPAN> on the graph from Figure&nbsp;<A HREF="12_Graphs.html#fig:graph">12.1</A>
+is shown in Figure&nbsp;<A HREF="#fig:graph-bfs">12.4</A>.  Different executions are possible,
+depending on the ordering of the adjacency lists; Figure&nbsp;<A HREF="#fig:graph-bfs">12.4</A>
+uses the adjacency lists in Figure&nbsp;<A HREF="12_2_AdjacencyLists_Graph_a.html#fig:graph-adjlist">12.3</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:graph-bfs"></A><A NAME="32511"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 12.4:</STRONG>
+An example of bread-first-search starting at node 0. Nodes are
+  labelled with the order in which they are added to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4648.png"
+ ALT="$ \mathtt{q}$"></SPAN>.  Edges that
+  result in nodes being added to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4649.png"
+ ALT="$ \mathtt{q}$"></SPAN> are drawn in black, other edges
+  are drawn in grey.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="308" HEIGHT="215" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4647.png"
+ ALT="\includegraphics[scale=0.90909]{figs/graph-bfs}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Analyzing the running-time of the <!-- MATH
+ $\mathtt{bfs(g,i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4650.png"
+ ALT="$ \mathtt{bfs(g,i)}$"></SPAN> routine is fairly
+straightforward.  The use of the <!-- MATH
+ $\mathtt{seen}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4651.png"
+ ALT="$ \mathtt{seen}$"></SPAN> array ensures that no vertex is
+added to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4652.png"
+ ALT="$ \mathtt{q}$"></SPAN> more than once.  Adding (and later removing) each vertex
+from <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4653.png"
+ ALT="$ \mathtt{q}$"></SPAN> takes constant time per vertex for a total of <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4654.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> time.
+Since each vertex is processed by the inner loop at most once, each
+adjacency list is processed at most once, so each edge of <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4655.png"
+ ALT="$ G$"></SPAN> is processed
+at most once.  This processing, which is done in the inner loop takes
+constant time per iteration, for a total of <!-- MATH
+ $O(\ensuremath{\mathtt{m}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4656.png"
+ ALT="$ O(\ensuremath{\mathtt{m}})$"></SPAN> time.  Therefore,
+the entire algorithm runs in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4657.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$"></SPAN> time.
+
+<P>
+The following theorem summarizes the performance of the <!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4658.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN> algorithm.
+<P>
+<DIV><A NAME="thm:bfs-graph"><B>Theorem  <SPAN CLASS="arabic">12</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>When given as input a <TT>Graph</TT>, <!-- MATH
+ $\mathtt{g}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4659.png"
+ ALT="$ \mathtt{g}$"></SPAN>, that is implemented using the
+  <TT>AdjacencyLists</TT> data structure, the <!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4660.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN> algorithm runs in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4661.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$"></SPAN>
+  time.</I></DIV><P></P>
+
+<P>
+A breadth-first traversal has some very special properties.  Calling
+<!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4662.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN> will eventually enqueue (and eventually dequeue) every vertex
+<!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4663.png"
+ ALT="$ \mathtt{j}$"></SPAN> such that there is a directed path from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4664.png"
+ ALT="$ \mathtt{r}$"></SPAN> to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4665.png"
+ ALT="$ \mathtt{j}$"></SPAN>.  Moreover,
+the vertices at distance 0 from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4666.png"
+ ALT="$ \mathtt{r}$"></SPAN> (<!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4667.png"
+ ALT="$ \mathtt{r}$"></SPAN> itself) will enter <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4668.png"
+ ALT="$ \mathtt{q}$"></SPAN> before
+the vertices at distance 1, which will enter <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4669.png"
+ ALT="$ \mathtt{q}$"></SPAN> before the vertices at
+distance 2, and so on.  Thus, the <!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4670.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN> method visits vertices
+in increasing order of distance from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4671.png"
+ ALT="$ \mathtt{r}$"></SPAN> and vertices that cannot be
+reached from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4672.png"
+ ALT="$ \mathtt{r}$"></SPAN> are never visited at all.
+
+<P>
+A particularly useful application of the breadth-first-search algorithm
+is, therefore, in computing shortest paths.  To compute the shortest
+path from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4673.png"
+ ALT="$ \mathtt{r}$"></SPAN> to every other vertex, we use a variant of <!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4674.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN>
+that uses an auxilliary array, <!-- MATH
+ $\mathtt{p}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4675.png"
+ ALT="$ \mathtt{p}$"></SPAN>, of length <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4676.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  When a new vertex
+<!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4677.png"
+ ALT="$ \mathtt{j}$"></SPAN> is added to <!-- MATH
+ $\mathtt{q}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4678.png"
+ ALT="$ \mathtt{q}$"></SPAN>, we set <!-- MATH
+ $\mathtt{p[j]=i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4679.png"
+ ALT="$ \mathtt{p[j]=i}$"></SPAN>.  In this way, <!-- MATH
+ $\mathtt{p[j]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4680.png"
+ ALT="$ \mathtt{p[j]}$"></SPAN> becomes the
+second last node on a shortest path from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4681.png"
+ ALT="$ \mathtt{r}$"></SPAN> to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4682.png"
+ ALT="$ \mathtt{j}$"></SPAN>.  Repeating this,
+by taking <!-- MATH
+ $\mathtt{p[p[j]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="45" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4683.png"
+ ALT="$ \mathtt{p[p[j]}$"></SPAN>, <!-- MATH
+ $\mathtt{p[p[p[j]]]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="69" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4684.png"
+ ALT="$ \mathtt{p[p[p[j]]]}$"></SPAN>, and so on we can reconstruct the
+(reversal of) a shortest path from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4685.png"
+ ALT="$ \mathtt{r}$"></SPAN> to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4686.png"
+ ALT="$ \mathtt{j}$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION001532000000000000000">
+<SPAN CLASS="arabic">12</SPAN>.<SPAN CLASS="arabic">3</SPAN>.<SPAN CLASS="arabic">2</SPAN> Depth-First Search</A>
+</H2>
+
+<P>
+The <SPAN  CLASS="textit">depth-first-search</SPAN>
+<A NAME="31941"></A>algorithm is similar to the standard
+algorithm for traversing binary trees;  it first fully explores one
+subtree before returning to the current node and then exploring the
+other subtree.  Another way to think of depth-first-search is by saying
+that it is similar to breadth-first search except that it uses a stack
+instead of a queue.
+
+<P>
+During the execution of the depth-first-search algorithm, each vertex,
+<!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4687.png"
+ ALT="$ \mathtt{i}$"></SPAN>, is assigned a colour, <!-- MATH
+ $\mathtt{c[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4688.png"
+ ALT="$ \mathtt{c[i]}$"></SPAN>: <!-- MATH
+ $\mathtt{white}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4689.png"
+ ALT="$ \mathtt{white}$"></SPAN> if we have never seen
+the vertex before, <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4690.png"
+ ALT="$ \mathtt{grey}$"></SPAN> if we are currently visiting that vertex,
+and <!-- MATH
+ $\mathtt{black}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4691.png"
+ ALT="$ \mathtt{black}$"></SPAN> if we are done visiting that vertex.  The easiest way to
+think of depth-first-search is as a recursive algorithm.  It starts by
+visiting <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4692.png"
+ ALT="$ \mathtt{r}$"></SPAN>.  When visiting a vertex <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4693.png"
+ ALT="$ \mathtt{i}$"></SPAN>, we first mark <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4694.png"
+ ALT="$ \mathtt{i}$"></SPAN> as <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4695.png"
+ ALT="$ \mathtt{grey}$"></SPAN>.
+Next, we scan <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4696.png"
+ ALT="$ \mathtt{i}$"></SPAN>'s adjacency list and recursively visit any white vertex
+we find in this list.  Finally, we are done processing <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4697.png"
+ ALT="$ \mathtt{i}$"></SPAN>, so we colour
+<!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4698.png"
+ ALT="$ \mathtt{i}$"></SPAN> black and return.
+<PRE>
+    void dfs(Graph g, int r) {
+        byte[] c = new byte[g.nVertices()];
+        dfs(g, r, c);
+    }
+    void dfs(Graph g, int i, byte[] c) {
+        c[i] = grey;  // currently visiting i
+        for (Integer j : g.outEdges(i)) {
+            if (c[j] == white) {
+                c[j] = grey;
+                dfs(g, j, c);
+            } 
+        }
+        c[i] = black; // done visiting i
+    }
+</PRE>
+An example of the execution of this algorithm is shown in Figure&nbsp;<A HREF="#fig:graph-dfs">12.5</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:graph-dfs"></A><A NAME="32512"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 12.5:</STRONG>
+An example of depth-first-search starting at node 0. Nodes are
+  labelled with the order in which they are processed.  Edges that
+  result in a recursive call are drawn in black, other edges
+  are drawn in <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4700.png"
+ ALT="$ \mathtt{grey}$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="308" HEIGHT="215" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4699.png"
+ ALT="\includegraphics[scale=0.90909]{figs/graph-dfs}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Although depth-first-search may best be thought of as a recursive
+algorithm, recursion is not the best way to implement it. Indeed, the code
+given above will fail for many large graphs by causing a stack overflow.
+An alternative implementation is to replace the recursion stack with an
+explicit stack, <!-- MATH
+ $\mathtt{s}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4701.png"
+ ALT="$ \mathtt{s}$"></SPAN>.  The following implementation does just that:
+<PRE>
+    void dfs2(Graph g, int r) {
+        byte[] c = new byte[g.nVertices()];
+        Stack&lt;Integer&gt; s = new Stack&lt;Integer&gt;();
+        s.push(r);
+        while (!s.isEmpty()) {
+            int i = s.pop();
+            if (c[i] == white) {
+                c[i] = grey;
+                for (int j : g.outEdges(i))
+                    s.push(j);
+            }
+        }
+    }
+</PRE>
+In the preceding code, when the next vertex, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4702.png"
+ ALT="$ \mathtt{i}$"></SPAN>, is processed, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4703.png"
+ ALT="$ \mathtt{i}$"></SPAN> is coloured
+<!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4704.png"
+ ALT="$ \mathtt{grey}$"></SPAN> and then replaced, on the stack, with its adjacent vertices.
+During the next iteration, one of these vertices will be visited.
+
+<P>
+Not surprisingly, the running times of <!-- MATH
+ $\mathtt{dfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4705.png"
+ ALT="$ \mathtt{dfs(g,r)}$"></SPAN> and <!-- MATH
+ $\mathtt{dfs2(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4706.png"
+ ALT="$ \mathtt{dfs2(g,r)}$"></SPAN> are the
+same as that of <!-- MATH
+ $\mathtt{bfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4707.png"
+ ALT="$ \mathtt{bfs(g,r)}$"></SPAN>:
+<P>
+<DIV><A NAME="thm:dfs-graph"><B>Theorem  <SPAN CLASS="arabic">12</SPAN>..<SPAN CLASS="arabic">4</SPAN></B></A> &nbsp; 
+<I>When given as input a <TT>Graph</TT>, <!-- MATH
+ $\mathtt{g}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4708.png"
+ ALT="$ \mathtt{g}$"></SPAN>, that is implemented using the
+  <TT>AdjacencyLists</TT> data structure, the <!-- MATH
+ $\mathtt{dfs(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4709.png"
+ ALT="$ \mathtt{dfs(g,r)}$"></SPAN> and <!-- MATH
+ $\mathtt{dfs2(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4710.png"
+ ALT="$ \mathtt{dfs2(g,r)}$"></SPAN> algorithms
+  each run in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4711.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}+\ensuremath{\mathtt{m}})$"></SPAN> time.</I></DIV><P></P>
+
+<P>
+As with the breadth-first-search algorithm, there is an underlying
+tree associated with each execution of depth-first-search.  When a node
+<!-- MATH
+ $\ensuremath{\mathtt{i}}\neq \ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4712.png"
+ ALT="$ \ensuremath{\mathtt{i}}\neq \ensuremath{\mathtt{r}}$"></SPAN> goes from <!-- MATH
+ $\mathtt{white}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4713.png"
+ ALT="$ \mathtt{white}$"></SPAN> to <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4714.png"
+ ALT="$ \mathtt{grey}$"></SPAN>, this is because <!-- MATH
+ $\mathtt{dfs(g,i,c)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4715.png"
+ ALT="$ \mathtt{dfs(g,i,c)}$"></SPAN>
+was called recursively while processing some node <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4716.png"
+ ALT="$ \mathtt{i'}$"></SPAN>.  (In the case
+of <!-- MATH
+ $\mathtt{dfs2(g,r)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4717.png"
+ ALT="$ \mathtt{dfs2(g,r)}$"></SPAN> algorithm, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4718.png"
+ ALT="$ \mathtt{i}$"></SPAN> is one of the nodes that replaced <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4719.png"
+ ALT="$ \mathtt{i'}$"></SPAN>
+on the stack.)  If we think of <!-- MATH
+ $\mathtt{i'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4720.png"
+ ALT="$ \mathtt{i'}$"></SPAN> as the parent of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4721.png"
+ ALT="$ \mathtt{i}$"></SPAN>, then we obtain
+a tree rooted at <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4722.png"
+ ALT="$ \mathtt{r}$"></SPAN>.  In Figure&nbsp;<A HREF="#fig:graph-dfs">12.5</A>, this tree is a path from
+vertex 0 to vertex 11.
+
+<P>
+An important property of the depth-first-search algorithm is the
+following: Suppose that when node <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4723.png"
+ ALT="$ \mathtt{i}$"></SPAN> is coloured <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4724.png"
+ ALT="$ \mathtt{grey}$"></SPAN>, there exists a path
+from <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4725.png"
+ ALT="$ \mathtt{i}$"></SPAN> to some other node <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4726.png"
+ ALT="$ \mathtt{j}$"></SPAN> that uses only white vertices.  Then <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4727.png"
+ ALT="$ \mathtt{j}$"></SPAN>
+will be coloured first <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4728.png"
+ ALT="$ \mathtt{grey}$"></SPAN> then <!-- MATH
+ $\mathtt{black}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4729.png"
+ ALT="$ \mathtt{black}$"></SPAN> before <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4730.png"
+ ALT="$ \mathtt{i}$"></SPAN> is coloured <!-- MATH
+ $\mathtt{black}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4731.png"
+ ALT="$ \mathtt{black}$"></SPAN>.
+(This can be proven by contradiction, by considering any path <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4732.png"
+ ALT="$ P$"></SPAN> from <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4733.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4734.png"
+ ALT="$ \mathtt{j}$"></SPAN>.)
+
+<P>
+One application of this property is the detection of cycles.
+<A NAME="32007"></A>Refer
+to Figure&nbsp;<A HREF="#fig:dfs-cycle">12.6</A>.  Consider some cycle, <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4735.png"
+ ALT="$ C$"></SPAN>, that can be reached
+from <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4736.png"
+ ALT="$ \mathtt{r}$"></SPAN>.  Let <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4737.png"
+ ALT="$ \mathtt{i}$"></SPAN> be the first node of <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4738.png"
+ ALT="$ C$"></SPAN> that is coloured <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4739.png"
+ ALT="$ \mathtt{grey}$"></SPAN>,
+and let <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4740.png"
+ ALT="$ \mathtt{j}$"></SPAN> be the node that precedes <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4741.png"
+ ALT="$ \mathtt{i}$"></SPAN> on the cycle <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4742.png"
+ ALT="$ C$"></SPAN>.  Then,
+by the above property, <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4743.png"
+ ALT="$ \mathtt{j}$"></SPAN> will be coloured <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4744.png"
+ ALT="$ \mathtt{grey}$"></SPAN> and the edge <!-- MATH
+ $\mathtt{(j,i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4745.png"
+ ALT="$ \mathtt{(j,i)}$"></SPAN>
+will be considered by the algorithm while <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4746.png"
+ ALT="$ \mathtt{i}$"></SPAN> is still <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4747.png"
+ ALT="$ \mathtt{grey}$"></SPAN>.  Thus,
+the algorithm can conclude that there is a path, <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4748.png"
+ ALT="$ P$"></SPAN>, from <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4749.png"
+ ALT="$ \mathtt{i}$"></SPAN> to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4750.png"
+ ALT="$ \mathtt{j}$"></SPAN>
+in the depth-first-search tree and the edge <!-- MATH
+ $\mathtt{(j,i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4751.png"
+ ALT="$ \mathtt{(j,i)}$"></SPAN> exists.  Therefore,
+<SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4752.png"
+ ALT="$ P$"></SPAN> is also a cycle.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:dfs-cycle"></A><A NAME="32513"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 12.6:</STRONG>
+The depth-first-search algorithm can be used to detect cycles
+  in <SPAN CLASS="MATH"><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4754.png"
+ ALT="$ G$"></SPAN>. The node <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4755.png"
+ ALT="$ \mathtt{j}$"></SPAN> is coloured <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4756.png"
+ ALT="$ \mathtt{grey}$"></SPAN> while <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4757.png"
+ ALT="$ \mathtt{i}$"></SPAN> is still <!-- MATH
+ $\mathtt{grey}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4758.png"
+ ALT="$ \mathtt{grey}$"></SPAN>.  This
+  implies that there is a path, <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4759.png"
+ ALT="$ P$"></SPAN>, from <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4760.png"
+ ALT="$ \mathtt{i}$"></SPAN> to <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4761.png"
+ ALT="$ \mathtt{j}$"></SPAN> in the depth-first-search
+  tree, and the edge <!-- MATH
+ $\mathtt{(j,i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4762.png"
+ ALT="$ \mathtt{(j,i)}$"></SPAN> implies that <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4763.png"
+ ALT="$ P$"></SPAN> is also a cycle.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="232" HEIGHT="98" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4753.png"
+ ALT="\includegraphics[scale=0.90909]{figs/dfs-cycle}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1170"
+  HREF="12_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1164"
+  HREF="12_Graphs.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1158"
+  HREF="12_2_AdjacencyLists_Graph_a.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1166"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1168"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1171"
+  HREF="12_4_Discussion_Exercises.html">12.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html1165"
+  HREF="12_Graphs.html">12. Graphs</A>
+<B> Previous:</B> <A NAME="tex2html1159"
+  HREF="12_2_AdjacencyLists_Graph_a.html">12.2 AdjacencyLists: A Graph</A>
+ &nbsp; <B>  <A NAME="tex2html1167"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1169"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>10.1 BinaryHeap: An Implicit Binary Tree</TITLE>
+<META NAME="description" CONTENT="10.1 BinaryHeap: An Implicit Binary Tree">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="10_2_MeldableHeap_Randomize.html">
+<LINK REL="previous" HREF="10_Heaps.html">
+<LINK REL="up" HREF="10_Heaps.html">
+<LINK REL="next" HREF="10_2_MeldableHeap_Randomize.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1018"
+  HREF="10_2_MeldableHeap_Randomize.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1012"
+  HREF="10_Heaps.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1006"
+  HREF="10_Heaps.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1014"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1016"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1019"
+  HREF="10_2_MeldableHeap_Randomize.html">10.2 MeldableHeap: A Randomized</A>
+<B> Up:</B> <A NAME="tex2html1013"
+  HREF="10_Heaps.html">10. Heaps</A>
+<B> Previous:</B> <A NAME="tex2html1007"
+  HREF="10_Heaps.html">10. Heaps</A>
+ &nbsp; <B>  <A NAME="tex2html1015"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1017"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1020"
+  HREF="10_1_BinaryHeap_Implicit_Bi.html#SECTION001311000000000000000"><SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001310000000000000000"></A>
+<A NAME="sec:binaryheap"></A>
+<BR>
+<SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>BinaryHeap</TT>: An Implicit Binary Tree
+</H1>
+
+<P>
+<A NAME="27569"></A>Our first implementation of a (priority) <TT>Queue</TT> is based on a technique
+that is over four hundred years old.  <SPAN  CLASS="textit">Eytzinger's method</SPAN>
+<A NAME="27194"></A>allows us
+to represent a complete binary tree as an array by laying out the nodes
+of the tree in breadth-first order (see Section&nbsp;<A HREF="6_1_BinaryTree_Basic_Binary.html#sec:bintree:traversal">6.1.2</A>).
+In this way, the root is stored at position 0, the root's left child is
+stored at position 1, the root's right child at position 2, the left
+child of the left child of the root is stored at position 3, and so
+on. See Figure&nbsp;<A HREF="#fig:eytzinger">10.1</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:eytzinger"></A><A NAME="27201"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 10.1:</STRONG>
+Eytzinger's method represents a complete binary tree as an array.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="350" HEIGHT="190" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3839.png"
+ ALT="\includegraphics[scale=0.90909]{figs/eytzinger}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+If we apply Eytzinger's method to a sufficiently large tree, some
+patterns emerge.  The left child of the node at index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3840.png"
+ ALT="$ \mathtt{i}$"></SPAN> is at index
+<!-- MATH
+ $\ensuremath{\mathtt{left(i)}}=2\ensuremath{\mathtt{i}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="115" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3841.png"
+ ALT="$ \ensuremath{\mathtt{left(i)}}=2\ensuremath{\mathtt{i}}+1$"></SPAN> and the right child of the node at index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3842.png"
+ ALT="$ \mathtt{i}$"></SPAN> is at
+index <!-- MATH
+ $\ensuremath{\mathtt{right(i)}}=2\ensuremath{\mathtt{i}}+2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="124" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3843.png"
+ ALT="$ \ensuremath{\mathtt{right(i)}}=2\ensuremath{\mathtt{i}}+2$"></SPAN>.  The parent of the node at index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3844.png"
+ ALT="$ \mathtt{i}$"></SPAN> is at
+index <!-- MATH
+ $\ensuremath{\mathtt{parent(i)}}=(\ensuremath{\mathtt{i}}-1)/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="149" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3845.png"
+ ALT="$ \ensuremath{\mathtt{parent(i)}}=(\ensuremath{\mathtt{i}}-1)/2$"></SPAN>.
+<PRE>
+    int left(int i) {
+        return 2*i + 1;
+    }
+    int right(int i) {
+        return 2*i + 2;
+    }
+    int parent(int i) {
+        return (i-1)/2;
+    }
+</PRE>
+
+<P>
+A <TT>BinaryHeap</TT> uses this technique to implicitly represent a complete
+binary tree in which the elements are <SPAN  CLASS="textit">heap-ordered</SPAN>:
+<A NAME="27217"></A><A NAME="27218"></A><A NAME="27219"></A>The value
+stored at any index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3846.png"
+ ALT="$ \mathtt{i}$"></SPAN> is not smaller than the value stored at index
+<!-- MATH
+ $\mathtt{parent(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3847.png"
+ ALT="$ \mathtt{parent(i)}$"></SPAN>, with the exception of the root value, <!-- MATH
+ $\ensuremath{\mathtt{i}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3848.png"
+ ALT="$ \ensuremath{\mathtt{i}}=0$"></SPAN>.  It follows
+that the smallest value in the priority <TT>Queue</TT> is therefore stored at
+position 0 (the root).
+
+<P>
+In a <TT>BinaryHeap</TT>, the <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3849.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements are stored in an array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3850.png"
+ ALT="$ \mathtt{a}$"></SPAN>:
+<PRE>
+    T[] a;
+    int n;
+</PRE>
+
+<P>
+Implementing the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3851.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation is fairly straightforward.  As with
+all array-based structures, we first check to see if <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3852.png"
+ ALT="$ \mathtt{a}$"></SPAN> is full (by checking if <!-- MATH
+ $\ensuremath{\mathtt{a.length}}=\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3853.png"
+ ALT="$ \ensuremath{\mathtt{a.length}}=\ensuremath{\mathtt{n}}$"></SPAN>) and, if so, we grow <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3854.png"
+ ALT="$ \mathtt{a}$"></SPAN>.  Next, we place <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3855.png"
+ ALT="$ \mathtt{x}$"></SPAN> at location
+<!-- MATH
+ $\mathtt{a[n]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3856.png"
+ ALT="$ \mathtt{a[n]}$"></SPAN> and increment <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3857.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  At this point, all that remains is to ensure
+that we maintain the heap property.  We do this by repeatedly swapping
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3858.png"
+ ALT="$ \mathtt{x}$"></SPAN> with its parent until <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3859.png"
+ ALT="$ \mathtt{x}$"></SPAN> is no longer smaller than its parent.
+See Figure&nbsp;<A HREF="#fig:heap-insert">10.2</A>.
+<PRE>
+    boolean add(T x) {
+        if (n + 1 &gt; a.length) resize();
+        a[n++] = x;
+        bubbleUp(n-1);
+        return true;
+    }
+    void bubbleUp(int i) {
+        int p = parent(i);
+        while (i &gt; 0 &amp;&amp; compare(a[i], a[p]) &lt; 0) {
+            swap(i,p);
+            i = p;
+            p = parent(i);
+        }
+    }
+</PRE>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:heap-insert"></A><A NAME="27594"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 10.2:</STRONG>
+Adding the value 6 to a <TT>BinaryHeap</TT>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="394" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3860.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-insert-1}"> 
+<BR>    <IMG
+ WIDTH="394" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3861.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-insert-2}"> 
+<BR>    <IMG
+ WIDTH="394" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3862.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-insert-3}"> 
+<BR>    <IMG
+ WIDTH="394" HEIGHT="236" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3863.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-insert-4}"> 
+<BR>  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Implementing the <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3864.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operation, which removes the smallest value
+from the heap, is a little trickier.  We know where the smallest value is
+(at the root), but we need to replace it after we remove it and ensure
+that we maintain the heap property.
+
+<P>
+The easiest way to do this is to replace the root with the value <!-- MATH
+ $\mathtt{a[n-1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3865.png"
+ ALT="$ \mathtt{a[n-1]}$"></SPAN>, delete
+that value, and decrement <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3866.png"
+ ALT="$ \mathtt{n}$"></SPAN>.  Unfortunately, the new root element is now
+probably not the smallest element, so it needs to be moved downwards.
+We do this by repeatedly comparing this element to its two children.
+If it is the smallest of the three then we are done.  Otherwise, we swap
+this element with the smallest of its two children and continue.
+<PRE>
+    T remove() {
+        T x = a[0];
+        a[0] = a[--n];
+        trickleDown(0);
+        if (3*n &lt; a.length) resize();
+        return x;
+    }
+    void trickleDown(int i) {
+        do {
+            int j = -1;
+            int r = right(i);
+            if (r &lt; n &amp;&amp; compare(a[r], a[i]) &lt; 0) {
+                int l = left(i);
+                if (compare(a[l], a[r]) &lt; 0) {
+                    j = l;
+                } else {
+                    j = r;
+                }
+            } else {
+                int l = left(i);
+                if (l &lt; n &amp;&amp; compare(a[l], a[i]) &lt; 0) {
+                    j = l;
+                }
+            }
+            if (j &gt;= 0)    swap(i, j);
+            i = j;
+        } while (i &gt;= 0);
+    }
+</PRE>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:heap-remove"></A><A NAME="27598"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 10.3:</STRONG>
+Removing the minimum value, 4, from a <TT>BinaryHeap</TT>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="393" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3867.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-remove-1}"> 
+<BR>    <IMG
+ WIDTH="393" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3868.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-remove-2}"> 
+<BR>    <IMG
+ WIDTH="393" HEIGHT="213" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3869.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-remove-3}"> 
+<BR>    <IMG
+ WIDTH="393" HEIGHT="236" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3870.png"
+ ALT="\includegraphics[height=.25\textheight ]{figs/heap-remove-4}"> 
+<BR>  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+As with other array-based structures, we will ignore the time spent in
+calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3871.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, since these can be accounted for using the amortization
+argument from Lemma&nbsp;<A HREF="2_1_ArrayStack_Fast_Stack_O.html#lem:arraystack-amortized">2.1</A>.  The running times of
+both <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3872.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3873.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> then depend on the height of the (implicit)
+binary tree.  Luckily, this is a <SPAN  CLASS="textit">complete</SPAN>
+<A NAME="27272"></A><A NAME="27273"></A>binary tree;  every level
+except the last has the maximum possible number of nodes.  Therefore,
+if the height of this tree is <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3874.png"
+ ALT="$ h$"></SPAN>, then it has at least <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3875.png"
+ ALT="$ 2^h$"></SPAN> nodes.
+Stated another way
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{n}} \ge 2^h \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="58" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3876.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}} \ge 2^h \enspace .
+$">
+</DIV><P></P>
+Taking logarithms on both sides of this equation gives
+<P><!-- MATH
+ \begin{displaymath}
+h \le \log \ensuremath{\mathtt{n}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="74" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3877.png"
+ ALT="$\displaystyle h \le \log \ensuremath{\mathtt{n}} \enspace .
+$">
+</DIV><P></P>
+Therefore, both the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3878.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3879.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operation run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3880.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time.
+
+<P>
+
+<H2><A NAME="SECTION001311000000000000000">
+<SPAN CLASS="arabic">10</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of a <TT>BinaryHeap</TT>:
+
+<P>
+<P>
+<DIV><A NAME="thm:binaryheap"><B>Theorem  <SPAN CLASS="arabic">10</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>A <TT>BinaryHeap</TT> implements the (priority) <TT>Queue</TT> interface.  Ignoring
+  the cost of calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3881.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>, a <TT>BinaryHeap</TT> supports the operations
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3882.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3883.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3884.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time per operation.
+</I>
+<P>
+<I>Furthermore, beginning with an empty <TT>BinaryHeap</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3885.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3886.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3887.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3888.png"
+ ALT="$ O(m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3889.png"
+ ALT="$ \mathtt{resize()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1018"
+  HREF="10_2_MeldableHeap_Randomize.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1012"
+  HREF="10_Heaps.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1006"
+  HREF="10_Heaps.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1014"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1016"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1019"
+  HREF="10_2_MeldableHeap_Randomize.html">10.2 MeldableHeap: A Randomized</A>
+<B> Up:</B> <A NAME="tex2html1013"
+  HREF="10_Heaps.html">10. Heaps</A>
+<B> Previous:</B> <A NAME="tex2html1007"
+  HREF="10_Heaps.html">10. Heaps</A>
+ &nbsp; <B>  <A NAME="tex2html1015"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1017"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

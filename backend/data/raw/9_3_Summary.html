@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>9.3 Summary</TITLE>
+<META NAME="description" CONTENT="9.3 Summary">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="9_4_Discussion_Exercises.html">
+<LINK REL="previous" HREF="9_2_RedBlackTree_Simulated_.html">
+<LINK REL="up" HREF="9_Red_Black_Trees.html">
+<LINK REL="next" HREF="9_4_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html975"
+  HREF="9_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html969"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html963"
+  HREF="9_2_RedBlackTree_Simulated_.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html971"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html973"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html976"
+  HREF="9_4_Discussion_Exercises.html">9.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html970"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Previous:</B> <A NAME="tex2html964"
+  HREF="9_2_RedBlackTree_Simulated_.html">9.2 RedBlackTree: A Simulated</A>
+ &nbsp; <B>  <A NAME="tex2html972"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html974"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001230000000000000000"></A>
+<A NAME="sec:redblack-summary"></A>
+<BR>
+<SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary
+</H1>
+
+<P>
+The following theorem summarizes the performance of the <TT>RedBlackTree</TT> data structure:
+
+<P>
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+<I>A <TT>RedBlackTree</TT> implements the <TT>SSet</TT> interface and
+  supports the operations <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3747.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3748.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3749.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in <!-- MATH
+ $O(\log
+  \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3750.png"
+ ALT="$ O(\log
+\ensuremath{\mathtt{n}})$"></SPAN> worst-case time per operation.</I></DIV><P></P>
+
+<P>
+Not included in the above theorem is the following extra bonus:
+
+<P>
+<P>
+<DIV><A NAME="thm:redblack-amortized"><B>Theorem  <SPAN CLASS="arabic">9</SPAN>..<SPAN CLASS="arabic">2</SPAN></B></A> &nbsp; 
+<I>Beginning with an empty <TT>RedBlackTree</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3751.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3752.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3753.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3754.png"
+ ALT="$ O(m)$"></SPAN>
+  time spent during all calls <!-- MATH
+ $\mathtt{addFixup(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3755.png"
+ ALT="$ \mathtt{addFixup(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{removeFixup(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3756.png"
+ ALT="$ \mathtt{removeFixup(u)}$"></SPAN>. </I></DIV><P></P>
+
+<P>
+We only sketch a proof of Theorem&nbsp;<A HREF="#thm:redblack-amortized">9.2</A>. By comparing
+<!-- MATH
+ $\mathtt{addFixup(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3757.png"
+ ALT="$ \mathtt{addFixup(u)}$"></SPAN> and <!-- MATH
+ $\mathtt{removeFixup(u)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3758.png"
+ ALT="$ \mathtt{removeFixup(u)}$"></SPAN> with the algorithms for adding or
+removing a leaf in a 2-4 tree, we can convince ourselves that this
+property is inherited from a 2-4 tree.  In particular, if we can show
+that the total time spent splitting, merging, and borrowing in a 2-4
+tree is <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3759.png"
+ ALT="$ O(m)$"></SPAN>, then this implies Theorem&nbsp;<A HREF="#thm:redblack-amortized">9.2</A>.
+
+<P>
+The proof of this theorem for 2-4 trees uses the potential
+method
+<A NAME="25535"></A>of amortized analysis.<A NAME="tex2html80"
+  HREF="#foot25957"><SUP><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A> Define the potential of an
+internal node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3760.png"
+ ALT="$ \mathtt{u}$"></SPAN> in a 2-4 tree as
+<P><!-- MATH
+ \begin{displaymath}
+\Phi(\ensuremath{\mathtt{u}}) =
+    \begin{cases} 
+      1 & \text{if \ensuremath{\mathtt{u}} has 2 children} \\
+      0 & \text{if \ensuremath{\mathtt{u}} has 3 children} \\
+      3 & \text{if \ensuremath{\mathtt{u}} has 4 children}  
+    \end{cases}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="216" HEIGHT="84" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3761.png"
+ ALT="$\displaystyle \Phi(\ensuremath{\mathtt{u}}) =
+\begin{cases}
+1 &amp; \text{if \en...
+...ildren} \\
+3 &amp; \text{if \ensuremath{\mathtt{u}} has 4 children}
+\end{cases}$">
+</DIV><P></P>
+and the potential of a 2-4 tree as the sum of the potentials of its nodes.
+When a split occurs, it is because a node with four children becomes
+two nodes, with two and three children.  This means that the overall
+potential drops by <SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3762.png"
+ ALT="$ 3-1-0 = 2$"></SPAN>. When a merge occurs, two nodes that used
+to have two children are replaced by one node with three children. The
+result is a drop in potential of <SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3763.png"
+ ALT="$ 2-0=2$"></SPAN>.  Therefore, for every split
+or merge, the potential decreases by two.
+
+<P>
+Next notice that, if we ignore splitting and merging of nodes, there are
+only a constant number of nodes whose number of children is changed by
+the addition or removal of a leaf.  When adding a node, one node has
+its number of children increase by one, increasing the potential by
+at most three.  During the removal of a leaf, one node has its number
+of children decrease by one, increasing the potential by at most one,
+and two nodes may be involved in a borrowing operation, increasing their
+total potential by at most one.
+
+<P>
+To summarize, each merge and split causes the potential to drop by
+at least two.  Ignoring merging and splitting, each addition or removal
+causes the potential to rise by at most three, and the potential is always
+non-negative.  Therefore, the number of splits and merges caused by <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3764.png"
+ ALT="$ m$"></SPAN>
+additions or removals on an initially empty tree is at most <SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3765.png"
+ ALT="$ 3m/2$"></SPAN>.
+Theorem&nbsp;<A HREF="#thm:redblack-amortized">9.2</A> is a consequence of this analysis and the
+correspondence between 2-4 trees and red-black trees.
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot25957">... analysis.</A><A
+ HREF="9_3_Summary.html#tex2html80"><SUP><SPAN CLASS="arabic">9</SPAN>.<SPAN CLASS="arabic">2</SPAN></SUP></A></DT>
+<DD>See the proofs of
+Lemma&nbsp;<A HREF="2_5_DualArrayDeque_Building.html#lem:dualarraydeque-amortized">2.2</A> and Lemma&nbsp;<A HREF="3_3_SEList_Space_Efficient_.html#lem:selist-amortized">3.1</A> for
+other applications of the potential method.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html975"
+  HREF="9_4_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html969"
+  HREF="9_Red_Black_Trees.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html963"
+  HREF="9_2_RedBlackTree_Simulated_.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html971"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html973"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html976"
+  HREF="9_4_Discussion_Exercises.html">9.4 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html970"
+  HREF="9_Red_Black_Trees.html">9. Red-Black Trees</A>
+<B> Previous:</B> <A NAME="tex2html964"
+  HREF="9_2_RedBlackTree_Simulated_.html">9.2 RedBlackTree: A Simulated</A>
+ &nbsp; <B>  <A NAME="tex2html972"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html974"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

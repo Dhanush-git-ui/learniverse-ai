@@ -1,0 +1,669 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>4.5 Discussion and Exercises</TITLE>
+<META NAME="description" CONTENT="4.5 Discussion and Exercises">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="previous" HREF="4_4_Analysis_Skiplists.html">
+<LINK REL="up" HREF="4_Skiplists.html">
+<LINK REL="next" HREF="5_Hash_Tables.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html662"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html656"
+  HREF="4_Skiplists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html652"
+  HREF="4_4_Analysis_Skiplists.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html658"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html660"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html663"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Up:</B> <A NAME="tex2html657"
+  HREF="4_Skiplists.html">4. Skiplists</A>
+<B> Previous:</B> <A NAME="tex2html653"
+  HREF="4_4_Analysis_Skiplists.html">4.4 Analysis of Skiplists</A>
+ &nbsp; <B>  <A NAME="tex2html659"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html661"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00750000000000000000">
+<SPAN CLASS="arabic">4</SPAN>.<SPAN CLASS="arabic">5</SPAN> Discussion and Exercises</A>
+</H1>
+
+<P>
+Skiplists were introduced by Pugh [<A
+ HREF="Bibliography.html#p91">62</A>] who also presented
+a number of applications and extensions of skiplists [<A
+ HREF="Bibliography.html#p89">61</A>].  Since then they
+have been studied extensively.  Several researchers have done very
+precise analyses of the expected length and variance of the length of the
+search path for the <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1864.png"
+ ALT="$ \mathtt{i}$"></SPAN>th element in a skiplist [<A
+ HREF="Bibliography.html#kp94">45</A>,<A
+ HREF="Bibliography.html#kmp95">44</A>,<A
+ HREF="Bibliography.html#pmp92">58</A>].
+Deterministic versions [<A
+ HREF="Bibliography.html#mps92">53</A>], biased versions [<A
+ HREF="Bibliography.html#bbg02">8</A>,<A
+ HREF="Bibliography.html#esss01">26</A>],
+and self-adjusting versions [<A
+ HREF="Bibliography.html#bdl08">12</A>] of skiplists have all been
+developed.  Skiplist implementations have been written for various
+languages and frameworks and have been used in open-source database
+systems [<A
+ HREF="Bibliography.html#skipdb">71</A>,<A
+ HREF="Bibliography.html#redis">63</A>]. A variant of skiplists is used in the HP-UX
+operating system kernel's process management structures [<A
+ HREF="Bibliography.html#hpux">42</A>].
+Skiplists are even part of the Java 1.6 API [<A
+ HREF="Bibliography.html#oracle_jdk6">55</A>].
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+Illustrate the search paths for 2.5 and 5.5 on the skiplist in 
+  Figure&nbsp;<A HREF="4_1_Basic_Structure.html#fig:skiplist">4.1</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+Illustrate the addition of the values 0.5 (with a height of 1) and
+  then 3.5 (with a height of 2) to the skiplist in Figure&nbsp;<A HREF="4_1_Basic_Structure.html#fig:skiplist">4.1</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">3</SPAN></B> &nbsp; 
+Illustrate the removal of the values 1 and then 3  from the skiplist
+  in Figure&nbsp;<A HREF="4_1_Basic_Structure.html#fig:skiplist">4.1</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">4</SPAN></B> &nbsp; 
+Illustrate the execution of <!-- MATH
+ $\mathtt{remove(2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1865.png"
+ ALT="$ \mathtt{remove(2)}$"></SPAN> on the <TT>SkiplistList</TT>
+  in Figure&nbsp;<A HREF="4_3_SkiplistList_Efficient_.html#fig:skiplist-lengths">4.5</A>.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">5</SPAN></B> &nbsp; 
+Illustrate the execution of <!-- MATH
+ $\mathtt{add(3,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1866.png"
+ ALT="$ \mathtt{add(3,x)}$"></SPAN> on the <TT>SkiplistList</TT>
+  in Figure&nbsp;<A HREF="4_3_SkiplistList_Efficient_.html#fig:skiplist-lengths">4.5</A>.  Assume that <!-- MATH
+ $\mathtt{pickHeight()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="99" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1867.png"
+ ALT="$ \mathtt{pickHeight()}$"></SPAN> selects a height
+  of 4 for the newly created node.</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:skiplist-changes"><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">6</SPAN></B></A> &nbsp; 
+Show that, during an <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1868.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> or a <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1869.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation, the expected
+  number of pointers in a <TT>SkiplistSet</TT> that get changed is constant.</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:skiplist-opt"><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">7</SPAN></B></A> &nbsp; 
+Suppose that, instead of promoting an element from <SPAN CLASS="MATH"><IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1870.png"
+ ALT="$ L_{i-1}$"></SPAN> into <SPAN CLASS="MATH"><IMG
+ WIDTH="18" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1871.png"
+ ALT="$ L_i$"></SPAN>
+  based on a coin toss, we promote it with some probability <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1872.png"
+ ALT="$ p$"></SPAN>, <!-- MATH
+ $0 <
+  p < 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1873.png"
+ ALT="$ 0 &lt;
+p &lt; 1$"></SPAN>.
+  
+<OL>
+<LI>Show that, with this modification, the expected length of a
+     search path is at most <!-- MATH
+ $(1/p)\log_{1/p} \ensuremath{\mathtt{n}} + O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1874.png"
+ ALT="$ (1/p)\log_{1/p} \ensuremath{\mathtt{n}} + O(1)$"></SPAN>.
+</LI>
+<LI>What is the value of <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1875.png"
+ ALT="$ p$"></SPAN> that minimizes the preceding expression?
+</LI>
+<LI>What is the expected height of the skiplist? 
+</LI>
+<LI>What is the expected number of nodes in the skiplist?
+  
+</LI>
+</OL></DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:skiplist-opt-2"><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">8</SPAN></B></A> &nbsp; 
+The <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1876.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> method in a <TT>SkiplistSet</TT> sometimes performs
+  <SPAN  CLASS="textit">redundant comparisons</SPAN>; these occur when <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1877.png"
+ ALT="$ \mathtt{x}$"></SPAN> is compared to the
+  same value more than once.  They can occur when, for some node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1878.png"
+ ALT="$ \mathtt{u}$"></SPAN>,
+  <!-- MATH
+ $\ensuremath{\mathtt{u.next[r]}} = \ensuremath{\mathtt{u.next[r-1]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="175" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1879.png"
+ ALT="$ \ensuremath{\mathtt{u.next[r]}} = \ensuremath{\mathtt{u.next[r-1]}}$"></SPAN>.  Show how these redundant comparisons
+  happen and modify <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1880.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> so that they are avoided.  Analyze the
+  expected number of comparisons done by your modified <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1881.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> method.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">9</SPAN></B> &nbsp; 
+Design and implement a version of a skiplist that implements the
+  <TT>SSet</TT> interface, but also allows fast access to elements by rank.
+  That is, it also supports the function <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1882.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN>, which returns the
+  element whose rank is <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1883.png"
+ ALT="$ \mathtt{i}$"></SPAN> in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1884.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> expected time. (The rank
+  of an element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1885.png"
+ ALT="$ \mathtt{x}$"></SPAN> in an <TT>SSet</TT> is the number of elements in the <TT>SSet</TT>
+  that are less than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1886.png"
+ ALT="$ \mathtt{x}$"></SPAN>.)</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">10</SPAN></B> &nbsp; 
+<A NAME="12298"></A><A NAME="12299"></A>A <SPAN  CLASS="textit">finger</SPAN> in a skiplist is an array that stores the
+  sequence of nodes on a search path at which the search path
+  goes down. (The variable <!-- MATH
+ $\mathtt{stack}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1887.png"
+ ALT="$ \mathtt{stack}$"></SPAN> in the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1888.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> code on
+  page&nbsp;<A HREF="4_2_SkiplistSSet_Efficient_.html#pg:skiplist-add"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A> is a finger;  the shaded nodes in
+  Figure&nbsp;<A HREF="4_2_SkiplistSSet_Efficient_.html#fig:skiplist-add">4.3</A> show the contents of the finger.)  One can
+  think of a finger as pointing out the path to a node in the lowest
+  list, <SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1889.png"
+ ALT="$ L_0$"></SPAN>.
+
+<P>
+A <SPAN  CLASS="textit">finger search</SPAN> implements the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1890.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation using a
+  finger, by walking up the list using the finger until reaching a node
+  <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1891.png"
+ ALT="$ \mathtt{u}$"></SPAN> such that <!-- MATH
+ $\ensuremath{\mathtt{u.x}} < \ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1892.png"
+ ALT="$ \ensuremath{\mathtt{u.x}} &lt; \ensuremath{\mathtt{x}}$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{u.next}}=\ensuremath{\mathtt{null}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1893.png"
+ ALT="$ \ensuremath{\mathtt{u.next}}=\ensuremath{\mathtt{null}}$"></SPAN> or <!-- MATH
+ $\ensuremath{\mathtt{u.next.x}} >
+  \ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1894.png"
+ ALT="$ \ensuremath{\mathtt{u.next.x}} &gt;
+\ensuremath{\mathtt{x}}$"></SPAN> and then performing a normal search for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1895.png"
+ ALT="$ \mathtt{x}$"></SPAN> starting from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1896.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+  It is possible to prove that the expected number of steps required
+  for a finger search is <!-- MATH
+ $O(1+\log r)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1897.png"
+ ALT="$ O(1+\log r)$"></SPAN>, where <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1898.png"
+ ALT="$ r$"></SPAN> is the number values
+  in <SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1899.png"
+ ALT="$ L_0$"></SPAN> between <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1900.png"
+ ALT="$ \mathtt{x}$"></SPAN> and the value pointed to by the finger.
+
+<P>
+Implement a subclass of <TT>Skiplist</TT> called <TT>SkiplistWithFinger</TT> that
+  implements <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1901.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operations using an internal finger.  This subclass
+  stores a finger, which is then used so that every <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1902.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation
+  is implemented as a finger search.  During each <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1903.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation
+  the finger is updated so that each <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1904.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation uses, as a
+  starting point, a finger that points to the result of the previous
+  <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1905.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation.</DIV><P></P>
+
+<P>
+<P>
+<DIV><A NAME="exc:skiplist-truncate"><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">11</SPAN></B></A> &nbsp; 
+Write a method, <!-- MATH
+ $\mathtt{truncate(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1906.png"
+ ALT="$ \mathtt{truncate(i)}$"></SPAN>, that truncates a <TT>SkiplistList</TT>
+  at position <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1907.png"
+ ALT="$ \mathtt{i}$"></SPAN>.  After the execution of this method, the size
+  of the list is <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1908.png"
+ ALT="$ \mathtt{i}$"></SPAN> and it contains only the elements at indices
+  <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{i}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1909.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{i}}-1$"></SPAN>.  The return value is another <TT>SkiplistList</TT> that
+  contains the elements at indices <!-- MATH
+ $\ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1910.png"
+ ALT="$ \ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN>.  This method
+  should run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1911.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">12</SPAN></B> &nbsp; 
+Write a <TT>SkiplistList</TT> method, <!-- MATH
+ $\mathtt{absorb(l2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1912.png"
+ ALT="$ \mathtt{absorb(l2)}$"></SPAN>, that takes as an
+  argument a <TT>SkiplistList</TT>, <!-- MATH
+ $\mathtt{l2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1913.png"
+ ALT="$ \mathtt{l2}$"></SPAN>, empties it and appends its contents,
+  in order, to the receiver.  For example, if <!-- MATH
+ $\mathtt{l1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1914.png"
+ ALT="$ \mathtt{l1}$"></SPAN> contains <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1915.png"
+ ALT="$ a,b,c$"></SPAN>
+  and <!-- MATH
+ $\mathtt{l2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1916.png"
+ ALT="$ \mathtt{l2}$"></SPAN> contains <SPAN CLASS="MATH"><IMG
+ WIDTH="42" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1917.png"
+ ALT="$ d,e,f$"></SPAN>, then after calling <!-- MATH
+ $\mathtt{l1.absorb(l2)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="103" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1918.png"
+ ALT="$ \mathtt{l1.absorb(l2)}$"></SPAN>, <!-- MATH
+ $\mathtt{l1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1919.png"
+ ALT="$ \mathtt{l1}$"></SPAN>
+  will contain <!-- MATH
+ $a,b,c,d,e,f$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="82" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1920.png"
+ ALT="$ a,b,c,d,e,f$"></SPAN> and <!-- MATH
+ $\mathtt{l2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1921.png"
+ ALT="$ \mathtt{l2}$"></SPAN> will be empty. This method should
+  run in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1922.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">13</SPAN></B> &nbsp; 
+Using the ideas from the space-efficient list, <TT>SEList</TT>, design
+  and implement a space-efficient <TT>SSet</TT>, <TT>SESSet</TT>.  To do this, store the
+  data, in order, in an <TT>SEList</TT>, and store the blocks of this <TT>SEList</TT>
+  in an <TT>SSet</TT>. If the original <TT>SSet</TT> implementation uses <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1923.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>
+  space to store <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1924.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements, then the <TT>SESSet</TT> will use enough space
+  for <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1925.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements plus <!-- MATH
+ $O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}}+\ensuremath{\mathtt{b}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1926.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{b}}+\ensuremath{\mathtt{b}})$"></SPAN> wasted space.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">14</SPAN></B> &nbsp; 
+Using an <TT>SSet</TT> as your underlying structure, design and implement an
+  application that reads a (large) text file and allows you to search,
+  interactively, for any substring contained in the text.  As the user
+  types their query, a matching part of the text (if any) should appear 
+  as a result.
+
+<P>
+Hint 1: Every substring is a prefix of some suffix, so it
+  suffices to store all suffixes of the text file.
+
+<P>
+Hint 2:  Any suffix can be represented compactly as a single
+  integer indicating where the suffix begins in the text.
+
+<P>
+Test your application on some large texts, such as some of
+  the books available at Project Gutenberg [<A
+ HREF="Bibliography.html#gutenberg">1</A>].  If done
+  correctly, your applications will be very responsive; there should be
+  no noticeable lag between typing keystrokes and seeing the results.</DIV><P></P>
+
+<P>
+<P>
+<DIV><B>Exercise  <SPAN CLASS="arabic">4</SPAN>..<SPAN CLASS="arabic">15</SPAN></B> &nbsp; 
+<A NAME="12370"></A><A NAME="12371"></A>(This exercise should be done after reading about binary search trees,
+  in Section&nbsp;<A HREF="6_2_BinarySearchTree_Unbala.html#sec:binarysearchtree">6.2</A>.)  Compare skiplists with binary search
+  trees in the following ways:  
+  
+<OL>
+<LI>Explain how removing some edges of a skiplist leads to
+       a structure that looks like a binary tree and is similar to a
+       binary search tree.
+</LI>
+<LI>Skiplists and binary search trees each use about the same
+       number of pointers (2 per node).  Skiplists make better use of
+       those pointers, though. Explain why.
+  
+</LI>
+</OL></DIV><P></P>
+
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html662"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html656"
+  HREF="4_Skiplists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html652"
+  HREF="4_4_Analysis_Skiplists.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html658"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html660"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html663"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Up:</B> <A NAME="tex2html657"
+  HREF="4_Skiplists.html">4. Skiplists</A>
+<B> Previous:</B> <A NAME="tex2html653"
+  HREF="4_4_Analysis_Skiplists.html">4.4 Analysis of Skiplists</A>
+ &nbsp; <B>  <A NAME="tex2html659"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html661"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,893 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>13.1 BinaryTrie: A digital search tree</TITLE>
+<META NAME="description" CONTENT="13.1 BinaryTrie: A digital search tree">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="13_2_XFastTrie_Searching_in.html">
+<LINK REL="previous" HREF="13_Data_Structures_Integers.html">
+<LINK REL="up" HREF="13_Data_Structures_Integers.html">
+<LINK REL="next" HREF="13_2_XFastTrie_Searching_in.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1216"
+  HREF="13_2_XFastTrie_Searching_in.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1210"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1204"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1212"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1214"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1217"
+  HREF="13_2_XFastTrie_Searching_in.html">13.2 XFastTrie: Searching in</A>
+<B> Up:</B> <A NAME="tex2html1211"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1205"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+ &nbsp; <B>  <A NAME="tex2html1213"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1215"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001610000000000000000"></A>
+<A NAME="sec:binarytrie"></A>
+<BR>
+<SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>BinaryTrie</TT>: A digital search tree
+</H1>
+
+<P>
+<A NAME="34388"></A>A <TT>BinaryTrie</TT> encodes a set of <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4868.png"
+ ALT="$ \mathtt{w}$"></SPAN> bit integers in a binary tree.
+All leaves in the tree have depth <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4869.png"
+ ALT="$ \mathtt{w}$"></SPAN> and each integer is encoded as a
+root-to-leaf path.  The path for the integer <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4870.png"
+ ALT="$ \mathtt{x}$"></SPAN> turns left at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4871.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+if the <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4872.png"
+ ALT="$ \mathtt{i}$"></SPAN>th most significant bit of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4873.png"
+ ALT="$ \mathtt{x}$"></SPAN> is a 0 and turns right if it
+is a 1.  Figure&nbsp;<A HREF="#fig:binarytrie-ex">13.1</A> shows an example for the case <!-- MATH
+ $\ensuremath{\mathtt{w}}=4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4874.png"
+ ALT="$ \ensuremath{\mathtt{w}}=4$"></SPAN>,
+in which the trie stores the integers 3(0011), 9(1001), 12(1100),
+and 13(1101).
+
+<DIV ALIGN="CENTER"><A NAME="fig:binarytrie-ex"></A><A NAME="33714"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.1:</STRONG>
+The integers stored in a binary trie are encoded as
+    root-to-leaf paths.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="404" HEIGHT="228" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4875.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/binarytrie-ex-1}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Because the search path
+<A NAME="34396"></A>for a value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4876.png"
+ ALT="$ \mathtt{x}$"></SPAN> depends on the bits of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4877.png"
+ ALT="$ \mathtt{x}$"></SPAN>, it will
+be helpful to name the children of a node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4878.png"
+ ALT="$ \mathtt{u}$"></SPAN>, <!-- MATH
+ $\mathtt{u.child[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4879.png"
+ ALT="$ \mathtt{u.child[0]}$"></SPAN> (<!-- MATH
+ $\mathtt{left}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4880.png"
+ ALT="$ \mathtt{left}$"></SPAN>)
+and <!-- MATH
+ $\mathtt{u.child[1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4881.png"
+ ALT="$ \mathtt{u.child[1]}$"></SPAN> (<!-- MATH
+ $\mathtt{right}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4882.png"
+ ALT="$ \mathtt{right}$"></SPAN>).  These child pointers will actually serve
+double-duty.  Since the leaves in a binary trie have no children, the
+pointers are used to string the leaves together into a doubly-linked list.
+For a leaf in the binary trie <!-- MATH
+ $\mathtt{u.child[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4883.png"
+ ALT="$ \mathtt{u.child[0]}$"></SPAN> (<!-- MATH
+ $\mathtt{prev}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4884.png"
+ ALT="$ \mathtt{prev}$"></SPAN>) is the node that
+comes before <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4885.png"
+ ALT="$ \mathtt{u}$"></SPAN> in the list and <!-- MATH
+ $\mathtt{u.child[1]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4886.png"
+ ALT="$ \mathtt{u.child[1]}$"></SPAN> (<!-- MATH
+ $\mathtt{next}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4887.png"
+ ALT="$ \mathtt{next}$"></SPAN>) is the node that
+follows <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4888.png"
+ ALT="$ \mathtt{u}$"></SPAN> in the list.  A special node, <!-- MATH
+ $\mathtt{dummy}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4889.png"
+ ALT="$ \mathtt{dummy}$"></SPAN>, is used both before
+the first node and after the last node in the list (see Section&nbsp;<A HREF="3_2_DLList_Doubly_Linked_Li.html#sec:dllist">3.2</A>).
+
+<P>
+Each node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4890.png"
+ ALT="$ \mathtt{u}$"></SPAN>, also contains an additional pointer <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4891.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN>.  If <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4892.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s
+left child is missing, then <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4893.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN> points to the smallest leaf in
+<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4894.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s subtree.  If <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4895.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s right child is missing, then <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4896.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN> points
+to the largest leaf in <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4897.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s subtree.  An example of a <TT>BinaryTrie</TT>,
+showing <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4898.png"
+ ALT="$ \mathtt{jump}$"></SPAN> pointers and the doubly-linked list at the leaves, is
+shown in Figure&nbsp;<A HREF="#fig:binarytrie-ex2">13.2</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:binarytrie-ex2"></A><A NAME="34832"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.2:</STRONG>
+A <TT>BinaryTrie</TT> with <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4900.png"
+ ALT="$ \mathtt{jump}$"></SPAN> pointers shown as curved dashed
+  edges.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="404" HEIGHT="245" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4899.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/binarytrie-ex-2}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4901.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>BinaryTrie</TT> is fairly straightforward.
+We try to follow the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4902.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the trie.  If we reach a leaf,
+then we have found <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4903.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  If we reach a node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4904.png"
+ ALT="$ \mathtt{u}$"></SPAN> where we cannot proceed
+(because <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4905.png"
+ ALT="$ \mathtt{u}$"></SPAN> is missing a child), then we follow <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4906.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN>, which takes us
+either to the smallest leaf larger than <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4907.png"
+ ALT="$ \mathtt{x}$"></SPAN> or the largest leaf smaller than
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4908.png"
+ ALT="$ \mathtt{x}$"></SPAN>. Which of these two cases occurs depends on whether <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4909.png"
+ ALT="$ \mathtt{u}$"></SPAN> is missing
+its left or right child, respectively.  In the former case (<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4910.png"
+ ALT="$ \mathtt{u}$"></SPAN> is missing
+its left child), we have found the node we want.  In the latter case (<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4911.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+is missing its right child), we can use the linked list to reach the node
+we want. Each of these cases is illustrated in Figure&nbsp;<A HREF="#fig:binarytrie-find">13.3</A>.
+<PRE>
+    T find(T x) {
+        int i, c = 0, ix = it.intValue(x);
+        Node u = r;
+        for (i = 0; i &lt; w; i++) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            if (u.child[c] == null) break;
+            u = u.child[c];
+        }
+        if (i == w) return u.x;  // found it
+        u = (c == 0) ? u.jump : u.jump.child[next]; 
+        return u == dummy ? null : u.x;
+    }
+</PRE>
+
+<DIV ALIGN="CENTER"><A NAME="fig:binarytrie-find"></A><A NAME="34833"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.3:</STRONG>
+The paths followed by <!-- MATH
+ $\mathtt{find(5)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4913.png"
+ ALT="$ \mathtt{find(5)}$"></SPAN> and <!-- MATH
+ $\mathtt{find(8)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4914.png"
+ ALT="$ \mathtt{find(8)}$"></SPAN>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="552" HEIGHT="248" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4912.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/binarytrie-ex-3}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+The running-time of the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4915.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> method is dominated by the time it
+takes to follow a root-to-leaf path, so it runs in <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4916.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time.
+
+<P>
+The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4917.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation in a <TT>BinaryTrie</TT> is also fairly straightforward,
+but has a lot of work to do:
+
+<OL>
+<LI>It follows the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4918.png"
+ ALT="$ \mathtt{x}$"></SPAN> until reaching a node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4919.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+    where it can no longer proceed.
+</LI>
+<LI>It creates the remainder of the search path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4920.png"
+ ALT="$ \mathtt{u}$"></SPAN> to a leaf
+    that contains <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4921.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+</LI>
+<LI>It adds the node, <!-- MATH
+ $\mathtt{u'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4922.png"
+ ALT="$ \mathtt{u'}$"></SPAN>, containing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4923.png"
+ ALT="$ \mathtt{x}$"></SPAN> to the linked list
+    of leaves (it has access to the predecessor, <!-- MATH
+ $\mathtt{pred}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4924.png"
+ ALT="$ \mathtt{pred}$"></SPAN>, of <!-- MATH
+ $\mathtt{u'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4925.png"
+ ALT="$ \mathtt{u'}$"></SPAN> in
+    the linked list from the <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4926.png"
+ ALT="$ \mathtt{jump}$"></SPAN> pointer of the last node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4927.png"
+ ALT="$ \mathtt{u}$"></SPAN>,
+    encountered during step&nbsp;1.)
+</LI>
+<LI>It walks back up the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4928.png"
+ ALT="$ \mathtt{x}$"></SPAN> adjusting <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4929.png"
+ ALT="$ \mathtt{jump}$"></SPAN>
+    pointers at the nodes whose <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4930.png"
+ ALT="$ \mathtt{jump}$"></SPAN> pointer should now point to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4931.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+</LI>
+</OL>
+An addition is illustrated in Figure&nbsp;<A HREF="#fig:binarytrie-add">13.4</A>.
+
+<DIV ALIGN="CENTER"><A NAME="fig:binarytrie-add"></A><A NAME="34458"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.4:</STRONG>
+Adding the values 2 and 15 to the <TT>BinaryTrie</TT> in
+  Figure&nbsp;<A HREF="#fig:binarytrie-ex2">13.2</A>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="554" HEIGHT="336" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4932.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/binarytrie-add}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<PRE>
+    boolean add(T x) {
+        int i, c = 0, ix = it.intValue(x);
+        Node u = r;
+        // 1 - search for ix until falling out of the trie
+        for (i = 0; i &lt; w; i++) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            if (u.child[c] == null) break;
+            u = u.child[c];
+        }        
+        if (i == w) return false; // already contains x - abort
+        Node pred = (c == right) ? u.jump : u.jump.child[0];
+        u.jump = null;  // u will have two children shortly
+        // 2 - add path to ix
+        for (; i &lt; w; i++) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            u.child[c] = newNode();
+            u.child[c].parent = u;
+            u = u.child[c];
+        }
+        u.x = x;
+        // 3 - add u to linked list
+        u.child[prev] = pred;
+        u.child[next] = pred.child[next];
+        u.child[prev].child[next] = u;
+        u.child[next].child[prev] = u;
+        // 4 - walk back up, updating jump pointers
+        Node v = u.parent;
+        while (v != null) {
+            if ((v.child[left] == null 
+                    &amp;&amp; (v.jump == null || it.intValue(v.jump.x) &gt; ix))
+            || (v.child[right] == null 
+                    &amp;&amp; (v.jump == null || it.intValue(v.jump.x) &lt; ix)))
+                v.jump = u;
+            v = v.parent;
+        }
+        n++;
+        return true;
+    }
+</PRE>
+This method performs one walk down the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4933.png"
+ ALT="$ \mathtt{x}$"></SPAN> and one walk
+back up.  Each step of these walks takes constant time, so the <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4934.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+method runs in <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4935.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time.
+
+<P>
+The <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4936.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation undoes the work of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4937.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>.  Like <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4938.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>,
+it has a lot of work to do:
+
+<OL>
+<LI>It follows the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4939.png"
+ ALT="$ \mathtt{x}$"></SPAN> until reaching the leaf, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4940.png"
+ ALT="$ \mathtt{u}$"></SPAN>,
+  containing <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4941.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+</LI>
+<LI>It removes <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4942.png"
+ ALT="$ \mathtt{u}$"></SPAN> from the doubly-linked list.
+</LI>
+<LI>It deletes <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4943.png"
+ ALT="$ \mathtt{u}$"></SPAN> and then walks back up the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4944.png"
+ ALT="$ \mathtt{x}$"></SPAN>
+  deleting nodes until reaching a node <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4945.png"
+ ALT="$ \mathtt{v}$"></SPAN> that has a child that is not
+  on the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4946.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+</LI>
+<LI>It walks upwards from <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4947.png"
+ ALT="$ \mathtt{v}$"></SPAN> to the root updating any <!-- MATH
+ $\mathtt{jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4948.png"
+ ALT="$ \mathtt{jump}$"></SPAN> pointers
+  that point to <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4949.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+</LI>
+</OL>
+A removal is illustrated in Figure&nbsp;<A HREF="#fig:binarytrie-remove">13.5</A>.
+
+<DIV ALIGN="CENTER"><A NAME="fig:binarytrie-remove"></A><A NAME="34476"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.5:</STRONG>
+Removing the value 9 from the <TT>BinaryTrie</TT> in
+  Figure&nbsp;<A HREF="#fig:binarytrie-ex2">13.2</A>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="373" HEIGHT="227" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4950.png"
+ ALT="\includegraphics[scale=0.90909]{figs/binarytrie-remove}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<PRE>
+    boolean remove(T x) {
+        // 1 - find leaf, u, containing x
+        int i, c, ix = it.intValue(x);
+        Node u = r;
+        for (i = 0; i &lt; w; i++) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            if (u.child[c] == null) return false;
+            u = u.child[c];
+        }
+        // 2 - remove u from linked list
+        u.child[prev].child[next] = u.child[next];
+        u.child[next].child[prev] = u.child[prev];
+        Node v = u;
+        // 3 - delete nodes on path to u
+        for (i = w-1; i &gt;= 0; i--) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            v = v.parent;
+            v.child[c] = null;
+            if (v.child[1-c] != null) break;
+        }
+        // 4 - update jump pointers
+        c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+        v.jump = u.child[1-c];
+        v = v.parent;
+        i--;
+        for (; i &gt;= 0; i--) {
+            c = (ix &gt;&gt;&gt; w-i-1) &amp; 1;
+            if (v.jump == u) 
+                v.jump = u.child[1-c];
+            v = v.parent;
+        }
+        n--;
+        return true;
+    }
+</PRE>
+
+<P>
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">13</SPAN>..<SPAN CLASS="arabic">1</SPAN></B> &nbsp; 
+<I>A <TT>BinaryTrie</TT> implements the <TT>SSet</TT> interface for <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4951.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers. A
+<TT>BinaryTrie</TT> supports the operations <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4952.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4953.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4954.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>
+in <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4955.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time per operation.  The space used by a <TT>BinaryTrie</TT> that
+stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4956.png"
+ ALT="$ \mathtt{n}$"></SPAN> values is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4957.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1216"
+  HREF="13_2_XFastTrie_Searching_in.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1210"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1204"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1212"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1214"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1217"
+  HREF="13_2_XFastTrie_Searching_in.html">13.2 XFastTrie: Searching in</A>
+<B> Up:</B> <A NAME="tex2html1211"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1205"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+ &nbsp; <B>  <A NAME="tex2html1213"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1215"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

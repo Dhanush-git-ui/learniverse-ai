@@ -1,0 +1,1598 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>5.1 ChainedHashTable: Hashing with Chaining</TITLE>
+<META NAME="description" CONTENT="5.1 ChainedHashTable: Hashing with Chaining">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="5_2_LinearHashTable_Linear_.html">
+<LINK REL="previous" HREF="5_Hash_Tables.html">
+<LINK REL="up" HREF="5_Hash_Tables.html">
+<LINK REL="next" HREF="5_2_LinearHashTable_Linear_.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html694"
+  HREF="5_2_LinearHashTable_Linear_.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html688"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html682"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html690"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html692"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html695"
+  HREF="5_2_LinearHashTable_Linear_.html">5.2 LinearHashTable: Linear Probing</A>
+<B> Up:</B> <A NAME="tex2html689"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Previous:</B> <A NAME="tex2html683"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+ &nbsp; <B>  <A NAME="tex2html691"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html693"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html696"
+  HREF="5_1_ChainedHashTable_Hashin.html#SECTION00811000000000000000"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Multiplicative Hashing</A>
+<LI><A NAME="tex2html697"
+  HREF="5_1_ChainedHashTable_Hashin.html#SECTION00812000000000000000"><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00810000000000000000"></A>
+<A NAME="sec:hashtable"></A>
+<BR>
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>ChainedHashTable</TT>: Hashing with Chaining
+</H1>
+
+<P>
+<A NAME="15449"></A><A NAME="14011"></A><A NAME="14012"></A>A <TT>ChainedHashTable</TT> data structure uses <SPAN  CLASS="textit">hashing with chaining</SPAN> to store
+data as an array, <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1929.png"
+ ALT="$ \mathtt{t}$"></SPAN>, of lists.  An integer, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1930.png"
+ ALT="$ \mathtt{n}$"></SPAN>, keeps track of the
+total number of items in all lists (see Figure&nbsp;<A HREF="#fig:chainedhashtable">5.1</A>):
+<PRE>
+    List&lt;T&gt;[] t;
+    int n;
+</PRE>
+
+<DIV ALIGN="CENTER"><A NAME="fig:chainedhashtable"></A><A NAME="16418"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 5.1:</STRONG>
+An example of a <TT>ChainedHashTable</TT> with <!-- MATH
+ $\ensuremath{\mathtt{n}}=14$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1932.png"
+ ALT="$ \ensuremath{\mathtt{n}}=14$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{t.length}}=16$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1933.png"
+ ALT="$ \ensuremath{\mathtt{t.length}}=16$"></SPAN>.  In this example <!-- MATH
+ $\ensuremath{\mathtt{hash(x)}}=6$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1934.png"
+ ALT="$ \ensuremath{\mathtt{hash(x)}}=6$"></SPAN></CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="554" HEIGHT="140" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1931.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/chainedhashtable}">
+   
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<A NAME="14030"></A><A NAME="16419"></A>The <SPAN  CLASS="textit">hash value</SPAN> of a data item <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1936.png"
+ ALT="$ \mathtt{x}$"></SPAN>, denoted <!-- MATH
+ $\mathtt{hash(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1937.png"
+ ALT="$ \mathtt{hash(x)}$"></SPAN> is a value
+in the range <!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1938.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN>.  All items with hash value <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1939.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+are stored in the list at <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1940.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>.  To ensure that lists don't get too
+long, we maintain the invariant
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{t.length}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="93" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1941.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{t.length}}
+$">
+</DIV><P></P>
+so that the average number of elements stored in one of these lists is 
+<!-- MATH
+ $\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{t.length}} \le 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="108" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1942.png"
+ ALT="$ \ensuremath{\mathtt{n}}/\ensuremath{\mathtt{t.length}} \le 1$"></SPAN>.
+
+<P>
+To add an element, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1943.png"
+ ALT="$ \mathtt{x}$"></SPAN>, to the hash table, we first check if
+the length of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1944.png"
+ ALT="$ \mathtt{t}$"></SPAN> needs to be increased and, if so, we grow <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1945.png"
+ ALT="$ \mathtt{t}$"></SPAN>.
+With this out of the way we hash <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1946.png"
+ ALT="$ \mathtt{x}$"></SPAN> to get an integer, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1947.png"
+ ALT="$ \mathtt{i}$"></SPAN>, in the
+range <!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="138" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1948.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{t.length}}-1\}$"></SPAN>, and we append <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1949.png"
+ ALT="$ \mathtt{x}$"></SPAN> to the list
+<!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1950.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>:
+<PRE>
+    boolean add(T x) {
+        if (find(x) != null) return false;
+        if (n+1 &gt; t.length) resize();
+        t[hash(x)].add(x);
+        n++;
+        return true;
+    }
+</PRE>
+Growing the table,
+if necessary, involves doubling the length of <!-- MATH
+ $\mathtt{t}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1951.png"
+ ALT="$ \mathtt{t}$"></SPAN> and reinserting
+all elements into the new table.  This strategy is exactly the same
+as the one used in the implementation of <TT>ArrayStack</TT> and the same
+result applies: The cost of growing is only constant when amortized
+over a sequence of insertions (see&nbsp;Lemma&nbsp;<A HREF="2_1_ArrayStack_Fast_Stack_O.html#lem:arraystack-amortized">2.1</A> on
+page&nbsp;<A HREF="2_1_ArrayStack_Fast_Stack_O.html#lem:arraystack-amortized"><IMG  ALIGN="BOTTOM" BORDER="1" ALT="[*]" SRC="crossref.png"></A>).
+
+<P>
+Besides growing, the only other work done when adding a new value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1952.png"
+ ALT="$ \mathtt{x}$"></SPAN> to a
+<TT>ChainedHashTable</TT> involves appending <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1953.png"
+ ALT="$ \mathtt{x}$"></SPAN> to the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1954.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN>.  For
+any of the list implementations described in Chapters&nbsp;<A HREF="2_Array_Based_Lists.html#chap:arrays">2</A>
+or <A HREF="3_Linked_Lists.html#chap:linkedlists">3</A>, this takes only constant time.
+
+<P>
+To remove an element, <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1955.png"
+ ALT="$ \mathtt{x}$"></SPAN>, from the hash table, we iterate over the list
+<!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1956.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN> until we find <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1957.png"
+ ALT="$ \mathtt{x}$"></SPAN> so that we can remove it:
+<PRE>
+    T remove(T x) {
+        Iterator&lt;T&gt; it = t[hash(x)].iterator();
+        while (it.hasNext()) {
+            T y = it.next();
+            if (y.equals(x)) {
+                it.remove();
+                n--;
+                return y;
+            }
+        }
+        return null;
+    }
+</PRE>
+This takes <!-- MATH
+ $O(\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{hash(x)}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1958.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{hash(x)}}})$"></SPAN> time, where <!-- MATH
+ $\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{i}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1959.png"
+ ALT="$ \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{i}}}$"></SPAN> denotes the length
+of the list stored at <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1960.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>.
+
+<P>
+Searching for the element <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1961.png"
+ ALT="$ \mathtt{x}$"></SPAN> in a hash table is similar.  We perform
+a linear search on the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1962.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN>:
+<PRE>
+    T find(Object x) {
+        for (T y : t[hash(x)])
+            if (y.equals(x))
+                return y;
+        return null;
+    }
+</PRE>
+Again, this takes time proportional to the length of the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1963.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN>.
+
+<P>
+The performance of a hash table depends critically on the choice of the
+hash function.  A good hash function will spread the elements evenly
+among the <!-- MATH
+ $\mathtt{t.length}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1964.png"
+ ALT="$ \mathtt{t.length}$"></SPAN> lists, so that the expected size of the list
+<!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1965.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN> is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{t.length)}} = O(1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="155" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1966.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{t.length)}} = O(1)$"></SPAN>.  On the other hand, a bad
+hash function will hash all values (including <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1967.png"
+ ALT="$ \mathtt{x}$"></SPAN>) to the same table
+location, in which case the size of the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1968.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN> will be <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1969.png"
+ ALT="$ \mathtt{n}$"></SPAN>.
+In the next section we describe a good hash function.
+
+<P>
+
+<H2><A NAME="SECTION00811000000000000000"></A>
+<A NAME="sec:multihash"></A>
+<BR>
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">1</SPAN> Multiplicative Hashing
+</H2>
+
+<P>
+<A NAME="14086"></A><A NAME="14087"></A>Multiplicative hashing is an efficient method of generating hash
+values based on modular arithmetic (discussed in Section&nbsp;<A HREF="2_3_ArrayQueue_Array_Based_.html#sec:arrayqueue">2.3</A>)
+and integer division.  It uses the <SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1970.png"
+ ALT="$ \ddiv $"></SPAN> operator, which calculates
+the integral part of a quotient, while discarding the remainder.
+Formally, for any integers <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1971.png"
+ ALT="$ a\ge 0$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1972.png"
+ ALT="$ b\ge 1$"></SPAN>, <!-- MATH
+ $a\ddiv b = \lfloor
+a/b\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1973.png"
+ ALT="$ a\ddiv b = \lfloor
+a/b\rfloor$"></SPAN>.
+
+<P>
+In multiplicative hashing, we use a hash table of size <!-- MATH
+ $2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1974.png"
+ ALT="$ 2^{\ensuremath{\mathtt{d}}}$"></SPAN> for some
+integer <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1975.png"
+ ALT="$ \mathtt{d}$"></SPAN> (called the <SPAN  CLASS="textit">dimension</SPAN>).  The formula for hashing an
+integer <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1976.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN> is
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{hash(x)}} = ((\ensuremath{\mathtt{z}}\cdot\ensuremath{\mathtt{x}}) \bmod 2^{\ensuremath{\mathtt{w}}}) \ddiv 2^{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="243" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1977.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{hash(x)}} = ((\ensuremath{\mathtt{z}}\cdot\en...
+...htt{w}}}) \ddiv 2^{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}} \enspace .
+$">
+</DIV><P></P>
+Here, <!-- MATH
+ $\mathtt{z}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1978.png"
+ ALT="$ \mathtt{z}$"></SPAN> is a randomly chosen <SPAN  CLASS="textit">odd</SPAN> integer in
+<!-- MATH
+ $\{1,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1979.png"
+ ALT="$ \{1,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN>.  This hash function can be realized very
+efficiently by observing that, by default, operations on integers
+are already done modulo <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1980.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}$"></SPAN> where <!-- MATH
+ $\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1981.png"
+ ALT="$ \ensuremath{\mathtt{w}}$"></SPAN> is the number of bits
+in an integer.<A NAME="tex2html43"
+  HREF="#foot16428"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A>  (See
+Figure&nbsp;<A HREF="#fig:multihashing">5.2</A>.) Furthermore, integer division by <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="34" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1983.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}}$"></SPAN>
+is equivalent to dropping the rightmost <!-- MATH
+ $\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1984.png"
+ ALT="$ \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$"></SPAN> bits in a binary
+representation (which is implemented by shifting the bits right by
+<!-- MATH
+ $\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1985.png"
+ ALT="$ \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$"></SPAN> using the <!-- MATH
+ $\mathtt{\text{\ttfamily >>>}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="29" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1986.png"
+ ALT="$ \mathtt{\text{\ttfamily &gt;&gt;&gt;}}$"></SPAN>
+operator).  In this way, the code that implements the above
+formula is simpler than the formula itself:
+<PRE>
+    int hash(Object x) {
+        return (z * x.hashCode()) &gt;&gt;&gt; (w-d);
+    }
+</PRE>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:multihashing"></A><A NAME="16437"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 5.2:</STRONG>
+The operation of the multiplicative hash function with <!-- MATH
+ $\ensuremath{\mathtt{w}}=32$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="47" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1987.png"
+ ALT="$ \ensuremath{\mathtt{w}}=32$"></SPAN>
+    and <!-- MATH
+ $\ensuremath{\mathtt{d}}=8$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1988.png"
+ ALT="$ \ensuremath{\mathtt{d}}=8$"></SPAN>.</CAPTION>
+<TR><TD><IMG
+ WIDTH="519" HEIGHT="120" BORDER="0"
+ SRC="img1991.png"
+ ALT="\begin{figure}\begin{center}
+\resizebox{.98\textwidth}{!}{
+\setlength{\arrayru...
+... \end{tabular}}
+\setlength{\arrayrulewidth}{.4pt}
+\end{center}
+\end{figure}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The following lemma, whose proof is deferred until later in this section,
+shows that multiplicative hashing does a good job of avoiding collisions:
+
+<P>
+<P>
+<DIV><A NAME="lem:universal-hashing"><B>Lemma  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>Let <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1992.png"
+ ALT="$ \mathtt{x}$"></SPAN> and <!-- MATH
+ $\mathtt{y}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1993.png"
+ ALT="$ \mathtt{y}$"></SPAN> be any two values in <!-- MATH
+ $\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1994.png"
+ ALT="$ \{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN> with
+  <!-- MATH
+ $\ensuremath{\mathtt{x}}\neq \ensuremath{\mathtt{y}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1995.png"
+ ALT="$ \ensuremath{\mathtt{x}}\neq \ensuremath{\mathtt{y}}$"></SPAN>. Then <!-- MATH
+ $\Pr\{\ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{hash(y)}}\} \le 2/2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="202" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1996.png"
+ ALT="$ \Pr\{\ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{hash(y)}}\} \le 2/2^{\ensuremath{\mathtt{d}}}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+With Lemma&nbsp;<A HREF="#lem:universal-hashing">5.1</A>, the performance of <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1997.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and
+<!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1998.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> are easy to analyze:
+
+<P>
+<P>
+<DIV><B>Lemma  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+<I>For any data value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1999.png"
+ ALT="$ \mathtt{x}$"></SPAN>, the expected length of the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2000.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN>
+  is at most <!-- MATH
+ $\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2001.png"
+ ALT="$ \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + 2$"></SPAN>, where <!-- MATH
+ $\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2002.png"
+ ALT="$ \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}}$"></SPAN> is the number of
+  occurrences of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2003.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the hash table.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  Let <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2005.png"
+ ALT="$ S$"></SPAN> be the (multi-)set of elements stored in the hash table that
+  are not equal to <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2006.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  For an element <!-- MATH
+ $\ensuremath{\mathtt{y}}\in S$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2007.png"
+ ALT="$ \ensuremath{\mathtt{y}}\in S$"></SPAN>, define the indicator
+  variable
+    <P><!-- MATH
+ \begin{displaymath}
+I_{\ensuremath{\mathtt{y}}} = \left\{\begin{array}{ll}
+       1 & \mbox{if $\ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{hash(y)}}$} \\
+       0 & \mbox{otherwise}
+       \end{array}\right.
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="225" HEIGHT="56" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2008.png"
+ ALT="$\displaystyle I_{\ensuremath{\mathtt{y}}} = \left\{\begin{array}{ll}
+1 &amp; \mbox...
+...\ensuremath{\mathtt{hash(y)}}$} \\
+0 &amp; \mbox{otherwise}
+\end{array}\right.
+$">
+</DIV><P></P>
+and notice that, by Lemma&nbsp;<A HREF="#lem:universal-hashing">5.1</A>, <!-- MATH
+ $\mathrm{E}[I_{\ensuremath{\mathtt{y}}}] \le
+  2/2^{\ensuremath{\mathtt{d}}}=2/\ensuremath{\mathtt{t.length}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="181" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2009.png"
+ ALT="$ \mathrm{E}[I_{\ensuremath{\mathtt{y}}}] \le
+2/2^{\ensuremath{\mathtt{d}}}=2/\ensuremath{\mathtt{t.length}}$"></SPAN>.  The expected length of the list <!-- MATH
+ $\mathtt{t[hash(x)]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2010.png"
+ ALT="$ \mathtt{t[hash(x)]}$"></SPAN>
+  is given by
+  <BR>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<!-- MATH
+ \begin{eqnarray*}
+\mathrm{E}\left[\ensuremath{\mathtt{t[hash(x)].size()}}\right] &=& \mathrm{E}\left[\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} I_{\ensuremath{\mathtt{y}}}\right] \\
+    &=& \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} \mathrm{E}[I_{\ensuremath{\mathtt{y}}} ] \\
+    &\le& \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} 2/\ensuremath{\mathtt{t.length}} \\
+    &\le& \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} 2/\ensuremath{\mathtt{n}} \\
+    &\le& \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + (\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}})2/\ensuremath{\mathtt{n}} \\
+    &\le& \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + 2 \enspace ,
+\end{eqnarray*}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="146" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2011.png"
+ ALT="$\displaystyle \mathrm{E}\left[\ensuremath{\mathtt{t[hash(x)].size()}}\right]$"></TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2012.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="97" HEIGHT="69" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2013.png"
+ ALT="$\displaystyle \mathrm{E}\left[\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} I_{\ensuremath{\mathtt{y}}}\right]$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2014.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="93" HEIGHT="55" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2015.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} \mathrm{E}[I_{\ensuremath{\mathtt{y}}} ]$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2016.png"
+ ALT="$\displaystyle \le$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="137" HEIGHT="55" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2017.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} 2/\ensuremath{\mathtt{t.length}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2018.png"
+ ALT="$\displaystyle \le$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="83" HEIGHT="55" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2019.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + \sum_{\ensuremath{\mathtt{y}}\in S} 2/\ensuremath{\mathtt{n}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2020.png"
+ ALT="$\displaystyle \le$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="108" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2021.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + (\ensuremath{...
+...n}}-\ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}})2/\ensuremath{\mathtt{n}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2022.png"
+ ALT="$\displaystyle \le$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="56" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2023.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}_{\ensuremath{\mathtt{x}}} + 2 \enspace ,$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL">
+
+  as required.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2004.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Now, we want to prove Lemma&nbsp;<A HREF="#lem:universal-hashing">5.1</A>, but first we need a
+result from number theory.  In the following proof, we use the notation
+<!-- MATH
+ $(b_r,\ldots,b_0)_2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2024.png"
+ ALT="$ (b_r,\ldots,b_0)_2$"></SPAN> to denote <!-- MATH
+ $\sum_{i=0}^r b_i2^i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="67" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2025.png"
+ ALT="$ \sum_{i=0}^r b_i2^i$"></SPAN>, where each <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2026.png"
+ ALT="$ b_i$"></SPAN>
+is a bit, either 0 or 1.  In other words, <!-- MATH
+ $(b_r,\ldots,b_0)_2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2027.png"
+ ALT="$ (b_r,\ldots,b_0)_2$"></SPAN> is
+the integer whose binary representation is given by <!-- MATH
+ $b_r,\ldots,b_0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2028.png"
+ ALT="$ b_r,\ldots,b_0$"></SPAN>.
+We use <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2029.png"
+ ALT="$ \star$"></SPAN> to denote a bit of unknown value.
+
+<P>
+<P>
+<DIV><A NAME="lem:hashing-mapping"><B>Lemma  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>Let <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2030.png"
+ ALT="$ S$"></SPAN> be the set of odd integers in <!-- MATH
+ $\{1,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2031.png"
+ ALT="$ \{1,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN>; let <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2032.png"
+ ALT="$ q$"></SPAN>
+  and <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2033.png"
+ ALT="$ i$"></SPAN> be any two elements in <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2034.png"
+ ALT="$ S$"></SPAN>.  Then there is exactly one value
+  <!-- MATH
+ $\ensuremath{\mathtt{z}}\in S$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2035.png"
+ ALT="$ \ensuremath{\mathtt{z}}\in S$"></SPAN> such that <!-- MATH
+ $\ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2036.png"
+ ALT="$ \ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = i$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  Since the number of choices for <!-- MATH
+ $\ensuremath{\mathtt{z}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2038.png"
+ ALT="$ \ensuremath{\mathtt{z}}$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="10" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2039.png"
+ ALT="$ i$"></SPAN> is the same, it is
+  sufficient to prove that there is <SPAN  CLASS="textit">at most</SPAN> one value <!-- MATH
+ $\ensuremath{\mathtt{z}}\in S$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2040.png"
+ ALT="$ \ensuremath{\mathtt{z}}\in S$"></SPAN> that
+  satisfies <!-- MATH
+ $\ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = i$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2041.png"
+ ALT="$ \ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = i$"></SPAN>.
+
+<P>
+Suppose, for the sake of contradiction, that there are two such values
+  <!-- MATH
+ $\mathtt{z}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2042.png"
+ ALT="$ \mathtt{z}$"></SPAN> and <!-- MATH
+ $\mathtt{z'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2043.png"
+ ALT="$ \mathtt{z'}$"></SPAN>, with <!-- MATH
+ $\ensuremath{\mathtt{z}}>\ensuremath{\mathtt{z}}'$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="42" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2044.png"
+ ALT="$ \ensuremath{\mathtt{z}}&gt;\ensuremath{\mathtt{z}}'$"></SPAN>.  Then
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = \ensuremath{\mathtt{z}}'q \bmod 2^{\ensuremath{\mathtt{w}}} = i
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="196" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2045.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = \ensuremath{\mathtt{z}}'q \bmod 2^{\ensuremath{\mathtt{w}}} = i
+$">
+</DIV><P></P>
+So
+  <P><!-- MATH
+ \begin{displaymath}
+(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q\bmod 2^{\ensuremath{\mathtt{w}}} = 0
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="142" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2046.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q\bmod 2^{\ensuremath{\mathtt{w}}} = 0
+$">
+</DIV><P></P>
+But this means that 
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:factors"></A><!-- MATH
+ \begin{equation}
+(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = k 2^{\ensuremath{\mathtt{w}}}
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="101" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2047.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = k 2^{\ensuremath{\mathtt{w}}}$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+for some integer <SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2048.png"
+ ALT="$ k$"></SPAN>.  Thinking in terms of binary numbers, we have 
+  <P><!-- MATH
+ \begin{displaymath}
+(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = k\cdot(1,\underbrace{0,\ldots,0}_{\ensuremath{\mathtt{w}}})_2 \enspace ,
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="184" HEIGHT="70" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2049.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = k\cdot(1,\underbrace{0,\ldots,0}_{\ensuremath{\mathtt{w}}})_2 \enspace ,
+$">
+</DIV><P></P>
+so that the <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2050.png"
+ ALT="$ \mathtt{w}$"></SPAN> trailing bits in the binary representation of
+  <!-- MATH
+ $(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2051.png"
+ ALT="$ (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$"></SPAN> are all 0's.
+
+<P>
+Furthermore <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2052.png"
+ ALT="$ k\neq 0$"></SPAN>, since <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2053.png"
+ ALT="$ q\neq 0$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'\neq 0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="66" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2054.png"
+ ALT="$ \ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'\neq 0$"></SPAN>.  Since <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2055.png"
+ ALT="$ q$"></SPAN>
+  is odd, it has no trailing 0's in its binary representation:
+  <P><!-- MATH
+ \begin{displaymath}
+q = (\star,\ldots,\star,1)_2 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="121" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2056.png"
+ ALT="$\displaystyle q = (\star,\ldots,\star,1)_2 \enspace .
+$">
+</DIV><P></P>
+Since <!-- MATH
+ $|\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'| < 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2057.png"
+ ALT="$ \vert\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'\vert &lt; 2^{\ensuremath{\mathtt{w}}}$"></SPAN>, <!-- MATH
+ $\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2058.png"
+ ALT="$ \ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}'$"></SPAN> has fewer than <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2059.png"
+ ALT="$ \mathtt{w}$"></SPAN> trailing
+  0's in its binary representation:
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}' = (\star,\ldots,\star,1,\underbrace{0,\ldots,0}_{<\ensuremath{\mathtt{w}}})_2
+      \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="201" HEIGHT="70" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2060.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}' = (\star,\ldots,\star,1,\underbrace{0,\ldots,0}_{&lt;\ensuremath{\mathtt{w}}})_2
+\enspace .
+$">
+</DIV><P></P>
+Therefore, the product <!-- MATH
+ $(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2061.png"
+ ALT="$ (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$"></SPAN> has fewer than <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2062.png"
+ ALT="$ \mathtt{w}$"></SPAN> trailing 0's in
+  its binary representation:
+  <P><!-- MATH
+ \begin{displaymath}
+(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = (\star,\cdots,\star,1,\underbrace{0,\ldots,0}_{<\ensuremath{\mathtt{w}}})_2
+    \enspace .
+  
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="221" HEIGHT="70" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2063.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q = (\star,\cdots,\star,1,\underbrace{0,\ldots,0}_{&lt;\ensuremath{\mathtt{w}}})_2
+\enspace .
+$">
+</DIV><P></P>
+Therefore <!-- MATH
+ $(\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2064.png"
+ ALT="$ (\ensuremath{\mathtt{z}}-\ensuremath{\mathtt{z}}')q$"></SPAN> cannot satisfy (<A HREF="#eq:factors">5.1</A>), yielding a
+  contradiction and completing the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2037.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+The utility of Lemma&nbsp;<A HREF="#lem:hashing-mapping">5.3</A> comes from the following
+observation:  If <!-- MATH
+ $\mathtt{z}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2065.png"
+ ALT="$ \mathtt{z}$"></SPAN> is chosen uniformly at random from <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2066.png"
+ ALT="$ S$"></SPAN>, then <!-- MATH
+ $\mathtt{zt}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2067.png"
+ ALT="$ \mathtt{zt}$"></SPAN>
+is uniformly distributed over <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2068.png"
+ ALT="$ S$"></SPAN>.  In the following proof, it helps
+to think of the binary representation of <!-- MATH
+ $\mathtt{z}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2069.png"
+ ALT="$ \mathtt{z}$"></SPAN>, which consists of <!-- MATH
+ $\ensuremath{\mathtt{w}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2070.png"
+ ALT="$ \ensuremath{\mathtt{w}}-1$"></SPAN>
+random bits followed by a 1.
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+[Proof of Lemma&nbsp;<A HREF="#lem:universal-hashing">5.1</A>]
+  First we note that the condition <!-- MATH
+ $\ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{hash(y)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="127" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2072.png"
+ ALT="$ \ensuremath{\mathtt{hash(x)}}=\ensuremath{\mathtt{hash(y)}}$"></SPAN> is equivalent to
+  the statement ``the highest-order <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2073.png"
+ ALT="$ \mathtt{d}$"></SPAN> bits of <!-- MATH
+ $\ensuremath{\mathtt{z}} \ensuremath{\mathtt{x}}\bmod2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2074.png"
+ ALT="$ \ensuremath{\mathtt{z}} \ensuremath{\mathtt{x}}\bmod2^{\ensuremath{\mathtt{w}}}$"></SPAN>
+  and the highest-order <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2075.png"
+ ALT="$ \mathtt{d}$"></SPAN> bits of <!-- MATH
+ $\ensuremath{\mathtt{z}} \ensuremath{\mathtt{y}}\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2076.png"
+ ALT="$ \ensuremath{\mathtt{z}} \ensuremath{\mathtt{y}}\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> are the same.''
+  A necessary condition of that statement is that the highest-order
+  <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2077.png"
+ ALT="$ \mathtt{d}$"></SPAN> bits in the binary representation of <!-- MATH
+ $\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2078.png"
+ ALT="$ \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN>
+  are either all 0's or all 1's.  That is,
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:all-zeros"></A><!-- MATH
+ \begin{equation}
+\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}} =
+      (\underbrace{0,\ldots,0}_{\ensuremath{\mathtt{d}}},\underbrace{\star,\ldots,\star}_{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}})_2 
+  
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="245" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2079.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\math...
+...rbrace{\star,\ldots,\star}_{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}})_2$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+when <!-- MATH
+ $\ensuremath{\mathtt{zx}}\bmod 2^{\ensuremath{\mathtt{w}}} > \ensuremath{\mathtt{zy}}\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="168" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2080.png"
+ ALT="$ \ensuremath{\mathtt{zx}}\bmod 2^{\ensuremath{\mathtt{w}}} &gt; \ensuremath{\mathtt{zy}}\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> or
+  <P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:all-ones"></A><!-- MATH
+ \begin{equation}
+\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}} =
+      (\underbrace{1,\ldots,1}_{\ensuremath{\mathtt{d}}},\underbrace{\star,\ldots,\star}_{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}})_2 
+       \enspace .
+  
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="257" HEIGHT="71" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2081.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\math...
+...r,\ldots,\star}_{\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}})_2 \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">3</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+when <!-- MATH
+ $\ensuremath{\mathtt{zx}}\bmod 2^{\ensuremath{\mathtt{w}}} < \ensuremath{\mathtt{zy}}\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="168" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2082.png"
+ ALT="$ \ensuremath{\mathtt{zx}}\bmod 2^{\ensuremath{\mathtt{w}}} &lt; \ensuremath{\mathtt{zy}}\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN>.
+  Therefore, we only have to bound the probability that 
+  <!-- MATH
+ $\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2083.png"
+ ALT="$ \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> looks like (<A HREF="#eq:all-zeros">5.2</A>) or (<A HREF="#eq:all-ones">5.3</A>).
+
+<P>
+Let <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2084.png"
+ ALT="$ q$"></SPAN> be the unique odd integer such that <!-- MATH
+ $(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod
+  2^{\ensuremath{\mathtt{w}}}=q2^r$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="144" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2085.png"
+ ALT="$ (\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod
+2^{\ensuremath{\mathtt{w}}}=q2^r$"></SPAN> for some integer <SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2086.png"
+ ALT="$ r\ge 0$"></SPAN>. By
+  Lemma&nbsp;<A HREF="#lem:hashing-mapping">5.3</A>, the binary representation of <!-- MATH
+ $\ensuremath{\mathtt{z}}q\bmod
+  2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="77" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2087.png"
+ ALT="$ \ensuremath{\mathtt{z}}q\bmod
+2^{\ensuremath{\mathtt{w}}}$"></SPAN> has <!-- MATH
+ $\ensuremath{\mathtt{w}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2088.png"
+ ALT="$ \ensuremath{\mathtt{w}}-1$"></SPAN> random bits, followed by a 1:
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}}  = (\underbrace{b_{\ensuremath{\mathtt{w}}-1},\ldots,b_{1}}_{\ensuremath{\mathtt{w}}-1},1)_2
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="200" HEIGHT="75" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2089.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}q\bmod 2^{\ensuremath{\mathtt{w}}} = (\und...
+...{b_{\ensuremath{\mathtt{w}}-1},\ldots,b_{1}}_{\ensuremath{\mathtt{w}}-1},1)_2
+$">
+</DIV><P></P>
+Therefore, the binary representation of <!-- MATH
+ $\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}=\ensuremath{\mathtt{z}}q2^r\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="217" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2090.png"
+ ALT="$ \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod ...
+...emath{\mathtt{w}}}=\ensuremath{\mathtt{z}}q2^r\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> has
+  <!-- MATH
+ $\ensuremath{\mathtt{w}}-r-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="58" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2091.png"
+ ALT="$ \ensuremath{\mathtt{w}}-r-1$"></SPAN> random bits, followed by a 1, followed by <SPAN CLASS="MATH"><IMG
+ WIDTH="11" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2092.png"
+ ALT="$ r$"></SPAN> 0's:
+  <P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}  =
+  \ensuremath{\mathtt{z}}q2^{r}\bmod 2^{\ensuremath{\mathtt{w}}} =
+      (\underbrace{b_{\ensuremath{\mathtt{w}}-r-1},\ldots,b_{1}}_{\ensuremath{\mathtt{w}}-r-1},1,\underbrace{0,0,\ldots,0}_{r})_2
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="418" HEIGHT="75" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2093.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\math...
+...ldots,b_{1}}_{\ensuremath{\mathtt{w}}-r-1},1,\underbrace{0,0,\ldots,0}_{r})_2
+$">
+</DIV><P></P>
+We can now finish the proof:  If <!-- MATH
+ $r > \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2094.png"
+ ALT="$ r &gt; \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$"></SPAN>, then the <!-- MATH
+ $\mathtt{d}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2095.png"
+ ALT="$ \mathtt{d}$"></SPAN>
+  higher order bits of <!-- MATH
+ $\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2096.png"
+ ALT="$ \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> contain both 0's
+  and 1's, so the probability that <!-- MATH
+ $\ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="112" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2097.png"
+ ALT="$ \ensuremath{\mathtt{z}}(\ensuremath{\mathtt{x}}-\ensuremath{\mathtt{y}})\bmod 2^{\ensuremath{\mathtt{w}}}$"></SPAN> looks
+  like (<A HREF="#eq:all-zeros">5.2</A>) or (<A HREF="#eq:all-ones">5.3</A>) is 0.  If <!-- MATH
+ $\ensuremath{\mathtt{r}}=\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2098.png"
+ ALT="$ \ensuremath{\mathtt{r}}=\ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$"></SPAN>,
+  then the probability of looking like (<A HREF="#eq:all-zeros">5.2</A>) is 0, but the
+  probability of looking like (<A HREF="#eq:all-ones">5.3</A>) is <!-- MATH
+ $1/2^{\ensuremath{\mathtt{d}}-1}=2/2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="97" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2099.png"
+ ALT="$ 1/2^{\ensuremath{\mathtt{d}}-1}=2/2^{\ensuremath{\mathtt{d}}}$"></SPAN>
+  (since we must have <!-- MATH
+ $b_1,\ldots,b_{d-1}=1,\ldots,1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="141" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2100.png"
+ ALT="$ b_1,\ldots,b_{d-1}=1,\ldots,1$"></SPAN>).  If <!-- MATH
+ $r < \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2101.png"
+ ALT="$ r &lt; \ensuremath{\mathtt{w}}-\ensuremath{\mathtt{d}}$"></SPAN>,
+  then we must have <!-- MATH
+ $b_{\ensuremath{\mathtt{w}}-r-1},\ldots,b_{\ensuremath{\mathtt{w}}-r-\ensuremath{\mathtt{d}}}=0,\ldots,0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="179" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2102.png"
+ ALT="$ b_{\ensuremath{\mathtt{w}}-r-1},\ldots,b_{\ensuremath{\mathtt{w}}-r-\ensuremath{\mathtt{d}}}=0,\ldots,0$"></SPAN> or
+  <!-- MATH
+ $b_{\ensuremath{\mathtt{w}}-r-1},\ldots,b_{\ensuremath{\mathtt{w}}-r-\ensuremath{\mathtt{d}}}=1,\ldots,1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="179" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2103.png"
+ ALT="$ b_{\ensuremath{\mathtt{w}}-r-1},\ldots,b_{\ensuremath{\mathtt{w}}-r-\ensuremath{\mathtt{d}}}=1,\ldots,1$"></SPAN>.  The probability of each
+  of these cases is <!-- MATH
+ $1/2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2104.png"
+ ALT="$ 1/2^{\ensuremath{\mathtt{d}}}$"></SPAN> and they are mutually exclusive, so the
+  probability of either of these cases is <!-- MATH
+ $2/2^{\ensuremath{\mathtt{d}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="35" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2105.png"
+ ALT="$ 2/2^{\ensuremath{\mathtt{d}}}$"></SPAN>.  This completes
+  the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2071.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00812000000000000000">
+<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the performance of a <TT>ChainedHashTable</TT>
+data structure:
+
+<P>
+<P>
+<DIV><A NAME="thm:hashtable"><B>Theorem  <SPAN CLASS="arabic">5</SPAN>..<SPAN CLASS="arabic">1</SPAN></B></A> &nbsp; 
+<I>A <TT>ChainedHashTable</TT> implements the <TT>USet</TT> interface.  Ignoring the cost of
+  calls to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2106.png"
+ ALT="$ \mathtt{grow()}$"></SPAN>, a <TT>ChainedHashTable</TT> supports the operations <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2107.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>,
+  <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2108.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>, and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2109.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2110.png"
+ ALT="$ O(1)$"></SPAN> expected time per operation.
+</I>
+<P>
+<I>Furthermore, beginning with an empty <TT>ChainedHashTable</TT>, any sequence of
+  <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2111.png"
+ ALT="$ m$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2112.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2113.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2114.png"
+ ALT="$ O(m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2115.png"
+ ALT="$ \mathtt{grow()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot16428">... integer.</A><A
+ HREF="5_1_ChainedHashTable_Hashin.html#tex2html43"><SUP><SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN></SUP></A></DT>
+<DD>This is true for most programming languages
+including C, C#, C++, and Java. Notable exceptions are Python and
+Ruby, in which the result of a fixed-length <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1982.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integer operation
+that overflows is upgraded to a variable-length representation.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html694"
+  HREF="5_2_LinearHashTable_Linear_.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html688"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html682"
+  HREF="5_Hash_Tables.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html690"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html692"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html695"
+  HREF="5_2_LinearHashTable_Linear_.html">5.2 LinearHashTable: Linear Probing</A>
+<B> Up:</B> <A NAME="tex2html689"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+<B> Previous:</B> <A NAME="tex2html683"
+  HREF="5_Hash_Tables.html">5. Hash Tables</A>
+ &nbsp; <B>  <A NAME="tex2html691"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html693"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

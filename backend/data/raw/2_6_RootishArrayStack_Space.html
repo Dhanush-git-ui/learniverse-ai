@@ -1,0 +1,1979 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2.6 RootishArrayStack: A Space-Efficient Array Stack</TITLE>
+<META NAME="description" CONTENT="2.6 RootishArrayStack: A Space-Efficient Array Stack">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="2_7_Discussion_Exercises.html">
+<LINK REL="previous" HREF="2_5_DualArrayDeque_Building.html">
+<LINK REL="up" HREF="2_Array_Based_Lists.html">
+<LINK REL="next" HREF="2_7_Discussion_Exercises.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html475"
+  HREF="2_7_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html469"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html463"
+  HREF="2_5_DualArrayDeque_Building.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html471"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html473"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html476"
+  HREF="2_7_Discussion_Exercises.html">2.7 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html470"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html464"
+  HREF="2_5_DualArrayDeque_Building.html">2.5 DualArrayDeque: Building a</A>
+ &nbsp; <B>  <A NAME="tex2html472"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html474"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html477"
+  HREF="2_6_RootishArrayStack_Space.html#SECTION00561000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Growing and Shrinking</A>
+<LI><A NAME="tex2html478"
+  HREF="2_6_RootishArrayStack_Space.html#SECTION00562000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">2</SPAN> Space Usage</A>
+<LI><A NAME="tex2html479"
+  HREF="2_6_RootishArrayStack_Space.html#SECTION00563000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary</A>
+<LI><A NAME="tex2html480"
+  HREF="2_6_RootishArrayStack_Space.html#SECTION00564000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">4</SPAN> Computing Square Roots</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00560000000000000000"></A>
+<A NAME="sec:rootisharraystack"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN> <TT>RootishArrayStack</TT>: A Space-Efficient Array Stack
+</H1>
+
+<P>
+<A NAME="5320"></A>One of the drawbacks of all previous data structures in this chapter is
+that, because they store their data in one or two arrays and they avoid
+resizing these arrays too often, the arrays frequently are not very full.
+For example, immediately after a <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img879.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> operation on an <TT>ArrayStack</TT>,
+the backing array <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img880.png"
+ ALT="$ \mathtt{a}$"></SPAN> is only half full.  Even worse, there are times
+when only one third of <!-- MATH
+ $\mathtt{a}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img881.png"
+ ALT="$ \mathtt{a}$"></SPAN> contains data.
+
+<P>
+In this section, we discuss the <TT>RootishArrayStack</TT> data structure,
+that addresses the problem of wasted space.  The <TT>RootishArrayStack</TT>
+stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img882.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements using <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img883.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN> arrays.  In these arrays, at
+most <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img884.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN> array locations are unused at any time.  All
+remaining array locations are used to store data.  Therefore, these
+data structures waste at most <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img885.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN> space when storing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img886.png"
+ ALT="$ \mathtt{n}$"></SPAN>
+elements.
+
+<P>
+A <TT>RootishArrayStack</TT> stores its elements in a list of <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img887.png"
+ ALT="$ \mathtt{r}$"></SPAN>
+arrays called <SPAN  CLASS="textit">blocks</SPAN> that are numbered <!-- MATH
+ $0,1,\ldots,\ensuremath{\mathtt{r}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img888.png"
+ ALT="$ 0,1,\ldots,\ensuremath{\mathtt{r}}-1$"></SPAN>.
+See Figure&nbsp;<A HREF="#fig:rootisharraystack">2.5</A>.  Block <SPAN CLASS="MATH"><IMG
+ WIDTH="12" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img889.png"
+ ALT="$ b$"></SPAN> contains <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img890.png"
+ ALT="$ b+1$"></SPAN> elements.
+Therefore, all <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img891.png"
+ ALT="$ \mathtt{r}$"></SPAN> blocks contain a total of
+<P><!-- MATH
+ \begin{displaymath}
+1+ 2+ 3+\cdots +\ensuremath{\mathtt{r}} = \ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)/2
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="199" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img892.png"
+ ALT="$\displaystyle 1+ 2+ 3+\cdots +\ensuremath{\mathtt{r}} = \ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)/2
+$">
+</DIV><P></P>
+elements.  The above formula can be obtained as shown in Figure&nbsp;<A HREF="#fig:gauss">2.6</A>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:rootisharraystack"></A><A NAME="5729"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.5:</STRONG>
+A sequence of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img894.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img895.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations on a
+  <TT>RootishArrayStack</TT>.  Arrows denote elements being copied. </CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="549" HEIGHT="330" ALIGN="BOTTOM" BORDER="0"
+ SRC="img893.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/rootisharraystack}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<PRE>
+    List&lt;T[]&gt; blocks;
+    int n;
+</PRE>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:gauss"></A><A NAME="5730"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.6:</STRONG>
+The number of white squares is <!-- MATH
+ $1+2+3+\cdots+\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="115" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img897.png"
+ ALT="$ 1+2+3+\cdots+\ensuremath{\mathtt{r}}$"></SPAN>.  The number of
+  shaded squares is the same.  Together the white and shaded squares make a
+  rectangle consisting of <!-- MATH
+ $\ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img898.png"
+ ALT="$ \ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)$"></SPAN> squares.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="225" HEIGHT="181" ALIGN="BOTTOM" BORDER="0"
+ SRC="img896.png"
+ ALT="\includegraphics[scale=0.90909]{figs/gauss}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+As we might expect, the elements of the list are laid out in order
+within the blocks.  The list element with index 0 is stored in block 0,
+elements with list indices 1 and 2 are stored in block 1, elements with
+list indices 3, 4, and 5 are stored in block 2, and so on.  The main
+problem we have to address is that of determining, given an index <!-- MATH
+ $\ensuremath{\mathtt{i}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img901.png"
+ ALT="$ \ensuremath{\mathtt{i}}$"></SPAN>,
+which block contains <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img902.png"
+ ALT="$ \mathtt{i}$"></SPAN> as well as the index corresponding to <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img903.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+within that block.
+
+<P>
+Determining the index of <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img904.png"
+ ALT="$ \mathtt{i}$"></SPAN> within its block turns out to be easy. If
+index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img905.png"
+ ALT="$ \mathtt{i}$"></SPAN> is in block <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img906.png"
+ ALT="$ \mathtt{b}$"></SPAN>, then the number of elements in blocks
+<!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{b}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img907.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{b}}-1$"></SPAN> is <!-- MATH
+ $\ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img908.png"
+ ALT="$ \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)/2$"></SPAN>.  Therefore, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img909.png"
+ ALT="$ \mathtt{i}$"></SPAN> is stored at location
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{j}} = \ensuremath{\mathtt{i}} - \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)/2
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img910.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{j}} = \ensuremath{\mathtt{i}} - \ensuremath{\mathtt{b}}(\ensuremath{\mathtt{b}}+1)/2
+$">
+</DIV><P></P>
+within block <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img911.png"
+ ALT="$ \mathtt{b}$"></SPAN>.  Somewhat more challenging is the problem of determining
+the value of <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img912.png"
+ ALT="$ \mathtt{b}$"></SPAN>.  The number of elements that have indices less than
+or equal to <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img913.png"
+ ALT="$ \mathtt{i}$"></SPAN> is <!-- MATH
+ $\ensuremath{\mathtt{i}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img914.png"
+ ALT="$ \ensuremath{\mathtt{i}}+1$"></SPAN>.  On the other hand, the number of elements
+in blocks 0,...,b is <!-- MATH
+ $(\ensuremath{\mathtt{b}}+1)(\ensuremath{\mathtt{b}}+2)/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="105" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img915.png"
+ ALT="$ (\ensuremath{\mathtt{b}}+1)(\ensuremath{\mathtt{b}}+2)/2$"></SPAN>.  Therefore, <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img916.png"
+ ALT="$ \mathtt{b}$"></SPAN> is the smallest
+integer such that
+<P><!-- MATH
+ \begin{displaymath}
+(\ensuremath{\mathtt{b}}+1)(\ensuremath{\mathtt{b}}+2)/2 \ge \ensuremath{\mathtt{i}}+1 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="167" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img917.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{b}}+1)(\ensuremath{\mathtt{b}}+2)/2 \ge \ensuremath{\mathtt{i}}+1 \enspace .
+$">
+</DIV><P></P>
+We can rewrite this equation as
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{b}}^2 + 3\ensuremath{\mathtt{b}} - 2\ensuremath{\mathtt{i}} \ge  0 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="123" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img918.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{b}}^2 + 3\ensuremath{\mathtt{b}} - 2\ensuremath{\mathtt{i}} \ge 0 \enspace .
+$">
+</DIV><P></P>
+The corresponding quadratic equation <!-- MATH
+ $\ensuremath{\mathtt{b}}^2 + 3\ensuremath{\mathtt{b}} - 2\ensuremath{\mathtt{i}} =  0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="111" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img919.png"
+ ALT="$ \ensuremath{\mathtt{b}}^2 + 3\ensuremath{\mathtt{b}} - 2\ensuremath{\mathtt{i}} = 0$"></SPAN> has two
+solutions: <!-- MATH
+ $\ensuremath{\mathtt{b}}=(-3 + \sqrt{9+8\ensuremath{\mathtt{i}}}) / 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img920.png"
+ ALT="$ \ensuremath{\mathtt{b}}=(-3 + \sqrt{9+8\ensuremath{\mathtt{i}}}) / 2$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{b}}=(-3 - \sqrt{9+8\ensuremath{\mathtt{i}}}) / 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img921.png"
+ ALT="$ \ensuremath{\mathtt{b}}=(-3 - \sqrt{9+8\ensuremath{\mathtt{i}}}) / 2$"></SPAN>.
+The second solution makes no sense in our application since it always
+gives a negative value. Therefore, we obtain the solution <!-- MATH
+ $\ensuremath{\mathtt{b}} = (-3 +
+\sqrt{9+8i}) / 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="139" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img922.png"
+ ALT="$ \ensuremath{\mathtt{b}} = (-3 +
+\sqrt{9+8i}) / 2$"></SPAN>.  In general, this solution is not an integer, but
+going back to our inequality, we want the smallest integer <!-- MATH
+ $\ensuremath{\mathtt{b}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img923.png"
+ ALT="$ \ensuremath{\mathtt{b}}$"></SPAN> such that 
+<!-- MATH
+ $\ensuremath{\mathtt{b}} \ge (-3 + \sqrt{9+8i}) / 2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="140" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img924.png"
+ ALT="$ \ensuremath{\mathtt{b}} \ge (-3 + \sqrt{9+8i}) / 2$"></SPAN>.  This is simply
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{b}} = \left\lceil(-3 + \sqrt{9+8i}) / 2\right\rceil \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="165" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img925.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{b}} = \left\lceil(-3 + \sqrt{9+8i}) / 2\right\rceil \enspace .
+$">
+</DIV><P></P>
+
+<P>
+<PRE>
+     int i2b(int i) {
+        double db = (-3.0 + Math.sqrt(9 + 8*i)) / 2.0;
+        int b = (int)Math.ceil(db);
+        return b; 
+    }
+</PRE>
+
+<P>
+With this out of the way, the <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img926.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img927.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> methods are straightforward.  We first compute the appropriate block <!-- MATH
+ $\mathtt{b}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img928.png"
+ ALT="$ \mathtt{b}$"></SPAN> and the appropriate index <!-- MATH
+ $\mathtt{j}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img929.png"
+ ALT="$ \mathtt{j}$"></SPAN> within the block and then perform the appropriate operation:
+
+<P>
+<PRE>
+    T get(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        int b = i2b(i);
+        int j = i - b*(b+1)/2;
+        return blocks.get(b)[j];
+    }
+    T set(int i, T x) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        int b = i2b(i);
+        int j = i - b*(b+1)/2;
+        T y = blocks.get(b)[j];
+        blocks.get(b)[j] = x;
+        return y;
+    }
+</PRE>
+
+<P>
+If we use any of the data structures in this chapter for representing the <!-- MATH
+ $\mathtt{blocks}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img930.png"
+ ALT="$ \mathtt{blocks}$"></SPAN> list, then <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img931.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img932.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> will each run in constant time.
+
+<P>
+The <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img933.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> method will, by now, look familiar.  We first check
+to see if our data structure is full, by checking if the number of
+blocks, <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img934.png"
+ ALT="$ \mathtt{r}$"></SPAN>, is such that <!-- MATH
+ $\ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)/2 = \ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img935.png"
+ ALT="$ \ensuremath{\mathtt{r}}(\ensuremath{\mathtt{r}}+1)/2 = \ensuremath{\mathtt{n}}$"></SPAN>. If so, we call <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img936.png"
+ ALT="$ \mathtt{grow()}$"></SPAN>
+to add another block.  With this done, we shift elements with indices
+<!-- MATH
+ $\ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{n}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img937.png"
+ ALT="$ \ensuremath{\mathtt{i}},\ldots,\ensuremath{\mathtt{n}}-1$"></SPAN> to the right by one position to make room for the
+new element with index <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img938.png"
+ ALT="$ \mathtt{i}$"></SPAN>:
+
+<P>
+<PRE>
+    void add(int i, T x) {
+        if (i &lt; 0 || i &gt; n) throw new IndexOutOfBoundsException();
+        int r = blocks.size();
+        if (r*(r+1)/2 &lt; n + 1) grow();
+        n++;
+        for (int j = n-1; j &gt; i; j--)
+            set(j, get(j-1));
+        set(i, x);
+    }
+</PRE>
+
+<P>
+The <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img939.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> method does what we expect. It adds a new block:
+
+<P>
+<PRE>
+    void grow() {
+        blocks.add(newArray(blocks.size()+1));
+    }
+</PRE>
+
+<P>
+Ignoring the cost of the <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img940.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> operation, the cost of an <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img941.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+operation is dominated by the cost of shifting and is therefore
+<!-- MATH
+ $O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img942.png"
+ ALT="$ O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN>, just like an <TT>ArrayStack</TT>.
+
+<P>
+The <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img943.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation is similar to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img944.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>.  It shifts the
+elements with indices <!-- MATH
+ $\ensuremath{\mathtt{i}}+1,\ldots,\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="73" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img945.png"
+ ALT="$ \ensuremath{\mathtt{i}}+1,\ldots,\ensuremath{\mathtt{n}}$"></SPAN> left by one position and then,
+if there is more than one empty block, it calls the <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img946.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> method
+to remove all but one of the unused blocks:
+
+<P>
+<PRE>
+    T remove(int i) {
+        if (i &lt; 0 || i &gt; n - 1) throw new IndexOutOfBoundsException();
+        T x = get(i);
+        for (int j = i; j &lt; n-1; j++)
+            set(j, get(j+1));
+        n--;
+        int r = blocks.size();
+        if ((r-2)*(r-1)/2 &gt;= n)    shrink();
+        return x;
+    }
+</PRE>
+<PRE>
+    void shrink() {
+        int r = blocks.size();
+        while (r &gt; 0 &amp;&amp; (r-2)*(r-1)/2 &gt;= n) {
+            blocks.remove(blocks.size()-1);
+            r--;
+        }
+    }
+</PRE>
+
+<P>
+Once again, ignoring the cost of the <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img947.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> operation, the cost of
+a <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img948.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation is dominated by the cost of shifting  and is
+therefore <!-- MATH
+ $O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img949.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN>.
+
+<P>
+
+<H2><A NAME="SECTION00561000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">1</SPAN> Analysis of Growing and Shrinking</A>
+</H2>
+
+<P>
+The above analysis of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img950.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img951.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> does not account for
+the cost of <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img952.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img953.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN>.  Note that, unlike the
+<!-- MATH
+ $\mathtt{ArrayStack.resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="154" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img954.png"
+ ALT="$ \mathtt{ArrayStack.resize()}$"></SPAN> operation, <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img955.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img956.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> do not copy
+any data.  They only allocate or free an array of size <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img957.png"
+ ALT="$ \mathtt{r}$"></SPAN>.  In
+some environments, this takes only constant time, while in others, it
+may require time proportional to <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img958.png"
+ ALT="$ \mathtt{r}$"></SPAN>.
+
+<P>
+We note that, immediately after a call to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img959.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> or <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img960.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN>, the
+situation is clear. The final block is completely empty, and all other
+blocks are completely full.  Another call to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img961.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> or <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img962.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> will
+not happen until at least <!-- MATH
+ $\ensuremath{\mathtt{r}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img963.png"
+ ALT="$ \ensuremath{\mathtt{r}}-1$"></SPAN> elements have been added or removed.
+Therefore, even if <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img964.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img965.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> take <!-- MATH
+ $O(\ensuremath{\mathtt{r}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img966.png"
+ ALT="$ O(\ensuremath{\mathtt{r}})$"></SPAN> time, this
+cost can be amortized over at least <!-- MATH
+ $\ensuremath{\mathtt{r}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img967.png"
+ ALT="$ \ensuremath{\mathtt{r}}-1$"></SPAN> <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img968.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img969.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>
+operations, so that the amortized cost of <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img970.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img971.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN> is
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img972.png"
+ ALT="$ O(1)$"></SPAN> per operation.
+
+<P>
+
+<H2><A NAME="SECTION00562000000000000000"></A>
+<A NAME="sec:rootishspaceusage"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">2</SPAN> Space Usage
+</H2>
+
+<P>
+Next, we analyze the amount of extra space used by a <TT>RootishArrayStack</TT>.
+In particular, we want to count any space used by a <TT>RootishArrayStack</TT> that is not an array element currently used to hold a list element.  We call all such space <SPAN  CLASS="textit">wasted space</SPAN>.
+<A NAME="4424"></A>
+<P>
+The <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img973.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation ensures that a <TT>RootishArrayStack</TT> never has
+more than two blocks that are not completely full.  The number of blocks,
+<!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img974.png"
+ ALT="$ \mathtt{r}$"></SPAN>, used by a <TT>RootishArrayStack</TT> that stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img975.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements therefore
+satisfies
+<P><!-- MATH
+ \begin{displaymath}
+(\ensuremath{\mathtt{r}}-2)(\ensuremath{\mathtt{r}}-1) \le \ensuremath{\mathtt{n}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="128" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img976.png"
+ ALT="$\displaystyle (\ensuremath{\mathtt{r}}-2)(\ensuremath{\mathtt{r}}-1) \le \ensuremath{\mathtt{n}} \enspace .
+$">
+</DIV><P></P>
+Again, using the quadratic equation on this gives
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{r}} \le (3+\sqrt{1+4\ensuremath{\mathtt{n}}})/2 = O(\sqrt{\ensuremath{\mathtt{n}}}) \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="206" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img977.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{r}} \le (3+\sqrt{1+4\ensuremath{\mathtt{n}}})/2 = O(\sqrt{\ensuremath{\mathtt{n}}}) \enspace .
+$">
+</DIV><P></P>
+The last two blocks have sizes <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img978.png"
+ ALT="$ \mathtt{r}$"></SPAN> and <!-- MATH
+ $\mathtt{r-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img979.png"
+ ALT="$ \mathtt{r-1}$"></SPAN>, so the space wasted by these
+two blocks is at most <!-- MATH
+ $2\ensuremath{\mathtt{r}}-1 = O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="106" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img980.png"
+ ALT="$ 2\ensuremath{\mathtt{r}}-1 = O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.  If we store the blocks
+in (for example) an <TT>ArrayStack</TT>, then the amount of space wasted by the
+<TT>List</TT> that stores those <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img981.png"
+ ALT="$ \mathtt{r}$"></SPAN> blocks is also <!-- MATH
+ $O(\ensuremath{\mathtt{r}})=O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="97" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img982.png"
+ ALT="$ O(\ensuremath{\mathtt{r}})=O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.  The
+other space needed for storing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img983.png"
+ ALT="$ \mathtt{n}$"></SPAN> and other accounting information is <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img984.png"
+ ALT="$ O(1)$"></SPAN>.
+Therefore, the total amount of wasted space in a <TT>RootishArrayStack</TT>
+is <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img985.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.
+
+<P>
+Next, we argue that this space usage is optimal for any data structure
+that starts out empty and can support the addition of one item at
+a time. More precisely, we will show that, at some point during the
+addition of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img986.png"
+ ALT="$ \mathtt{n}$"></SPAN> items, the data structure is wasting an amount of space
+at least in <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img987.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN> (though it may be only wasted for a moment).
+
+<P>
+Suppose we start with an empty data structure and we add <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img988.png"
+ ALT="$ \mathtt{n}$"></SPAN> items one
+at a time.  At the end of this process, all <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img989.png"
+ ALT="$ \mathtt{n}$"></SPAN> items are stored in
+the structure and distributed among a collection of <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img990.png"
+ ALT="$ \mathtt{r}$"></SPAN> memory blocks.
+If <!-- MATH
+ $\ensuremath{\mathtt{r}}\ge \sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img991.png"
+ ALT="$ \ensuremath{\mathtt{r}}\ge \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN>, then the data structure must be using <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img992.png"
+ ALT="$ \mathtt{r}$"></SPAN>
+pointers (or references) to keep track of these <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img993.png"
+ ALT="$ \mathtt{r}$"></SPAN> blocks, and these
+pointers are wasted space.  On the other hand, if <!-- MATH
+ $\ensuremath{\mathtt{r}} < \sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img994.png"
+ ALT="$ \ensuremath{\mathtt{r}} &lt; \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN>
+then, by the pigeonhole principle, some block must have a size of at
+least <!-- MATH
+ $\ensuremath{\mathtt{n}}/\ensuremath{\mathtt{r}} > \sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="64" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img995.png"
+ ALT="$ \ensuremath{\mathtt{n}}/\ensuremath{\mathtt{r}} &gt; \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN>.  Consider the moment at which this block
+was first allocated.  Immediately after it was allocated, this block
+was empty, and was therefore wasting <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img996.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN> space.  Therefore,
+at some point in time during the insertion of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img997.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements, the data
+structure was wasting <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img998.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{n}}}$"></SPAN> space.
+
+<P>
+
+<H2><A NAME="SECTION00563000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">3</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes our discussion of the <TT>RootishArrayStack</TT>
+data structure:
+
+<P>
+<P>
+<DIV><A NAME="thm:rootisharraystack"><B>Theorem  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">5</SPAN></B></A> &nbsp; 
+<I>A <TT>RootishArrayStack</TT> implements the <TT>List</TT> interface.  Ignoring the cost of
+  calls to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img999.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1000.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN>, a <TT>RootishArrayStack</TT> supports the operations
+  </I>
+<UL>
+<LI><!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1001.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1002.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1003.png"
+ ALT="$ O(1)$"></SPAN> time per operation; and
+</LI>
+<LI><!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1004.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1005.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> in <!-- MATH
+ $O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="83" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1006.png"
+ ALT="$ O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN> time per operation.
+  
+</LI>
+</UL><I>
+  Furthermore, beginning with an empty <TT>RootishArrayStack</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1007.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1008.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1009.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1010.png"
+ ALT="$ O(m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{grow()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1011.png"
+ ALT="$ \mathtt{grow()}$"></SPAN> and <!-- MATH
+ $\mathtt{shrink()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1012.png"
+ ALT="$ \mathtt{shrink()}$"></SPAN>.
+</I>
+<P>
+<I>The space (measured in words)<A NAME="tex2html24"
+  HREF="#foot5477"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A> used by a <TT>RootishArrayStack</TT>
+  that stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1013.png"
+ ALT="$ \mathtt{n}$"></SPAN> elements is <!-- MATH
+ $\ensuremath{\mathtt{n}} +O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="71" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1014.png"
+ ALT="$ \ensuremath{\mathtt{n}} +O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<P>
+
+<H2><A NAME="SECTION00564000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">4</SPAN> Computing Square Roots</A>
+</H2>
+
+<P>
+<A NAME="5899"></A>A reader who has had some exposure to models of computation may notice
+that the <TT>RootishArrayStack</TT>, as described above, does not fit into
+the usual word-RAM model of computation (Section&nbsp;<A HREF="1_4_Model_Computation.html#sec:model">1.4</A>) because it
+requires taking square roots.  The square root operation is generally
+not considered a basic operation and is therefore not usually part of
+the word-RAM model.
+
+<P>
+In this section, we show that the square root operation can be
+implemented efficiently.  In particular, we show that for any integer
+<!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="85" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1015.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,\ensuremath{\mathtt{n}}\}$"></SPAN>,  <!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1016.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$"></SPAN> can be computed
+in constant-time, after <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1017.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN> preprocessing that creates two
+arrays of length <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1018.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.  The following lemma shows that we
+can reduce the problem of computing the square root of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1019.png"
+ ALT="$ \mathtt{x}$"></SPAN> to the square
+root of a related value <!-- MATH
+ $\mathtt{x'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1020.png"
+ ALT="$ \mathtt{x'}$"></SPAN>.
+
+<P>
+<P>
+<DIV><A NAME="lem:root"><B>Lemma  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">3</SPAN></B></A> &nbsp; 
+<I>Let <!-- MATH
+ $\ensuremath{\mathtt{x}}\ge 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1021.png"
+ ALT="$ \ensuremath{\mathtt{x}}\ge 1$"></SPAN> and let <!-- MATH
+ $\ensuremath{\mathtt{x'}}=\ensuremath{\mathtt{x}}-a$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="66" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1022.png"
+ ALT="$ \ensuremath{\mathtt{x'}}=\ensuremath{\mathtt{x}}-a$"></SPAN>, where <!-- MATH
+ $0\le a\le\sqrt{\ensuremath{\mathtt{x}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1023.png"
+ ALT="$ 0\le a\le\sqrt{\ensuremath{\mathtt{x}}}$"></SPAN>.  Then
+   <!-- MATH
+ $\sqrt{x'} \ge \sqrt{\ensuremath{\mathtt{x}}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1024.png"
+ ALT="$ \sqrt{x'} \ge \sqrt{\ensuremath{\mathtt{x}}}-1$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+It suffices to show that
+<P><!-- MATH
+ \begin{displaymath}
+\sqrt{\ensuremath{\mathtt{x}}-\sqrt{\ensuremath{\mathtt{x}}}} \ge \sqrt{\ensuremath{\mathtt{x}}}-1 \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="135" HEIGHT="54" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1026.png"
+ ALT="$\displaystyle \sqrt{\ensuremath{\mathtt{x}}-\sqrt{\ensuremath{\mathtt{x}}}} \ge \sqrt{\ensuremath{\mathtt{x}}}-1 \enspace .
+$">
+</DIV><P></P>
+Square both sides of this inequality to get
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{x}}-\sqrt{\ensuremath{\mathtt{x}}} \ge \ensuremath{\mathtt{x}}-2\sqrt{\ensuremath{\mathtt{x}}}+1
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="142" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1027.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{x}}-\sqrt{\ensuremath{\mathtt{x}}} \ge \ensuremath{\mathtt{x}}-2\sqrt{\ensuremath{\mathtt{x}}}+1
+$">
+</DIV><P></P>
+and gather terms to get 
+<P><!-- MATH
+ \begin{displaymath}
+\sqrt{\ensuremath{\mathtt{x}}} \ge 1
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="51" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1028.png"
+ ALT="$\displaystyle \sqrt{\ensuremath{\mathtt{x}}} \ge 1
+$">
+</DIV><P></P>
+which is clearly true for any <!-- MATH
+ $\ensuremath{\mathtt{x}}\ge 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1029.png"
+ ALT="$ \ensuremath{\mathtt{x}}\ge 1$"></SPAN>.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1025.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+Start by restricting the problem a little, and assume that <!-- MATH
+ $2^{\ensuremath{\mathtt{r}}} \le
+\ensuremath{\mathtt{x}} < 2^{\ensuremath{\mathtt{r}}+1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="93" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1030.png"
+ ALT="$ 2^{\ensuremath{\mathtt{r}}} \le
+\ensuremath{\mathtt{x}} &lt; 2^{\ensuremath{\mathtt{r}}+1}$"></SPAN>, so that <!-- MATH
+ $\lfloor\log \ensuremath{\mathtt{x}}\rfloor=\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1031.png"
+ ALT="$ \lfloor\log \ensuremath{\mathtt{x}}\rfloor=\ensuremath{\mathtt{r}}$"></SPAN>, i.e., <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1032.png"
+ ALT="$ \mathtt{x}$"></SPAN> is an
+integer having <!-- MATH
+ $\ensuremath{\mathtt{r}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1033.png"
+ ALT="$ \ensuremath{\mathtt{r}}+1$"></SPAN> bits in its binary representation.  We can take
+<!-- MATH
+ $\ensuremath{\mathtt{x'}}=\ensuremath{\mathtt{x}} - (\ensuremath{\mathtt{x}}\bmod 2^{\lfloor r/2\rfloor})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="153" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1034.png"
+ ALT="$ \ensuremath{\mathtt{x'}}=\ensuremath{\mathtt{x}} - (\ensuremath{\mathtt{x}}\bmod 2^{\lfloor r/2\rfloor})$"></SPAN>.  Now, <!-- MATH
+ $\mathtt{x'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1035.png"
+ ALT="$ \mathtt{x'}$"></SPAN> satisfies
+the conditions of Lemma&nbsp;<A HREF="#lem:root">2.3</A>, so <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{x}}}-\sqrt{\ensuremath{\mathtt{x'}}} \le 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1036.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{x}}}-\sqrt{\ensuremath{\mathtt{x'}}} \le 1$"></SPAN>.
+Furthermore, <!-- MATH
+ $\mathtt{x'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1037.png"
+ ALT="$ \mathtt{x'}$"></SPAN> has all of its lower-order <!-- MATH
+ $\lfloor \ensuremath{\mathtt{r}}/2\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1038.png"
+ ALT="$ \lfloor \ensuremath{\mathtt{r}}/2\rfloor$"></SPAN> bits
+equal to 0, so there are only
+<P><!-- MATH
+ \begin{displaymath}
+2^{\ensuremath{\mathtt{r}}+1-\lfloor \ensuremath{\mathtt{r}}/2\rfloor} \le 4\cdot2^{\ensuremath{\mathtt{r}}/2} \le 4\sqrt{\ensuremath{\mathtt{x}}}
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="178" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1039.png"
+ ALT="$\displaystyle 2^{\ensuremath{\mathtt{r}}+1-\lfloor \ensuremath{\mathtt{r}}/2\rfloor} \le 4\cdot2^{\ensuremath{\mathtt{r}}/2} \le 4\sqrt{\ensuremath{\mathtt{x}}}
+$">
+</DIV><P></P>
+possible values of <!-- MATH
+ $\mathtt{x'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1040.png"
+ ALT="$ \mathtt{x'}$"></SPAN>.  This means that we can use an array, <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1041.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN>,
+that stores the value of <!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x'}}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="41" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1042.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x'}}}\rfloor$"></SPAN> for each possible
+value of <!-- MATH
+ $\mathtt{x'}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1043.png"
+ ALT="$ \mathtt{x'}$"></SPAN>.  A little more precisely, we have
+<P><!-- MATH
+ \begin{displaymath}
+\ensuremath{\mathtt{sqrttab}}[i]
+    = \left\lfloor
+       \sqrt{i 2^{\lfloor \ensuremath{\mathtt{r}}/2\rfloor}}
+      \right\rfloor \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="178" HEIGHT="48" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1044.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{sqrttab}}[i]
+= \left\lfloor
+\sqrt{i 2^{\lfloor \ensuremath{\mathtt{r}}/2\rfloor}}
+\right\rfloor \enspace .
+$">
+</DIV><P></P>
+In this way, <!-- MATH
+ $\ensuremath{\mathtt{sqrttab}}[i]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="79" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1045.png"
+ ALT="$ \ensuremath{\mathtt{sqrttab}}[i]$"></SPAN> is within 2 of <!-- MATH
+ $\sqrt{\ensuremath{\mathtt{x}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1046.png"
+ ALT="$ \sqrt{\ensuremath{\mathtt{x}}}$"></SPAN> for all
+<!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{i2^{\lfloor r/2\rfloor},\ldots,(i+1)2^{\lfloor r/2\rfloor}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="208" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1047.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{i2^{\lfloor r/2\rfloor},\ldots,(i+1)2^{\lfloor r/2\rfloor}-1\}$"></SPAN>.
+Stated another way, the array entry 
+<!-- MATH
+ $\ensuremath{\mathtt{s}}=\ensuremath{\mathtt{sqrttab}}[\ensuremath{\mathtt{x}}\ensuremath{\mathtt{\text{\ttfamily >>}}}\lfloor \ensuremath{\mathtt{r}}/2\rfloor]$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="160" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1048.png"
+ ALT="$ \ensuremath{\mathtt{s}}=\ensuremath{\mathtt{sqrttab}}[\ensuremath{\mathtt{x}}\ensuremath{\mathtt{\text{\ttfamily &gt;&gt;}}}\lfloor \ensuremath{\mathtt{r}}/2\rfloor]$"></SPAN> is either equal to
+<!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1049.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$"></SPAN>,
+<!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1050.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor-1$"></SPAN>, or
+<!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor-2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="60" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1051.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor-2$"></SPAN>.  From <!-- MATH
+ $\mathtt{s}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1052.png"
+ ALT="$ \mathtt{s}$"></SPAN> we can determine the value
+of <!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1053.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$"></SPAN> by
+incrementing <!-- MATH
+ $\mathtt{s}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1054.png"
+ ALT="$ \mathtt{s}$"></SPAN> until 
+<!-- MATH
+ $(\ensuremath{\mathtt{s}}+1)^2 > \ensuremath{\mathtt{x}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="80" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1055.png"
+ ALT="$ (\ensuremath{\mathtt{s}}+1)^2 &gt; \ensuremath{\mathtt{x}}$"></SPAN>.
+ <PRE>
+    int sqrt(int x, int r) {
+        int s = sqrtab[x&gt;&gt;r/2];
+        while ((s+1)*(s+1) &lt;= x) s++; // executes at most twice
+        return s;
+    }
+</PRE>
+
+Now, this only works for <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{2^{\ensuremath{\mathtt{r}}},\ldots,2^{\ensuremath{\mathtt{r}}+1}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="137" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1056.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{2^{\ensuremath{\mathtt{r}}},\ldots,2^{\ensuremath{\mathtt{r}}+1}-1\}$"></SPAN> and
+<!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1057.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN> is a special table that only works for a particular value
+of <!-- MATH
+ $\ensuremath{\mathtt{r}}=\lfloor\log \ensuremath{\mathtt{x}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1058.png"
+ ALT="$ \ensuremath{\mathtt{r}}=\lfloor\log \ensuremath{\mathtt{x}}\rfloor$"></SPAN>.  To overcome this, we could compute
+<!-- MATH
+ $\lfloor\log \ensuremath{\mathtt{n}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1059.png"
+ ALT="$ \lfloor\log \ensuremath{\mathtt{n}}\rfloor$"></SPAN> different <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1060.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN> arrays, one for each possible
+value of <!-- MATH
+ $\lfloor\log \ensuremath{\mathtt{x}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1061.png"
+ ALT="$ \lfloor\log \ensuremath{\mathtt{x}}\rfloor$"></SPAN>. The sizes of these tables form an exponential sequence whose largest value is at most <!-- MATH
+ $4\sqrt{\ensuremath{\mathtt{n}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="33" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1062.png"
+ ALT="$ 4\sqrt{\ensuremath{\mathtt{n}}}$"></SPAN>, so the total size of all tables is <!-- MATH
+ $O(\sqrt{\ensuremath{\mathtt{n}}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1063.png"
+ ALT="$ O(\sqrt{\ensuremath{\mathtt{n}}})$"></SPAN>.
+
+<P>
+However, it turns out that more than one <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1064.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN> array is unnecessary;
+we only need one <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1065.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN> array for the value <!-- MATH
+ $\ensuremath{\mathtt{r}}=\lfloor\log
+\ensuremath{\mathtt{n}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1066.png"
+ ALT="$ \ensuremath{\mathtt{r}}=\lfloor\log
+\ensuremath{\mathtt{n}}\rfloor$"></SPAN>.  Any value <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1067.png"
+ ALT="$ \mathtt{x}$"></SPAN> with <!-- MATH
+ $\log\ensuremath{\mathtt{x}}=\ensuremath{\mathtt{r'}}<\ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="92" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1068.png"
+ ALT="$ \log\ensuremath{\mathtt{x}}=\ensuremath{\mathtt{r'}}&lt;\ensuremath{\mathtt{r}}$"></SPAN> can be <SPAN  CLASS="textit">upgraded</SPAN>
+by multiplying <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1069.png"
+ ALT="$ \mathtt{x}$"></SPAN> by <!-- MATH
+ $2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r'}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1070.png"
+ ALT="$ 2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r'}}}$"></SPAN> and using the equation
+<P><!-- MATH
+ \begin{displaymath}
+\sqrt{2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r'}}}x} = 2^{(\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r}}')/2}\sqrt{\ensuremath{\mathtt{x}}} \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="160" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1071.png"
+ ALT="$\displaystyle \sqrt{2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r'}}}x} = 2^...
+...thtt{r}}-\ensuremath{\mathtt{r}}')/2}\sqrt{\ensuremath{\mathtt{x}}} \enspace .
+$">
+</DIV><P></P>
+The quantity <!-- MATH
+ $2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r}}'}x$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1072.png"
+ ALT="$ 2^{\ensuremath{\mathtt{r}}-\ensuremath{\mathtt{r}}'}x$"></SPAN> is in the range
+<!-- MATH
+ $\{2^{\ensuremath{\mathtt{r}}},\ldots,2^{\ensuremath{\mathtt{r}}+1}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="113" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1073.png"
+ ALT="$ \{2^{\ensuremath{\mathtt{r}}},\ldots,2^{\ensuremath{\mathtt{r}}+1}-1\}$"></SPAN> so we can look up its square root
+in <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1074.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN>.  The following code implements this idea to compute
+<!-- MATH
+ $\lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="37" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1075.png"
+ ALT="$ \lfloor\sqrt{\ensuremath{\mathtt{x}}}\rfloor$"></SPAN> for all non-negative integers <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1076.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the
+range <!-- MATH
+ $\{0,\ldots,2^{30}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1077.png"
+ ALT="$ \{0,\ldots,2^{30}-1\}$"></SPAN> using an array, <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1078.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN>, of size <SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1079.png"
+ ALT="$ 2^{16}$"></SPAN>.
+ <PRE>
+    int sqrt(int x) {
+        int rp = log(x);
+        int upgrade = ((r-rp)/2) * 2;
+        int xp = x &lt;&lt; upgrade;  // xp has r or r-1 bits
+        int s = sqrtab[xp&gt;&gt;(r/2)] &gt;&gt; (upgrade/2);
+        while ((s+1)*(s+1) &lt;= x) s++;  // executes at most twice
+        return s;
+    }
+</PRE>
+
+Something we have taken for granted thus far is the question of how
+to compute
+<!-- MATH
+ $\ensuremath{\mathtt{r}}'=\lfloor\log\ensuremath{\mathtt{x}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="79" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1080.png"
+ ALT="$ \ensuremath{\mathtt{r}}'=\lfloor\log\ensuremath{\mathtt{x}}\rfloor$"></SPAN>.  Again, this is a problem that can be solved
+with an array, <!-- MATH
+ $\mathtt{logtab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1081.png"
+ ALT="$ \mathtt{logtab}$"></SPAN>, of size <!-- MATH
+ $2^{\ensuremath{\mathtt{r}}/2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1082.png"
+ ALT="$ 2^{\ensuremath{\mathtt{r}}/2}$"></SPAN>.  In this case, the
+code is particularly simple, since <!-- MATH
+ $\lfloor\log \ensuremath{\mathtt{x}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1083.png"
+ ALT="$ \lfloor\log \ensuremath{\mathtt{x}}\rfloor$"></SPAN> is just the
+index of the most significant 1 bit in the binary representation of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1084.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+This means that, for <!-- MATH
+ $\ensuremath{\mathtt{x}}>2^{\ensuremath{\mathtt{r}}/2}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1085.png"
+ ALT="$ \ensuremath{\mathtt{x}}&gt;2^{\ensuremath{\mathtt{r}}/2}$"></SPAN>, we can right-shift the bits of
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1086.png"
+ ALT="$ \mathtt{x}$"></SPAN> by <!-- MATH
+ $\ensuremath{\mathtt{r}}/2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1087.png"
+ ALT="$ \ensuremath{\mathtt{r}}/2$"></SPAN> positions before using it as an index into <!-- MATH
+ $\mathtt{logtab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1088.png"
+ ALT="$ \mathtt{logtab}$"></SPAN>.
+The following code does this using an array <!-- MATH
+ $\mathtt{logtab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1089.png"
+ ALT="$ \mathtt{logtab}$"></SPAN> of size <SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1090.png"
+ ALT="$ 2^{16}$"></SPAN> to compute
+<!-- MATH
+ $\lfloor\log \ensuremath{\mathtt{x}}\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1091.png"
+ ALT="$ \lfloor\log \ensuremath{\mathtt{x}}\rfloor$"></SPAN> for all <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1092.png"
+ ALT="$ \mathtt{x}$"></SPAN> in the range <!-- MATH
+ $\{1,\ldots,2^{32}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="98" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1093.png"
+ ALT="$ \{1,\ldots,2^{32}-1\}$"></SPAN>.
+ <PRE>
+    int log(int x) {
+        if (x &gt;= halfint)
+            return 16 + logtab[x&gt;&gt;&gt;16];
+        return logtab[x];
+    }
+</PRE>
+
+Finally, for completeness, we include the following code that initializes <!-- MATH
+ $\mathtt{logtab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1094.png"
+ ALT="$ \mathtt{logtab}$"></SPAN> and <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1095.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN>:
+ <PRE>
+    void inittabs() {
+        sqrtab = new int[1&lt;&lt;(r/2)];
+        logtab = new int[1&lt;&lt;(r/2)];
+        for (int d = 0; d &lt; r/2; d++) 
+            Arrays.fill(logtab, 1&lt;&lt;d, 2&lt;&lt;d, d);
+        int s = 1&lt;&lt;(r/4);                    // sqrt(2^(r/2))
+        for (int i = 0; i &lt; 1&lt;&lt;(r/2); i++) {
+            if ((s+1)*(s+1) &lt;= i &lt;&lt; (r/2)) s++; // sqrt increases
+            sqrtab[i] = s;
+        }
+    }
+</PRE>
+
+To summarize, the computations done by the <!-- MATH
+ $\mathtt{i2b(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1096.png"
+ ALT="$ \mathtt{i2b(i)}$"></SPAN> method can be
+implemented in constant time on the word-RAM using <!-- MATH
+ $O(\sqrt{n})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="48" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1097.png"
+ ALT="$ O(\sqrt{n})$"></SPAN> extra
+memory to store the <!-- MATH
+ $\mathtt{sqrttab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1098.png"
+ ALT="$ \mathtt{sqrttab}$"></SPAN> and <!-- MATH
+ $\mathtt{logtab}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1099.png"
+ ALT="$ \mathtt{logtab}$"></SPAN> arrays.  These arrays can be
+rebuilt when <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1100.png"
+ ALT="$ \mathtt{n}$"></SPAN> increases or decreases by a factor of two, and the cost
+of this rebuilding can be amortized over the number of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1101.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and
+<!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1102.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations that caused the change in <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1103.png"
+ ALT="$ \mathtt{n}$"></SPAN> in the same way that
+the cost of <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1104.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> is analyzed in the <TT>ArrayStack</TT> implementation.
+ 
+<P>
+<BR><HR><H4>Footnotes</H4>
+<DL>
+<DT><A NAME="foot5477">... words)</A><A
+ HREF="2_6_RootishArrayStack_Space.html#tex2html24"><SUP><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">3</SPAN></SUP></A></DT>
+<DD>Recall Section&nbsp;<A HREF="1_4_Model_Computation.html#sec:model">1.4</A> for a
+  discussion of how memory is measured.
+
+</DD>
+</DL>
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html475"
+  HREF="2_7_Discussion_Exercises.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html469"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html463"
+  HREF="2_5_DualArrayDeque_Building.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html471"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html473"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html476"
+  HREF="2_7_Discussion_Exercises.html">2.7 Discussion and Exercises</A>
+<B> Up:</B> <A NAME="tex2html470"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html464"
+  HREF="2_5_DualArrayDeque_Building.html">2.5 DualArrayDeque: Building a</A>
+ &nbsp; <B>  <A NAME="tex2html472"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html474"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

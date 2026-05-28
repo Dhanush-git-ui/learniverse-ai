@@ -1,0 +1,812 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>13.2 XFastTrie: Searching in Doubly-Logarithmic Time</TITLE>
+<META NAME="description" CONTENT="13.2 XFastTrie: Searching in Doubly-Logarithmic Time">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="13_3_YFastTrie_Doubly_Logar.html">
+<LINK REL="previous" HREF="13_1_BinaryTrie_digital_sea.html">
+<LINK REL="up" HREF="13_Data_Structures_Integers.html">
+<LINK REL="next" HREF="13_3_YFastTrie_Doubly_Logar.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1230"
+  HREF="13_3_YFastTrie_Doubly_Logar.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1224"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1218"
+  HREF="13_1_BinaryTrie_digital_sea.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1226"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1228"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1231"
+  HREF="13_3_YFastTrie_Doubly_Logar.html">13.3 YFastTrie: A Doubly-Logarithmic</A>
+<B> Up:</B> <A NAME="tex2html1225"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1219"
+  HREF="13_1_BinaryTrie_digital_sea.html">13.1 BinaryTrie: A digital</A>
+ &nbsp; <B>  <A NAME="tex2html1227"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1229"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001620000000000000000"></A>
+<A NAME="sec:xfast"></A>
+<BR>
+<SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>XFastTrie</TT>: Searching in Doubly-Logarithmic Time
+</H1>
+
+<P>
+<A NAME="34486"></A>The performance of the <TT>BinaryTrie</TT> structure is not very impressive.
+The number of elements, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4958.png"
+ ALT="$ \mathtt{n}$"></SPAN>, stored in the structure is at most <!-- MATH
+ $2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4959.png"
+ ALT="$ 2^{\ensuremath{\mathtt{w}}}$"></SPAN>,
+so <!-- MATH
+ $\log \ensuremath{\mathtt{n}}\le \ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4960.png"
+ ALT="$ \log \ensuremath{\mathtt{n}}\le \ensuremath{\mathtt{w}}$"></SPAN>.  In other words, any of the comparison-based <TT>SSet</TT>
+structures described in other parts of this book are at least as efficient
+as a <TT>BinaryTrie</TT>, and are not restricted to only storing integers.
+
+<P>
+Next we describe the <TT>XFastTrie</TT>, which is just a <TT>BinaryTrie</TT> with
+<!-- MATH
+ $\mathtt{w+1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4961.png"
+ ALT="$ \mathtt{w+1}$"></SPAN> hash tables--one for each level of the trie. These hash tables
+are used to speed up the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4962.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation to <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4963.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> time.
+Recall that the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4964.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>BinaryTrie</TT> is almost complete
+once we reach a node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4965.png"
+ ALT="$ \mathtt{u}$"></SPAN>, where the search path for <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4966.png"
+ ALT="$ \mathtt{x}$"></SPAN> would like to
+proceed to <!-- MATH
+ $\mathtt{u.right}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4967.png"
+ ALT="$ \mathtt{u.right}$"></SPAN> (or <!-- MATH
+ $\mathtt{u.left}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4968.png"
+ ALT="$ \mathtt{u.left}$"></SPAN>) but <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4969.png"
+ ALT="$ \mathtt{u}$"></SPAN> has no right (respectively,
+left) child.  At this point, the search uses <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4970.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN> to jump to a leaf,
+<!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4971.png"
+ ALT="$ \mathtt{v}$"></SPAN>, of the <TT>BinaryTrie</TT> and either return <!-- MATH
+ $\mathtt{v}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4972.png"
+ ALT="$ \mathtt{v}$"></SPAN> or its successor in the
+linked list of leaves.  An <TT>XFastTrie</TT> speeds up the search process by
+using binary search
+<A NAME="33884"></A>on the levels of the trie to locate the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4973.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+
+<P>
+To use binary search, we need a way to determine if the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4974.png"
+ ALT="$ \mathtt{u}$"></SPAN> we are
+looking for is above a particular level, <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4975.png"
+ ALT="$ \mathtt{i}$"></SPAN>, of if <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4976.png"
+ ALT="$ \mathtt{u}$"></SPAN> is at or below
+level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4977.png"
+ ALT="$ \mathtt{i}$"></SPAN>.  This information is given by the highest-order <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4978.png"
+ ALT="$ \mathtt{i}$"></SPAN> bits
+in the binary representation of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4979.png"
+ ALT="$ \mathtt{x}$"></SPAN>; these bits determine the search
+path that <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4980.png"
+ ALT="$ \mathtt{x}$"></SPAN> takes from the root to level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4981.png"
+ ALT="$ \mathtt{i}$"></SPAN>.   For an example,
+refer to Figure&nbsp;<A HREF="#fig:xfast-path">13.6</A>; in this figure the last node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4982.png"
+ ALT="$ \mathtt{u}$"></SPAN>, on
+search path for 14 (whose binary representation is 1110) is the node
+labelled <!-- MATH
+ $11{\star\star}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4983.png"
+ ALT="$ 11{\star\star}$"></SPAN> at level 2 because there is no node labelled
+<!-- MATH
+ $111{\star}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4984.png"
+ ALT="$ 111{\star}$"></SPAN> at level 3.  Thus, we can label each node at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4985.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+with an <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4986.png"
+ ALT="$ \mathtt{i}$"></SPAN>-bit integer.  Then, the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4987.png"
+ ALT="$ \mathtt{u}$"></SPAN> we are searching for would
+be at or below level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4988.png"
+ ALT="$ \mathtt{i}$"></SPAN> if and only if there is a node at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4989.png"
+ ALT="$ \mathtt{i}$"></SPAN>
+whose label matches the highest-order <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4990.png"
+ ALT="$ \mathtt{i}$"></SPAN> bits of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4991.png"
+ ALT="$ \mathtt{x}$"></SPAN>.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:xfast-path"></A><A NAME="34520"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 13.6:</STRONG>
+Since there is no node labelled <SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4993.png"
+ ALT="$ 111\star$"></SPAN>, the search path
+    for 14 (1110) ends at the node labelled <!-- MATH
+ $11{\star\star}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4994.png"
+ ALT="$ 11{\star\star}$"></SPAN> .</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="400" HEIGHT="227" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4992.png"
+ ALT="\includegraphics[scale=0.90909]{figs/xfast-path}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+In an <TT>XFastTrie</TT>, we store, for each <!-- MATH
+ $\ensuremath{\mathtt{i}}\in\{0,\ldots,\ensuremath{\mathtt{w}}\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="85" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4997.png"
+ ALT="$ \ensuremath{\mathtt{i}}\in\{0,\ldots,\ensuremath{\mathtt{w}}\}$"></SPAN>, all
+the nodes at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4998.png"
+ ALT="$ \mathtt{i}$"></SPAN> in a <TT>USet</TT>, <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4999.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>, that is implemented as a
+hash table (Chapter&nbsp;<A HREF="5_Hash_Tables.html#chap:hashing">5</A>).  Using this <TT>USet</TT> allows us to check
+in constant expected time if there is a node at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5000.png"
+ ALT="$ \mathtt{i}$"></SPAN> whose label
+matches the highest-order <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5001.png"
+ ALT="$ \mathtt{i}$"></SPAN> bits of <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5002.png"
+ ALT="$ \mathtt{x}$"></SPAN>.  In fact, we can even find
+this node using
+<!-- MATH
+ $\mathtt{t[i].find(x\text{\ttfamily >>>}(w-i))}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="156" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5003.png"
+ ALT="$ \mathtt{t[i].find(x\text{\ttfamily &gt;&gt;&gt;}(w-i))}$"></SPAN>
+<P>
+The hash tables <!-- MATH
+ $\ensuremath{\mathtt{t[0]}},\ldots,\ensuremath{\mathtt{t[w]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="87" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5004.png"
+ ALT="$ \ensuremath{\mathtt{t[0]}},\ldots,\ensuremath{\mathtt{t[w]}}$"></SPAN> allow us to use binary search
+to find <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5005.png"
+ ALT="$ \mathtt{u}$"></SPAN>.  Initially, we know that <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5006.png"
+ ALT="$ \mathtt{u}$"></SPAN> is at some level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5007.png"
+ ALT="$ \mathtt{i}$"></SPAN> with
+<!-- MATH
+ $0\le \ensuremath{\mathtt{i}}< \ensuremath{\mathtt{w}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="88" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5008.png"
+ ALT="$ 0\le \ensuremath{\mathtt{i}}&lt; \ensuremath{\mathtt{w}}+1$"></SPAN>. We therefore initialize <!-- MATH
+ $\ensuremath{\mathtt{l}}=0$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5009.png"
+ ALT="$ \ensuremath{\mathtt{l}}=0$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{h}}=\ensuremath{\mathtt{w}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5010.png"
+ ALT="$ \ensuremath{\mathtt{h}}=\ensuremath{\mathtt{w}}+1$"></SPAN>
+and repeatedly look at the hash table <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5011.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>, where <!-- MATH
+ $\ensuremath{\mathtt{i}}=\lfloor
+(\ensuremath{\mathtt{l+h}})/2\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="100" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5012.png"
+ ALT="$ \ensuremath{\mathtt{i}}=\lfloor
+(\ensuremath{\mathtt{l+h}})/2\rfloor$"></SPAN>.  If <!-- MATH
+ $\ensuremath{\mathtt{t[i]}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5013.png"
+ ALT="$ \ensuremath{\mathtt{t[i]}}$"></SPAN> contains a node whose label matches
+<!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5014.png"
+ ALT="$ \mathtt{x}$"></SPAN>'s highest-order <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5015.png"
+ ALT="$ \mathtt{i}$"></SPAN> bits then we set <!-- MATH
+ $\mathtt{l=i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5016.png"
+ ALT="$ \mathtt{l=i}$"></SPAN> (<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5017.png"
+ ALT="$ \mathtt{u}$"></SPAN> is at or below level
+<!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5018.png"
+ ALT="$ \mathtt{i}$"></SPAN>); otherwise we set <!-- MATH
+ $\mathtt{h=i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5019.png"
+ ALT="$ \mathtt{h=i}$"></SPAN> (<!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5020.png"
+ ALT="$ \mathtt{u}$"></SPAN> is above level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5021.png"
+ ALT="$ \mathtt{i}$"></SPAN>).  This process
+terminates when <!-- MATH
+ $\ensuremath{\mathtt{h-l}}\le 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5022.png"
+ ALT="$ \ensuremath{\mathtt{h-l}}\le 1$"></SPAN>, in which case we determine that <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5023.png"
+ ALT="$ \mathtt{u}$"></SPAN> is
+at level <!-- MATH
+ $\mathtt{l}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5024.png"
+ ALT="$ \mathtt{l}$"></SPAN>.  We then complete the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5025.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation using <!-- MATH
+ $\mathtt{u.jump}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5026.png"
+ ALT="$ \mathtt{u.jump}$"></SPAN>
+and the doubly-linked list of leaves.
+<PRE>
+    T find(T x) {
+        int l = 0, h = w+1, ix = it.intValue(x);
+        Node v, u = r, q = newNode();
+        while (h-l &gt; 1) {
+            int i = (l+h)/2;
+            q.prefix = ix &gt;&gt;&gt; w-i;
+            if ((v = t[i].find(q)) == null) {
+                h = i;
+            } else {
+                u = v;
+                l = i;
+            }
+        }
+        if (l == w) return u.x;
+        Node pred = (((ix &gt;&gt;&gt; w-l-1) &amp; 1) == 1) 
+                 ? u.jump : u.jump.child[0];
+        return (pred.child[next] == dummy) 
+                     ? null : pred.child[next].x;
+    }
+</PRE>
+Each iteration of the <!-- MATH
+ $\mathtt{while}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5027.png"
+ ALT="$ \mathtt{while}$"></SPAN> loop in the above method decreases <!-- MATH
+ $\mathtt{h-l}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5028.png"
+ ALT="$ \mathtt{h-l}$"></SPAN>
+by roughly a factor of two, so this loop finds <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5029.png"
+ ALT="$ \mathtt{u}$"></SPAN> after <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5030.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN>
+iterations.  Each iteration performs a constant amount of work and one
+<!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5031.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> operation in a <TT>USet</TT>, which takes a constant expected amount
+of time.  The remaining work takes only constant time, so the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5032.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>
+method in an <TT>XFastTrie</TT> takes only <!-- MATH
+ $O(\log\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5033.png"
+ ALT="$ O(\log\ensuremath{\mathtt{w}})$"></SPAN> expected time.
+
+<P>
+The <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5034.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5035.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> methods for an <TT>XFastTrie</TT> are almost
+identical to the same methods in a <TT>BinaryTrie</TT>.  The only modifications
+are for managing the hash tables <!-- MATH
+ $\mathtt{t[0]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5036.png"
+ ALT="$ \mathtt{t[0]}$"></SPAN>,...,<!-- MATH
+ $\mathtt{t[w]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5037.png"
+ ALT="$ \mathtt{t[w]}$"></SPAN>.  During the
+<!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5038.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operation, when a new node is created at level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5039.png"
+ ALT="$ \mathtt{i}$"></SPAN>, this node
+is added to <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5040.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>.  During a <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5041.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> operation, when a node is
+removed form level <!-- MATH
+ $\mathtt{i}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5042.png"
+ ALT="$ \mathtt{i}$"></SPAN>, this node is removed from <!-- MATH
+ $\mathtt{t[i]}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5043.png"
+ ALT="$ \mathtt{t[i]}$"></SPAN>.  Since adding
+and removing from a hash table take constant expected time, this does
+not increase the running times of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5044.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5045.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> by more than
+a constant factor. We omit a code listing for <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5046.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5047.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+since the code is almost identical to the (long) code listing already
+provided for the same methods in a <TT>BinaryTrie</TT>.
+
+<P>
+The following theorem summarizes the performance of an <TT>XFastTrie</TT>:
+
+<P>
+<P>
+<DIV><B>Theorem  <SPAN CLASS="arabic">13</SPAN>..<SPAN CLASS="arabic">2</SPAN></B> &nbsp; 
+<I>An <TT>XFastTrie</TT> implements the <TT>SSet</TT> interface for <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5048.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers. An
+<TT>XFastTrie</TT> supports the operations
+</I>
+<UL>
+<LI><!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5049.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5050.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> in <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5051.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> expected time per operation and 
+</LI>
+<LI><!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5052.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> in <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5053.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> expected time per operation.
+</LI>
+</UL><I>
+The space used by an <TT>XFastTrie</TT> that
+stores <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img5054.png"
+ ALT="$ \mathtt{n}$"></SPAN> values is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5055.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1230"
+  HREF="13_3_YFastTrie_Doubly_Logar.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1224"
+  HREF="13_Data_Structures_Integers.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1218"
+  HREF="13_1_BinaryTrie_digital_sea.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1226"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1228"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1231"
+  HREF="13_3_YFastTrie_Doubly_Logar.html">13.3 YFastTrie: A Doubly-Logarithmic</A>
+<B> Up:</B> <A NAME="tex2html1225"
+  HREF="13_Data_Structures_Integers.html">13. Data Structures for</A>
+<B> Previous:</B> <A NAME="tex2html1219"
+  HREF="13_1_BinaryTrie_digital_sea.html">13.1 BinaryTrie: A digital</A>
+ &nbsp; <B>  <A NAME="tex2html1227"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1229"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

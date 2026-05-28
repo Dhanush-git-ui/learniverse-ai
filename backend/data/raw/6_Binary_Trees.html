@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>6. Binary Trees</TITLE>
+<META NAME="description" CONTENT="6. Binary Trees">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="7_Random_Binary_Search_Tree.html">
+<LINK REL="previous" HREF="5_Hash_Tables.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="6_1_BinaryTree_Basic_Binary.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html756"
+  HREF="6_1_BinaryTree_Basic_Binary.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html750"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html744"
+  HREF="5_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html752"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html754"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html757"
+  HREF="6_1_BinaryTree_Basic_Binary.html">6.1 BinaryTree: A Basic</A>
+<B> Up:</B> <A NAME="tex2html751"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html745"
+  HREF="5_4_Discussion_Exercises.html">5.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html753"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html755"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00900000000000000000"></A>
+<A NAME="chap:binarytrees"></A>
+<BR>
+<SPAN CLASS="arabic">6</SPAN>. Binary Trees
+</H1>
+
+<P>
+This chapter introduces one of the most fundamental structures in computer
+science: binary trees.  The use of the word <SPAN  CLASS="textit">tree</SPAN>
+<A NAME="19569"></A><A NAME="19570"></A><A NAME="19571"></A>here comes from
+the fact that, when we draw them, the resultant drawing often resembles
+the trees found in a forest.  There are many ways of ways of defining
+binary trees.  Mathematically, a <SPAN  CLASS="textit">binary tree</SPAN> is a connected,
+undirected, finite graph with no cycles, and no vertex of degree greater
+than three.
+
+<P>
+For most computer science applications, binary trees are <SPAN  CLASS="textit">rooted:</SPAN>
+<A NAME="19574"></A><A NAME="19575"></A>A special node, <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2585.png"
+ ALT="$ \mathtt{r}$"></SPAN>, of degree at most two is called the <SPAN  CLASS="textit">root</SPAN>
+of the tree.  For every node, <!-- MATH
+ $\ensuremath{\mathtt{u}}\neq \ensuremath{\mathtt{r}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2586.png"
+ ALT="$ \ensuremath{\mathtt{u}}\neq \ensuremath{\mathtt{r}}$"></SPAN>, the second node on the
+path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2587.png"
+ ALT="$ \mathtt{u}$"></SPAN> to <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2588.png"
+ ALT="$ \mathtt{r}$"></SPAN> is called the <SPAN  CLASS="textit">parent</SPAN> of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2589.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+<A NAME="19584"></A>Each of the
+other nodes adjacent to <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2590.png"
+ ALT="$ \mathtt{u}$"></SPAN> is called a <SPAN  CLASS="textit">child</SPAN>
+<A NAME="19587"></A> of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2591.png"
+ ALT="$ \mathtt{u}$"></SPAN>. Most of the
+binary trees we are interested in are <SPAN  CLASS="textit">ordered</SPAN>,
+<A NAME="19590"></A><A NAME="19591"></A>so we distinguish
+between the <SPAN  CLASS="textit">left child</SPAN> and <SPAN  CLASS="textit">right child</SPAN> of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2592.png"
+ ALT="$ \mathtt{u}$"></SPAN>.
+<A NAME="19595"></A><A NAME="19596"></A><A NAME="19597"></A><A NAME="19598"></A>
+<P>
+In illustrations, binary trees are usually drawn from the root
+downward, with the root at the top of the drawing and the left and right
+children respectively given by left and right positions in the drawing
+(Figure&nbsp;<A HREF="#fig:bintree-orientation">6.1</A>).  For example, Figure&nbsp;<A HREF="#fig:binary-tree">6.2</A>.a shows
+a binary tree with nine nodes.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:bintree-orientation"></A><A NAME="20338"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6.1:</STRONG>
+The parent, left child, and right child of the node <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2594.png"
+ ALT="$ \mathtt{u}$"></SPAN>
+    in a <TT>BinaryTree</TT>.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="114" HEIGHT="160" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2593.png"
+ ALT="\includegraphics[scale=0.90909]{figs/bintree-traverse-1}"> 
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:binary-tree"></A><A NAME="19617"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6.2:</STRONG>
+A binary tree with (a)&nbsp;nine real nodes and (b)&nbsp;ten external nodes.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="CENTER"><IMG
+ WIDTH="480" HEIGHT="285" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2595.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/bintree-1}"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="553" HEIGHT="358" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2596.png"
+ ALT="\includegraphics[width=\textwidth ]{figs/bintree-2}"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">(a)</TD>
+<TD ALIGN="CENTER">(b)</TD>
+</TR>
+</TABLE>
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+Because binary trees are so important, a certain terminology has developed
+for them: The <SPAN  CLASS="textit">depth</SPAN>
+<A NAME="19621"></A>of a node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2597.png"
+ ALT="$ \mathtt{u}$"></SPAN>, in a binary tree is the
+length of the path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2598.png"
+ ALT="$ \mathtt{u}$"></SPAN> to the root of the tree.   If a node, <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2599.png"
+ ALT="$ \mathtt{w}$"></SPAN>,
+is on the path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2600.png"
+ ALT="$ \mathtt{u}$"></SPAN> to <!-- MATH
+ $\mathtt{r}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2601.png"
+ ALT="$ \mathtt{r}$"></SPAN>, then <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2602.png"
+ ALT="$ \mathtt{w}$"></SPAN> is called an <SPAN  CLASS="textit">ancestor</SPAN>
+<A NAME="19629"></A>of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2603.png"
+ ALT="$ \mathtt{u}$"></SPAN> and <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2604.png"
+ ALT="$ \mathtt{u}$"></SPAN> a <SPAN  CLASS="textit">descendant</SPAN>
+<A NAME="19633"></A>of <!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img2605.png"
+ ALT="$ \mathtt{w}$"></SPAN>.  The <SPAN  CLASS="textit">subtree</SPAN> of a
+node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2606.png"
+ ALT="$ \mathtt{u}$"></SPAN>, is the binary tree that is rooted at <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2607.png"
+ ALT="$ \mathtt{u}$"></SPAN> and contains all
+of <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2608.png"
+ ALT="$ \mathtt{u}$"></SPAN>'s descendants.  The <SPAN  CLASS="textit">height</SPAN>
+<A NAME="19640"></A> of a node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2609.png"
+ ALT="$ \mathtt{u}$"></SPAN>, is the length
+of the longest path from <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2610.png"
+ ALT="$ \mathtt{u}$"></SPAN> to one of its descendants.  The <SPAN  CLASS="textit">height</SPAN> of
+<A NAME="19644"></A>a tree is the height of its root.
+A node, <!-- MATH
+ $\mathtt{u}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2611.png"
+ ALT="$ \mathtt{u}$"></SPAN>, is a <SPAN  CLASS="textit">leaf</SPAN>
+<A NAME="19647"></A>if it has no children.
+
+<P>
+We sometimes think of the tree as being augmented with <SPAN  CLASS="textit">external
+nodes</SPAN>. Any node that does not have a left child has an external
+node as its left child, and, correspondingly, any node that does
+not have a right child has an external node as its right child (see
+Figure&nbsp;<A HREF="#fig:binary-tree">6.2</A>.b).  It is easy to verify, by induction, that a
+binary tree with <!-- MATH
+ $\ensuremath{\mathtt{n}}\ge 1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="39" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2612.png"
+ ALT="$ \ensuremath{\mathtt{n}}\ge 1$"></SPAN> real nodes has <!-- MATH
+ $\ensuremath{\mathtt{n}}+1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2613.png"
+ ALT="$ \ensuremath{\mathtt{n}}+1$"></SPAN> external nodes.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html758"
+  HREF="6_1_BinaryTree_Basic_Binary.html"><SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>BinaryTree</TT>: A Basic Binary Tree</A>
+<LI><A NAME="tex2html759"
+  HREF="6_2_BinarySearchTree_Unbala.html"><SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>BinarySearchTree</TT>: An Unbalanced Binary Search Tree</A>
+<LI><A NAME="tex2html760"
+  HREF="6_3_Discussion_Exercises.html"><SPAN CLASS="arabic">6</SPAN>.<SPAN CLASS="arabic">3</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html756"
+  HREF="6_1_BinaryTree_Basic_Binary.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html750"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html744"
+  HREF="5_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html752"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html754"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html757"
+  HREF="6_1_BinaryTree_Basic_Binary.html">6.1 BinaryTree: A Basic</A>
+<B> Up:</B> <A NAME="tex2html751"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html745"
+  HREF="5_4_Discussion_Exercises.html">5.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html753"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html755"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

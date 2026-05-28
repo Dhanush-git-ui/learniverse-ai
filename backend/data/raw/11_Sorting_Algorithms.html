@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>11. Sorting Algorithms</TITLE>
+<META NAME="description" CONTENT="11. Sorting Algorithms">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="12_Graphs.html">
+<LINK REL="previous" HREF="10_Heaps.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="11_1_Comparison_Based_Sorti.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1061"
+  HREF="11_1_Comparison_Based_Sorti.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1055"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1049"
+  HREF="10_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1057"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1059"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1062"
+  HREF="11_1_Comparison_Based_Sorti.html">11.1 Comparison-Based Sorting</A>
+<B> Up:</B> <A NAME="tex2html1056"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1050"
+  HREF="10_3_Discussion_Exercises.html">10.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1058"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1060"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001400000000000000000"></A>
+<A NAME="chap:sorting"></A>
+<BR>
+<SPAN CLASS="arabic">11</SPAN>. Sorting Algorithms
+</H1>
+
+<P>
+This chapter discusses algorithms for sorting a set of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4033.png"
+ ALT="$ \mathtt{n}$"></SPAN> items.
+This might seem like a strange topic for a book on data structures, but
+there are several good reasons for including it here.  The most obvious
+reason is that two of these sorting algorithms (quicksort and heap-sort)
+are intimately related to two of the data structures we have already
+studied (random binary search trees and heaps, respectively).
+
+<P>
+The first part of this chapter discusses algorithms that sort using only
+comparisons and presents three algorithms that run in <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4034.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN>
+time.  As it turns out, all three algorithms are asymptotically optimal;
+no algorithm that uses only comparisons can avoid doing roughly <!-- MATH
+ $\ensuremath{\mathtt{n}}\log
+\ensuremath{\mathtt{n}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4035.png"
+ ALT="$ \ensuremath{\mathtt{n}}\log
+\ensuremath{\mathtt{n}}$"></SPAN> comparisons in the worst case and even the average case.
+
+<P>
+Before continuing, we should note that any of the <TT>SSet</TT> or priority
+<TT>Queue</TT> implementations presented in previous chapters can also
+be used to obtain an <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="70" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4036.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\log \ensuremath{\mathtt{n}})$"></SPAN> time sorting algorithm.
+For example, we can sort <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4037.png"
+ ALT="$ \mathtt{n}$"></SPAN> items by performing <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4038.png"
+ ALT="$ \mathtt{n}$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4039.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>
+operations followed by <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4040.png"
+ ALT="$ \mathtt{n}$"></SPAN> <!-- MATH
+ $\mathtt{remove()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4041.png"
+ ALT="$ \mathtt{remove()}$"></SPAN> operations on a <TT>BinaryHeap</TT>
+or <TT>MeldableHeap</TT>. Alternatively, we can use <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4042.png"
+ ALT="$ \mathtt{n}$"></SPAN> <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4043.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> operations
+on any of the binary search tree data structures and then perform an
+in-order traversal (Exercise&nbsp;<A HREF="6_3_Discussion_Exercises.html#exc:tree-traversal">6.8</A>) to extract the elements in
+sorted order.  However, in both cases we go through a lot of overhead to
+build a structure that is never fully used.  Sorting is such an important
+problem that it is worthwhile developing direct methods that are as fast,
+simple, and space-efficient as possible.
+
+<P>
+The second part of this chapter shows that, if we allow other
+operations besides comparisons, then all bets are off.  Indeed, by using
+array-indexing, it is possible to sort a set of <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4044.png"
+ ALT="$ \mathtt{n}$"></SPAN> integers in the range
+<!-- MATH
+ $\{0,\ldots,\ensuremath{\mathtt{n}}^c-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="90" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4045.png"
+ ALT="$ \{0,\ldots,\ensuremath{\mathtt{n}}^c-1\}$"></SPAN> in <!-- MATH
+ $O(c\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4046.png"
+ ALT="$ O(c\ensuremath{\mathtt{n}})$"></SPAN> time.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1063"
+  HREF="11_1_Comparison_Based_Sorti.html"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">1</SPAN> Comparison-Based Sorting</A>
+<LI><A NAME="tex2html1064"
+  HREF="11_2_Counting_Sort_Radix_So.html"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">2</SPAN> Counting Sort and Radix Sort</A>
+<LI><A NAME="tex2html1065"
+  HREF="11_3_Discussion_Exercises.html"><SPAN CLASS="arabic">11</SPAN>.<SPAN CLASS="arabic">3</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1061"
+  HREF="11_1_Comparison_Based_Sorti.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1055"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1049"
+  HREF="10_3_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1057"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1059"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1062"
+  HREF="11_1_Comparison_Based_Sorti.html">11.1 Comparison-Based Sorting</A>
+<B> Up:</B> <A NAME="tex2html1056"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1050"
+  HREF="10_3_Discussion_Exercises.html">10.3 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1058"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1060"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

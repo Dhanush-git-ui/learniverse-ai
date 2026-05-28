@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<!--********************************************-->
+<!--*       Generated from PreTeXt source      *-->
+<!--*                                          *-->
+<!--*         https://pretextbook.org          *-->
+<!--*                                          *-->
+<!--********************************************-->
+<html lang="en-US" dir="ltr">
+<!--******************************************-->
+<!--*  Authored with PreTeXt                 *-->
+<!--*  pretextbook.org                       *-->
+<!--*  Theme: default-modern                 *-->
+<!--*  Palette:                              *-->
+<!--******************************************-->
+<head xmlns:og="http://ogp.me/ns#" xmlns:book="https://ogp.me/ns/book#">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Constrained Optimization: Lagrange Multipliers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<link href="_static/pretext/css/theme.css" rel="stylesheet" type="text/css">
+<link href="_static/pretext/css/ol-markers.css" rel="stylesheet" type="text/css">
+<script>
+var runestoneMathReady = new Promise((resolve) => window.rsMathReady = resolve);
+window.MathJax = {
+  "tex": {
+    "inlineMath": [
+      [
+        "\\(",
+        "\\)"
+      ]
+    ],
+    "tags": "none",
+    "tagSide": "right",
+    "tagIndent": ".8em",
+    "packages": {
+      "[+]": [
+        "base",
+        "extpfeil",
+        "ams",
+        "amscd",
+        "color",
+        "newcommand",
+        "knowl"
+      ]
+    }
+  },
+  "options": {
+    "ignoreHtmlClass": "tex2jax_ignore|ignore-math",
+    "processHtmlClass": "process-math",
+    "renderActions": {
+      "findScript": [
+        10,
+        function (doc) {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(function(node) {
+                var display = !!node.type.match(/; *mode=display/);
+                var math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                var text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = {node: text, delim: '', n: 0};
+                math.end = {node: text, delim: '', n: 0};
+                doc.math.push(math);
+            });
+        },
+        ""
+      ]
+    }
+  },
+  "chtml": {
+    "scale": 0.98,
+    "mtextInheritFont": true
+  },
+  "loader": {
+    "load": [
+      "input/asciimath",
+      "[tex]/extpfeil",
+      "[tex]/amscd",
+      "[tex]/color",
+      "[tex]/newcommand",
+      "[pretext]/mathjaxknowl3.js"
+    ],
+    "paths": {
+      "pretext": "_static/pretext/js/lib"
+    }
+  },
+  "startup": {
+    pageReady() {
+      return MathJax.startup.defaultPageReady().then(function () {
+      console.log("in ready function");
+      rsMathReady();
+      }
+    )}
+  }
+};
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script><meta name="Keywords" content="Authored in PreTeXt">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:type" content="book">
+<meta property="book:title" content="Active Calculus - Multivariable">
+<meta property="book:author" content="Steve Schlicker">
+<meta property="book:author" content="Mitchel T. Keller">
+<meta property="book:author" content="Nicholas Long">
+<script src="_static/pretext/js/lib/jquery.min.js"></script><script src="_static/pretext/js/lib/jquery.sticky.js"></script><script src="_static/pretext/js/lib/jquery.espy.min.js"></script><script src="_static/pretext/js/pretext.js"></script><script src="_static/pretext/js/pretext_add_on.js?x=1"></script><script src="_static/pretext/js/user_preferences.js"></script><!--** eBookCongig is necessary to configure interactive       **-->
+<!--** Runestone components to run locally in reader's browser **-->
+<!--** No external communication:                              **-->
+<!--**     log level is 0, Runestone Services are disabled     **-->
+<script type="text/javascript">
+eBookConfig = {};
+eBookConfig.useRunestoneServices = false;
+eBookConfig.host = 'http://127.0.0.1:8000';
+eBookConfig.course = 'PTX_Course_Title_Here';
+eBookConfig.basecourse = 'PTX_Base_Course';
+eBookConfig.isLoggedIn = false;
+eBookConfig.email = '';
+eBookConfig.isInstructor = false;
+eBookConfig.logLevel = 0;
+eBookConfig.username = '';
+eBookConfig.readings = null;
+eBookConfig.activities = null;
+eBookConfig.downloadsEnabled = false;
+eBookConfig.allow_pairs = false;
+eBookConfig.enableScratchAC = false;
+eBookConfig.build_info = "";
+eBookConfig.python3 = null;
+eBookConfig.runestone_version = '7.11.0';
+eBookConfig.jobehost = '';
+eBookConfig.proxyuri_runs = '';
+eBookConfig.proxyuri_files = '';
+eBookConfig.enable_chatcodes =  false;
+</script>
+<!--*** Runestone Services ***-->
+<script src="_static/prefix-runtime.f91c1a4dc12163f2.bundle.js"></script><script src="_static/prefix-723.3e6434f80549315a.bundle.js"></script><script src="_static/prefix-runestone.731d8387162b79c1.bundle.js"></script><link rel="stylesheet" type="text/css" href="_static/prefix-723.3bccd435914aa0ff.css">
+<link rel="stylesheet" type="text/css" href="_static/prefix-runestone.557d81b04b3ec0e4.css">
+<script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script><script src="_static/pretext/js/pretext-webwork/2.20/pretext-webwork.js"></script><script src="https://webwork-ptx.aimath.org/webwork2_files/node_modules/iframe-resizer/js/iframeResizer.min.js"></script><script src="_static/pretext/js/lti_iframe_resizer.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/components/prism-core.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/autoloader/prism-autoloader.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-numbers/prism-line-numbers.min.js" integrity="sha512-dubtf8xMHSQlExGRQ5R7toxHLgSDZ0K7AunqPWHXmJQ8XyVIG19S1T95gBxlAeGOK02P4Da2RTnQz0Za0H0ebQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.26.0/plugins/line-highlight/prism-line-highlight.min.js" integrity="sha512-93uCmm0q+qO5Lb1huDqr7tywS8A2TFA+1/WHvyiWaK6/pvsFl6USnILagntBx8JnVbQH5s3n0vQZY6xNthNfKA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js" integrity="sha512-4xUl/d6D6THrAnXAwGajXkoWaeMNwEKK4iNfq5DotEbLPAfk6FSxSP3ydNxqDgCw1c/0Z1Jg6L8h2j+++9BZmg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><script src="lunr-pretext-search-index.js" async=""></script><script src="_static/pretext/js/pretext_search.js"></script><script src="_static/pretext/js/lib/knowl.js"></script><!--knowl.js code controls Sage Cells within knowls--><script>sagecellEvalName='Evaluate (Sage)';
+</script>
+</head>
+<body id="acmulti" class="pretext book ignore-math">
+<a class="assistive" href="#ptx-content">Skip to main content</a><header id="ptx-masthead" class="ptx-masthead"><div class="ptx-banner"><div class="title-container">
+<h1 class="heading"><a href="root-1-2.html"><span class="title">Active Calculus - Multivariable</span></a></h1>
+<p class="byline">Steve Schlicker, Mitchel T. Keller, Nicholas Long</p>
+</div></div></header><nav id="ptx-navbar" class="ptx-navbar navbar"><div class="ptx-navbar-contents">
+<button class="toc-toggle button" title="Contents"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5d2;</span><span class="name">Contents</span></button><a class="index-button button" href="root-1-2-7-1.html" title="Index"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span><span class="name">Index</span></a><div class="searchbox">
+<div class="searchwidget"><button id="searchbutton" class="searchbutton button" type="button" title="Search book"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe8b6;</span><span class="name">Search Book</span></button></div>
+<div id="searchresultsplaceholder" class="searchresultsplaceholder" style="display: none">
+<div class="search-results-controls">
+<input aria-label="Search term" id="ptxsearch" class="ptxsearch" type="text" name="terms" placeholder="Search term"><button title="Close search" id="closesearchresults" class="closesearchresults"><span class="material-symbols-outlined">close</span></button>
+</div>
+<h2 class="search-results-heading">Search Results: </h2>
+<div id="searchempty" class="searchempty"><span>No results.</span></div>
+<ol id="searchresults" class="searchresults"></ol>
+</div>
+</div>
+<span class="nav-other-controls"><button id="light-dark-button" class="light-dark-button button" title="Dark Mode"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe51c;</span><span class="name">Dark Mode</span></button></span><span class="treebuttons"><a class="previous-button button" href="S-10-7-Optimization.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="up-button button" href="C-10.html" title="Up"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Up</span></a><a class="next-button button" href="C-11.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a></span>
+</div></nav><div id="latex-macros" class="hidden-content process-math" style="display:none"><span class="process-math">\(\newcommand{\R}{\mathbb{R}}
+\newcommand{\va}{\mathbf{a}}
+\newcommand{\vb}{\mathbf{b}}
+\newcommand{\vc}{\mathbf{c}}
+\newcommand{\vC}{\mathbf{C}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\ve}{\mathbf{e}}
+\newcommand{\vi}{\mathbf{i}}
+\newcommand{\vj}{\mathbf{j}}
+\newcommand{\vk}{\mathbf{k}}
+\newcommand{\vn}{\mathbf{n}}
+\newcommand{\vm}{\mathbf{m}}
+\newcommand{\vr}{\mathbf{r}}
+\newcommand{\vs}{\mathbf{s}}
+\newcommand{\vu}{\mathbf{u}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vz}{\mathbf{z}}
+\newcommand{\vzero}{\mathbf{0}}
+\newcommand{\vF}{\mathbf{F}}
+\newcommand{\vG}{\mathbf{G}}
+\newcommand{\vH}{\mathbf{H}}
+\newcommand{\vR}{\mathbf{R}}
+\newcommand{\vT}{\mathbf{T}}
+\newcommand{\vN}{\mathbf{N}}
+\newcommand{\vL}{\mathbf{L}}
+\newcommand{\vB}{\mathbf{B}}
+\newcommand{\vS}{\mathbf{S}}
+\newcommand{\proj}{\text{proj}}
+\newcommand{\comp}{\text{comp}}
+\newcommand{\nin}{}
+\newcommand{\vecmag}[1]{|#1|}
+\newcommand{\grad}{\nabla}
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\divg}{div}
+\newcommand{\lt}{&lt;}
+\newcommand{\gt}{&gt;}
+\newcommand{\amp}{&amp;}
+\definecolor{fillinmathshade}{gray}{0.9}
+\newcommand{\fillinmath}[1]{\mathchoice{\colorbox{fillinmathshade}{$\displaystyle     \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\textstyle        \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptstyle      \phantom{\,#1\,}$}}{\colorbox{fillinmathshade}{$\scriptscriptstyle\phantom{\,#1\,}$}}}
+\)</span></div>
+<div class="ptx-page">
+<div id="ptx-sidebar" class="ptx-sidebar"><nav id="ptx-toc" class="ptx-toc depth2 focused" data-preexpanded-levels="0" data-max-levels="2"><ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-frontmatter">
+<div class="toc-title-box"><a href="frontmatter.html" class="internal"><span class="title">Front Matter</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-colophon"><div class="toc-title-box"><a href="front-colophon.html" class="internal"><span class="title">Colophon</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-4.html" class="internal"><span class="title">Features of the Text</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-5.html" class="internal"><span class="title">Vector Calculus Preface</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-6.html" class="internal"><span class="title">Acknowledgments</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-7.html" class="internal"><span class="title">Active Calculus - Multivariable: our goals</span></a></div></li>
+<li class="toc-item toc-preface"><div class="toc-title-box"><a href="frontmatter-8.html" class="internal"><span class="title">How to Use this Text</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-9.html" class="internal"><span class="codenumber">9</span> <span class="title">Multivariable and Vector Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-1-Functions.html" class="internal"><span class="codenumber">9.1</span> <span class="title">Functions of Several Variables and Three Dimensional Space</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-4" class="internal"><span class="codenumber">9.1.1</span> <span class="title">Functions of Several Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-5" class="internal"><span class="codenumber">9.1.2</span> <span class="title">Representing Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-6" class="internal"><span class="codenumber">9.1.3</span> <span class="title">Some Standard Equations in Three-Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-7" class="internal"><span class="codenumber">9.1.4</span> <span class="title">Traces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-8" class="internal"><span class="codenumber">9.1.5</span> <span class="title">Contour Maps and Level Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-9" class="internal"><span class="codenumber">9.1.6</span> <span class="title">A gallery of functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-10" class="internal"><span class="codenumber">9.1.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-1-Functions.html#S-9-1-Functions-11" class="internal"><span class="codenumber">9.1.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-2-Vectors.html" class="internal"><span class="codenumber">9.2</span> <span class="title">Vectors</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-4" class="internal"><span class="codenumber">9.2.1</span> <span class="title">Representations of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-5" class="internal"><span class="codenumber">9.2.2</span> <span class="title">Equality of Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-6" class="internal"><span class="codenumber">9.2.3</span> <span class="title">Operations on Vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-7" class="internal"><span class="codenumber">9.2.4</span> <span class="title">Properties of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-8" class="internal"><span class="codenumber">9.2.5</span> <span class="title">Geometric Interpretation of Vector Operations</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-9" class="internal"><span class="codenumber">9.2.6</span> <span class="title">The Magnitude of a Vector</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-10" class="internal"><span class="codenumber">9.2.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-2-Vectors.html#S-9-2-Vectors-11" class="internal"><span class="codenumber">9.2.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-3-Dot-Product.html" class="internal"><span class="codenumber">9.3</span> <span class="title">The Dot Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-4" class="internal"><span class="codenumber">9.3.1</span> <span class="title">The Dot Product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-5" class="internal"><span class="codenumber">9.3.2</span> <span class="title">The angle between vectors</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-6" class="internal"><span class="codenumber">9.3.3</span> <span class="title">The Dot Product and Orthogonality</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-7" class="internal"><span class="codenumber">9.3.4</span> <span class="title">Work, Force, and Displacement</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-8" class="internal"><span class="codenumber">9.3.5</span> <span class="title">Projections</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-9" class="internal"><span class="codenumber">9.3.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-3-Dot-Product.html#S-9-3-Dot-Product-10" class="internal"><span class="codenumber">9.3.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-4-Cross-Product.html" class="internal"><span class="codenumber">9.4</span> <span class="title">The Cross Product</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-4" class="internal"><span class="codenumber">9.4.1</span> <span class="title">Computing the cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-5" class="internal"><span class="codenumber">9.4.2</span> <span class="title">The Length of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-6" class="internal"><span class="codenumber">9.4.3</span> <span class="title">The Direction of <span class="process-math">\(\vu\times\vv\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-7" class="internal"><span class="codenumber">9.4.4</span> <span class="title">Torque is measured by a cross product</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-8" class="internal"><span class="codenumber">9.4.5</span> <span class="title">Comparing the dot and cross products</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-9" class="internal"><span class="codenumber">9.4.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-4-Cross-Product.html#S-9-4-Cross-Product-10" class="internal"><span class="codenumber">9.4.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-5-Lines-Planes.html" class="internal"><span class="codenumber">9.5</span> <span class="title">Lines and Planes in Space</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-4" class="internal"><span class="codenumber">9.5.1</span> <span class="title">Lines in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-5" class="internal"><span class="codenumber">9.5.2</span> <span class="title">The Parametric Equations of a Line</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-6" class="internal"><span class="codenumber">9.5.3</span> <span class="title">Planes in Space</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-7" class="internal"><span class="codenumber">9.5.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-5-Lines-Planes.html#S-9-5-Lines-Planes-8" class="internal"><span class="codenumber">9.5.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html" class="internal"><span class="codenumber">9.6</span> <span class="title">Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-4" class="internal"><span class="codenumber">9.6.1</span> <span class="title">Vector-Valued Functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-5" class="internal"><span class="codenumber">9.6.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-6-Vector-Valued-Functions.html#S-9-6-Vector-Valued-Functions-6" class="internal"><span class="codenumber">9.6.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html" class="internal"><span class="codenumber">9.7</span> <span class="title">Derivatives and Integrals of Vector-Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-4" class="internal"><span class="codenumber">9.7.1</span> <span class="title">The Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-5" class="internal"><span class="codenumber">9.7.2</span> <span class="title">Computing Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-6" class="internal"><span class="codenumber">9.7.3</span> <span class="title">Tangent Lines</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-7" class="internal"><span class="codenumber">9.7.4</span> <span class="title">Integrating a Vector-Valued Function</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-8" class="internal"><span class="codenumber">9.7.5</span> <span class="title">Projectile Motion</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-9" class="internal"><span class="codenumber">9.7.6</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-7-Vector-Valued-Functions-Derivatives.html#S-9-7-Vector-Valued-Functions-Derivatives-10" class="internal"><span class="codenumber">9.7.7</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html" class="internal"><span class="codenumber">9.8</span> <span class="title">Arc Length and Curvature</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-4" class="internal"><span class="codenumber">9.8.1</span> <span class="title">Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-5" class="internal"><span class="codenumber">9.8.2</span> <span class="title">Parameterizing With Respect To Arc Length</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-6" class="internal"><span class="codenumber">9.8.3</span> <span class="title">Curvature</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-7" class="internal"><span class="codenumber">9.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-9-8-Arc-Length-Curvature.html#S-9-8-Arc-Length-Curvature-8" class="internal"><span class="codenumber">9.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter contains-active">
+<div class="toc-title-box"><a href="C-10.html" class="internal"><span class="codenumber">10</span> <span class="title">Derivatives of Multivariable Functions</span></a></div>
+<ul class="structural toc-item-list contains-active">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-1-Limits.html" class="internal"><span class="codenumber">10.1</span> <span class="title">Limits</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-4" class="internal"><span class="codenumber">10.1.1</span> <span class="title">Limits of Functions of Two Variables</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-5" class="internal"><span class="codenumber">10.1.2</span> <span class="title">Continuity</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-6" class="internal"><span class="codenumber">10.1.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-1-Limits.html#S-10-1-Limits-7" class="internal"><span class="codenumber">10.1.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.2</span> <span class="title">First-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.2.1</span> <span class="title">First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.2.2</span> <span class="title">Interpretations of First-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.2.3</span> <span class="title">Using tables and contours to estimate partial derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.2.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-2-First-Order-Partial-Derivatives.html#S-10-2-First-Order-Partial-Derivatives-8" class="internal"><span class="codenumber">10.2.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html" class="internal"><span class="codenumber">10.3</span> <span class="title">Second-Order Partial Derivatives</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-4" class="internal"><span class="codenumber">10.3.1</span> <span class="title">Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-5" class="internal"><span class="codenumber">10.3.2</span> <span class="title">Interpreting the Second-Order Partial Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-6" class="internal"><span class="codenumber">10.3.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-3-Second-Order-Partial-Derivatives.html#S-10-3-Second-Order-Partial-Derivatives-7" class="internal"><span class="codenumber">10.3.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-4-Linearization.html" class="internal"><span class="codenumber">10.4</span> <span class="title">Linearization: Tangent Planes and Differentials</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-4" class="internal"><span class="codenumber">10.4.1</span> <span class="title">The Tangent Plane</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-5" class="internal"><span class="codenumber">10.4.2</span> <span class="title">Linearization</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-6" class="internal"><span class="codenumber">10.4.3</span> <span class="title">Differentials</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-7" class="internal"><span class="codenumber">10.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-4-Linearization.html#S-10-4-Linearization-8" class="internal"><span class="codenumber">10.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-5-Chain-Rule.html" class="internal"><span class="codenumber">10.5</span> <span class="title">The Chain Rule</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-4" class="internal"><span class="codenumber">10.5.1</span> <span class="title">The Chain Rule</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-5" class="internal"><span class="codenumber">10.5.2</span> <span class="title">Tree Diagrams</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-6" class="internal"><span class="codenumber">10.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-5-Chain-Rule.html#S-10-5-Chain-Rule-7" class="internal"><span class="codenumber">10.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html" class="internal"><span class="codenumber">10.6</span> <span class="title">Directional Derivatives and the Gradient</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-4" class="internal"><span class="codenumber">10.6.1</span> <span class="title">Directional Derivatives</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-5" class="internal"><span class="codenumber">10.6.2</span> <span class="title">Computing the Directional Derivative</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#gradient_ss" class="internal"><span class="codenumber">10.6.3</span> <span class="title">The Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-7" class="internal"><span class="codenumber">10.6.4</span> <span class="title">The Direction of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-8" class="internal"><span class="codenumber">10.6.5</span> <span class="title">The Length of the Gradient</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-9" class="internal"><span class="codenumber">10.6.6</span> <span class="title">Applications</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-10" class="internal"><span class="codenumber">10.6.7</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-6-Directional-Derivative.html#S-10-6-Directional-Derivative-11" class="internal"><span class="codenumber">10.6.8</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-10-7-Optimization.html" class="internal"><span class="codenumber">10.7</span> <span class="title">Optimization</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-4" class="internal"><span class="codenumber">10.7.1</span> <span class="title">Extrema and Critical Points</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-5" class="internal"><span class="codenumber">10.7.2</span> <span class="title">Classifying Critical Points: The Second Derivative Test</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-6" class="internal"><span class="codenumber">10.7.3</span> <span class="title">Optimization on a Restricted Domain</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-7" class="internal"><span class="codenumber">10.7.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-7-Optimization.html#S-10-7-Optimization-8" class="internal"><span class="codenumber">10.7.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section contains-active">
+<div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html" class="internal"><span class="codenumber">10.8</span> <span class="title">Constrained Optimization: Lagrange Multipliers</span></a></div>
+<ul class="structural toc-item-list active">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4" class="internal"><span class="codenumber">10.8.1</span> <span class="title">Constrained Optimization and Lagrange Multipliers</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-5" class="internal"><span class="codenumber">10.8.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-6" class="internal"><span class="codenumber">10.8.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C-11.html" class="internal"><span class="codenumber">11</span> <span class="title">Multiple Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html" class="internal"><span class="codenumber">11.1</span> <span class="title">Double Riemann Sums and Double Integrals over Rectangles</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-4" class="internal"><span class="codenumber">11.1.1</span> <span class="title">Double Riemann Sums over Rectangles</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-5" class="internal"><span class="codenumber">11.1.2</span> <span class="title">Double Riemann Sums and Double Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-6" class="internal"><span class="codenumber">11.1.3</span> <span class="title">Interpretation of Double Riemann Sums and Double integrals.</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-7" class="internal"><span class="codenumber">11.1.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-1-Double-Integrals-Rectangles.html#S-11-1-Double-Integrals-Rectangles-8" class="internal"><span class="codenumber">11.1.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html" class="internal"><span class="codenumber">11.2</span> <span class="title">Iterated Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-4" class="internal"><span class="codenumber">11.2.1</span> <span class="title">Iterated Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-5" class="internal"><span class="codenumber">11.2.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-2-Iterated-Integrals.html#S-11-2-Iterated-Integrals-6" class="internal"><span class="codenumber">11.2.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html" class="internal"><span class="codenumber">11.3</span> <span class="title">Double Integrals over General Regions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-4" class="internal"><span class="codenumber">11.3.1</span> <span class="title">Double Integrals over General Regions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-5" class="internal"><span class="codenumber">11.3.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-3-Double-Integrals-General.html#S-11-3-Double-Integrals-General-6" class="internal"><span class="codenumber">11.3.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html" class="internal"><span class="codenumber">11.4</span> <span class="title">Applications of Double Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-4" class="internal"><span class="codenumber">11.4.1</span> <span class="title">Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-5" class="internal"><span class="codenumber">11.4.2</span> <span class="title">Area</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-6" class="internal"><span class="codenumber">11.4.3</span> <span class="title">Center of Mass</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-7" class="internal"><span class="codenumber">11.4.4</span> <span class="title">Probability</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-8" class="internal"><span class="codenumber">11.4.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-4-Double-Integrals-Applications.html#S-11-4-Double-Integrals-Applications-9" class="internal"><span class="codenumber">11.4.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html" class="internal"><span class="codenumber">11.5</span> <span class="title">Double Integrals in Polar Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-4" class="internal"><span class="codenumber">11.5.1</span> <span class="title">Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-5" class="internal"><span class="codenumber">11.5.2</span> <span class="title">Integrating in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-6" class="internal"><span class="codenumber">11.5.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-5-Double-Integrals-Polar.html#S-11-5-Double-Integrals-Polar-7" class="internal"><span class="codenumber">11.5.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html" class="internal"><span class="codenumber">11.6</span> <span class="title">Surfaces Defined Parametrically and Surface Area</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-4" class="internal"><span class="codenumber">11.6.1</span> <span class="title">Parametric Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#SS-11-6-2-Surface-Area-Parametrically-Defined-Surfaces" class="internal"><span class="codenumber">11.6.2</span> <span class="title">The Surface Area of Parametrically Defined Surfaces</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-6" class="internal"><span class="codenumber">11.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-6-Parametric-Surfaces-Surface-Area.html#S-11-6-Parametric-Surfaces-Surface-Area-7" class="internal"><span class="codenumber">11.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html" class="internal"><span class="codenumber">11.7</span> <span class="title">Triple Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-4" class="internal"><span class="codenumber">11.7.1</span> <span class="title">Triple Riemann Sums and Triple Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-5" class="internal"><span class="codenumber">11.7.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-7-Triple-Integrals.html#S-11-7-Triple-Integrals-6" class="internal"><span class="codenumber">11.7.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html" class="internal"><span class="codenumber">11.8</span> <span class="title">Triple Integrals in Cylindrical and Spherical Coordinates</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-4" class="internal"><span class="codenumber">11.8.1</span> <span class="title">Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-5" class="internal"><span class="codenumber">11.8.2</span> <span class="title">Triple Integrals in Cylindrical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-6" class="internal"><span class="codenumber">11.8.3</span> <span class="title">Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-7" class="internal"><span class="codenumber">11.8.4</span> <span class="title">Triple Integrals in Spherical Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-8" class="internal"><span class="codenumber">11.8.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-8-Triple-Integrals-Cylindrical-Spherical.html#S-11-8-Triple-Integrals-Cylindrical-Spherical-9" class="internal"><span class="codenumber">11.8.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html" class="internal"><span class="codenumber">11.9</span> <span class="title">Change of Variables</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-4" class="internal"><span class="codenumber">11.9.1</span> <span class="title">Change of Variables in Polar Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-5" class="internal"><span class="codenumber">11.9.2</span> <span class="title">General Change of Coordinates</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-6" class="internal"><span class="codenumber">11.9.3</span> <span class="title">Change of Variables in a Triple Integral</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-7" class="internal"><span class="codenumber">11.9.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S-11-9-Change-of-Variable.html#S-11-9-Change-of-Variable-8" class="internal"><span class="codenumber">11.9.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-chapter">
+<div class="toc-title-box"><a href="C_Vector.html" class="internal"><span class="codenumber">12</span> <span class="title">Vector Calculus</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_VectorFields.html" class="internal"><span class="codenumber">12.1</span> <span class="title">Vector Fields</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Examples" class="internal"><span class="codenumber">12.1.1</span> <span class="title">Examples of Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Mathematical" class="internal"><span class="codenumber">12.1.2</span> <span class="title">Mathematical Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Plotting" class="internal"><span class="codenumber">12.1.3</span> <span class="title">Plotting Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#SS_Vector_VectorFields_Gradient" class="internal"><span class="codenumber">12.1.4</span> <span class="title">Gradient Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-8" class="internal"><span class="codenumber">12.1.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_VectorFields.html#S_Vector_VectorFields-9" class="internal"><span class="codenumber">12.1.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html" class="internal"><span class="codenumber">12.2</span> <span class="title">The Idea of a Line Integral</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_OrientCurve" class="internal"><span class="codenumber">12.2.1</span> <span class="title">Orientations of Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_LineIntegrals" class="internal"><span class="codenumber">12.2.2</span> <span class="title">Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Properties" class="internal"><span class="codenumber">12.2.3</span> <span class="title">Properties of Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#SS_Vector_IdeaLineIntegral_Circulation" class="internal"><span class="codenumber">12.2.4</span> <span class="title">The Circulation of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-8" class="internal"><span class="codenumber">12.2.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_IdeaLineIntegral.html#S_Vector_IdeaLineIntegral-9" class="internal"><span class="codenumber">12.2.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html" class="internal"><span class="codenumber">12.3</span> <span class="title">Using Parametrizations to Calculate Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#SS_Vector_ParamLineIntegrals_Evaluation" class="internal"><span class="codenumber">12.3.1</span> <span class="title">Parametrizations in the Definition of <span class="process-math">\(\int_C\vF\cdot d\vr\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#alt_li_notation" class="internal"><span class="codenumber">12.3.2</span> <span class="title">Alternative Notation for Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-6" class="internal"><span class="codenumber">12.3.3</span> <span class="title">Independence of Parametrization for a Fixed Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-7" class="internal"><span class="codenumber">12.3.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ParamLineIntegrals.html#S_Vector_ParamLineIntegrals-8" class="internal"><span class="codenumber">12.3.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FTCLI.html" class="internal"><span class="codenumber">12.4</span> <span class="title">Path-Independent Vector Fields and the Fundamental Theorem of Calculus for Line Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-4" class="internal"><span class="codenumber">12.4.1</span> <span class="title">Path-Independent Vector Fields</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-5" class="internal"><span class="codenumber">12.4.2</span> <span class="title">Line Integrals Along Closed Curves</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#SS_Vector_FTCLI_Other" class="internal"><span class="codenumber">12.4.3</span> <span class="title">What other vector fields are path-independent?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-7" class="internal"><span class="codenumber">12.4.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FTCLI.html#S_Vector_FTCLI-8" class="internal"><span class="codenumber">12.4.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html" class="internal"><span class="codenumber">12.5</span> <span class="title">Line Integrals of Scalar Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-4" class="internal"><span class="codenumber">12.5.1</span> <span class="title">Defining line integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-5" class="internal"><span class="codenumber">12.5.2</span> <span class="title">Using Parameterizations to Calculate Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-6" class="internal"><span class="codenumber">12.5.3</span> <span class="title">Properties of Scalar Line Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#SS_Vector_ScalarLineIntegral_Visualizations" class="internal"><span class="codenumber">12.5.4</span> <span class="title">Visualizations of Scalar Line Integrals as Area Under a Curve</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#S_Vector_ScalarLineIntegral-8" class="internal"><span class="codenumber">12.5.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarLineIntegral.html#ez_Vector_ScalarLineIntegral" class="internal"><span class="codenumber">12.5.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Div.html" class="internal"><span class="codenumber">12.6</span> <span class="title">The Divergence of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Defn" class="internal"><span class="codenumber">12.6.1</span> <span class="title">Definition of the Divergence of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#SS_Vector_Div_Development" class="internal"><span class="codenumber">12.6.2</span> <span class="title">Measuring the Change in Strength of a Vector Field</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-6" class="internal"><span class="codenumber">12.6.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Div.html#S_Vector_Div-7" class="internal"><span class="codenumber">12.6.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_Curl.html" class="internal"><span class="codenumber">12.7</span> <span class="title">The Curl of a Vector Field</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development" class="internal"><span class="codenumber">12.7.1</span> <span class="title">Measuring the Circulation Density of Vector Field in <span class="process-math">\(\R^2\)</span></span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Development3D" class="internal"><span class="codenumber">12.7.2</span> <span class="title">Measuring Rotation in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-6" class="internal"><span class="codenumber">12.7.3</span> <span class="title">Circulation Density in Three Dimensions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#SS_Vector_Curl_Interpretation" class="internal"><span class="codenumber">12.7.4</span> <span class="title">Interpretation and Usage of Curl</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-8" class="internal"><span class="codenumber">12.7.5</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_Curl.html#S_Vector_Curl-9" class="internal"><span class="codenumber">12.7.6</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_GreensTheorem.html" class="internal"><span class="codenumber">12.8</span> <span class="title">Greenâs Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#SS_Vector_GreensTheorem_Circulation" class="internal"><span class="codenumber">12.8.1</span> <span class="title">Circulation</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-5" class="internal"><span class="codenumber">12.8.2</span> <span class="title">Greenâs Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-6" class="internal"><span class="codenumber">12.8.3</span> <span class="title">What happens when vector fields are not smooth?</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-7" class="internal"><span class="codenumber">12.8.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_GreensTheorem.html#S_Vector_GreensTheorem-8" class="internal"><span class="codenumber">12.8.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_FluxInt.html" class="internal"><span class="codenumber">12.9</span> <span class="title">Flux Integrals</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#SS_Vector_FluxInt_Idea" class="internal"><span class="codenumber">12.9.1</span> <span class="title">The Idea of the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-5" class="internal"><span class="codenumber">12.9.2</span> <span class="title">The Details of Measuring the Flux of a Vector Field through a Surface</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-6" class="internal"><span class="codenumber">12.9.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_FluxInt.html#S_Vector_FluxInt-7" class="internal"><span class="codenumber">12.9.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html" class="internal"><span class="codenumber">12.10</span> <span class="title">Surface Integrals of Scalar Valued Functions</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-4" class="internal"><span class="codenumber">12.10.1</span> <span class="title">Defining surface integrals of scalar functions</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-5" class="internal"><span class="codenumber">12.10.2</span> <span class="title">Properties of Scalar Surface Integrals</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-6" class="internal"><span class="codenumber">12.10.3</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_ScalarSurfaceIntegral.html#S_Vector_ScalarSurfaceIntegral-7" class="internal"><span class="codenumber">12.10.4</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_StokesThm.html" class="internal"><span class="codenumber">12.11</span> <span class="title">Stokesâ Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Development" class="internal"><span class="codenumber">12.11.1</span> <span class="title">Circulation in three dimensions and Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#SS_Vector_StokesThm_Verify" class="internal"><span class="codenumber">12.11.2</span> <span class="title">Verifying and Applying Stokesâ Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#surfaceboundaries" class="internal"><span class="codenumber">12.11.3</span> <span class="title">Practice with Surfaces and their Boundaries</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-7" class="internal"><span class="codenumber">12.11.4</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_StokesThm.html#S_Vector_StokesThm-8" class="internal"><span class="codenumber">12.11.5</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+<li class="toc-item toc-section">
+<div class="toc-title-box"><a href="S_Vector_DivThm.html" class="internal"><span class="codenumber">12.12</span> <span class="title">The Divergence Theorem</span></a></div>
+<ul class="structural toc-item-list">
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#SS_Vector_DivThm_Verify" class="internal"><span class="codenumber">12.12.1</span> <span class="title">The Divergence Theorem</span></a></div></li>
+<li class="toc-item toc-subsection"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-5" class="internal"><span class="codenumber">12.12.2</span> <span class="title">Summary</span></a></div></li>
+<li class="toc-item toc-exercises"><div class="toc-title-box"><a href="S_Vector_DivThm.html#S_Vector_DivThm-6" class="internal"><span class="codenumber">12.12.3</span> <span class="title">Exercises</span></a></div></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-item toc-backmatter">
+<div class="toc-title-box"><a href="root-1-2-7.html" class="internal"><span class="title">Back Matter</span></a></div>
+<ul class="structural toc-item-list"><li class="toc-item toc-index"><div class="toc-title-box"><a href="root-1-2-7-1.html" class="internal"><span class="title">Index</span></a></div></li></ul>
+</li>
+</ul></nav></div>
+<main class="ptx-main"><div id="ptx-content" class="ptx-content"><section class="section" id="S-10-8-Lagrange-Multipliers"><h2 class="heading hide-type">
+<span class="type">Section</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Constrained Optimization: Lagrange Multipliers</span>
+</h2>
+<article class="objectives goal-like" id="S-10-8-Lagrange-Multipliers-2"><h3 class="heading"><span class="type">Motivating Questions</span></h3>
+<ul class="disc" id="S-10-8-Lagrange-Multipliers-2-1">
+<li id="S-10-8-Lagrange-Multipliers-2-1-1">
+<div class="para" id="S-10-8-Lagrange-Multipliers-2-1-1-1">What geometric condition enables us to optimize a function <span class="process-math">\(f=f(x,y)\)</span> subject to a constraint given by <span class="process-math">\(g(x,y) = k\text{,}\)</span> where <span class="process-math">\(k\)</span> is a constant?<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-2-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-10-8-Lagrange-Multipliers-2-1-1" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-2-1-2">
+<div class="para" id="S-10-8-Lagrange-Multipliers-2-1-2-1">How can we exploit this geometric condition to find the extreme values of a function subject to a constraint?<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-2-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Objective"><a href="#S-10-8-Lagrange-Multipliers-2-1-2" title="Copy heading and permalink for Objective" aria-label="Copy heading and permalink for Objective">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Motivating Questions 10.8"><a href="#S-10-8-Lagrange-Multipliers-2" title="Copy heading and permalink for Motivating Questions 10.8" aria-label="Copy heading and permalink for Motivating Questions 10.8">ð</a></div></article><section class="introduction" id="S-10-8-Lagrange-Multipliers-3"><div class="para" id="S-10-8-Lagrange-Multipliers-3-1">We previously considered how to find the extreme values of functions on both unrestricted domains and on closed, bounded domains. Other types of optimization problems involve maximizing or minimizing a quantity subject to an external constraint. In these cases the extreme values frequently wonât occur at the points where the gradient is zero, but rather at other points that satisfy an important geometric condition. These problems are often called <em class="emphasis">constrained optimization</em> problems and can be solved with the method of Lagrange Multipliers, which we study in this section.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="exploration project-like" id="PA_10_8"><h3 class="heading">
+<span class="type">Preview Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.1</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h3>
+<div class="para" id="PA_10_8-1-1">According to U.S.Â postal regulations, the girth plus the length of a parcel sent by mail may not exceed 108 inches, where by âgirthâ we mean the perimeter of the smallest end. Our goal is to find the largest possible volume of a rectangular parcel with a square end that can be sent by mail. (We solved this applied optimization problem in single variable <em class="emphasis">Active Calculus</em>, so it may look familiar. We take a different approach in this section, and this approach allows us to view most applied optimization problems from single variable calculus as constrained optimization problems, as well as provide us tools to solve a greater variety of optimization problems.) If we let <span class="process-math">\(x\)</span> be the length of the side of one square end of the package and <span class="process-math">\(y\)</span> the length of the package, then we want to maximize the volume <span class="process-math">\(f(x,y) = x^2y\)</span> of the box subject to the constraint that the girth (<span class="process-math">\(4x\)</span>) plus the length (<span class="process-math">\(y\)</span>) is as large as possible, or <span class="process-math">\(4x+y = 108\text{.}\)</span> The equation <span class="process-math">\(4x + y = 108\)</span> is thus an external constraint on the variables.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <ol class="lower-alpha ol-marker-1" id="PA_10_8-1-2">
+<li id="PA_10_8-1-2-1">
+<div class="para logical" id="PA_10_8-1-2-1-1">
+<div class="para">The constraint equation involves the function <span class="process-math">\(g\)</span> that is given by</div>
+<div class="displaymath process-math" id="PA_10_8-1-2-1-1-2">
+\begin{equation*}
+g(x,y) = 4x+y.
+\end{equation*}
+</div>
+<div class="para">Explain why the constraint is a contour of <span class="process-math">\(g\text{,}\)</span> and is therefore a two-dimensional curve. <figure class="figure figure-like" id="F_10_8_preview"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_10_8_postal.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_10_8_preview-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_10_8_preview-2-description"><div class="para" id="F_10_8_preview-2-1-1">Contours of <span class="process-math">\(f\)</span> and the constraint equation <span class="process-math">\(g(x,y) = 108\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#F_10_8_preview-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>Contours of <span class="process-math">\(f\)</span> and the constraint equation <span class="process-math">\(g(x,y) = 108\text{.}\)</span><div class="autopermalink" data-description="Figure 10.8.1"><a href="#F_10_8_preview" title="Copy heading and permalink for Figure 10.8.1" aria-label="Copy heading and permalink for Figure 10.8.1">ð</a></div></figcaption></figure>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#PA_10_8-1-2-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="PA_10_8-1-2-2">
+<div class="para" id="PA_10_8-1-2-2-1">
+<a href="S-10-8-Lagrange-Multipliers.html#F_10_8_preview" class="xref" data-knowl="./knowl/xref/F_10_8_preview.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 10.8.1">FigureÂ 10.8.1</a> shows the graph of the constraint equation <span class="process-math">\(g(x,y) = 108\)</span> along with a few contours of the volume function <span class="process-math">\(f\text{.}\)</span>  Since our goal is to find the maximum value of <span class="process-math">\(f\)</span> subject to the constraint <span class="process-math">\(g(x,y) = 108\text{,}\)</span> we want to find the point on our constraint curve that intersects the contours of <span class="process-math">\(f\)</span> at which <span class="process-math">\(f\)</span> has its largest value.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<ol class="lower-roman ol-marker-4" id="PA_10_8-1-2-2-2">
+<li id="PA_10_8-1-2-2-2-1">
+<div class="para" id="PA_10_8-1-2-2-2-1-1">Points <span class="process-math">\(A\)</span> and <span class="process-math">\(B\)</span> in <a href="S-10-8-Lagrange-Multipliers.html#F_10_8_preview" class="xref" data-knowl="./knowl/xref/F_10_8_preview.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 10.8.1">FigureÂ 10.8.1</a> lie on a contour of <span class="process-math">\(f\)</span> and on the constraint equation <span class="process-math">\(g(x,y) = 108\text{.}\)</span> Explain why neither <span class="process-math">\(A\)</span> nor <span class="process-math">\(B\)</span> provides a maximum value of <span class="process-math">\(f\)</span> that satisfies the constraint.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-2-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b.i"><a href="#PA_10_8-1-2-2-2-1" title="Copy heading and permalink for Item b.i" aria-label="Copy heading and permalink for Item b.i">ð</a></div>
+</li>
+<li id="PA_10_8-1-2-2-2-2">
+<div class="para" id="PA_10_8-1-2-2-2-2-1">Points <span class="process-math">\(C\)</span> and <span class="process-math">\(D\)</span> in <a href="S-10-8-Lagrange-Multipliers.html#F_10_8_preview" class="xref" data-knowl="./knowl/xref/F_10_8_preview.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 10.8.1">FigureÂ 10.8.1</a> lie on a contour of <span class="process-math">\(f\)</span> and on the constraint equation <span class="process-math">\(g(x,y) = 108\text{.}\)</span> Explain why neither <span class="process-math">\(C\)</span> nor <span class="process-math">\(D\)</span> provides a maximum value of <span class="process-math">\(f\)</span> that satisfies the constraint.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-2-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b.ii"><a href="#PA_10_8-1-2-2-2-2" title="Copy heading and permalink for Item b.ii" aria-label="Copy heading and permalink for Item b.ii">ð</a></div>
+</li>
+<li id="PA_10_8-1-2-2-2-3">
+<div class="para" id="PA_10_8-1-2-2-2-3-1">Based on your responses to parts i. and ii., draw the contour of <span class="process-math">\(f\)</span> on which you believe <span class="process-math">\(f\)</span> will achieve a maximum value subject to the constraint <span class="process-math">\(g(x,y) = 108\text{.}\)</span> Explain why you drew the contour you did.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-2-2-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b.iii"><a href="#PA_10_8-1-2-2-2-3" title="Copy heading and permalink for Item b.iii" aria-label="Copy heading and permalink for Item b.iii">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Item b"><a href="#PA_10_8-1-2-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="PA_10_8-1-2-3">
+<div class="para" id="PA_10_8-1-2-3-1">Recall that <span class="process-math">\(g(x,y) = 108\)</span> is a contour of the function <span class="process-math">\(g\text{,}\)</span> and that the gradient of a function is always orthogonal to its contours. With this in mind, how should <span class="process-math">\(\nabla f\)</span> and <span class="process-math">\(\nabla g\)</span> be related at the optimal point? Explain.<div class="autopermalink" data-description="Paragraph"><a href="#PA_10_8-1-2-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#PA_10_8-1-2-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Preview Activity 10.8.1"><a href="#PA_10_8" title="Copy heading and permalink for Preview Activity 10.8.1" aria-label="Copy heading and permalink for Preview Activity 10.8.1">ð</a></div></article></section><section class="subsection" id="S-10-8-Lagrange-Multipliers-4"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.1</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Constrained Optimization and Lagrange Multipliers</span>
+</h3>
+<div class="para" id="S-10-8-Lagrange-Multipliers-4-2">In <a href="S-10-8-Lagrange-Multipliers.html#PA_10_8" class="xref" data-knowl="./knowl/xref/PA_10_8.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 10.8.1">Preview ActivityÂ 10.8.1</a>, we considered an optimization problem where there is an external constraint on the variables, namely that the girth plus the length of the package cannot exceed 108 inches. We saw that we can create a function <span class="process-math">\(g\)</span> from the constraint, specifically <span class="process-math">\(g(x,y) = 4x+y\text{.}\)</span> The constraint equation is then just a contour of <span class="process-math">\(g\text{,}\)</span> <span class="process-math">\(g(x, y) = c\text{,}\)</span> where <span class="process-math">\(c\)</span> is a constant (in our case 108). <a href="S-10-8-Lagrange-Multipliers.html#F_10_8_Lagrange1" class="xref" data-knowl="./knowl/xref/F_10_8_Lagrange1.html" data-reveal-label="Reveal" data-close-label="Close" title="Figure 10.8.2">FigureÂ 10.8.2</a> illustrates that the volume function <span class="process-math">\(f\)</span> is maximized, subject to the constraint <span class="process-math">\(g(x, y) = c\text{,}\)</span> when the graph of <span class="process-math">\(g(x, y) = c\)</span> is tangent to a contour of <span class="process-math">\(f\text{.}\)</span> Moreover, the value of <span class="process-math">\(f\)</span> on this contour is the sought maximum value.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<figure class="figure figure-like" id="F_10_8_Lagrange1"><div class="image-box" style="width: 50%; margin-left: 25%; margin-right: 25%;">
+<img src="external/images/fig_10_8_postal_solution.svg" role="img" class="contained" alt="described in detail following the image" aria-describedby="F_10_8_Lagrange1-2-description"><details class="image-description" aria-live="polite"><summary title="details"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe88e;</span></summary><div id="F_10_8_Lagrange1-2-description"><div class="para" id="F_10_8_Lagrange1-2-1-1">Contours of <span class="process-math">\(f\)</span> and the constraint contour.<div class="autopermalink" data-description="Paragraph"><a href="#F_10_8_Lagrange1-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div></div></details>
+</div>
+<figcaption><span class="type">Figure</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span><span class="space heading-divison-mark heading-divison-mark__space"> </span>Contours of <span class="process-math">\(f\)</span> and the constraint contour.<div class="autopermalink" data-description="Figure 10.8.2"><a href="#F_10_8_Lagrange1" title="Copy heading and permalink for Figure 10.8.2" aria-label="Copy heading and permalink for Figure 10.8.2">ð</a></div></figcaption></figure><div class="para logical" id="S-10-8-Lagrange-Multipliers-4-4">
+<div class="para">To find this point where the graph of the constraint is tangent to a contour of <span class="process-math">\(f\text{,}\)</span> recall that <span class="process-math">\(\nabla f\)</span> is perpendicular to the contours of <span class="process-math">\(f\)</span> and <span class="process-math">\(\nabla g\)</span> is perpendicular to the contour of <span class="process-math">\(g\text{.}\)</span> At such a point, the vectors <span class="process-math">\(\nabla g\)</span> and <span class="process-math">\(\nabla f\)</span> are parallel, and thus we need to determine the points where this occurs. Recall that two vectors are parallel if one is a nonzero scalar multiple of the other, so we therefore look for values of a parameter <span class="process-math">\(\lambda\)</span> that make</div>
+<div class="displaymath process-math" id="eq_10_8_Lagrange_ex1">
+\begin{equation}
+\nabla f = \lambda \nabla g.\tag{10.8.1}
+\end{equation}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-10-8-Lagrange-Multipliers-4-5">The constant <span class="process-math">\(\lambda\)</span> is called a <em class="emphasis">Lagrange multiplier</em>.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-4-6">
+<div class="para">To find the values of <span class="process-math">\(\lambda\)</span> that satisfy <a href="S-10-8-Lagrange-Multipliers.html#eq_10_8_Lagrange_ex1" class="xref" data-knowl="./knowl/xref/eq_10_8_Lagrange_ex1.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.1">(10.8.1)</a> for the volume function in <a href="S-10-8-Lagrange-Multipliers.html#PA_10_8" class="xref" data-knowl="./knowl/xref/PA_10_8.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 10.8.1">Preview ActivityÂ 10.8.1</a>, we calculate both <span class="process-math">\(\nabla f\)</span> and <span class="process-math">\(\nabla g\text{.}\)</span> Observe that</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_Lagrange_ex1.html ./knowl/xref/PA_10_8.html" id="S-10-8-Lagrange-Multipliers-4-6-6">
+\begin{equation*}
+\nabla f = 2xy \vi + x^2 \vj \ \ \ \ \text{ and }  \ \ \ \ \nabla g = 4\vi + \vj,
+\end{equation*}
+</div>
+<div class="para">and thus we need a value of <span class="process-math">\(\lambda\)</span> so that</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_Lagrange_ex1.html ./knowl/xref/PA_10_8.html" id="S-10-8-Lagrange-Multipliers-4-6-8">
+\begin{equation*}
+2xy \vi + x^2 \vj = \lambda(4\vi + \vj).
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-4-7">
+<div class="para">Equating components in the most recent equation and incorporating the original constraint, we have three equations</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_lag_ex2.html ./knowl/xref/eq_10_8_lag_ex3.html ./knowl/xref/eq_10_8_lag_ex2.html ./knowl/xref/eq_10_8_lag_ex1.html ./knowl/xref/eq_10_8_lag_ex2.html" id="S-10-8-Lagrange-Multipliers-4-7-1">
+\begin{align}
+2xy \amp = \lambda (4) \tag{10.8.2}\\
+x^2 \amp = \lambda (1) \tag{10.8.3}\\
+4x+y \amp = 108 \tag{10.8.4}
+\end{align}
+</div>
+<div class="para">in the three unknowns <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> and <span class="process-math">\(\lambda\text{.}\)</span> First, note that if <span class="process-math">\(\lambda = 0\text{,}\)</span> then equation <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex2.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.3">(10.8.3)</a> shows that <span class="process-math">\(x=0\text{.}\)</span> From this, EquationÂ <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex3.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.4">(10.8.4)</a> tells us that <span class="process-math">\(y = 108\text{.}\)</span> So the point <span class="process-math">\((0,108)\)</span> is a point we need to consider. Next, provided that <span class="process-math">\(\lambda \neq 0\)</span> (from which it follows that <span class="process-math">\(x \neq 0\)</span> by Equation <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex2.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.3">(10.8.3)</a>), we may divide both sides of EquationÂ <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex1.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.2">(10.8.2)</a> by the corresponding sides of <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex2.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.3">(10.8.3)</a> to eliminate <span class="process-math">\(\lambda\text{,}\)</span> and thus find that</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_lag_ex2.html ./knowl/xref/eq_10_8_lag_ex3.html ./knowl/xref/eq_10_8_lag_ex2.html ./knowl/xref/eq_10_8_lag_ex1.html ./knowl/xref/eq_10_8_lag_ex2.html" id="S-10-8-Lagrange-Multipliers-4-7-19">
+\begin{align*}
+\frac{2y}{x} \amp = 4, \ \mbox{so}\\
+y \amp = 2x.
+\end{align*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-4-8">
+<div class="para">Substituting into EquationÂ <a href="S-10-8-Lagrange-Multipliers.html#S-10-8-Lagrange-Multipliers-4-7-1" class="xref" data-knowl="./knowl/xref/eq_10_8_lag_ex3.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.4">(10.8.4)</a> gives us</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_lag_ex3.html" id="S-10-8-Lagrange-Multipliers-4-8-3">
+\begin{equation*}
+4x+2x = 108
+\end{equation*}
+</div>
+<div class="para">or</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/eq_10_8_lag_ex3.html" id="S-10-8-Lagrange-Multipliers-4-8-4">
+\begin{equation*}
+x = 18.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-10-8-Lagrange-Multipliers-4-9">Thus we have <span class="process-math">\(y = 2x = 36\)</span> and <span class="process-math">\(\lambda = x^2 = 324\)</span> as another point to consider. So the points at which the gradients of <span class="process-math">\(f\)</span> and <span class="process-math">\(g\)</span> are parallel, and thus at which <span class="process-math">\(f\)</span> may have a maximum or minimum subject to the constraint, are <span class="process-math">\((0,108)\)</span> and <span class="process-math">\((18,36)\text{.}\)</span> By evaluating the function <span class="process-math">\(f\)</span> at these points, we see that we maximize the volume when the length of the square end of the box is 18 inches and the length is 36 inches, for a maximum volume of <span class="process-math">\(f(18,36) = 11664\)</span> cubic inches. Since <span class="process-math">\(f(0,108) = 0\text{,}\)</span> we obtain a minimum value at this point.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-9" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-10-8-Lagrange-Multipliers-4-10">We summarize the process of Lagrange multipliers as follows.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-10" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="assemblage assemblage-like" id="Lagrange-multipliers"><h4 class="heading"><span class="title">The method of Lagrange multipliers.</span></h4>
+<div class="para" id="Lagrange-multipliers-2">The general technique for optimizing a function <span class="process-math">\(f = f(x,y)\)</span> subject to a constraint <span class="process-math">\(g(x,y)=c\)</span> is to solve the system <span class="process-math">\(\nabla f = \lambda \nabla g\)</span> and <span class="process-math">\(g(x,y)=c\)</span> for <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> and <span class="process-math">\(\lambda\text{.}\)</span> We then evaluate the function <span class="process-math">\(f\)</span> at each point <span class="process-math">\((x,y)\)</span> that results from a solution to the system in order to find the optimum values of <span class="process-math">\(f\)</span> subject to the constraint.<div class="autopermalink" data-description="Paragraph"><a href="#Lagrange-multipliers-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Assemblage: The method of Lagrange multipliers"><a href="#Lagrange-multipliers" title="Copy heading and permalink for Assemblage: The method of Lagrange multipliers" aria-label="Copy heading and permalink for Assemblage: The method of Lagrange multipliers">ð</a></div></article><article class="activity project-like" id="A_10_8_1"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.2</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para logical" id="A_10_8_1-1-1">
+<div class="para">A cylindrical soda can holds about 355 cc of liquid. In this activity, we want to find the dimensions of such a can that will minimize the surface area. For the sake of simplicity, assume the can is a perfect cylinder.</div>
+<ol class="lower-alpha ol-marker-1" id="A_10_8_1-1-1-1">
+<li id="A_10_8_1-1-1-1-1">
+<div class="para" id="A_10_8_1-1-1-1-1-1">What are the variables in this problem? Based on the context, what restriction(s), if any, are there on these variables?<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_1-1-1-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item a"><a href="#A_10_8_1-1-1-1-1" title="Copy heading and permalink for Item a" aria-label="Copy heading and permalink for Item a">ð</a></div>
+</li>
+<li id="A_10_8_1-1-1-1-2">
+<div class="para" id="A_10_8_1-1-1-1-2-1">What quantity do we want to optimize in this problem? What equation describes the constraint? (You need to decide which of these functions plays the role of <span class="process-math">\(f\)</span> and which plays the role of <span class="process-math">\(g\)</span> in our discussion of Lagrange multipliers.)<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_1-1-1-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item b"><a href="#A_10_8_1-1-1-1-2" title="Copy heading and permalink for Item b" aria-label="Copy heading and permalink for Item b">ð</a></div>
+</li>
+<li id="A_10_8_1-1-1-1-3">
+<div class="para" id="A_10_8_1-1-1-1-3-1">Find <span class="process-math">\(\lambda\)</span> and the values of your variables that satisfy Equation <a href="S-10-8-Lagrange-Multipliers.html#eq_10_8_Lagrange_ex1" class="xref" data-knowl="./knowl/xref/eq_10_8_Lagrange_ex1.html" data-reveal-label="Reveal" data-close-label="Close" title="Equation 10.8.1">(10.8.1)</a> in the context of this problem.<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_1-1-1-1-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item c"><a href="#A_10_8_1-1-1-1-3" title="Copy heading and permalink for Item c" aria-label="Copy heading and permalink for Item c">ð</a></div>
+</li>
+<li id="A_10_8_1-1-1-1-4">
+<div class="para" id="A_10_8_1-1-1-1-4-1">Determine the dimensions of the pop can that give the desired solution to this constrained optimization problem.<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_1-1-1-1-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item d"><a href="#A_10_8_1-1-1-1-4" title="Copy heading and permalink for Item d" aria-label="Copy heading and permalink for Item d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 10.8.2"><a href="#A_10_8_1" title="Copy heading and permalink for Activity 10.8.2" aria-label="Copy heading and permalink for Activity 10.8.2">ð</a></div></article><div class="para" id="S-10-8-Lagrange-Multipliers-4-13">The method of Lagrange multipliers also works for functions of more than two variables.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-13" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<article class="activity project-like" id="A_10_8_2"><h4 class="heading">
+<span class="type">Activity</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.3</span><span class="period heading-divison-mark heading-divison-mark__period">.</span>
+</h4>
+<div class="para" id="A_10_8_2-1-1">Use the method of Lagrange multipliers to find the dimensions of the least expensive packing crate with a volume of 240 cubic feet when the material for the top costs $2 per square foot, the bottom is $3 per square foot and the sides are $1.50 per square foot.<div class="autopermalink" data-description="Paragraph"><a href="#A_10_8_2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Activity 10.8.3"><a href="#A_10_8_2" title="Copy heading and permalink for Activity 10.8.3" aria-label="Copy heading and permalink for Activity 10.8.3">ð</a></div></article><div class="para" id="S-10-8-Lagrange-Multipliers-4-15">The method of Lagrange multipliers also works for functions of three variables. That is, if we have a function <span class="process-math">\(f = f(x,y,z)\)</span> that we want to optimize subject to a constraint <span class="process-math">\(g(x,y,z) = k\text{,}\)</span> the optimal point <span class="process-math">\((x,y,z)\)</span> lies on the level surface <span class="process-math">\(S\)</span> defined by the constraint <span class="process-math">\(g(x,y,z) = k\text{.}\)</span> As we did in <a href="S-10-8-Lagrange-Multipliers.html#PA_10_8" class="xref" data-knowl="./knowl/xref/PA_10_8.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 10.8.1">Preview ActivityÂ 10.8.1</a>, we can argue that the optimal value occurs at the level surface <span class="process-math">\(f(x,y,z) = c\)</span> that is tangent to <span class="process-math">\(S\text{.}\)</span> Thus, the gradients of <span class="process-math">\(f\)</span> and <span class="process-math">\(g\)</span> are parallel at this optimal point. So, just as in the two variable case, we can optimize <span class="process-math">\(f = f(x,y,z)\)</span> subject to the constraint <span class="process-math">\(g(x,y,z) = k\)</span> by finding all points <span class="process-math">\((x,y,z)\)</span> that satisfy <span class="process-math">\(\nabla f = \lambda \nabla g\)</span> and <span class="process-math">\(g(x,y,z) = k\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-4-15" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Subsection 10.8.1: Constrained Optimization and Lagrange Multipliers"><a href="#S-10-8-Lagrange-Multipliers-4" title="Copy heading and permalink for Subsection 10.8.1: Constrained Optimization and Lagrange Multipliers" aria-label="Copy heading and permalink for Subsection 10.8.1: Constrained Optimization and Lagrange Multipliers">ð</a></div></section><section class="subsection" id="S-10-8-Lagrange-Multipliers-5"><h3 class="heading hide-type">
+<span class="type">Subsection</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.2</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Summary</span>
+</h3>
+<ul class="disc" id="S-10-8-Lagrange-Multipliers-5-2">
+<li id="S-10-8-Lagrange-Multipliers-5-2-1">
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-5-2-1-1">
+<div class="para">The extrema of a function <span class="process-math">\(f=f(x,y)\)</span> subject to a constraint <span class="process-math">\(g(x,y) = c\)</span> occur at points for which the contour of <span class="process-math">\(f\)</span> is tangent to the curve that represents the constraint equation. This occurs when</div>
+<div class="displaymath process-math" id="S-10-8-Lagrange-Multipliers-5-2-1-1-4">
+\begin{equation*}
+\nabla f = \lambda \nabla g.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-5-2-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-10-8-Lagrange-Multipliers-5-2-1" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-5-2-2">
+<div class="para" id="S-10-8-Lagrange-Multipliers-5-2-2-1">We use the condition  <span class="process-math">\(\nabla f = \lambda \nabla g\)</span> to generate a system of equations, together with the constraint <span class="process-math">\(g(x,y) = c\text{,}\)</span> that may be solved for <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> and <span class="process-math">\(\lambda\text{.}\)</span>  Once we have all the solutions, we evaluate <span class="process-math">\(f\)</span> at each of the <span class="process-math">\((x,y)\)</span> points to determine the extrema.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-5-2-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item"><a href="#S-10-8-Lagrange-Multipliers-5-2-2" title="Copy heading and permalink for Item" aria-label="Copy heading and permalink for Item">ð</a></div>
+</li>
+</ul>
+<div class="autopermalink" data-description="Subsection 10.8.2: Summary"><a href="#S-10-8-Lagrange-Multipliers-5" title="Copy heading and permalink for Subsection 10.8.2: Summary" aria-label="Copy heading and permalink for Subsection 10.8.2: Summary">ð</a></div></section><section class="exercises" id="S-10-8-Lagrange-Multipliers-6"><h3 class="heading hide-type">
+<span class="type">Exercises</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="codenumber">10.8.3</span><span class="space heading-divison-mark heading-divison-mark__space"> </span><span class="title">Exercises</span>
+</h3>
+<article class="exercise exercise-like" id="Library__Michigan__Chap15Sec3__Q05.pg"><h4 class="heading"><span class="codenumber">1<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-170" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="170" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap15Sec3/Q05.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-170')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-170-1-1-1">Use Lagrange multipliers to find the maximum and minimum values of <span class="process-math">\(f(x,y) = 4 x -  y\)</span> subject to the constraint <span class="process-math">\(x^2 + 2 y^2 = 66\text{,}\)</span> if such values exist.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-170-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-170-1-1-2">maximum = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-170-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-170-1-1-3">minimum = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-170-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-170-1-1-4">
+<em class="emphasis">(For either value, enter <em class="alert">DNE</em> if there is no such value.)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-170-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.1"><a href="#Library__Michigan__Chap15Sec3__Q05.pg" title="Copy heading and permalink for Exercise 10.8.3.1" aria-label="Copy heading and permalink for Exercise 10.8.3.1">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap15Sec3__Q17.pg"><h4 class="heading"><span class="codenumber">2<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-171" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="171" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap15Sec3/Q17.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-171')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-171-1-1-1">Use Lagrange multipliers to find the maximum and minimum values of <span class="process-math">\(f(x,y) = x^2 y + 6 y^2 - y\text{,}\)</span> subject to the constraint <span class="process-math">\(x^2 + y^2 \leq 54.3333333333333\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-171-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-171-1-1-2">maximum = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-171-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-171-1-1-3">minimum = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-171-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-171-1-1-4">
+<em class="emphasis">(For either value, enter <em class="alert">DNE</em> if there is no such value.)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-171-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.2"><a href="#Library__Michigan__Chap15Sec3__Q17.pg" title="Copy heading and permalink for Exercise 10.8.3.2" aria-label="Copy heading and permalink for Exercise 10.8.3.2">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh15S8__problem_2.pg"><h4 class="heading"><span class="codenumber">3<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-172" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="172" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh15S8/problem_2.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-172')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-172-1-1-1">Find the absolute maximum and minimum of the function <span class="process-math">\(f(x,y) = x^2 + y^2\)</span> subject to the constraint <span class="process-math">\(x^4 + y^4 = 1\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-2">As usual, ignore unneeded answer blanks, and list points in lexicographic order.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-3">Absolute minimum value: <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-4">attained at (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>), (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>),<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-5">(<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>), (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-6">Absolute maximum value: <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-7">attained at (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>), (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>),<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-172-1-1-8">(<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>), (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-172-1-1-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.3"><a href="#Library__Dartmouth__setStewartCh15S8__problem_2.pg" title="Copy heading and permalink for Exercise 10.8.3.3" aria-label="Copy heading and permalink for Exercise 10.8.3.3">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh15S8__problem_1.pg"><h4 class="heading"><span class="codenumber">4<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-173" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="173" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh15S8/problem_1.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-173')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-173-1-1-1">Find the absolute maximum and minimum of the function <span class="process-math">\(f(x,y) = x^2 - y^2\)</span> subject to the constraint <span class="process-math">\(x^2 + y^2 = 16\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-173-1-1-2">As usual, ignore unneeded answer blanks, and list points in lexicographic order.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-173-1-1-3">Absolute minimum value: <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-173-1-1-4">attained at (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>) and  (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-173-1-1-5">Absolute maximum value: <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-173-1-1-6">attained at (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>) and  (<span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>, <span class="fillin underline" role="img" aria-label="10-character blank" style="width: 4.545454545454546em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-173-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.4"><a href="#Library__Dartmouth__setStewartCh15S8__problem_1.pg" title="Copy heading and permalink for Exercise 10.8.3.4" aria-label="Copy heading and permalink for Exercise 10.8.3.4">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap15Sec3__Q40.pg"><h4 class="heading"><span class="codenumber">5<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-174" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="174" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap15Sec3/Q40.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-174')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-174-1-1-1">Find the minimum distance from the point <span class="process-math">\((1,2,13)\)</span> to the paraboloid given by the equation <span class="process-math">\(z=x^2+y^2\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-174-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-174-1-1-2">Minimum distance = <span class="fillin underline" role="img" aria-label="35-character blank" style="width: 15.9090909090909em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-174-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-174-1-1-3">
+<em class="alert">Note:</em> If you need to find roots of a polynomial of degree <span class="process-math">\(\geq 3\text{,}\)</span> you may want to use a calculator of computer to do so numerically. Also be sure that you can give a geometric justification for your answer.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-174-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.5"><a href="#Library__Michigan__Chap15Sec3__Q40.pg" title="Copy heading and permalink for Exercise 10.8.3.5" aria-label="Copy heading and permalink for Exercise 10.8.3.5">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap15Sec3__Q43.pg"><h4 class="heading"><span class="codenumber">6<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-175" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="175" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap15Sec3/Q43.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-175')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-175-1-1-1">For each value of <span class="process-math">\(\lambda\)</span> the function <span class="process-math">\(h(x,y) = x^2 + y^2 - \lambda(4 x + 6 y - 19)\)</span> has a minimum value <span class="process-math">\(m(\lambda)\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-2">
+<em class="alert">(a)</em> Find <span class="process-math">\(m(\lambda)\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-3">
+<span class="process-math">\(m(\lambda) =\)</span> <span class="fillin underline" role="img" aria-label="45-character blank" style="width: 20.4545454545455em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-4">
+<em class="emphasis">(Use the letter <em class="alert">L</em> for <span class="process-math">\(\lambda\)</span> in your expression.)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-5">
+<em class="alert">(b)</em> For which value of <span class="process-math">\(\lambda\)</span> is <span class="process-math">\(m(\lambda)\)</span> the largest, and what is that maximum value?<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-6">
+<span class="process-math">\(\lambda =\)</span> <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-7">maximum <span class="process-math">\(m(\lambda) =\)</span> <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-7" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-8">
+<em class="alert">(c)</em> Find the minimum value of  <span class="process-math">\(f(x,y)=x^2+y^2\)</span> subject to the constraint <span class="process-math">\(4 x + 6 y = 19\)</span> using the method of Lagrange multipliers and evaluate <span class="process-math">\(\lambda\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-8" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-9">minimum <span class="process-math">\(f\)</span> = <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-9" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-10">
+<span class="process-math">\(\lambda =\)</span> <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-10" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-175-1-1-11">
+<em class="emphasis">(How are these results related to your result in part (b)?)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-175-1-1-11" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.6"><a href="#Library__Michigan__Chap15Sec3__Q43.pg" title="Copy heading and permalink for Exercise 10.8.3.6" aria-label="Copy heading and permalink for Exercise 10.8.3.6">ð</a></div></article><article class="exercise exercise-like" id="Library__272__setStewart14_8__problem_10.pg"><h4 class="heading"><span class="codenumber">7<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-176" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="176" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/272/setStewart14_8/problem_10.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-176')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-176-1-1-1">The plane <span class="process-math">\(x + y + 2z = 10\)</span> intersects the paraboloid <span class="process-math">\(z = x^2 +
+y^2\)</span> in an ellipse.  Find the points on this ellipse that are nearest to and farthest from the origin.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-176-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-176-1-1-2">Point farthest away occurs at<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-176-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-176-1-1-3">(<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>, <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>,<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-176-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-176-1-1-4">Point nearest occurs at<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-176-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-176-1-1-5">(<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>, <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>,<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-176-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.7"><a href="#Library__272__setStewart14_8__problem_10.pg" title="Copy heading and permalink for Exercise 10.8.3.7" aria-label="Copy heading and permalink for Exercise 10.8.3.7">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh15S8__problem_3.pg"><h4 class="heading"><span class="codenumber">8<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-177" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="177" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh15S8/problem_3.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-177')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-177-1-1-1">Find the maximum and minimum values of the function <span class="process-math">\(f(x,y,z) = x^2 y^2 z^2\)</span> subject to the constraint <span class="process-math">\(x^2 + y^2 + z^2 = 144\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-177-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-177-1-1-2">Maximum value is <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, occuring at <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span> points (positive integer or "infinitely many").<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-177-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-177-1-1-3">Minimum value is <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, occuring at <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span> points (positive integer or "infinitely many").<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-177-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.8"><a href="#Library__Dartmouth__setStewartCh15S8__problem_3.pg" title="Copy heading and permalink for Exercise 10.8.3.8" aria-label="Copy heading and permalink for Exercise 10.8.3.8">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh15S8__problem_4.pg"><h4 class="heading"><span class="codenumber">9<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-178" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="178" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh15S8/problem_4.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-178')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-178-1-1-1">Find the maximum and minimum values of the function <span class="process-math">\(f(x,y,z,t) = x+y+z+t\)</span> subject to the constraint <span class="process-math">\(x^2 + y^2 + z^2 + t^2 = 225\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-178-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-178-1-1-2">Maximum value is <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, occuring at <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span> points (positive integer or "infinitely many").<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-178-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-178-1-1-3">Minimum value is <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span>, occuring at <span class="fillin underline" role="img" aria-label="20-character blank" style="width: 9.090909090909092em;"></span> points (positive integer or "infinitely many").<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-178-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.9"><a href="#Library__Dartmouth__setStewartCh15S8__problem_4.pg" title="Copy heading and permalink for Exercise 10.8.3.9" aria-label="Copy heading and permalink for Exercise 10.8.3.9">ð</a></div></article><article class="exercise exercise-like" id="Library__Dartmouth__setStewartCh15S8__problem_9.pg"><h4 class="heading"><span class="codenumber">10<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-179" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="179" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Dartmouth/setStewartCh15S8/problem_9.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-179')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-179-1-1-1">Find the maximum and minimum volumes of a rectangular box whose surface area equals 9000 square cm and whose edge length (sum of lengths of all edges) is 520 cm.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-179-1-1-2">Hint: It can be deduced that the box is not a cube, so if x, y, and z are the lengths of the sides, you may want to let x represent a side with <span class="process-math">\(x \ne y\)</span> and <span class="process-math">\(x \ne z\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-179-1-1-3">Maximum value is <span class="fillin underline" role="img" aria-label="60-character blank" style="width: 27.2727272727273em;"></span>,<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-179-1-1-4">occuring at (<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>, <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>,<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-179-1-1-5">Minimum value is <span class="fillin underline" role="img" aria-label="60-character blank" style="width: 27.2727272727273em;"></span>,<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-179-1-1-6">occuring at (<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>, <span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>,<span class="fillin underline" role="img" aria-label="25-character blank" style="width: 11.3636363636364em;"></span>).<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-179-1-1-6" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.10"><a href="#Library__Dartmouth__setStewartCh15S8__problem_9.pg" title="Copy heading and permalink for Exercise 10.8.3.10" aria-label="Copy heading and permalink for Exercise 10.8.3.10">ð</a></div></article><article class="exercise exercise-like" id="Library__Michigan__Chap15Sec3__Q38.pg"><h4 class="heading"><span class="codenumber">11<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div id="webwork-180" class="exercise-wrapper" data-domain="https://webwork-ptx.aimath.org" data-seed="180" data-localize-correct="Correct" data-localize-incorrect="Incorrect" data-localize-blank="Blank" data-localize-submit="Submit" data-localize-check-responses="Check Responses" data-localize-reveal="Reveal" data-localize-randomize="Randomize" data-localize-reset="Reset" data-localize-hint="Hint" data-localize-solution="Solution" data-origin="webwork2" data-sourceFilePath="Library/Michigan/Chap15Sec3/Q38.pg" data-courseID="mitchkeller-dev" data-userID="anonymous" data-coursePassword="anonymous" aria-live="polite">
+<div class="problem-buttons"><button class="webwork-button" onclick="handleWW('webwork-180')">Activate</button></div>
+<div class="problem-contents">
+<div class="para" id="extracted-webwork-180-1-1-1">
+<em class="alert">(a)</em> If <span class="process-math">\(\sum_{i=1}^3 x_i = 5\text{,}\)</span> find the values of <span class="process-math">\(x_1, x_2, x_3\)</span> making <span class="process-math">\(\sum_{i=1}^3 {x_i}^2\)</span> minimum.<div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-180-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-180-1-1-2">
+<span class="process-math">\(x_1, x_2, x_3 =\)</span> <span class="fillin underline" role="img" aria-label="45-character blank" style="width: 20.4545454545455em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-180-1-1-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-180-1-1-3">
+<em class="emphasis">(Give your values as a comma separated list.)</em><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-180-1-1-3" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-180-1-1-4">
+<em class="alert">(b)</em> Generalize the result of part (a) to find the minimum value of <span class="process-math">\(\sum_{i=1}^n{x_i}^2\)</span> subject to <span class="process-math">\(\sum_{i=1}^n x_i=5\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-180-1-1-4" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div> <div class="para" id="extracted-webwork-180-1-1-5">minimum value = <span class="fillin underline" role="img" aria-label="45-character blank" style="width: 20.4545454545455em;"></span><div class="autopermalink" data-description="Paragraph"><a href="#extracted-webwork-180-1-1-5" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+</div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.11"><a href="#Library__Michigan__Chap15Sec3__Q38.pg" title="Copy heading and permalink for Exercise 10.8.3.11" aria-label="Copy heading and permalink for Exercise 10.8.3.11">ð</a></div></article><article class="exercise exercise-like" id="S-10-8-Lagrange-Multipliers-6-12"><h4 class="heading"><span class="codenumber">12<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-12-1-1">
+<div class="para">The Cobb-Douglas production function is used in economics to model production levels based on labor and equipment. Suppose we have a specific Cobb-Douglas function of the form</div>
+<div class="displaymath process-math" id="S-10-8-Lagrange-Multipliers-6-12-1-1-2">
+\begin{equation*}
+f(x, y) = 50 x^{0.4}y^{0.6},
+\end{equation*}
+</div>
+<div class="para">where <span class="process-math">\(x\)</span> is the dollar amount spent on labor and <span class="process-math">\(y\)</span> the dollar amount spent on equipment. Use the method of Lagrange multipliers to determine how much should be spent on labor and how much on equipment to maximize productivity if we have a total of 1.5 million dollars to invest in labor and equipment.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-12-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.12"><a href="#S-10-8-Lagrange-Multipliers-6-12" title="Copy heading and permalink for Exercise 10.8.3.12" aria-label="Copy heading and permalink for Exercise 10.8.3.12">ð</a></div></article><article class="exercise exercise-like" id="S-10-8-Lagrange-Multipliers-6-13"><h4 class="heading"><span class="codenumber">13<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-13-1-1">
+<div class="para">Use the method of Lagrange multipliers to find the point on the line <span class="process-math">\(x-2y=5\)</span> that is closest to the point <span class="process-math">\((1,3)\text{.}\)</span> To do so, respond to the following prompts.</div>
+<ol class="lower-alpha ol-marker-1" id="S-10-8-Lagrange-Multipliers-6-13-1-1-3">
+<li id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-1">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-1-1">Write the function <span class="process-math">\(f=f(x,y)\)</span> that measures the <em class="emphasis">square</em> of the distance from <span class="process-math">\((x,y)\)</span> to <span class="process-math">\((1,3)\text{.}\)</span>  (The extrema of this function are the same as the extrema of the distance function, but <span class="process-math">\(f(x,y)\)</span> is simpler to work with.)<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.13.a"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-1" title="Copy heading and permalink for Item 10.8.3.13.a" aria-label="Copy heading and permalink for Item 10.8.3.13.a">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-2">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-2-1">What is the constraint <span class="process-math">\(g(x,y) = c\text{?}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.13.b"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-2" title="Copy heading and permalink for Item 10.8.3.13.b" aria-label="Copy heading and permalink for Item 10.8.3.13.b">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-3">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-3-1">Write the equations resulting from <span class="process-math">\(\nabla f = \lambda \nabla
+g\)</span> and the constraint.  Find all the points <span class="process-math">\((x,y)\)</span> satisfying these equations.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.13.c"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-3" title="Copy heading and permalink for Item 10.8.3.13.c" aria-label="Copy heading and permalink for Item 10.8.3.13.c">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-4">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-13-1-1-3-4-1">Test all the points you found to determine the extrema.<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.13.d"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1-3-4" title="Copy heading and permalink for Item 10.8.3.13.d" aria-label="Copy heading and permalink for Item 10.8.3.13.d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-13-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.13"><a href="#S-10-8-Lagrange-Multipliers-6-13" title="Copy heading and permalink for Exercise 10.8.3.13" aria-label="Copy heading and permalink for Exercise 10.8.3.13">ð</a></div></article><article class="exercise exercise-like" id="S-10-8-Lagrange-Multipliers-6-14"><h4 class="heading"><span class="codenumber">14<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-14-1-1">
+<div class="para">Apply the Method of Lagrange Multipliers to solve each of the following constrained optimization problems.</div>
+<ol class="lower-alpha ol-marker-1" id="S-10-8-Lagrange-Multipliers-6-14-1-1-1">
+<li id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-1">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-1-1">Determine the absolute maximum and absolute minimum values of <span class="process-math">\(f(x,y) = (x-1)^2 + (y-2)^2\)</span> subject to the constraint that <span class="process-math">\(x^2 + y^2 = 16\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.14.a"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-1" title="Copy heading and permalink for Item 10.8.3.14.a" aria-label="Copy heading and permalink for Item 10.8.3.14.a">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-2">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-2-1">Determine the points on the sphere <span class="process-math">\(x^2 + y^2 + z^2 = 4\)</span> that are closest to and farthest from the point <span class="process-math">\((3,1,-1)\text{.}\)</span>  (As in the preceding exercise, you may find it simpler to work with the square of the distance formula, rather than the distance formula itself.)<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.14.b"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-2" title="Copy heading and permalink for Item 10.8.3.14.b" aria-label="Copy heading and permalink for Item 10.8.3.14.b">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-3">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-14-1-1-1-3-1">Find the absolute maximum and minimum of <span class="process-math">\(f(x,y,z) = x^2 + y^2 + z^2\)</span> subject to the constraint that <span class="process-math">\((x-3)^2 + (y+2)^2 + (z-5)^2 \le 16\text{.}\)</span>  (Hint: here the constraint is a closed, bounded region.  Use the boundary of that region for applying Lagrange Multipliers, but donât forget to also test any critical values of the function that lie in the interior of the region.)<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.14.c"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1-1-3" title="Copy heading and permalink for Item 10.8.3.14.c" aria-label="Copy heading and permalink for Item 10.8.3.14.c">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-14-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.14"><a href="#S-10-8-Lagrange-Multipliers-6-14" title="Copy heading and permalink for Exercise 10.8.3.14" aria-label="Copy heading and permalink for Exercise 10.8.3.14">ð</a></div></article><article class="exercise exercise-like" id="S-10-8-Lagrange-Multipliers-6-15"><h4 class="heading"><span class="codenumber">15<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-15-1-1">
+<div class="para">In this exercise we consider how to apply the Method of Lagrange Multipliers to optimize functions of three variable subject to two constraints. Suppose we want to optimize <span class="process-math">\(f = f(x,y,z)\)</span> subject to the constraints <span class="process-math">\(g(x,y,z) = c\)</span> and <span class="process-math">\(h(x,y,z) = k\text{.}\)</span> Also suppose that the two level surfaces <span class="process-math">\(g(x,y,z) = c\)</span> and <span class="process-math">\(h(x,y,z) = k\)</span> intersect at a curve <span class="process-math">\(C\text{.}\)</span> The optimum point <span class="process-math">\(P = (x_0,y_0,z_0)\)</span> will then lie on <span class="process-math">\(C\text{.}\)</span>
+</div>
+<ol class="lower-alpha ol-marker-1" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9">
+<li id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-1">
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-1-1">
+<div class="para">Assume that <span class="process-math">\(C\)</span> can be represented parametrically by a vector-valued function <span class="process-math">\(\vr = \vr(t)\text{.}\)</span> Let <span class="process-math">\(\overrightarrow{OP} = \vr(t_0)\text{.}\)</span> Use the Chain Rule applied to <span class="process-math">\(f(\vr(t))\text{,}\)</span> <span class="process-math">\(g(\vr(t))\text{,}\)</span> and <span class="process-math">\(h(\vr(t))\text{,}\)</span> to explain why</div>
+<div class="displaymath process-math" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-1-1-7">
+\begin{align*}
+\nabla f(x_0,y_0,z_0) \cdot \vr'(t_0) \amp =  0, \\
+\nabla g(x_0,y_0,z_0) \cdot \vr'(t_0) \amp = 0, \text{ and } \\
+\nabla h(x_0,y_0,z_0) \cdot \vr'(t_0) \amp = 0. 
+\end{align*}
+</div>
+<div class="para">Explain how this shows that <span class="process-math">\(\nabla f(x_0,y_0,z_0)\text{,}\)</span> <span class="process-math">\(\nabla g(x_0,y_0,z_0)\text{,}\)</span> and <span class="process-math">\(\nabla h(x_0,y_0,z_0)\)</span> are all orthogonal to <span class="process-math">\(C\)</span> at <span class="process-math">\(P\text{.}\)</span> This shows that <span class="process-math">\(\nabla f(x_0,y_0,z_0)\text{,}\)</span> <span class="process-math">\(\nabla g(x_0,y_0,z_0)\text{,}\)</span> and <span class="process-math">\(\nabla h(x_0,y_0,z_0)\)</span> all lie in the same plane.</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.15.a"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-1" title="Copy heading and permalink for Item 10.8.3.15.a" aria-label="Copy heading and permalink for Item 10.8.3.15.a">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-2">
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-2-1">Assuming that <span class="process-math">\(\nabla g(x_0,y_0,z_0)\)</span> and <span class="process-math">\(\nabla h(x_0,y_0,z_0)\)</span> are nonzero and not parallel, explain why every point in the plane determined by <span class="process-math">\(\nabla g(x_0,y_0,z_0)\)</span> and <span class="process-math">\(\nabla h(x_0,y_0,z_0)\)</span> has the form <span class="process-math">\(s\nabla g(x_0,y_0,z_0)+t\nabla h(x_0,y_0,z_0)\)</span> for some scalars <span class="process-math">\(s\)</span> and <span class="process-math">\(t\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.15.b"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-2" title="Copy heading and permalink for Item 10.8.3.15.b" aria-label="Copy heading and permalink for Item 10.8.3.15.b">ð</a></div>
+</li>
+<li id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-3">
+<div class="para logical" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-1">
+<div class="para">Parts (a.) and (b.) show that there must exist scalars <span class="process-math">\(\lambda\)</span> and <span class="process-math">\(\mu\)</span> such that</div>
+<div class="displaymath process-math" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-1-3">
+\begin{equation*}
+\nabla f(x_0,y_0,z_0) = \lambda \nabla g(x_0,y_0,z_0)+ \mu \nabla h(x_0,y_0,z_0).
+\end{equation*}
+</div>
+<div class="para">So to optimize <span class="process-math">\(f = f(x,y,z)\)</span> subject to the constraints <span class="process-math">\(g(x,y,z) = c\)</span> and <span class="process-math">\(h(x,y,z) = k\)</span> we must solve the system of equations</div>
+<div class="displaymath process-math" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-1-7">
+\begin{align*}
+\nabla f(x,y,z) \amp = \lambda \nabla g(x,y,z)+ \mu \nabla h(x,y,z), \\
+g(x,y,z) \amp = c, \text{ and } \\
+h(x,y,z) \amp = k. 
+\end{align*}
+</div>
+<div class="para">for <span class="process-math">\(x\text{,}\)</span> <span class="process-math">\(y\text{,}\)</span> <span class="process-math">\(z\text{,}\)</span> <span class="process-math">\(\lambda\text{,}\)</span> and <span class="process-math">\(\mu\text{.}\)</span>
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="para" id="S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-2">Use this idea to find the maximum and minimum values of <span class="process-math">\(f(x,y,z) = x+2y\)</span> subject to the constraints <span class="process-math">\(y^2+z^2=8\)</span> and <span class="process-math">\(x+y+z = 10\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-3-2" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.15.c"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1-9-3" title="Copy heading and permalink for Item 10.8.3.15.c" aria-label="Copy heading and permalink for Item 10.8.3.15.c">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#S-10-8-Lagrange-Multipliers-6-15-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.15"><a href="#S-10-8-Lagrange-Multipliers-6-15" title="Copy heading and permalink for Exercise 10.8.3.15" aria-label="Copy heading and permalink for Exercise 10.8.3.15">ð</a></div></article><article class="exercise exercise-like" id="ex-10-8-multiplier"><h4 class="heading"><span class="codenumber">16<span class="period heading-divison-mark heading-divison-mark__period">.</span></span></h4>
+<div class="para logical" id="ex-10-8-multiplier-1-1">
+<div class="para">There is a useful interpretation of the Lagrange multiplier <span class="process-math">\(\lambda\text{.}\)</span> Assume that we want to optimize a function <span class="process-math">\(f\)</span> with constraint <span class="process-math">\(g(x,y)=c\text{.}\)</span> Recall that an optimal solution occurs at a point <span class="process-math">\((x_0, y_0)\)</span> where <span class="process-math">\(\nabla f = \lambda \nabla g\text{.}\)</span> As the constraint changes, so does the point at which the optimal solution occurs. So we can think of the optimal point as a function of the parameter <span class="process-math">\(c\text{,}\)</span> that is <span class="process-math">\(x_0 = x_0(c)\)</span> and <span class="process-math">\(y_0=y_0(c)\text{.}\)</span> The optimal value of <span class="process-math">\(f\)</span> subject to the constraint can then be considered as a function of <span class="process-math">\(c\)</span> defined by <span class="process-math">\(f(x_0(c), y_0(c))\text{.}\)</span> The Chain Rule shows that</div>
+<div class="displaymath process-math" data-contains-math-knowls="./knowl/xref/PA_10_8.html" id="ex-10-8-multiplier-1-1-12">
+\begin{equation*}
+\frac{df}{dc} = \frac{\partial f}{\partial x_0} \frac{dx_0}{dc} + \frac{\partial f}{\partial y_0} \frac{dy_0}{dc}.
+\end{equation*}
+</div>
+<ol class="lower-alpha ol-marker-1" id="ex-10-8-multiplier-1-1-13">
+<li id="ex-10-8-multiplier-1-1-13-1">
+<div class="para logical" id="ex-10-8-multiplier-1-1-13-1-1">
+<div class="para">Use the fact that <span class="process-math">\(\nabla f = \lambda \nabla g\)</span> at <span class="process-math">\((x_0,y_0)\)</span> to explain why</div>
+<div class="displaymath process-math" id="ex-10-8-multiplier-1-1-13-1-1-3">
+\begin{equation*}
+\frac{df}{dc} = \lambda \frac{dg}{dc}.
+\end{equation*}
+</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#ex-10-8-multiplier-1-1-13-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.16.a"><a href="#ex-10-8-multiplier-1-1-13-1" title="Copy heading and permalink for Item 10.8.3.16.a" aria-label="Copy heading and permalink for Item 10.8.3.16.a">ð</a></div>
+</li>
+<li id="ex-10-8-multiplier-1-1-13-2">
+<div class="para logical" id="ex-10-8-multiplier-1-1-13-2-1">
+<div class="para">Use the fact that <span class="process-math">\(g(x,y) = c\)</span> to show that</div>
+<div class="displaymath process-math" id="ex-10-8-multiplier-1-1-13-2-1-2">
+\begin{equation*}
+\frac{df}{dc} = \lambda.
+\end{equation*}
+</div>
+<div class="para">Conclude that <span class="process-math">\(\lambda\)</span> tells us the rate of change of the function <span class="process-math">\(f\)</span> as the parameter <span class="process-math">\(c\)</span> increases (or by approximately how much the optimal value of the function <span class="process-math">\(f\)</span> will change if we increase the value of <span class="process-math">\(c\)</span> by 1 unit).</div>
+<div class="autopermalink" data-description="Paragraph"><a href="#ex-10-8-multiplier-1-1-13-2-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.16.b"><a href="#ex-10-8-multiplier-1-1-13-2" title="Copy heading and permalink for Item 10.8.3.16.b" aria-label="Copy heading and permalink for Item 10.8.3.16.b">ð</a></div>
+</li>
+<li id="ex-10-8-multiplier-1-1-13-3">
+<div class="para" id="ex-10-8-multiplier-1-1-13-3-1">Suppose that <span class="process-math">\(\lambda = 324\)</span> at the point where the package described in <a href="S-10-8-Lagrange-Multipliers.html#PA_10_8" class="xref" data-knowl="./knowl/xref/PA_10_8.html" data-reveal-label="Reveal" data-close-label="Close" title="Preview Activity 10.8.1">Preview ActivityÂ 10.8.1</a> has its maximum volume. Explain in context what the value <span class="process-math">\(324\)</span> tells us about the package.<div class="autopermalink" data-description="Paragraph"><a href="#ex-10-8-multiplier-1-1-13-3-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.16.c"><a href="#ex-10-8-multiplier-1-1-13-3" title="Copy heading and permalink for Item 10.8.3.16.c" aria-label="Copy heading and permalink for Item 10.8.3.16.c">ð</a></div>
+</li>
+<li id="ex-10-8-multiplier-1-1-13-4">
+<div class="para" id="ex-10-8-multiplier-1-1-13-4-1">Suppose that the maximum value of a function <span class="process-math">\(f = f(x,y)\)</span> subject to a constraint <span class="process-math">\(g(x,y) = 100\)</span> is <span class="process-math">\(236\text{.}\)</span> When using the method of Lagrange multipliers and solving <span class="process-math">\(\nabla f = \lambda \nabla g\text{,}\)</span>  we obtain a value of <span class="process-math">\(\lambda = 15\)</span> at this maximum. Find an approximation to the maximum value of <span class="process-math">\(f\)</span> subject to the constraint <span class="process-math">\(g(x,y) = 98\text{.}\)</span><div class="autopermalink" data-description="Paragraph"><a href="#ex-10-8-multiplier-1-1-13-4-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Item 10.8.3.16.d"><a href="#ex-10-8-multiplier-1-1-13-4" title="Copy heading and permalink for Item 10.8.3.16.d" aria-label="Copy heading and permalink for Item 10.8.3.16.d">ð</a></div>
+</li>
+</ol>
+<div class="autopermalink" data-description="Paragraph"><a href="#ex-10-8-multiplier-1-1" title="Copy heading and permalink for Paragraph" aria-label="Copy heading and permalink for Paragraph">ð</a></div>
+</div>
+<div class="autopermalink" data-description="Exercise 10.8.3.16"><a href="#ex-10-8-multiplier" title="Copy heading and permalink for Exercise 10.8.3.16" aria-label="Copy heading and permalink for Exercise 10.8.3.16">ð</a></div></article><div class="autopermalink" data-description="Exercises 10.8.3"><a href="#S-10-8-Lagrange-Multipliers-6" title="Copy heading and permalink for Exercises 10.8.3" aria-label="Copy heading and permalink for Exercises 10.8.3">ð</a></div></section><div class="autopermalink" data-description="Section 10.8: Constrained Optimization: Lagrange Multipliers"><a href="#S-10-8-Lagrange-Multipliers" title="Copy heading and permalink for Section 10.8: Constrained Optimization: Lagrange Multipliers" aria-label="Copy heading and permalink for Section 10.8: Constrained Optimization: Lagrange Multipliers">ð</a></div></section></div>
+<div id="ptx-content-footer" class="ptx-content-footer">
+<a class="previous-button button" href="S-10-7-Optimization.html" title="Previous"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cb;</span><span class="name">Prev</span></a><a class="top-button button" href="#" title="Top"><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5ce;</span><span class="name">Top</span></a><a class="next-button button" href="C-11.html" title="Next"><span class="name">Next</span><span class="icon material-symbols-outlined" aria-hidden="true">&#xe5cc;</span></a>
+</div></main>
+</div>
+<div id="ptx-page-footer" class="ptx-page-footer">
+<a class="pretext-link" href="https://pretextbook.org" title="PreTeXt"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="338 3000 8772 6866" role="img"><title>PreTeXt logo</title><g style="stroke-width:.025in; stroke:currentColor; fill:none"><polyline points="472,3590 472,9732 " style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round; "></polyline><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,9448 A 4660 4660  0  0  1  8598  9259"></path><path style="stroke-width:174;stroke-linecap:butt;" d="M 4488,9685 A 4228 4228  0  0  0   472  9732"></path><path style="stroke-width:126;stroke-linecap:butt;" d="M 4724,3590 A 4241 4241  0  0  1  8598  3496"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,3496  A 4241 4241  0  0  1  4724  3590"></path><path style="stroke-width:126;stroke-linecap:round;" d="M 850,9259  A 4507 4507  0  0  1  4724  9448"></path><polyline points="5385,4299 4062,8125" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8598,3496 8598,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="850,3496 850,9259" style="stroke-width:126; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="4960,9685 4488,9685" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="3070,4582 1889,6141 3070,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="6418,4582 7600,6141 6418,7700" style="stroke-width:300; stroke-linejoin:miter; stroke-linecap:round;"></polyline><polyline points="8976,3590 8976,9732" style="stroke-width:174; stroke-linejoin:miter; stroke-linecap:round;"></polyline><path style="stroke-width:174;stroke-linecap:butt;" d="M 4960,9685 A 4228 4228  0  0  1  8976  9732"></path></g></svg></div></a><a class="runestone-link" href="https://runestone.academy" title="Runestone Academy"><img class="logo" src="https://runestone.academy/runestone/static/images/RAIcon_cropped.png" alt="Runstone Academy logo"></a><a class="mathjax-link" href="https://www.mathjax.org" title="MathJax"><img class="logo" src="https://www.mathjax.org/badge/badge-square-2.png" alt="MathJax logo"></a>
+</div>
+<!--Start: Google Global Site Tag code--><!--*** DO NOT COPY ANOTHER PROJECT'S MAGIC NUMBERS/ID ***--><!--***           GET YOUR OWN FROM GOOGLE             ***-->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-QJKN634F7R"></script><script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QJKN634F7R');
+</script><!--End: Google Global Site Tag code-->
+</body>
+</html>

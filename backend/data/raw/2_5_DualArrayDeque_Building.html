@@ -1,0 +1,1279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2.5 DualArrayDeque: Building a Deque from Two Stacks</TITLE>
+<META NAME="description" CONTENT="2.5 DualArrayDeque: Building a Deque from Two Stacks">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="2_6_RootishArrayStack_Space.html">
+<LINK REL="previous" HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<LINK REL="up" HREF="2_Array_Based_Lists.html">
+<LINK REL="next" HREF="2_6_RootishArrayStack_Space.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html459"
+  HREF="2_6_RootishArrayStack_Space.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html453"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html447"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html455"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html457"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html460"
+  HREF="2_6_RootishArrayStack_Space.html">2.6 RootishArrayStack: A Space-Efficient</A>
+<B> Up:</B> <A NAME="tex2html454"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html448"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">2.4 ArrayDeque: Fast Deque</A>
+ &nbsp; <B>  <A NAME="tex2html456"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html458"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html461"
+  HREF="2_5_DualArrayDeque_Building.html#SECTION00551000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN> Balancing</A>
+<LI><A NAME="tex2html462"
+  HREF="2_5_DualArrayDeque_Building.html#SECTION00552000000000000000"><SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00550000000000000000"></A>
+<A NAME="sec:dualarraydeque"></A>
+<BR>
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN> <TT>DualArrayDeque</TT>: Building a Deque from Two Stacks
+</H1>
+
+<P>
+<A NAME="5147"></A>Next, we present a data structure, the <TT>DualArrayDeque</TT> that
+achieves the same performance bounds as an <TT>ArrayDeque</TT> by using
+two <TT>ArrayStack</TT>s.  Although the asymptotic performance of the
+<TT>DualArrayDeque</TT> is no better than that of the <TT>ArrayDeque</TT>, it is
+still worth studying, since it offers a good example of how to make a
+sophisticated data structure by combining two simpler data structures.
+
+<P>
+A <TT>DualArrayDeque</TT> represents a list using two <TT>ArrayStack</TT>s.  Recall that
+an <TT>ArrayStack</TT> is fast when the operations on it modify elements near
+the end.  A <TT>DualArrayDeque</TT> places two <TT>ArrayStack</TT>s, called <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img736.png"
+ ALT="$ \mathtt{front}$"></SPAN>
+and <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img737.png"
+ ALT="$ \mathtt{back}$"></SPAN>, back-to-back so that operations are fast at either end.
+
+<P>
+<PRE>
+    List&lt;T&gt; front;
+    List&lt;T&gt; back;
+</PRE>
+
+<P>
+A <TT>DualArrayDeque</TT> does not explicitly store the number, <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img738.png"
+ ALT="$ \mathtt{n}$"></SPAN>,
+of elements it contains.  It doesn't need to, since it contains
+<!-- MATH
+ $\ensuremath{\mathtt{n}}=\ensuremath{\mathtt{front.size()}} + \ensuremath{\mathtt{back.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="218" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img739.png"
+ ALT="$ \ensuremath{\mathtt{n}}=\ensuremath{\mathtt{front.size()}} + \ensuremath{\mathtt{back.size()}}$"></SPAN> elements.  Nevertheless, when
+analyzing the <TT>DualArrayDeque</TT> we will still use <!-- MATH
+ $\mathtt{n}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img740.png"
+ ALT="$ \mathtt{n}$"></SPAN> to denote the number
+of elements it contains.
+
+<P>
+<PRE>
+    int size() {
+        return front.size() + back.size();        
+    }
+</PRE>
+
+<P>
+The <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img741.png"
+ ALT="$ \mathtt{front}$"></SPAN> <TT>ArrayStack</TT> stores the list elements that whose indices
+are <!-- MATH
+ $0,\ldots,\ensuremath{\mathtt{front.size()}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="155" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img742.png"
+ ALT="$ 0,\ldots,\ensuremath{\mathtt{front.size()}}-1$"></SPAN>, but stores them in reverse order.
+The <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img743.png"
+ ALT="$ \mathtt{back}$"></SPAN> <TT>ArrayStack</TT> contains list elements with indices
+in <!-- MATH
+ $\ensuremath{\mathtt{front.size()}},\ldots,\ensuremath{\mathtt{size()}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="191" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img744.png"
+ ALT="$ \ensuremath{\mathtt{front.size()}},\ldots,\ensuremath{\mathtt{size()}}-1$"></SPAN> in the normal order.  In this way,
+<!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img745.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img746.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> translate into appropriate calls to <!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img747.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN>
+or <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img748.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> on either <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img749.png"
+ ALT="$ \mathtt{front}$"></SPAN> or <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img750.png"
+ ALT="$ \mathtt{back}$"></SPAN>, which take <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img751.png"
+ ALT="$ O(1)$"></SPAN> time per operation.
+
+<P>
+<PRE>
+    T get(int i) {
+        if (i &lt; front.size()) {
+            return front.get(front.size()-i-1);
+        } else {
+            return back.get(i-front.size());
+        }
+    }
+    T set(int i, T x) {
+        if (i &lt; front.size()) {
+            return front.set(front.size()-i-1, x);
+            
+        } else {
+            return back.set(i-front.size(), x);
+        }
+    }
+</PRE>
+
+<P>
+Note that if an index <!-- MATH
+ $\ensuremath{\mathtt{i}}<\ensuremath{\mathtt{front.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img752.png"
+ ALT="$ \ensuremath{\mathtt{i}}&lt;\ensuremath{\mathtt{front.size()}}$"></SPAN>, then it corresponds to the
+element of <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img753.png"
+ ALT="$ \mathtt{front}$"></SPAN> at position <!-- MATH
+ $\ensuremath{\mathtt{front.size()}}-\ensuremath{\mathtt{i}}-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="142" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img754.png"
+ ALT="$ \ensuremath{\mathtt{front.size()}}-\ensuremath{\mathtt{i}}-1$"></SPAN>, since the
+elements of <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img755.png"
+ ALT="$ \mathtt{front}$"></SPAN> are stored in reverse order.
+
+<P>
+Adding and removing elements from a <TT>DualArrayDeque</TT> is illustrated in
+Figure&nbsp;<A HREF="#fig:dualarraydeque">2.4</A>.  The <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img756.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> operation manipulates either <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img757.png"
+ ALT="$ \mathtt{front}$"></SPAN>
+or <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img758.png"
+ ALT="$ \mathtt{back}$"></SPAN>, as appropriate:
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:dualarraydeque"></A><A NAME="5722"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.4:</STRONG>
+A sequence of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img760.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img761.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations on a
+  <TT>DualArrayDeque</TT>.  Arrows denote elements being copied.  Operations that
+  result in a rebalancing by <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img762.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> are marked with an asterisk.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<IMG
+ WIDTH="318" HEIGHT="280" ALIGN="BOTTOM" BORDER="0"
+ SRC="img759.png"
+ ALT="\includegraphics[scale=0.90909]{figs/dualarraydeque}">
+  
+</DIV></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+<PRE>
+    void add(int i, T x) {
+        if (i &lt; front.size()) { 
+            front.add(front.size()-i, x);
+        } else {
+            back.add(i-front.size(), x);
+        }
+        balance();
+    }
+</PRE>
+
+<P>
+The <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img763.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> method performs rebalancing of the two <TT>ArrayStack</TT>s
+<!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img764.png"
+ ALT="$ \mathtt{front}$"></SPAN> and <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img765.png"
+ ALT="$ \mathtt{back}$"></SPAN>, by calling the <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img766.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> method.  The
+implementation of <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img767.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is described below, but for now it is
+sufficient to know that <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img768.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> ensures that, unless <!-- MATH
+ $\ensuremath{\mathtt{size()}}<2$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img769.png"
+ ALT="$ \ensuremath{\mathtt{size()}}&lt;2$"></SPAN>,
+<!-- MATH
+ $\mathtt{front.size()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img770.png"
+ ALT="$ \mathtt{front.size()}$"></SPAN> and <!-- MATH
+ $\mathtt{back.size()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="86" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img771.png"
+ ALT="$ \mathtt{back.size()}$"></SPAN> do not differ by more than a factor
+of 3.  In particular, <!-- MATH
+ $3\cdot\ensuremath{\mathtt{front.size()}} \ge \ensuremath{\mathtt{back.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="212" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img772.png"
+ ALT="$ 3\cdot\ensuremath{\mathtt{front.size()}} \ge \ensuremath{\mathtt{back.size()}}$"></SPAN> and
+<!-- MATH
+ $3\cdot\ensuremath{\mathtt{back.size()}} \ge \ensuremath{\mathtt{front.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="212" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img773.png"
+ ALT="$ 3\cdot\ensuremath{\mathtt{back.size()}} \ge \ensuremath{\mathtt{front.size()}}$"></SPAN>.
+
+<P>
+Next we analyze the cost of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img774.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>, ignoring the cost of calls to
+<!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img775.png"
+ ALT="$ \mathtt{balance()}$"></SPAN>. If <!-- MATH
+ $\ensuremath{\mathtt{i}}<\ensuremath{\mathtt{front.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img776.png"
+ ALT="$ \ensuremath{\mathtt{i}}&lt;\ensuremath{\mathtt{front.size()}}$"></SPAN>, then <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img777.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> gets implemented
+by the call to <!-- MATH
+ $\ensuremath{\mathtt{front.add(front.size()-i-1,x)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="238" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img778.png"
+ ALT="$ \ensuremath{\mathtt{front.add(front.size()-i-1,x)}}$"></SPAN>.  Since <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img779.png"
+ ALT="$ \mathtt{front}$"></SPAN> is an
+<TT>ArrayStack</TT>, the cost of this is
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:das-front"></A><!-- MATH
+ \begin{equation}
+O(\ensuremath{\mathtt{front.size()}}-(\ensuremath{\mathtt{front.size()}}-\ensuremath{\mathtt{i}}-1)+1) = O(\ensuremath{\mathtt{i}}+1) \enspace .
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="390" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img780.png"
+ ALT="$\displaystyle O(\ensuremath{\mathtt{front.size()}}-(\ensuremath{\mathtt{front.size()}}-\ensuremath{\mathtt{i}}-1)+1) = O(\ensuremath{\mathtt{i}}+1) \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">1</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+On the other hand, if <!-- MATH
+ $\ensuremath{\mathtt{i}}\ge\ensuremath{\mathtt{front.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="121" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img781.png"
+ ALT="$ \ensuremath{\mathtt{i}}\ge\ensuremath{\mathtt{front.size()}}$"></SPAN>, then <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img782.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> gets
+implemented as <!-- MATH
+ $\ensuremath{\mathtt{back.add(i-front.size(),x)}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="206" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img783.png"
+ ALT="$ \ensuremath{\mathtt{back.add(i-front.size(),x)}}$"></SPAN>.  The cost of this is
+<P></P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay"><A NAME="eq:das-back"></A><!-- MATH
+ \begin{equation}
+O(\ensuremath{\mathtt{back.size()}}-(\ensuremath{\mathtt{i}}-\ensuremath{\mathtt{front.size()}})+1) = O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}+1) \enspace .
+\end{equation}
+ -->
+<TABLE CLASS="equation" CELLPADDING="0" WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE">
+<TD NOWRAP ALIGN="CENTER"><SPAN CLASS="MATH"><IMG
+ WIDTH="381" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img784.png"
+ ALT="$\displaystyle O(\ensuremath{\mathtt{back.size()}}-(\ensuremath{\mathtt{i}}-\ens...
+....size()}})+1) = O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}+1) \enspace .$"></SPAN></TD>
+<TD NOWRAP CLASS="eqno" WIDTH="10" ALIGN="RIGHT">
+(<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">2</SPAN>)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+Notice that the first case (<A HREF="#eq:das-front">2.1</A>) occurs when <!-- MATH
+ $\ensuremath{\mathtt{i}}<\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="53" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img785.png"
+ ALT="$ \ensuremath{\mathtt{i}}&lt;\ensuremath{\mathtt{n}}/4$"></SPAN>.
+The second case (<A HREF="#eq:das-back">2.2</A>) occurs when <!-- MATH
+ $\ensuremath{\mathtt{i}}\ge 3\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img786.png"
+ ALT="$ \ensuremath{\mathtt{i}}\ge 3\ensuremath{\mathtt{n}}/4$"></SPAN>.  When
+<!-- MATH
+ $\ensuremath{\mathtt{n}}/4\le\ensuremath{\mathtt{i}}<3\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img787.png"
+ ALT="$ \ensuremath{\mathtt{n}}/4\le\ensuremath{\mathtt{i}}&lt;3\ensuremath{\mathtt{n}}/4$"></SPAN>, we cannot be sure whether the operation affects
+<!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img788.png"
+ ALT="$ \mathtt{front}$"></SPAN> or <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img789.png"
+ ALT="$ \mathtt{back}$"></SPAN>, but in either case, the operation takes
+<!-- MATH
+ $O(\ensuremath{\mathtt{n}})=O(\ensuremath{\mathtt{i}})=O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="158" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img790.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})=O(\ensuremath{\mathtt{i}})=O(\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}})$"></SPAN> time, since <!-- MATH
+ $\ensuremath{\mathtt{i}}\ge \ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img791.png"
+ ALT="$ \ensuremath{\mathtt{i}}\ge \ensuremath{\mathtt{n}}/4$"></SPAN> and <!-- MATH
+ $\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}>
+\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="76" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img792.png"
+ ALT="$ \ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}&gt;
+\ensuremath{\mathtt{n}}/4$"></SPAN>.  Summarizing the situation, we have
+<P><!-- MATH
+ \begin{displaymath}
+\mbox{Running time of } \ensuremath{\mathtt{add(i,x)}} \le
+          \left\{\begin{array}{ll}
+            O(1+ \ensuremath{\mathtt{i}}) & \mbox{if $\ensuremath{\mathtt{i}}< \ensuremath{\mathtt{n}}/4$} \\
+            O(\ensuremath{\mathtt{n}}) & \mbox{if $\ensuremath{\mathtt{n}}/4 \le \ensuremath{\mathtt{i}} < 3\ensuremath{\mathtt{n}}/4$} \\
+            O(1+\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}) & \mbox{if $\ensuremath{\mathtt{i}} \ge 3\ensuremath{\mathtt{n}}/4$}
+          \end{array}\right.
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+&nbsp; &nbsp;Running time of <IMG
+ WIDTH="316" HEIGHT="74" ALIGN="MIDDLE" BORDER="0"
+ SRC="img793.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{add(i,x)}} \le
+\left\{\begin{array}{ll}
+O(...
+... $\ensuremath{\mathtt{i}} \ge 3\ensuremath{\mathtt{n}}/4$}
+\end{array}\right.
+$">
+</DIV><P></P>
+Thus, the running time of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img794.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>, if we ignore the cost of the call
+to <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img795.png"
+ ALT="$ \mathtt{balance()}$"></SPAN>, is <!-- MATH
+ $O(1+\min\{\ensuremath{\mathtt{i}}, \ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img796.png"
+ ALT="$ O(1+\min\{\ensuremath{\mathtt{i}}, \ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$"></SPAN>.
+
+<P>
+The <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img797.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operation and its analysis resemble the <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img798.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+operation and analysis.
+
+<P>
+<PRE>
+    T remove(int i) {
+        T x;
+        if (i &lt; front.size()) {
+            x = front.remove(front.size()-i-1);
+        } else {
+            x = back.remove(i-front.size());
+        }
+        balance();
+        return x;
+    }
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION00551000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">1</SPAN> Balancing</A>
+</H2>
+
+<P>
+Finally, we turn to the <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img799.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> operation performed by <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img800.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img801.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>.  This operation ensures that neither <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img802.png"
+ ALT="$ \mathtt{front}$"></SPAN> nor <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img803.png"
+ ALT="$ \mathtt{back}$"></SPAN>
+becomes too big (or too small).  It ensures that, unless there are fewer
+than two elements, each of <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img804.png"
+ ALT="$ \mathtt{front}$"></SPAN> and <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img805.png"
+ ALT="$ \mathtt{back}$"></SPAN> contain at least <!-- MATH
+ $\ensuremath{\mathtt{n}}/4$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img806.png"
+ ALT="$ \ensuremath{\mathtt{n}}/4$"></SPAN>
+elements. If this is not the case, then it moves elements between them
+so that <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img807.png"
+ ALT="$ \mathtt{front}$"></SPAN> and <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img808.png"
+ ALT="$ \mathtt{back}$"></SPAN> contain exactly <!-- MATH
+ $\lfloor\ensuremath{\mathtt{n}}/2\rfloor$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img809.png"
+ ALT="$ \lfloor\ensuremath{\mathtt{n}}/2\rfloor$"></SPAN> elements
+and <!-- MATH
+ $\lceil\ensuremath{\mathtt{n}}/2\rceil$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img810.png"
+ ALT="$ \lceil\ensuremath{\mathtt{n}}/2\rceil$"></SPAN> elements, respectively.
+
+<P>
+<PRE>
+    void balance() {
+        int n = size();
+        if (3*front.size() &lt; back.size()) {
+            int s = n/2 - front.size();
+            List&lt;T&gt; l1 = newStack();
+            List&lt;T&gt; l2 = newStack();
+            l1.addAll(back.subList(0,s));
+            Collections.reverse(l1);
+            l1.addAll(front);
+            l2.addAll(back.subList(s, back.size()));
+            front = l1;
+            back = l2;
+        } else if (3*back.size() &lt; front.size()) {
+            int s = front.size() - n/2;
+            List&lt;T&gt; l1 = newStack();
+            List&lt;T&gt; l2 = newStack();
+            l1.addAll(front.subList(s, front.size()));
+            l2.addAll(front.subList(0, s));
+            Collections.reverse(l2);
+            l2.addAll(back);
+            front = l1;
+            back = l2;
+        }
+    }
+</PRE>
+
+<P>
+Here there is little to analyze.  If the <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img811.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> operation does
+rebalancing, then it moves <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img812.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN> elements and this takes <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img813.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>
+time. This is bad, since <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img814.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is called with each call to
+<!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img815.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img816.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN>.  However, the following lemma shows that, on
+average, <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img817.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> only spends a constant amount of time per operation.
+
+<P>
+<P>
+<DIV><A NAME="lem:dualarraydeque-amortized"><B>Lemma  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">2</SPAN></B></A> &nbsp; 
+<I>If an empty <TT>DualArrayDeque</TT> is created and any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="43" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img818.png"
+ ALT="$ m\ge 1$"></SPAN> calls
+  to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img819.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img820.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> are performed, then the total time spent
+  during all calls to <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img821.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img822.png"
+ ALT="$ O(m)$"></SPAN>.</I></DIV><P></P>
+
+<P>
+<P></P>
+<DIV><I>Proof</I>.
+
+  We will show that, if <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img824.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is forced to shift elements, then
+  the number of <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img825.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img826.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations since the last
+  time any elements were shifted by <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img827.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is at least <!-- MATH
+ $\ensuremath{\mathtt{n}}/2-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="51" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img828.png"
+ ALT="$ \ensuremath{\mathtt{n}}/2-1$"></SPAN>.
+  As in the proof of Lemma&nbsp;<A HREF="2_1_ArrayStack_Fast_Stack_O.html#lem:arraystack-amortized">2.1</A>, this is sufficient
+  to prove that the total time spent by <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img829.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> is <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img830.png"
+ ALT="$ O(m)$"></SPAN>.
+
+<P>
+We will perform our analysis using a technique knows as the
+  <SPAN  CLASS="textit">potential method</SPAN>.
+  <A NAME="4197"></A><A NAME="4198"></A>Define the <SPAN  CLASS="textit">potential</SPAN>, <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img831.png"
+ ALT="$ \Phi$"></SPAN>, of the
+  <TT>DualArrayDeque</TT> as the difference in size between <!-- MATH
+ $\mathtt{front}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img832.png"
+ ALT="$ \mathtt{front}$"></SPAN> and <!-- MATH
+ $\mathtt{back}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img833.png"
+ ALT="$ \mathtt{back}$"></SPAN>:
+  <P><!-- MATH
+ \begin{displaymath}
+\Phi = |\ensuremath{\mathtt{front.size()}} - \ensuremath{\mathtt{back.size()}}| \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="240" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img834.png"
+ ALT="$\displaystyle \Phi = \vert\ensuremath{\mathtt{front.size()}} - \ensuremath{\mathtt{back.size()}}\vert \enspace . $">
+</DIV><P></P>
+The interesting thing about this potential is that a call to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img835.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN>
+  or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img836.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> that does not do any balancing can increase the potential
+  by at most 1.
+
+<P>
+Observe that, immediately after a call to <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img837.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> that shifts
+  elements, the potential, <SPAN CLASS="MATH"><IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img838.png"
+ ALT="$ \Phi_0$"></SPAN>, is at most 1, since
+  <P><!-- MATH
+ \begin{displaymath}
+\Phi_0 = \left|\lfloor\ensuremath{\mathtt{n}}/2\rfloor-\lceil\ensuremath{\mathtt{n}}/2\rceil\right|\le 1  \enspace .
+\end{displaymath}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="172" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img839.png"
+ ALT="$\displaystyle \Phi_0 = \left\vert\lfloor\ensuremath{\mathtt{n}}/2\rfloor-\lceil\ensuremath{\mathtt{n}}/2\rceil\right\vert\le 1 \enspace .$">
+</DIV><P></P>
+
+<P>
+Consider the situation immediately before a call to <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img840.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> that
+  shifts elements and suppose, without loss of generality, that <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img841.png"
+ ALT="$ \mathtt{balance()}$"></SPAN>
+  is shifting elements because <!-- MATH
+ $3\ensuremath{\mathtt{front.size()}} < \ensuremath{\mathtt{back.size()}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="202" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img842.png"
+ ALT="$ 3\ensuremath{\mathtt{front.size()}} &lt; \ensuremath{\mathtt{back.size()}}$"></SPAN>.
+  Notice that, in this case,
+  <BR>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<!-- MATH
+ \begin{eqnarray*}
+\ensuremath{\mathtt{n}} & = & \ensuremath{\mathtt{front.size()}}+\ensuremath{\mathtt{back.size()}} \\
+       & < & \ensuremath{\mathtt{back.size()}}/3+\ensuremath{\mathtt{back.size()}} \\
+       & = & \frac{4}{3}\ensuremath{\mathtt{back.size()}}
+\end{eqnarray*}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="13" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img843.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}$"></TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img844.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="192" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img845.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{front.size()}}+\ensuremath{\mathtt{back.size()}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img846.png"
+ ALT="$\displaystyle &lt;$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="198" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img847.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{back.size()}}/3+\ensuremath{\mathtt{back.size()}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img848.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="99" HEIGHT="51" ALIGN="MIDDLE" BORDER="0"
+ SRC="img849.png"
+ ALT="$\displaystyle \frac{4}{3}\ensuremath{\mathtt{back.size()}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL">
+
+  Furthermore, the potential at this point in time is
+  <BR>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<!-- MATH
+ \begin{eqnarray*}
+\Phi_1 & = & \ensuremath{\mathtt{back.size()}} - \ensuremath{\mathtt{front.size()}} \\
+      &>& \ensuremath{\mathtt{back.size()}} - \ensuremath{\mathtt{back.size()}}/3 \\
+      &=& \frac{2}{3}\ensuremath{\mathtt{back.size()}} \\
+      &>& \frac{2}{3}\times\frac{3}{4}\ensuremath{\mathtt{n}} \\
+      &=& \ensuremath{\mathtt{n}}/2
+\end{eqnarray*}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img850.png"
+ ALT="$\displaystyle \Phi_1$"></TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img851.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="192" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img852.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{back.size()}} - \ensuremath{\mathtt{front.size()}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img853.png"
+ ALT="$\displaystyle &gt;$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="198" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img854.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{back.size()}} - \ensuremath{\mathtt{back.size()}}/3$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img855.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="99" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img856.png"
+ ALT="$\displaystyle \frac{2}{3}\ensuremath{\mathtt{back.size()}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img857.png"
+ ALT="$\displaystyle &gt;$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="53" HEIGHT="50" ALIGN="MIDDLE" BORDER="0"
+ SRC="img858.png"
+ ALT="$\displaystyle \frac{2}{3}\times\frac{3}{4}\ensuremath{\mathtt{n}}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img859.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img860.png"
+ ALT="$\displaystyle \ensuremath{\mathtt{n}}/2$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL">
+
+  Therefore, the number of calls to <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img861.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> or <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img862.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> since
+  the last time <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img863.png"
+ ALT="$ \mathtt{balance()}$"></SPAN> shifted elements is at least <!-- MATH
+ $\Phi_1-\Phi_0
+  > \ensuremath{\mathtt{n}}/2-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="121" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img864.png"
+ ALT="$ \Phi_1-\Phi_0
+&gt; \ensuremath{\mathtt{n}}/2-1$"></SPAN>. This completes the proof.
+ <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img823.png"
+ ALT="$ \qedsymbol$">
+</DIV><P></P>
+
+<P>
+
+<H2><A NAME="SECTION00552000000000000000">
+<SPAN CLASS="arabic">2</SPAN>.<SPAN CLASS="arabic">5</SPAN>.<SPAN CLASS="arabic">2</SPAN> Summary</A>
+</H2>
+
+<P>
+The following theorem summarizes the properties of a <TT>DualArrayDeque</TT>:
+
+<P>
+<P>
+<DIV><A NAME="thm:dualarraydeque"><B>Theorem  <SPAN CLASS="arabic">2</SPAN>..<SPAN CLASS="arabic">4</SPAN></B></A> &nbsp; 
+<I>A <TT>DualArrayDeque</TT> implements the <TT>List</TT> interface.  Ignoring the
+  cost of calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img865.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> and <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img866.png"
+ ALT="$ \mathtt{balance()}$"></SPAN>, a <TT>DualArrayDeque</TT>
+  supports the operations
+  </I>
+<UL>
+<LI><!-- MATH
+ $\mathtt{get(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img867.png"
+ ALT="$ \mathtt{get(i)}$"></SPAN> and <!-- MATH
+ $\mathtt{set(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img868.png"
+ ALT="$ \mathtt{set(i,x)}$"></SPAN> in <SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img869.png"
+ ALT="$ O(1)$"></SPAN> time per operation; and
+</LI>
+<LI><!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img870.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img871.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> in <!-- MATH
+ $O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="136" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img872.png"
+ ALT="$ O(1+\min\{\ensuremath{\mathtt{i}},\ensuremath{\mathtt{n}}-\ensuremath{\mathtt{i}}\})$"></SPAN> time
+          per operation.
+  
+</LI>
+</UL><I>
+  Furthermore, beginning with an empty <TT>DualArrayDeque</TT>, any sequence of <SPAN CLASS="MATH"><IMG
+ WIDTH="17" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img873.png"
+ ALT="$ m$"></SPAN>
+  <!-- MATH
+ $\mathtt{add(i,x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="63" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img874.png"
+ ALT="$ \mathtt{add(i,x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(i)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img875.png"
+ ALT="$ \mathtt{remove(i)}$"></SPAN> operations results in a total of <SPAN CLASS="MATH"><IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img876.png"
+ ALT="$ O(m)$"></SPAN>
+  time spent during all calls to <!-- MATH
+ $\mathtt{resize()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img877.png"
+ ALT="$ \mathtt{resize()}$"></SPAN> and <!-- MATH
+ $\mathtt{balance()}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img878.png"
+ ALT="$ \mathtt{balance()}$"></SPAN>.</I></DIV><P></P>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html459"
+  HREF="2_6_RootishArrayStack_Space.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html453"
+  HREF="2_Array_Based_Lists.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html447"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html455"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html457"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html460"
+  HREF="2_6_RootishArrayStack_Space.html">2.6 RootishArrayStack: A Space-Efficient</A>
+<B> Up:</B> <A NAME="tex2html454"
+  HREF="2_Array_Based_Lists.html">2. Array-Based Lists</A>
+<B> Previous:</B> <A NAME="tex2html448"
+  HREF="2_4_ArrayDeque_Fast_Deque_O.html">2.4 ArrayDeque: Fast Deque</A>
+ &nbsp; <B>  <A NAME="tex2html456"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html458"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>

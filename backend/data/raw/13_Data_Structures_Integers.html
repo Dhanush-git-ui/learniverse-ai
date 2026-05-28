@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>13. Data Structures for Integers</TITLE>
+<META NAME="description" CONTENT="13. Data Structures for Integers">
+<META NAME="keywords" CONTENT="ods-java-html">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="../ods-book.css">
+
+<LINK REL="next" HREF="14_External_Memory_Searchin.html">
+<LINK REL="previous" HREF="12_Graphs.html">
+<LINK REL="up" HREF="ods-java-html.html">
+<LINK REL="next" HREF="13_1_BinaryTrie_digital_sea.html">
+</HEAD>
+
+<BODY text="#000000" bgcolor="#FFFFFF">
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html1198"
+  HREF="13_1_BinaryTrie_digital_sea.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1192"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1186"
+  HREF="12_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1194"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1196"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1199"
+  HREF="13_1_BinaryTrie_digital_sea.html">13.1 BinaryTrie: A digital</A>
+<B> Up:</B> <A NAME="tex2html1193"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1187"
+  HREF="12_4_Discussion_Exercises.html">12.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1195"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1197"
+  HREF="Index.html">Index</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001600000000000000000">
+<SPAN CLASS="arabic">13</SPAN>. Data Structures for Integers</A>
+</H1>
+
+<P>
+In this chapter, we return to the problem of implementing an <TT>SSet</TT>.
+The difference now is that we assume the elements stored in the <TT>SSet</TT> are
+<!-- MATH
+ $\mathtt{w}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4841.png"
+ ALT="$ \mathtt{w}$"></SPAN>-bit integers.  That is, we want to implement <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4842.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN>, <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4843.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>,
+and <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4844.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN> where <!-- MATH
+ $\ensuremath{\mathtt{x}}\in\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="116" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4845.png"
+ ALT="$ \ensuremath{\mathtt{x}}\in\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN>.  It is not too hard
+to think of plenty of applications where the data--or at least the key
+that we use for sorting the data--is an integer.
+
+<P>
+We will discuss three data structures, each building on the ideas of
+the previous.  The first structure, the <TT>BinaryTrie</TT> performs all three
+<TT>SSet</TT> operations in <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4846.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time. This is not very impressive, since
+any subset of <!-- MATH
+ $\{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4847.png"
+ ALT="$ \{0,\ldots,2^{\ensuremath{\mathtt{w}}}-1\}$"></SPAN> has size <!-- MATH
+ $\ensuremath{\mathtt{n}}\le 2^{\ensuremath{\mathtt{w}}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="46" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4848.png"
+ ALT="$ \ensuremath{\mathtt{n}}\le 2^{\ensuremath{\mathtt{w}}}$"></SPAN>, so that
+<!-- MATH
+ $\log \ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="62" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4849.png"
+ ALT="$ \log \ensuremath{\mathtt{n}} \le \ensuremath{\mathtt{w}}$"></SPAN>.  All the other <TT>SSet</TT> implementations discussed in
+this book perform all operations in <!-- MATH
+ $O(\log \ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4850.png"
+ ALT="$ O(\log \ensuremath{\mathtt{n}})$"></SPAN> time so they are all
+at least as fast as a <TT>BinaryTrie</TT>.
+
+<P>
+The second structure, the <TT>XFastTrie</TT>, speeds up the search in a
+<TT>BinaryTrie</TT> by using hashing.  With this speedup, the <!-- MATH
+ $\mathtt{find(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="57" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4851.png"
+ ALT="$ \mathtt{find(x)}$"></SPAN>
+operation runs in <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4852.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> time.  However, <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4853.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4854.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN>
+operations in an <TT>XFastTrie</TT> still take <!-- MATH
+ $O(\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4855.png"
+ ALT="$ O(\ensuremath{\mathtt{w}})$"></SPAN> time and the space used
+by an <TT>XFastTrie</TT> is <!-- MATH
+ $O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="54" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4856.png"
+ ALT="$ O(\ensuremath{\mathtt{n}}\cdot\ensuremath{\mathtt{w}})$"></SPAN>.
+
+<P>
+The third data structure, the <TT>YFastTrie</TT>, uses an <TT>XFastTrie</TT> to store
+only a sample of roughly one out of every <!-- MATH
+ $\ensuremath{\mathtt{w}}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4857.png"
+ ALT="$ \ensuremath{\mathtt{w}}$"></SPAN> elements and stores the
+remaining elements in a standard <TT>SSet</TT> structure.  This trick reduces the
+running time of <!-- MATH
+ $\mathtt{add(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="49" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4858.png"
+ ALT="$ \mathtt{add(x)}$"></SPAN> and <!-- MATH
+ $\mathtt{remove(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4859.png"
+ ALT="$ \mathtt{remove(x)}$"></SPAN> to <!-- MATH
+ $O(\log \ensuremath{\mathtt{w}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4860.png"
+ ALT="$ O(\log \ensuremath{\mathtt{w}})$"></SPAN> and decreases
+the space to <!-- MATH
+ $O(\ensuremath{\mathtt{n}})$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="36" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4861.png"
+ ALT="$ O(\ensuremath{\mathtt{n}})$"></SPAN>.
+
+<P>
+The implementations used as examples in this chapter can store any type of
+data, as long as an integer can be associated with it.  In the code samples,
+the variable <!-- MATH
+ $\mathtt{ix}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4862.png"
+ ALT="$ \mathtt{ix}$"></SPAN> is always the integer value associated with <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4863.png"
+ ALT="$ \mathtt{x}$"></SPAN>, and the method <!-- MATH
+ $\mathtt{in.}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4864.png"
+ ALT="$ \mathtt{in.}$"></SPAN><!-- MATH
+ $\mathtt{intValue(x)}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="91" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4865.png"
+ ALT="$ \mathtt{intValue(x)}$"></SPAN> converts <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4866.png"
+ ALT="$ \mathtt{x}$"></SPAN> to its associated integer. In
+the text, however, we will simply treat <!-- MATH
+ $\mathtt{x}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4867.png"
+ ALT="$ \mathtt{x}$"></SPAN> as if it is an integer.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html1200"
+  HREF="13_1_BinaryTrie_digital_sea.html"><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">1</SPAN> <TT>BinaryTrie</TT>: A digital search tree</A>
+<LI><A NAME="tex2html1201"
+  HREF="13_2_XFastTrie_Searching_in.html"><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">2</SPAN> <TT>XFastTrie</TT>: Searching in Doubly-Logarithmic Time</A>
+<LI><A NAME="tex2html1202"
+  HREF="13_3_YFastTrie_Doubly_Logar.html"><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">3</SPAN> <TT>YFastTrie</TT>: A Doubly-Logarithmic Time <TT>SSet</TT></A>
+<LI><A NAME="tex2html1203"
+  HREF="13_4_Discussion_Exercises.html"><SPAN CLASS="arabic">13</SPAN>.<SPAN CLASS="arabic">4</SPAN> Discussion and Exercises</A>
+</UL>
+<!--End of Table of Child-Links-->
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1198"
+  HREF="13_1_BinaryTrie_digital_sea.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1192"
+  HREF="ods-java-html.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1186"
+  HREF="12_4_Discussion_Exercises.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1194"
+  HREF="Contents.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A> 
+<A NAME="tex2html1196"
+  HREF="Index.html">
+<IMG WIDTH="43" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="index" SRC="index.png"></A> 
+<BR>
+<B> Next:</B> <A NAME="tex2html1199"
+  HREF="13_1_BinaryTrie_digital_sea.html">13.1 BinaryTrie: A digital</A>
+<B> Up:</B> <A NAME="tex2html1193"
+  HREF="ods-java-html.html">Open Data Structures (in</A>
+<B> Previous:</B> <A NAME="tex2html1187"
+  HREF="12_4_Discussion_Exercises.html">12.4 Discussion and Exercises</A>
+ &nbsp; <B>  <A NAME="tex2html1195"
+  HREF="Contents.html">Contents</A></B> 
+ &nbsp; <B>  <A NAME="tex2html1197"
+  HREF="Index.html">Index</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+<a href="http://opendatastructures.org/">opendatastructures.org</a>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5860680-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript';ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+</ADDRESS>
+</BODY>
+</HTML>
