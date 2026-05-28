@@ -3,8 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import ConversationBox from '../components/ConversationBox';
 import { Topic, Question } from '../models/Topic';
 
-// Mock scrollToView which is not implemented in JSDOM
+// Mock scrollTo and scrollIntoView which are not implemented in JSDOM
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
+window.HTMLElement.prototype.scrollTo = vi.fn();
 
 describe('ConversationBox Component', () => {
   const mockTopic: Topic = {

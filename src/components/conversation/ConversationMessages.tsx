@@ -24,18 +24,26 @@ interface ConversationMessagesProps {
 }
 
 const ConversationMessages = ({ messages, isLoading }: ConversationMessagesProps) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-800">
+    <div 
+      ref={containerRef}
+      className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-gray-800"
+    >
       {messages.length === 0 && (
         <div className="text-center text-gray-500 dark:text-gray-400 my-8 px-4">
           <p className="mb-2">Welcome to your interactive learning session!</p>
@@ -62,8 +70,6 @@ const ConversationMessages = ({ messages, isLoading }: ConversationMessagesProps
           <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-pulse animation-delay-400"></div>
         </div>
       )}
-      
-      <div ref={messagesEndRef} />
     </div>
   );
 };
