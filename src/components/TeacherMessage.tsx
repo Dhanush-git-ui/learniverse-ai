@@ -22,7 +22,7 @@ const TeacherMessage = ({ content, sources, className = '' }: TeacherMessageProp
         <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
       </div>
       <div className="flex flex-col w-full">
-        <div className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Code Teacher</div>
+        <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1">Teacher AI</div>
         <div className="py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-r-xl rounded-bl-xl text-gray-800 dark:text-gray-200">
           {renderMarkdown(content)}
         </div>

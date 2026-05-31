@@ -80,31 +80,18 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Glass card effect */
+/* Cleaner Premium Panels */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
-  }
-  
-  .dark .glass-card {
-    @apply bg-black/30 backdrop-blur-md border border-white/10;
+    @apply bg-white dark:bg-gray-800/90 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl transition-all;
   }
 
-  /* Blue accent glass card */
+  /* Solid Indigo / Slate Accents instead of generic gradients */
   .blue-glass {
-    @apply bg-blue-50/90 backdrop-blur-md border border-blue-100/50 shadow-lg;
-  }
-  
-  .dark .blue-glass {
-    @apply bg-blue-900/30 backdrop-blur-md border border-blue-700/20;
+    @apply bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm;
   }
 
-  /* Purple accent glass card */
   .purple-glass {
-    @apply bg-purple-50/90 backdrop-blur-md border border-purple-100/50 shadow-lg;
-  }
-  
-  .dark .purple-glass {
-    @apply bg-purple-900/30 backdrop-blur-md border border-purple-700/20;
+    @apply bg-indigo-50/30 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 shadow-sm;
   }
   
   /* Custom animations */

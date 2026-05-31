@@ -1,37 +1,35 @@
-
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lightbulb, User, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 pt-16">
-      {/* Abstract Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-blue-100 dark:bg-blue-900/20 blur-3xl opacity-70"></div>
-        <div className="absolute top-40 -left-20 w-60 h-60 rounded-full bg-purple-100 dark:bg-purple-900/20 blur-3xl opacity-70"></div>
+    <div className="relative overflow-hidden bg-gradient-to-b from-indigo-50/50 to-white dark:from-gray-950 dark:to-gray-900 pt-16">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-indigo-100/40 dark:bg-indigo-900/10 blur-3xl"></div>
+        <div className="absolute top-40 -left-20 w-80 h-80 rounded-full bg-slate-100/40 dark:bg-slate-900/10 blur-3xl"></div>
       </div>
 
       <div className="container relative mx-auto px-6 pt-16 pb-24 sm:pt-24 sm:pb-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 animate-fade-in-up">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                <span className="block">Learn</span>
-                <span className="text-blue-500">Mathematics</span> 
-                <span className="block">and</span>
-                <span className="text-purple-600">DSA</span> 
-                <span className="block">through conversation</span>
+              <div className="inline-flex items-center space-x-2 bg-indigo-55 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 rounded-full text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                <Sparkles className="w-4 h-4" />
+                <span>Dual AI Teacher & Peer Perspectives</span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                Learn Math and DSA <br />
+                through <span className="text-indigo-600 dark:text-indigo-400">guided AI conversations</span>
               </h1>
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
-                An interactive platform where AI teachers explain complex concepts step-by-step, 
-                challenge your understanding, and guide your learning journey.
+              <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
+                An interactive tutor that breaks down calculus, algebra, and algorithmic complexities step-by-step. Ask questions, view peers' ideas, and master topics dynamically.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <Button
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-6 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-6 rounded-lg text-lg transition-transform hover:scale-[1.02]"
                 asChild
               >
                 <Link to="/topics">
@@ -42,58 +40,89 @@ const Hero = () => {
               
               <Button
                 variant="outline"
-                className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 dark:text-gray-200 px-8 py-6 rounded-lg text-lg transition-all duration-300"
-                asChild
+                className="border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-8 py-6 rounded-lg text-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                onClick={() => {
+                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
-                <Link to="/how-it-works">
-                  How It Works
-                </Link>
+                How It Works
               </Button>
             </div>
           </div>
           
-          <div className="relative flex justify-center lg:justify-end animate-fade-in">
-            <div className="relative w-full max-w-md">
-              <div className="glass-card blue-glass rounded-2xl p-5 shadow-xl transform rotate-2 animate-float">
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
-                  <div className="flex items-start space-x-3 mb-3">
-                    <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Teacher AI</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">Explaining Concepts</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 dark:text-gray-200 text-sm mb-4">
-                    Let's start with linear algebra. How comfortable are you with matrices?
-                  </p>
-                  <div className="py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-200 mb-4">
-                    I understand the basics, but I struggle with eigenvalues and eigenvectors.
-                  </div>
-                  <p className="text-gray-700 dark:text-gray-200 text-sm">
-                    Perfect! Let's focus on that. An eigenvector of a matrix A is a non-zero vector v such that when A multiplies v, the result is a scalar multiple of v itself.
-                  </p>
+          {/* Live Product Preview UI */}
+          <div className="lg:col-span-6 flex justify-center lg:justify-end">
+            <div className="w-full max-w-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden text-sm">
+              {/* Product Preview Top bar */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200 ml-2">Topic: Binary Search</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full font-medium">
+                    Mastery: Improving
+                  </span>
                 </div>
               </div>
               
-              <div className="absolute -bottom-4 -left-4 glass-card purple-glass rounded-2xl p-5 shadow-xl transform -rotate-1 animate-float animate-delay-300">
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
-                  <div className="flex items-start space-x-3 mb-3">
-                    <div className="flex-shrink-0 bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Peer AI</p>
+              {/* Preview Body */}
+              <div className="p-4 space-y-4 max-h-[350px] overflow-y-auto">
+                <div className="flex items-start space-x-2">
+                  <div className="bg-indigo-100 dark:bg-indigo-900/30 p-1.5 rounded-full text-indigo-600">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-indigo-600">Teacher AI</div>
+                    <div className="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-r-lg rounded-bl-lg mt-1 text-slate-800 dark:text-slate-200">
+                      Let's find the time complexity of Binary Search. What happens to the size of the search array at each step?
                     </div>
                   </div>
-                  <p className="text-gray-700 dark:text-gray-200 text-sm">
-                    Think of it like finding special directions where the matrix only stretches or compresses, without changing direction!
-                  </p>
+                </div>
+
+                <div className="flex items-start space-x-2 justify-end">
+                  <div className="text-right">
+                    <div className="text-xs font-semibold text-slate-400">You (Student)</div>
+                    <div className="bg-indigo-600 text-white p-2.5 rounded-l-lg rounded-br-lg mt-1 inline-block">
+                      It is divided by 2 or halved at each step.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-2">
+                  <div className="bg-amber-100 dark:bg-amber-900/30 p-1.5 rounded-full text-amber-600">
+                    <Lightbulb className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-amber-600">Peer AI</div>
+                    <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/20 p-2.5 rounded-r-lg rounded-bl-lg mt-1 text-slate-800 dark:text-slate-200">
+                      Yes! Since the range splits in half every time, we solve it in O(log₂ n) steps.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress & Input simulation */}
+              <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-400">Session Progress</span>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Question 3 of 5 (60%)</span>
+                </div>
+                <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mb-3">
+                  <div className="bg-indigo-600 h-full w-[60%]"></div>
+                </div>
+                <div className="flex space-x-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value="Since it is halved, we can express the number of operations..." 
+                    className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-gray-800 rounded-lg text-xs" 
+                  />
+                  <button className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700">
+                    Submit
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,23 +1,21 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Book, HelpCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Book, HelpCircle, CheckCircle, XCircle, Award, Calendar, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ConversationBox from '@/components/ConversationBox';
 import QuestionCard from '@/components/QuestionCard';
 import ProgressIndicator from '@/components/ProgressIndicator';
-import { getTopicBySlug } from '@/services/TopicService';
+import { getTopicBySlug, getAllTopics } from '@/services/TopicService';
 import { useToast } from "@/hooks/use-toast";
 
-// Interface for tracking user answers and performance
 interface UserAnswer {
   questionId: string;
   userAnswer: string;
   isCorrect: boolean;
-  timeTaken: number; // in seconds
-  attemptedAt: Date;
+  timeTaken: number;
+  attemptedAt: string;
   hintsUsed: number;
 }
 
@@ -25,6 +23,9 @@ const TopicDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const topic = getTopicBySlug(slug || '');
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [completedQuestions, setCompletedQuestions] = useState<number[]>([]);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
@@ -37,22 +38,51 @@ const TopicDetailPage = () => {
     totalAttempted: 0,
     averageTime: 0
   });
-  
-  const topic = getTopicBySlug(slug || '');
-  
+
+  // Load progress on mount
   useEffect(() => {
-    // Reset start time and hints when question changes
+    if (!topic) return;
+    const progressKey = `learniverse_progress_${topic.slug}`;
+    const saved = localStorage.getItem(progressKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.completedQuestions) setCompletedQuestions(parsed.completedQuestions);
+        if (parsed.userAnswers) setUserAnswers(parsed.userAnswers);
+        if (parsed.lastActiveIndex !== undefined) setCurrentQuestionIndex(parsed.lastActiveIndex);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setCompletedQuestions([]);
+      setUserAnswers([]);
+      setCurrentQuestionIndex(0);
+    }
+  }, [slug]);
+
+  // Set start timers
+  useEffect(() => {
     setStartTime(new Date());
     setShowFeedback(false);
     setHintsUsedForCurrentQuestion(0);
   }, [currentQuestionIndex]);
 
-  // Calculate session progress when userAnswers change
+  // Save progress changes
+  const saveProgressToStorage = (updatedCompleted: number[], updatedAnswers: UserAnswer[]) => {
+    if (!topic) return;
+    const progressKey = `learniverse_progress_${topic.slug}`;
+    localStorage.setItem(progressKey, JSON.stringify({
+      completedQuestions: updatedCompleted,
+      userAnswers: updatedAnswers,
+      lastActiveIndex: currentQuestionIndex
+    }));
+  };
+
+  // Calculate statistics
   useEffect(() => {
     if (userAnswers.length > 0) {
       const totalCorrect = userAnswers.filter(a => a.isCorrect).length;
       const totalTime = userAnswers.reduce((sum, a) => sum + a.timeTaken, 0);
-      
       setSessionProgress({
         totalCorrect,
         totalAttempted: userAnswers.length,
@@ -60,281 +90,291 @@ const TopicDetailPage = () => {
       });
     }
   }, [userAnswers]);
-  
+
   if (!topic) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 text-center p-4">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Topic Not Found</h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">The topic you're looking for doesn't exist or has been moved.</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-6">The topic you're looking for doesn't exist.</p>
         <Button 
-          variant="default" 
           onClick={() => navigate('/topics')}
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           Browse All Topics
         </Button>
       </div>
     );
   }
-  
+
   const currentQuestion = topic.questions[currentQuestionIndex];
-  
+
+  // Helper to trigger recommended next topic
+  const getNextRecommendedTopic = () => {
+    const list = getAllTopics();
+    const nextIdx = list.findIndex(t => t.slug === topic.slug) + 1;
+    return list[nextIdx] || list[0];
+  };
+
+  // Determine Mastery Label
+  const getMasteryLabel = () => {
+    const ratio = sessionProgress.totalAttempted > 0 
+      ? sessionProgress.totalCorrect / sessionProgress.totalAttempted 
+      : 0;
+    if (ratio >= 0.8) return 'Confident';
+    if (ratio >= 0.4) return 'Improving';
+    return 'Beginner';
+  };
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex < topic.questions.length - 1) {
-      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-    } else {
-      // Show completion message when all questions are done
-      toast({
-        title: "Topic Completed!",
-        description: `You've completed all questions in this topic. Correct: ${sessionProgress.totalCorrect}/${sessionProgress.totalAttempted}`,
-      });
-    }
-  };
-  
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prevIndex => prevIndex - 1);
+      setCurrentQuestionIndex(prev => prev + 1);
     }
   };
 
-  const analyzeAnswer = (userAnswer: string): boolean => {
-    // This is a simple keyword-based analysis that would be replaced by a more sophisticated 
-    // server-side analysis in the future
-    const solution = currentQuestion.solution.toLowerCase();
-    const answer = userAnswer.toLowerCase();
-    
-    const solutionKeywords = solution
-      .split(/[\s,.;:!?()[\]{}'"]+/)
-      .filter(word => word.length > 3);
-      
-    const answerKeywords = answer
-      .split(/[\s,.;:!?()[\]{}'"]+/)
-      .filter(word => word.length > 3);
-    
-    // Count matching keywords
-    let matchCount = 0;
-    for (const keyword of solutionKeywords) {
-      if (answerKeywords.includes(keyword)) {
-        matchCount++;
-      }
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
     }
-    
-    // If more than 40% of keywords match, consider it correct
-    // (This is a basic heuristic - server-side would use NLP)
-    const accuracy = solutionKeywords.length > 0 
-      ? matchCount / solutionKeywords.length 
-      : 0;
-      
-    return accuracy > 0.4;
   };
 
   const handleSubmitAnswer = (answer: string) => {
     const endTime = new Date();
-    const timeTaken = startTime 
-      ? Math.round((endTime.getTime() - startTime.getTime()) / 1000) 
-      : 0;
+    const timeTaken = startTime ? Math.round((endTime.getTime() - startTime.getTime()) / 1000) : 0;
     
-    // Analyze the answer
-    const isCorrect = analyzeAnswer(answer);
-    
-    // Create user answer record
-    const userAnswer: UserAnswer = {
+    // Evaluate answer with basic keyword matching
+    const isCorrect = currentQuestion.solution.toLowerCase()
+      .split(/\W+/)
+      .filter(w => w.length > 4)
+      .some(keyword => answer.toLowerCase().includes(keyword));
+
+    const newAnswer: UserAnswer = {
       questionId: currentQuestion.id,
       userAnswer: answer,
       isCorrect,
       timeTaken,
-      attemptedAt: new Date(),
+      attemptedAt: new Date().toISOString(),
       hintsUsed: hintsUsedForCurrentQuestion
     };
-    
-    // Update state
-    setUserAnswers(prev => [...prev, userAnswer]);
-    
-    // Show feedback
+
+    const updatedAnswers = [...userAnswers.filter(a => a.questionId !== currentQuestion.id), newAnswer];
+    setUserAnswers(updatedAnswers);
+
     setFeedbackType(isCorrect ? 'correct' : 'incorrect');
     setShowFeedback(true);
-    
-    // Mark as completed
-    if (!completedQuestions.includes(currentQuestionIndex + 1)) {
-      setCompletedQuestions(prev => [...prev, currentQuestionIndex + 1]);
+
+    const questionNumber = currentQuestionIndex + 1;
+    let updatedCompleted = [...completedQuestions];
+    if (!completedQuestions.includes(questionNumber)) {
+      updatedCompleted.push(questionNumber);
+      setCompletedQuestions(updatedCompleted);
     }
-    
-    // Show appropriate toast
+
+    saveProgressToStorage(updatedCompleted, updatedAnswers);
+
+    // Trigger streak progression
+    const statsKey = 'learniverse_user_stats';
+    const savedStats = localStorage.getItem(statsKey);
+    let streakCount = 1;
+    if (savedStats) {
+      try {
+        const stats = JSON.parse(savedStats);
+        streakCount = (stats.streak || 1) + 1;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    localStorage.setItem(statsKey, JSON.stringify({ streak: streakCount }));
+
     toast({
-      title: isCorrect ? "Correct!" : "Not quite right",
-      description: isCorrect 
-        ? "Great job! Your answer is correct." 
-        : "Review the feedback to improve your answer.",
+      title: isCorrect ? "Correct answer!" : "Review solution!",
+      description: isCorrect ? "Excellent explanation!" : "Look at the suggested formula.",
       variant: isCorrect ? "default" : "destructive",
     });
-    
-    // In a real implementation, this data would be sent to the server
-    console.log("User answer data:", userAnswer);
   };
 
   const handleRequestHint = () => {
     setHintsUsedForCurrentQuestion(prev => prev + 1);
-    console.log("User requested hint for question:", currentQuestionIndex + 1);
   };
 
+  const isTopicCompleted = completedQuestions.length === topic.questions.length;
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50/30 dark:bg-gray-950">
       <Navbar />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
+          <div className="mb-6 flex justify-between items-center">
             <Button 
               variant="ghost" 
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900"
               onClick={() => navigate('/topics')}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Topics
             </Button>
+
+            {/* Streak indicator badge */}
+            <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-800 px-3 py-1.5 rounded-full">
+              <Calendar className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Session Mode: Active</span>
+            </div>
           </div>
           
-          <header className="mb-8">
-            <div className="flex items-center mb-4">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full mr-4 ${
-                topic.category === 'Mathematics' 
-                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400' 
-                  : 'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400'
-              }`}>
-                {/* We'll dynamically load the icon here based on topic.icon */}
+          <header className="mb-8 bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-200 dark:border-gray-800">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  {topic.category} Study Guide
+                </span>
+                <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mt-1">{topic.title}</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-3xl">
+                  {topic.description}
+                </p>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{topic.title}</h1>
+              <div className="flex items-center space-x-4 bg-slate-50 dark:bg-gray-900 p-4 rounded-lg border border-slate-100 dark:border-gray-800 min-w-[200px]">
+                <Award className="w-8 h-8 text-indigo-500" />
+                <div>
+                  <div className="text-xs text-slate-400 font-semibold">Mastery Status</div>
+                  <div className="text-lg font-bold text-slate-800 dark:text-white">{getMasteryLabel()}</div>
+                </div>
+              </div>
             </div>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl">
-              {topic.description}
-            </p>
+
+            {/* Visual step guide to represent journey */}
+            <div className="mt-6 pt-4 border-t border-slate-150 dark:border-gray-700/50 flex flex-wrap gap-2 text-xs font-medium text-slate-400">
+              <span className="text-indigo-65 text-indigo-600 dark:text-indigo-400">Choose topic</span>
+              <span>→</span>
+              <span className={completedQuestions.length > 0 ? 'text-indigo-600 dark:text-indigo-400' : ''}>Learn concept</span>
+              <span>→</span>
+              <span className={userAnswers.length > 0 ? 'text-indigo-600 dark:text-indigo-400' : ''}>Answer question</span>
+              <span>→</span>
+              <span>Review progress</span>
+            </div>
           </header>
           
-          {/* Session progress summary */}
-          {userAnswers.length > 0 && (
-            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Your Progress</h3>
-              <div className="grid grid-cols-3 gap-4 text-center">
+          {isTopicCompleted ? (
+            /* End-of-Topic Summary Card */
+            <div className="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-800 rounded-xl p-8 max-w-2xl mx-auto text-center space-y-6">
+              <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/40 rounded-full flex items-center justify-center mx-auto">
+                <Award className="w-8 h-8 text-indigo-600 dark:text-indigo-400 animate-bounce" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Congratulations! Topic Mastered</h2>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  You completed all {topic.questions.length} question modules in **{topic.title}**.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 border-y border-slate-100 dark:border-gray-700 py-6 max-w-md mx-auto text-sm">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Correct</p>
-                  <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                    {sessionProgress.totalCorrect}/{sessionProgress.totalAttempted}
-                  </p>
+                  <div className="text-slate-45 text-slate-400 font-semibold">Score</div>
+                  <div className="text-xl font-extrabold text-emerald-600">{sessionProgress.totalCorrect} / {topic.questions.length}</div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Completion</p>
-                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                    {Math.round((completedQuestions.length / topic.questions.length) * 100)}%
-                  </p>
+                  <div className="text-slate-45 text-slate-400 font-semibold">Mastery</div>
+                  <div className="text-xl font-extrabold text-indigo-65 text-indigo-600">{getMasteryLabel()}</div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Avg. Time</p>
-                  <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
-                    {sessionProgress.averageTime}s
-                  </p>
+                  <div className="text-slate-45 text-slate-400 font-semibold">Avg. Speed</div>
+                  <div className="text-xl font-extrabold text-slate-800 dark:text-white">{sessionProgress.averageTime}s</div>
                 </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
+                <Button
+                  onClick={() => {
+                    localStorage.removeItem(`learniverse_progress_${topic.slug}`);
+                    setCompletedQuestions([]);
+                    setUserAnswers([]);
+                    setCurrentQuestionIndex(0);
+                  }}
+                  variant="outline"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Restart Topic
+                </Button>
+                <Button
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  onClick={() => navigate(`/topics/${getNextRecommendedTopic().slug}`)}
+                >
+                  Next Recommended Topic
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="lg:w-1/2">
+                <div className="mb-6">
+                  <ProgressIndicator 
+                    currentQuestion={currentQuestionIndex + 1}
+                    totalQuestions={topic.questions.length}
+                    completedQuestions={completedQuestions}
+                  />
+                </div>
+                
+                <div className="mb-6">
+                  <QuestionCard
+                    questionNumber={currentQuestionIndex + 1}
+                    totalQuestions={topic.questions.length}
+                    difficulty={currentQuestion.difficulty}
+                    question={currentQuestion.prompt}
+                    hints={currentQuestion.hints || []}
+                    onSubmit={handleSubmitAnswer}
+                    onRequestHint={handleRequestHint}
+                  />
+                </div>
+                
+                {showFeedback && (
+                  <div className={`mb-6 p-4 rounded-lg border ${
+                    feedbackType === 'correct' 
+                      ? 'bg-emerald-50/50 border-emerald-25 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-350' 
+                      : 'bg-red-50/60 border-red-200 dark:bg-red-950/20 text-red-800 dark:text-red-300'
+                  }`}>
+                    <div className="flex items-center text-sm font-semibold mb-1">
+                      {feedbackType === 'correct' ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+                      <span>{feedbackType === 'correct' ? 'Correct Answer!' : 'Incorrect Approach'}</span>
+                    </div>
+                    <p className="text-xs opacity-90 leading-relaxed mt-1">
+                      {feedbackType === 'correct' 
+                        ? 'Great job! Your answer matches the conceptual solution. Continue to the next question or view explainers.'
+                        : `Solution: ${currentQuestion.solution}`
+                      }
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex justify-between mb-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={handlePreviousQuestion}
+                    disabled={currentQuestionIndex === 0}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={handleNextQuestion}
+                    disabled={currentQuestionIndex === topic.questions.length - 1}
+                  >
+                    Next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="lg:w-1/2 h-[600px]">
+                <ConversationBox 
+                  sessionTitle={`${topic.title} - Step ${currentQuestionIndex + 1}`}
+                  currentQuestion={currentQuestion}
+                  topic={topic}
+                />
               </div>
             </div>
           )}
-          
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="lg:w-1/2">
-              <div className="mb-6">
-                <ProgressIndicator 
-                  currentQuestion={currentQuestionIndex + 1}
-                  totalQuestions={topic.questions.length}
-                  completedQuestions={completedQuestions}
-                />
-              </div>
-              
-              <div className="mb-6">
-                <QuestionCard
-                  questionNumber={currentQuestionIndex + 1}
-                  totalQuestions={topic.questions.length}
-                  difficulty={currentQuestion.difficulty}
-                  question={currentQuestion.prompt}
-                  hints={currentQuestion.hints || []}
-                  onSubmit={handleSubmitAnswer}
-                  onRequestHint={handleRequestHint}
-                />
-              </div>
-              
-              {showFeedback && (
-                <div className={`mb-6 p-4 rounded-lg ${
-                  feedbackType === 'correct' 
-                    ? 'bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/30' 
-                    : 'bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30'
-                }`}>
-                  <div className={`flex items-center ${
-                    feedbackType === 'correct' 
-                      ? 'text-green-700 dark:text-green-300' 
-                      : 'text-red-700 dark:text-red-300'
-                  } text-sm font-medium mb-2`}>
-                    {feedbackType === 'correct' 
-                      ? <CheckCircle className="h-4 w-4 mr-2" />
-                      : <XCircle className="h-4 w-4 mr-2" />
-                    }
-                    <span>
-                      {feedbackType === 'correct' 
-                        ? 'Correct Answer!' 
-                        : 'Not Quite Right'
-                      }
-                    </span>
-                  </div>
-                  <p className="text-gray-700 dark:text-gray-200 text-sm">
-                    {feedbackType === 'correct' 
-                      ? 'Great job! Your answer demonstrates a good understanding of the concept.' 
-                      : `The correct approach is: ${currentQuestion.solution}`
-                    }
-                  </p>
-                </div>
-              )}
-              
-              <div className="flex justify-between mb-8">
-                <Button 
-                  variant="outline" 
-                  onClick={handlePreviousQuestion}
-                  disabled={currentQuestionIndex === 0}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Previous
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={handleNextQuestion}
-                  disabled={currentQuestionIndex === topic.questions.length - 1 && !completedQuestions.includes(currentQuestionIndex + 1)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                >
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-              
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-6">
-                <div className="flex items-center mb-2">
-                  <Book className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Learning Resources</h3>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {topic.category === 'Mathematics' 
-                    ? "Information for this topic has been extracted from Wisconsin University's Calculus notes."
-                    : "Information for this topic has been extracted from Alagappa University's DSA Module."}
-                  The AI teacher has been trained on this content to provide accurate and helpful explanations.
-                </p>
-              </div>
-            </div>
-            
-            <div className="lg:w-1/2 h-[600px]">
-              <ConversationBox 
-                sessionTitle={`${topic.title} - Question ${currentQuestionIndex + 1}`}
-                
-                currentQuestion={currentQuestion}
-                topic={topic}
-              />
-            </div>
-          </div>
         </div>
       </main>
       
