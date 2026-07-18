@@ -1,0 +1,374 @@
+{
+  "topic": "BST",
+  "overview": {
+    "what_is_it": "A Binary Search Tree (BST) is a binary tree where each node's key is greater than all keys in its left subtree and less than all keys in its right subtree.",
+    "why_it_matters": "BSTs support fast ordered search, insertion, deletion, range queries, and sorted iteration when the tree remains reasonably balanced.",
+    "core_idea": "Use the key order at every node to decide whether to go left, right, or stop.",
+    "time_complexity": "Search, insert, and delete are O(h), where h is tree height; h is O(log n) when balanced and O(n) when skewed; traversal is O(n).",
+    "space_complexity": "Iterative search is O(1); recursive operations use O(h) stack; traversal output costs O(n) if stored.",
+    "when_to_use": [
+      "You need an ordered set or map with dynamic insert, delete, and lookup operations.",
+      "You need range queries, floor, ceiling, predecessor, successor, or sorted iteration.",
+      "You need a simple ordered structure before choosing a library-backed balanced tree."
+    ],
+    "common_mistakes": [
+      "Checking only direct children instead of validating the whole subtree.",
+      "Assuming a plain BST is always balanced.",
+      "Handling duplicate keys inconsistently.",
+      "Deleting a two-child node without replacing it with an inorder predecessor or successor."
+    ]
+  },
+  "pseudocode": "BST-Search(root, key):\n    while root != null:\n        if key == root.key: return root\n        if key < root.key: root = root.left\n        else: root = root.right\n    return null\n\nBST-Insert(root, key):\n    if root == null: return new Node(key)\n    if key < root.key: root.left = BST-Insert(root.left, key)\n    else if key > root.key: root.right = BST-Insert(root.right, key)\n    return root\n\nBST-Delete(root, key):\n    if root == null: return null\n    if key < root.key: root.left = BST-Delete(root.left, key)\n    else if key > root.key: root.right = BST-Delete(root.right, key)\n    else:\n        if root.left == null: return root.right\n        if root.right == null: return root.left\n        successor = Minimum(root.right)\n        root.key = successor.key\n        root.right = BST-Delete(root.right, successor.key)\n    return root\n\nMinimum(node):\n    while node.left != null: node = node.left\n    return node\n\nInorder(root):\n    if root != null:\n        Inorder(root.left)\n        visit(root.key)\n        Inorder(root.right)",
+  "real_world_usage": [
+    {
+      "use_case": "Database indexing",
+      "description": "Balanced search tree variants such as B-trees and B+ trees maintain sorted keys for fast lookup, range scans, and ordered iteration."
+    },
+    {
+      "use_case": "Ordered maps and symbol tables",
+      "description": "Compilers, interpreters, and language libraries use BST-like structures to map keys to values while supporting ordered queries such as floor, ceiling, and range search."
+    },
+    {
+      "use_case": "Autocomplete and text processing",
+      "description": "BST variants can store words or prefixes in sorted order and support prefix or range lookups, though tries are often specialized for this task."
+    },
+    {
+      "use_case": "Memory management and interval lookup",
+      "description": "Balanced trees can track allocated or free memory blocks and quickly find neighboring blocks, overlaps, or available ranges."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "binary search tree",
+      "valid BST",
+      "BST property",
+      "inorder traversal",
+      "rank",
+      "floor",
+      "ceiling",
+      "predecessor",
+      "successor",
+      "range query"
+    ],
+    "patterns": [
+      "Compare target with current node and recurse or iterate left or right.",
+      "Use inorder traversal to get sorted order.",
+      "Maintain ancestor bounds to validate BST property.",
+      "For deletion with two children, replace with inorder predecessor or successor."
+    ],
+    "constraints": [
+      "The tree may be skewed unless balanced is guaranteed.",
+      "n can be large enough that O(n) traversal is acceptable only when needed.",
+      "Duplicates may appear and require a stated convention.",
+      "Recursive solutions can overflow on very skewed trees."
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which traversal of a BST is guaranteed to visit all keys in nondecreasing order?",
+      "options": [
+        "Preorder",
+        "Postorder",
+        "Inorder",
+        "Level-order"
+      ],
+      "answer": "Inorder",
+      "hint_teacher": "Use the recursive definition: left subtree keys come before the root, which comes before right subtree keys.",
+      "hint_peer": "Left, node, right is the sorted-order walk.",
+      "explanation_teacher": "In a valid BST, every key in the left subtree is no larger than the node and every key in the right subtree is no smaller. Therefore the recursive order left-root-right emits keys in sorted order.",
+      "explanation_peer": "Think of it as reading the tree from smallest to largest: go all the way left, print, then go right."
+    },
+    {
+      "id": "mcq_2",
+      "question": "In a plain unbalanced BST with n nodes, what are the search, insertion, and deletion costs in the worst case?",
+      "options": [
+        "O(log n)",
+        "O(n log n)",
+        "O(n)",
+        "O(1)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "The running time depends on the height h of the tree, not only on n.",
+      "hint_peer": "If the tree becomes a long chain, you may scan almost every node.",
+      "explanation_teacher": "For a standard BST, search, insertion, and deletion follow one root-to-leaf path. In the worst case, the height h can equal n when the tree is skewed, so the cost is O(h) = O(n).",
+      "explanation_peer": "A sad BST can become basically a linked list, so operations can be linear."
+    },
+    {
+      "id": "mcq_3",
+      "question": "Which condition correctly captures the BST property for every node?",
+      "options": [
+        "The left child is smaller and the right child is larger.",
+        "The sum of the left subtree is smaller than the node and the sum of the right subtree is larger.",
+        "All keys in the left subtree are less than the node's key, and all keys in the right subtree are greater than the node's key.",
+        "Every leaf on the left is smaller than every leaf on the right."
+      ],
+      "answer": "All keys in the left subtree are less than the node's key, and all keys in the right subtree are greater than the node's key.",
+      "hint_teacher": "The property applies to every descendant in a subtree, not just immediate children.",
+      "hint_peer": "It is not enough to check only the kids; the whole family has to obey the rule.",
+      "explanation_teacher": "A valid BST requires every node in the left subtree to satisfy the node's upper bound and every node in the right subtree to satisfy the node's lower bound. Checking only children can miss deeper violations.",
+      "explanation_peer": "The rule is recursive: everything left is smaller, everything right is bigger."
+    },
+    {
+      "id": "mcq_4",
+      "question": "When deleting a node with two children from a BST, what is the standard safe strategy?",
+      "options": [
+        "Delete the node and reconnect both children arbitrarily.",
+        "Replace the node with the maximum node from the left subtree or the minimum node from the right subtree, then delete that replacement node from its original location.",
+        "Always rotate the larger child to the root.",
+        "Set the node's key to null and leave it as a placeholder."
+      ],
+      "answer": "Replace the node with the maximum node from the left subtree or the minimum node from the right subtree, then delete that replacement node from its original location.",
+      "hint_teacher": "The replacement must preserve the inorder ordering.",
+      "hint_peer": "Use the closest smaller or closest bigger value, then remove that copy.",
+      "explanation_teacher": "The inorder predecessor or successor is adjacent to the deleted key in sorted order. Replacing with one of them preserves the BST ordering, and the replacement node has at most one child, making its removal simple.",
+      "explanation_peer": "Swap in the neighbor in sorted order, then clean up the neighbor's old spot."
+    },
+    {
+      "id": "mcq_5",
+      "question": "Which approach can validate a binary tree as a BST most directly?",
+      "options": [
+        "Check only root.left.val < root.val < root.right.val at every node.",
+        "Perform inorder traversal and ensure the visited values are nondecreasing.",
+        "Sort the level-order array and compare it to the tree.",
+        "Count the number of nodes and require it to be odd."
+      ],
+      "answer": "Perform inorder traversal and ensure the visited values are nondecreasing.",
+      "hint_teacher": "A valid BST emits sorted order under inorder traversal.",
+      "hint_peer": "If the sorted walk looks unsorted, it is not a BST.",
+      "explanation_teacher": "Inorder traversal of a valid BST produces nondecreasing keys. Therefore, tracking the previous visited value during inorder traversal is sufficient to detect violations.",
+      "explanation_peer": "Walk it in sorted order and make sure the numbers never go backward."
+    },
+    {
+      "id": "mcq_6",
+      "question": "How should duplicate keys be handled in a BST?",
+      "options": [
+        "They should always be ignored.",
+        "They should always be placed on both left and right subtrees.",
+        "Choose one consistent convention, such as left for <= or right for >=, and use it everywhere.",
+        "Duplicates are impossible in any tree data structure."
+      ],
+      "answer": "Choose one consistent convention, such as left for <= or right for >=, and use it everywhere.",
+      "hint_teacher": "The BST definition must be precise when equality is possible.",
+      "hint_peer": "Pick a side for equals and never switch randomly.",
+      "explanation_teacher": "Duplicate handling is implementation-defined. The important requirement is consistency across insertion, search, deletion, and validation, so algorithms know exactly where equal keys may appear.",
+      "explanation_peer": "Duplicates are allowed if your rules say where they live."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Why are BSTs useful for range queries such as finding all keys between L and R?",
+      "options": [
+        "They can prune subtrees that cannot contain values in the range.",
+        "They require no comparisons.",
+        "They always have height O(log n).",
+        "They convert the tree into a hash table automatically."
+      ],
+      "answer": "They can prune subtrees that cannot contain values in the range.",
+      "hint_teacher": "Use the node value to decide whether to explore left, right, or both.",
+      "hint_peer": "If a whole branch is too small or too big, skip it.",
+      "explanation_teacher": "If a node's value is less than L, its entire left subtree is also less than L and can be skipped. If a node's value is greater than R, its entire right subtree is also greater than R and can be skipped.",
+      "explanation_peer": "BST ordering lets you ignore branches that have no chance of matching."
+    },
+    {
+      "id": "mcq_8",
+      "question": "For a node that has a right subtree, where is its inorder successor?",
+      "options": [
+        "At the root of the entire tree.",
+        "At the maximum node in the left subtree.",
+        "At the minimum node in the right subtree.",
+        "At the deepest leaf in the right subtree."
+      ],
+      "answer": "At the minimum node in the right subtree.",
+      "hint_teacher": "The successor is the smallest key larger than the node.",
+      "hint_peer": "Go right once, then go as far left as possible.",
+      "explanation_teacher": "All keys in the right subtree are larger than the node. The smallest among them is the minimum node in that right subtree, which is the immediate next key in sorted order.",
+      "explanation_peer": "Right, then all the way left gives the next bigger value."
+    },
+    {
+      "id": "mcq_9",
+      "question": "How do you find the minimum key in a BST?",
+      "options": [
+        "Follow left children until there is no left child.",
+        "Follow right children until there is no right child.",
+        "Perform a breadth-first search and return the first node.",
+        "Return the root because it is always the minimum."
+      ],
+      "answer": "Follow left children until there is no left child.",
+      "hint_teacher": "The minimum key is the leftmost node.",
+      "hint_peer": "Keep going smaller until you cannot go smaller.",
+      "explanation_teacher": "In a BST, every left child is smaller than its parent. The leftmost node therefore has no smaller descendant and is the minimum.",
+      "explanation_peer": "Minimum means keep moving left."
+    },
+    {
+      "id": "mcq_10",
+      "question": "What can happen if you insert sorted increasing keys into a naive BST without balancing?",
+      "options": [
+        "The tree becomes complete and height is O(log n).",
+        "The tree becomes a right-skewed chain with height O(n).",
+        "The tree automatically becomes an AVL tree.",
+        "The tree cannot store more than one node."
+      ],
+      "answer": "The tree becomes a right-skewed chain with height O(n).",
+      "hint_teacher": "Each new larger key is inserted as the right child of the previous largest key.",
+      "hint_peer": "Sorted input can make the tree look like a staircase.",
+      "explanation_teacher": "Inserting keys in increasing order causes every new key to go to the right, producing a degenerate tree of height n. This destroys the logarithmic advantage of a balanced BST.",
+      "explanation_peer": "Sorted input can turn a BST into a linked list."
+    },
+    {
+      "id": "mcq_11",
+      "question": "What is the main purpose of AVL trees, red-black trees, and other balanced BST variants?",
+      "options": [
+        "To make inorder traversal unnecessary.",
+        "To maintain height guarantees so operations remain O(log n).",
+        "To store only integer keys.",
+        "To remove the need for comparisons."
+      ],
+      "answer": "To maintain height guarantees so operations remain O(log n).",
+      "hint_teacher": "Balanced trees add rotations or coloring rules to control height.",
+      "hint_peer": "They stop the tree from becoming a skinny chain.",
+      "explanation_teacher": "Balanced BSTs preserve ordering while enforcing structural constraints. These constraints keep height logarithmic, giving search, insertion, and deletion O(log n) worst-case or amortized guarantees depending on the variant.",
+      "explanation_peer": "They are BSTs with self-control."
+    },
+    {
+      "id": "mcq_12",
+      "question": "What is the auxiliary space complexity of iterative BST search?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "answer": "O(1)",
+      "hint_teacher": "An iterative search only keeps a current pointer.",
+      "hint_peer": "No stack, no recursion, just moving a pointer.",
+      "explanation_teacher": "Iterative BST search does not store a path or use a call stack. It updates a current pointer until it finds the key or reaches null, so auxiliary space is constant.",
+      "explanation_peer": "It is just a while loop with one pointer."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Which statement about validating a BST with ancestor bounds is true?",
+      "options": [
+        "A node only needs to be compared with its parent.",
+        "A node in the left subtree of an ancestor must also respect that ancestor's upper bound.",
+        "Bounds are only needed for leaf nodes.",
+        "The root cannot be validated using bounds."
+      ],
+      "answer": "A node in the left subtree of an ancestor must also respect that ancestor's upper bound.",
+      "hint_teacher": "Every node inherits a valid interval from all ancestors.",
+      "hint_peer": "A node has to obey rules from above, not just from its parent.",
+      "explanation_teacher": "A node's valid range is determined by all ancestors. For example, a node in the left subtree of value 10 must be less than 10 even if its immediate parent allows larger values.",
+      "explanation_peer": "Parent rules matter, but grandparent rules can matter too."
+    },
+    {
+      "id": "mcq_14",
+      "question": "Compared with a sorted array, what is a major advantage of a BST for a dynamic set?",
+      "options": [
+        "It supports insertions and deletions without shifting O(n) elements, while preserving ordered search.",
+        "It has no worst-case behavior.",
+        "It eliminates the need to compare keys.",
+        "It always uses less memory than an array."
+      ],
+      "answer": "It supports insertions and deletions without shifting O(n) elements, while preserving ordered search.",
+      "hint_teacher": "Sorted arrays give fast binary search but expensive updates.",
+      "hint_peer": "Arrays are great for reading sorted data, but moving elements around is costly.",
+      "explanation_teacher": "A sorted array supports O(log n) search but O(n) insertion or deletion because elements may need to shift. A BST also supports ordered traversal and search, while pointer changes can insert or delete in O(h).",
+      "explanation_peer": "A BST avoids the big shuffle that arrays need."
+    },
+    {
+      "id": "mcq_15",
+      "question": "What is the predecessor of a node in a BST?",
+      "options": [
+        "The next larger key.",
+        "The previous smaller key in sorted order.",
+        "The root of the subtree.",
+        "The shallowest ancestor."
+      ],
+      "answer": "The previous smaller key in sorted order.",
+      "hint_teacher": "Predecessor means the element immediately before in inorder order.",
+      "hint_peer": "It is the closest smaller neighbor.",
+      "explanation_teacher": "The predecessor of a node is the greatest key smaller than the node's key. If the node has a left subtree, it is the maximum in that left subtree; otherwise it is the nearest ancestor for which the node lies in the right subtree.",
+      "explanation_peer": "Predecessor means the value just before it in sorted order."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Search in a Binary Search Tree",
+      "difficulty": "Easy",
+      "statement": "Given the root of a binary search tree and an integer val, find the node whose value equals val. Return the node's value, or None if no such node exists.",
+      "examples": [
+        {
+          "input": "root = [4,2,7,1,3], val = 2",
+          "output": "2",
+          "explanation": "The value 2 exists as the left child of 4, so return that node's value."
+        },
+        {
+          "input": "root = [4,2,7,1,3], val = 5",
+          "output": "None",
+          "explanation": "No node in the tree has value 5."
+        }
+      ],
+      "constraints": [
+        "The number of nodes is between 1 and 5000.",
+        "All node values and val are integers.",
+        "All values in the tree are unique."
+      ],
+      "hint1_teacher": "Use the BST ordering: if val is smaller than the current node, the target can only be in the left subtree.",
+      "hint1_peer": "If the current number is too big, go left; if it is too small, go right.",
+      "hint2_teacher": "You can solve this either recursively or iteratively by following one path from the root.",
+      "hint2_peer": "Do not search both sides. A BST tells you exactly which side to check.",
+      "solution_regular": {
+        "approach": "Recursively compare val with the current node. If val is smaller, search left; if val is larger, search right; otherwise return the current node.",
+        "code": "from typing import Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:\n        if root is None or root.val == val:\n            return root\n        if val < root.val:\n            return self.searchBST(root.left, val)\n        return self.searchBST(root.right, val)",
+        "time": "O(h)",
+        "space": "O(h)"
+      },
+      "solution_optimal": {
+        "approach": "Iteratively move a current pointer down the tree according to BST ordering, avoiding recursive call-stack space.",
+        "code": "from typing import Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:\n        while root is not None:\n            if root.val == val:\n                return root\n            root = root.left if val < root.val else root.right\n        return None",
+        "time": "O(h)",
+        "space": "O(1)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Kth Smallest Element in a BST",
+      "difficulty": "Medium",
+      "statement": "Given the root of a binary search tree and an integer k, return the kth smallest value in the tree. The value of k is 1-indexed.",
+      "examples": [
+        {
+          "input": "root = [3,1,4,null,2], k = 1",
+          "output": "1",
+          "explanation": "The inorder traversal is [1, 2, 3, 4], so the 1st smallest value is 1."
+        },
+        {
+          "input": "root = [5,3,6,2,4,null,null,1], k = 3",
+          "output": "3",
+          "explanation": "The inorder traversal is [1, 2, 3, 4, 5, 6], so the 3rd smallest value is 3."
+        }
+      ],
+      "constraints": [
+        "The number of nodes n is between 1 and 10000.",
+        "1 <= k <= n.",
+        "Node values are integers.",
+        "The tree is guaranteed to be a valid binary search tree."
+      ],
+      "hint1_teacher": "Inorder traversal of a BST visits nodes in sorted order.",
+      "hint1_peer": "The kth smallest is just the kth item in the left-node-right walk.",
+      "hint2_teacher": "You can either collect the full inorder sequence or stop early once the kth node is reached.",
+      "hint2_peer": "No need to store everything if you can count as you go.",
+      "solution_regular": {
+        "approach": "Perform a full inorder traversal, store all values in a list, and return the element at index k - 1.",
+        "code": "from typing import Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:\n        values = []\n        def inorder(node):\n            if node is None:\n                return\n            inorder(node.left)\n            values.append(node.val)\n            inorder(node.right)\n        inorder(root)\n        return values[k - 1]",
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "solution_optimal": {
+        "approach": "Use iterative inorder traversal with a stack and a counter. Stop immediately when the kth node is visited.",
+        "code": "from typing import Optional\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:\n        stack = []\n        current = root\n        count = 0\n        while current is not None or stack:\n            while current is not None:\n                stack.append(current)\n                current = current.left\n            current = stack.pop()\n            count += 1\n            if count == k:\n                return current.val\n            current = current.right\n        return -1",
+        "time": "O(h + k), O(n) worst case",
+        "space": "O(h)"
+      }
+    }
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "topic": "Queue",
+  "overview": {
+    "what_is_it": "A queue is a FIFO linear data structure where elements are inserted at the rear and removed from the front.",
+    "why_it_matters": "It preserves arrival order, enabling fair scheduling, buffering, breadth-first search, and asynchronous processing.",
+    "core_idea": "Think of a line at a ticket counter: the first person to join is the first person to be served.",
+    "time_complexity": "Enqueue O(1), dequeue O(1), peek O(1), search O(n); circular array avoids O(n) shifts.",
+    "space_complexity": "O(n) for n stored elements; circular arrays and linked lists use O(1) extra metadata.",
+    "when_to_use": [
+      "Processing tasks, requests, or messages in arrival order",
+      "Breadth-first search or level-order traversal",
+      "Buffering streams, packets, or background jobs",
+      "Sliding-window problems using a monotonic queue"
+    ],
+    "common_mistakes": [
+      "Using list.pop(0) in performance-sensitive code, causing O(n) dequeues",
+      "Forgetting to update both front and rear when the last element is removed",
+      "Not handling empty and full conditions correctly in circular queues",
+      "Confusing FIFO queues with LIFO stacks or priority queues"
+    ]
+  },
+  "pseudocode": "Queue:\n attributes: front, rear, size\n\nenqueue(x):\n create node with value x\n if rear is null:\n front = node\n rear = node\n else:\n rear.next = node\n rear = node\n size = size + 1\n\nd dequeue():\n if front is null:\n error 'Queue underflow'\n x = front.value\n front = front.next\n if front is null:\n rear = null\n size = size - 1\n return x\n\npeek():\n if front is null:\n error 'Queue is empty'\n return front.value\n\nisEmpty():\n return front is null",
+  "real_world_usage": [
+    {
+      "use_case": "Print job scheduling",
+      "description": "Printers often process jobs in FIFO order so the earliest submitted document prints first."
+    },
+    {
+      "use_case": "Breadth-first search",
+      "description": "Graph and grid searches enqueue newly discovered vertices to explore them layer by layer."
+    },
+    {
+      "use_case": "Message brokers",
+      "description": "Task queues buffer jobs between producers and consumers while preserving order or fairness."
+    },
+    {
+      "use_case": "CPU scheduling",
+      "description": "Round-robin schedulers use queues to cycle through runnable processes in arrival order."
+    },
+    {
+      "use_case": "Network packet buffering",
+      "description": "Routers queue packets when outgoing links are busy, transmitting them in arrival order when possible."
+    },
+    {
+      "use_case": "Customer support ticketing",
+      "description": "Tickets can be assigned in the order received to provide predictable service."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "FIFO",
+      "first in first out",
+      "enqueue",
+      "dequeue",
+      "front",
+      "rear",
+      "level order",
+      "BFS",
+      "buffer",
+      "producer-consumer",
+      "monotonic queue"
+    ],
+    "patterns": [
+      "Process items in arrival order",
+      "Explore graph or grid layer by layer",
+      "Maintain a time or position window",
+      "Keep candidate values in monotonic order for sliding windows",
+      "Decouple producers from consumers"
+    ],
+    "constraints": [
+      "Need O(1) insertion at rear and O(1) removal at front",
+      "Order must be preserved exactly",
+      "Memory may be bounded by a fixed capacity",
+      "Operations may arrive faster than they can be processed"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "In a FIFO queue, which operation removes the element that has been waiting the longest?",
+      "options": [
+        "enqueue",
+        "dequeue",
+        "peek",
+        "push"
+      ],
+      "answer": "dequeue",
+      "hint_teacher": "Recall the formal removal operation defined for the front of a FIFO abstract data type.",
+      "hint_peer": "The person who has been in line the longest is the one who gets called next.",
+      "explanation_teacher": "A queue follows first-in, first-out order. enqueue adds to the rear, peek inspects the front without removing it, and dequeue removes and returns the front element, which is the oldest waiting item.",
+      "explanation_peer": "FIFO means first in is first out, so dequeue is the action that takes the oldest item."
+    },
+    {
+      "id": "mcq_2",
+      "question": "Why is a circular queue preferred over a naive array queue that shifts every element left after each dequeue?",
+      "options": [
+        "It removes the need for a rear pointer",
+        "It reuses freed front slots and keeps enqueue and dequeue at O(1)",
+        "It makes searching the queue O(log n)",
+        "It can store more elements than its allocated capacity"
+      ],
+      "answer": "It reuses freed front slots and keeps enqueue and dequeue at O(1)",
+      "hint_teacher": "Compare the cost of shifting elements with the cost of moving modular front and rear indices.",
+      "hint_peer": "Shifting the whole line after every person leaves is wasteful; wrapping around is faster.",
+      "explanation_teacher": "A naive array queue that shifts after each dequeue spends O(n) time per removal. A circular queue treats the array as wrapping around, so free slots at the beginning can be reused and both ends move with O(1) updates.",
+      "explanation_peer": "Circular queues let you reuse empty spots instead of moving everyone forward."
+    },
+    {
+      "id": "mcq_3",
+      "question": "In a linked-list queue with both front and rear pointers, what must be updated when dequeuing the last remaining node?",
+      "options": [
+        "Only front must become null",
+        "Only rear must become null",
+        "Both front and rear must become null",
+        "The rear must point back to the front"
+      ],
+      "answer": "Both front and rear must become null",
+      "hint_teacher": "Consider whether any valid node remains after removing the only node.",
+      "hint_peer": "If the last person leaves the line, there is no front person and no back person.",
+      "explanation_teacher": "If the final node is removed, front moves to null. Because there are no remaining nodes, rear must also be null; otherwise future enqueues may attach to an invalid tail.",
+      "explanation_peer": "When the queue becomes empty, both ends should point to nothing."
+    },
+    {
+      "id": "mcq_4",
+      "question": "Which graph traversal naturally uses a queue because it visits vertices in increasing distance from the source?",
+      "options": [
+        "Depth-first search",
+        "Breadth-first search",
+        "Backtracking",
+        "Heap sort"
+      ],
+      "answer": "Breadth-first search",
+      "hint_teacher": "Identify the traversal that explores all nodes at distance d before distance d plus 1.",
+      "hint_peer": "BFS spreads out in rings, so it needs a line of frontier nodes.",
+      "explanation_teacher": "BFS discovers all vertices at distance d before distance d plus 1. A queue naturally stores the frontier in discovery order, which gives level-order processing.",
+      "explanation_peer": "BFS uses a queue because it visits the nearest unvisited nodes first."
+    },
+    {
+      "id": "mcq_5",
+      "question": "What is the time complexity of locating an arbitrary value in a standard queue without removing elements?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "A standard queue exposes efficient access only at the front.",
+      "hint_peer": "If you need to find someone in the middle of a line, you may have to check everyone.",
+      "explanation_teacher": "A standard queue only exposes the front for efficient access. To find an arbitrary value without removing elements, it may need to inspect all n elements.",
+      "explanation_peer": "Search is not the queue's superpower; worst case you scan the whole line."
+    },
+    {
+      "id": "mcq_6",
+      "question": "For a circular queue of capacity c that intentionally leaves one slot unused, which condition commonly indicates that the queue is full?",
+      "options": [
+        "(rear + 1) % c == front",
+        "rear == -1",
+        "front == c",
+        "rear == front and size == 0"
+      ],
+      "answer": "(rear + 1) % c == front",
+      "hint_teacher": "Think about what happens if rear advances one more position using modulo arithmetic.",
+      "hint_peer": "If moving the back pointer would land on the front pointer, do not add another item.",
+      "explanation_teacher": "Leaving one slot unused makes the full and empty states distinct. When advancing rear would land on front, the next slot is already occupied.",
+      "explanation_peer": "One empty seat is kept as a warning sign so full and empty do not look the same."
+    },
+    {
+      "id": "mcq_7",
+      "question": "What is the key difference between a normal queue and a priority queue?",
+      "options": [
+        "A normal queue serves by arrival order, while a priority queue serves by priority order",
+        "A normal queue cannot store numbers",
+        "A priority queue always uses FIFO order",
+        "A normal queue has no insertion operation"
+      ],
+      "answer": "A normal queue serves by arrival order, while a priority queue serves by priority order",
+      "hint_teacher": "Contrast arrival-time ordering with priority-based ordering.",
+      "hint_peer": "A normal queue asks who arrived first; a priority queue asks who matters most.",
+      "explanation_teacher": "A normal queue is governed by arrival time. A priority queue orders removals by priority, often implemented with a heap, so the oldest item may not be served first.",
+      "explanation_peer": "Queue: first in first out. Priority queue: highest priority out first."
+    },
+    {
+      "id": "mcq_8",
+      "question": "What does the peek operation do in a queue?",
+      "options": [
+        "Removes and returns the rear element",
+        "Returns the front element without removing it",
+        "Moves the front element to the rear",
+        "Sorts all elements by value"
+      ],
+      "answer": "Returns the front element without removing it",
+      "hint_teacher": "Distinguish observation from mutation in abstract queue operations.",
+      "hint_peer": "Peeking means looking at who is next without making them leave the line.",
+      "explanation_teacher": "Peek is a non-mutating observation of the front. Dequeue mutates the queue by removing the front, and enqueue changes the rear.",
+      "explanation_peer": "Peek only checks the front value; it does not remove anything."
+    },
+    {
+      "id": "mcq_9",
+      "question": "Why is a monotonic queue useful for sliding-window maximum problems?",
+      "options": [
+        "It stores every window element in sorted order",
+        "It keeps candidate indices in decreasing value order so the front is the current maximum",
+        "It replaces the need for any queue operation",
+        "It guarantees O(1) memory regardless of window size"
+      ],
+      "answer": "It keeps candidate indices in decreasing value order so the front is the current maximum",
+      "hint_teacher": "Consider which older candidates can never win after a newer larger value enters the window.",
+      "hint_peer": "If a newer number is bigger, older smaller numbers behind it are useless.",
+      "explanation_teacher": "For each new value, smaller or equal older candidates can be discarded because they expire no later and can never beat the newer value. The deque front then stores the maximum candidate for the current window.",
+      "explanation_peer": "Keep only possible winners; the biggest remaining candidate stays at the front."
+    },
+    {
+      "id": "mcq_10",
+      "question": "In a bounded producer-consumer queue, what should a producer do when the queue is full?",
+      "options": [
+        "Always overwrite the oldest item silently",
+        "Wait or follow a defined policy such as blocking, dropping, or rejecting",
+        "Delete all consumers",
+        "Convert the queue into a stack"
+      ],
+      "answer": "Wait or follow a defined policy such as blocking, dropping, or rejecting",
+      "hint_teacher": "A bounded queue requires explicit overflow behavior.",
+      "hint_peer": "If the waiting room is full, the system needs a rule instead of chaos.",
+      "explanation_teacher": "A bounded queue has limited capacity. A correct system must not silently corrupt order; it should block, wait, reject, or drop according to the specified policy.",
+      "explanation_peer": "When the line is full, you either wait or follow the rules for what happens next."
+    },
+    {
+      "id": "mcq_11",
+      "question": "What is the amortized time complexity of enqueue and dequeue in a queue implemented with two stacks?",
+      "options": [
+        "O(1) amortized",
+        "O(n) for every operation",
+        "O(log n)",
+        "O(n^2)"
+      ],
+      "answer": "O(1) amortized",
+      "hint_teacher": "Analyze how many times each element is pushed and popped across many operations.",
+      "hint_peer": "Sometimes a transfer is expensive, but each item gets moved only a few times overall.",
+      "explanation_teacher": "One stack handles enqueue and the other handles dequeue. Although a batch transfer may cost O(n), each element is moved at most once between stacks over many operations, giving O(1) amortized cost.",
+      "explanation_peer": "Two stacks can fake a queue, and the average cost stays constant."
+    },
+    {
+      "id": "mcq_12",
+      "question": "Which data structure is the standard choice for finding the shortest path in an unweighted graph?",
+      "options": [
+        "Stack",
+        "Queue",
+        "Hash set",
+        "Binary search tree only"
+      ],
+      "answer": "Queue",
+      "hint_teacher": "Shortest path in an unweighted graph depends on exploring vertices by increasing edge count.",
+      "hint_peer": "To reach the closest places first, use a line, not a pile.",
+      "explanation_teacher": "In an unweighted graph, the first time a vertex is reached is along a shortest path in number of edges. Queueing vertices ensures paths are explored by increasing length.",
+      "explanation_peer": "BFS for shortest paths uses a queue because nearest layers come first."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Which implementation mistake is most likely to break a circular queue?",
+      "options": [
+        "Ignoring modulo arithmetic when advancing front or rear",
+        "Maintaining a size counter",
+        "Using separate front and rear indices",
+        "Checking whether the queue is empty"
+      ],
+      "answer": "Ignoring modulo arithmetic when advancing front or rear",
+      "hint_teacher": "Circular queues rely on wraparound behavior at array boundaries.",
+      "hint_peer": "If you forget to wrap around, your queue falls off the end of the array.",
+      "explanation_teacher": "Circular queues depend on correct wraparound. Forgetting modulo when moving front or rear can leave indices outside the array or make the full and empty logic inconsistent.",
+      "explanation_peer": "The wraparound is the whole point of a circular queue."
+    },
+    {
+      "id": "mcq_14",
+      "question": "Why are locks, semaphores, or atomic operations needed in a shared multithreaded queue?",
+      "options": [
+        "To improve cache locality",
+        "To prevent race conditions and lost updates between producers and consumers",
+        "To change FIFO behavior into LIFO behavior",
+        "To reduce the queue size to zero"
+      ],
+      "answer": "To prevent race conditions and lost updates between producers and consumers",
+      "hint_teacher": "Consider concurrent updates to front, rear, and size.",
+      "hint_peer": "If two threads edit the line at the same time, things can get mixed up.",
+      "explanation_teacher": "Multiple threads can interleave operations. Without synchronization, two threads may read or update front, rear, or size concurrently and lose items or observe invalid states.",
+      "explanation_peer": "Shared queues need protection so simultaneous operations do not corrupt the line."
+    },
+    {
+      "id": "mcq_15",
+      "question": "What is the main auxiliary space complexity of a queue storing n elements?",
+      "options": [
+        "O(1)",
+        "O(n)",
+        "O(log n)",
+        "O(n^2)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "Count the storage required for the elements currently in the abstract data type.",
+      "hint_peer": "If there are n people in line, you need space for n people.",
+      "explanation_teacher": "Each stored element requires a node or array slot, so memory grows linearly with n. The front, rear, and size metadata are constant size.",
+      "explanation_peer": "A queue with n items needs space proportional to n."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Design a Basic Queue",
+      "difficulty": "Easy",
+      "statement": "Design a Queue class that supports enqueue, dequeue, front, and is_empty. The queue must preserve FIFO order. If dequeue or front is called on an empty queue, return None.",
+      "examples": [
+        {
+          "input": "Queue q = new Queue(); q.enqueue(10); q.enqueue(20); q.front(); q.dequeue(); q.front(); q.is_empty()",
+          "output": "[10, 10, 20, false]",
+          "explanation": "The first value inserted is the first value removed, and the queue is not empty after one removal."
+        },
+        {
+          "input": "Queue q = new Queue(); q.dequeue(); q.is_empty()",
+          "output": "[None, true]",
+          "explanation": "The queue starts empty, so dequeue returns None and is_empty returns true."
+        }
+      ],
+      "constraints": [
+        "Up to 100000 operations",
+        "Values are integers or comparable objects depending on language",
+        "Return None for dequeue or front on an empty queue",
+        "Memory should be proportional to the number of stored elements"
+      ],
+      "hint1_teacher": "Use two endpoints: append at the rear and remove from the front.",
+      "hint1_peer": "Treat it like a line: people enter at the back and leave from the front.",
+      "hint2_teacher": "For the optimal version, choose a structure with O(1) insertion at one end and O(1) removal at the other.",
+      "hint2_peer": "Python lists are okay for learning, but deque is the fast built-in line.",
+      "solution_regular": {
+        "approach": "Use a Python list as storage. append adds to the rear in O(1), but pop(0) shifts remaining items, so dequeue is O(n).",
+        "code": "class Queue:\n    def __init__(self):\n        self.items = []\n\n    def enqueue(self, value):\n        self.items.append(value)\n\n    def dequeue(self):\n        if not self.items:\n            return None\n        return self.items.pop(0)\n\n    def front(self):\n        if not self.items:\n            return None\n        return self.items[0]\n\n    def is_empty(self):\n        return len(self.items) == 0",
+        "time": "O(1) for enqueue, front, and is_empty; O(n) for dequeue",
+        "space": "O(n) for stored items"
+      },
+      "solution_optimal": {
+        "approach": "Use collections.deque, which supports append at the rear and popleft from the front in O(1) time.",
+        "code": "from collections import deque\n\nclass Queue:\n    def __init__(self):\n        self.items = deque()\n\n    def enqueue(self, value):\n        self.items.append(value)\n\n    def dequeue(self):\n        if not self.items:\n            return None\n        return self.items.popleft()\n\n    def front(self):\n        if not self.items:\n            return None\n        return self.items[0]\n\n    def is_empty(self):\n        return len(self.items) == 0",
+        "time": "O(1) for enqueue, dequeue, front, and is_empty",
+        "space": "O(n) for stored items"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Sliding Window Maximum",
+      "difficulty": "Medium",
+      "statement": "Given an integer array nums and a window size k, return an array containing the maximum value in each contiguous subarray of length k. The window moves one position to the right at a time.",
+      "examples": [
+        {
+          "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+          "output": "[3,3,5,5,6,7]",
+          "explanation": "The windows are [1,3,-1], [3,-1,-3], [-1,-3,5], [-3,5,3], [5,3,6], and [3,6,7]. Their maxima are 3, 3, 5, 5, 6, and 7."
+        },
+        {
+          "input": "nums = [1,-1], k = 1",
+          "output": "[1,-1]",
+          "explanation": "Each window has size 1, so every element is its own maximum."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 100000",
+        "-10^4 <= nums[i] <= 10^4",
+        "1 <= k <= nums.length",
+        "Return the maxima in left-to-right window order"
+      ],
+      "hint1_teacher": "A brute-force solution scans each window independently.",
+      "hint1_peer": "For every window, just ask which number is biggest.",
+      "hint2_teacher": "For the optimal solution, maintain candidate indices in a deque in decreasing value order and discard indices outside the window.",
+      "hint2_peer": "Keep only numbers that could still win; if a newer number is bigger, older smaller ones are useless.",
+      "solution_regular": {
+        "approach": "Check every window with a nested loop. For each starting index i, scan i through i plus k minus 1 and append the largest value.",
+        "code": "def max_sliding_window(nums, k):\n    if not nums or k <= 0:\n        return []\n\n    result = []\n    for i in range(len(nums) - k + 1):\n        current_max = nums[i]\n        for j in range(i + 1, i + k):\n            if nums[j] > current_max:\n                current_max = nums[j]\n        result.append(current_max)\n\n    return result",
+        "time": "O(nk), where n is nums.length",
+        "space": "O(n - k + 1) for output"
+      },
+      "solution_optimal": {
+        "approach": "Use a monotonic decreasing deque of indices. Before adding a new index, remove indices that fell out of the window and remove back indices whose values are less than or equal to the new value. The front index is the maximum for the current window.",
+        "code": "from collections import deque\n\ndef max_sliding_window(nums, k):\n    if not nums or k <= 0:\n        return []\n\n    q = deque()\n    result = []\n\n    for i, value in enumerate(nums):\n        while q and q[0] <= i - k:\n            q.popleft()\n\n        while q and nums[q[-1]] <= value:\n            q.pop()\n\n        q.append(i)\n\n        if i >= k - 1:\n            result.append(nums[q[0]])\n\n    return result",
+        "time": "O(n), because each index is added and removed at most once",
+        "space": "O(k) for the deque plus O(n - k + 1) for output"
+      }
+    }
+  ]
+}

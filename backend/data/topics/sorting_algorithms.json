@@ -1,0 +1,383 @@
+{
+  "topic": "Sorting Algorithms",
+  "overview": {
+    "what_is_it": "Sorting algorithms rearrange items into a defined order, usually ascending or descending, according to a comparison key or counting rule.",
+    "why_it_matters": "They make searching, merging, ranking, duplicate detection, and data presentation faster and more organized.",
+    "core_idea": "Repeatedly compare, partition, insert, merge, or bucket elements until every item is in its final relative position.",
+    "time_complexity": "Comparison sorts are O(n log n) optimal on average or worst case, simple quadratic sorts are O(n^2), and counting/radix/bucket sort can be near O(n) when key constraints are favorable.",
+    "space_complexity": "In-place sorts use O(1) extra space, heap sort uses O(1), merge sort uses O(n), and counting/radix/bucket sort use O(n+k) or O(n+b) extra space.",
+    "when_to_use": [
+      "Use comparison sorts such as merge sort, heap sort, or quicksort when you need general-purpose ordering for arbitrary comparable data.",
+      "Use counting, radix, or bucket sort when keys are integers, strings, or bounded ranges that allow linear-time non-comparison sorting.",
+      "Use stable sorting when equal keys must preserve their original relative order, such as multi-pass ordering by multiple fields."
+    ],
+    "common_mistakes": [
+      "Assuming all sorting algorithms are stable or in-place without checking the specific algorithm.",
+      "Choosing quicksort without considering worst-case inputs or pivot strategy.",
+      "Using comparison sorting when counting, radix, or bucket sorting would be faster under bounded-key constraints.",
+      "Forgetting to handle empty arrays, duplicate keys, negative values, or off-by-one partition indices."
+    ]
+  },
+  "pseudocode": "MERGE_SORT(A):\n    if length(A) <= 1:\n        return A\n    mid = length(A) // 2\n    left = MERGE_SORT(A[0 ... mid-1])\n    right = MERGE_SORT(A[mid ... end])\n    return MERGE(left, right)\n\nMERGE(left, right):\n    result = empty array\n    i = 0\n    j = 0\n    while i < length(left) and j < length(right):\n        if left[i] <= right[j]:\n            append left[i] to result\n            i = i + 1\n        else:\n            append right[j] to result\n            j = j + 1\n    append remaining items from left to result\n    append remaining items from right to result\n    return result",
+  "real_world_usage": [
+    {
+      "use_case": "Database query ordering",
+      "description": "Databases sort rows for ORDER BY clauses, merge joins, index construction, and reporting."
+    },
+    {
+      "use_case": "Search engines and recommendation systems",
+      "description": "Results are sorted by relevance score, freshness, rating, or business rules before being shown to users."
+    },
+    {
+      "use_case": "Financial transaction processing",
+      "description": "Transactions are sorted by timestamp or account ID to detect duplicates, reconcile balances, and generate statements."
+    },
+    {
+      "use_case": "Log analysis and file deduplication",
+      "description": "Large logs or file hashes are sorted so equal or nearby values become adjacent and can be processed efficiently."
+    },
+    {
+      "use_case": "Task scheduling",
+      "description": "Jobs, packets, or requests can be sorted by priority, deadline, or processing time to optimize system behavior."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "sorted order",
+      "ascending",
+      "descending",
+      "stable",
+      "in-place",
+      "partition",
+      "merge",
+      "pivot",
+      "kth smallest",
+      "top k",
+      "frequency count",
+      "bounded range",
+      "external sort"
+    ],
+    "patterns": [
+      "Sort first, then scan adjacent pairs or use two pointers.",
+      "Sort by a custom key or multiple keys.",
+      "Divide the array, sort each half, and merge sorted subarrays.",
+      "Partition around a pivot and recursively sort partitions.",
+      "Count frequencies when keys are bounded.",
+      "Use a heap or bucket structure when only top/bottom k or grouped ranges are needed."
+    ],
+    "constraints": [
+      "n up to 10^5 or 10^6 usually requires O(n log n) or linear-time special sorting.",
+      "Memory-limited problems favor in-place algorithms such as heap sort or partition-based quicksort.",
+      "Stable ordering is required when equal keys must keep original order.",
+      "Bounded integer or string keys may allow counting, radix, or bucket sorting.",
+      "Data too large for RAM implies external sorting or streaming techniques."
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which statement best describes a stable sorting algorithm?",
+      "options": [
+        "It always runs in O(n log n) time.",
+        "It uses no extra memory.",
+        "It preserves the original relative order of equal keys.",
+        "It can only sort integers."
+      ],
+      "answer": "It preserves the original relative order of equal keys.",
+      "hint_teacher": "Recall the formal definition of stability in terms of equal-key records.",
+      "hint_peer": "Stable means ties do not get shuffled around.",
+      "explanation_teacher": "A sorting algorithm is stable if, whenever two elements compare equal, their relative order in the output is the same as in the input. Stability matters when sorting records by multiple fields or when the original order carries meaning.",
+      "explanation_peer": "If two students have the same score, a stable sort keeps them in the same order they appeared before."
+    },
+    {
+      "id": "mcq_2",
+      "question": "For arbitrary comparable keys, why is O(n log n) considered the best possible worst-case bound for comparison sorting?",
+      "options": [
+        "Every algorithm must compare each pair of elements.",
+        "There are n! possible input permutations, and a binary decision tree needs height at least log2(n!).",
+        "All sorting algorithms copy the input into a balanced tree.",
+        "The CPU can only perform logarithmic comparisons."
+      ],
+      "answer": "There are n! possible input permutations, and a binary decision tree needs height at least log2(n!).",
+      "hint_teacher": "Use the comparison decision tree model and count the number of possible sorted outcomes.",
+      "hint_peer": "There are a huge number of possible orderings, so the algorithm needs enough yes/no comparisons to distinguish them.",
+      "explanation_teacher": "A comparison sort can be modeled as a decision tree where each comparison has two outcomes. Since there are n! possible permutations, the tree must have at least n! leaves. A binary tree with height h has at most 2^h leaves, so h >= log2(n!), which is Omega(n log n).",
+      "explanation_peer": "You cannot reliably sort random items faster than asking enough yes/no questions to identify the correct ordering."
+    },
+    {
+      "id": "mcq_3",
+      "question": "Which pivot behavior causes classic quicksort to degrade to O(n^2) time?",
+      "options": [
+        "Pivot splits the array into two equal halves each time.",
+        "Pivot is chosen randomly.",
+        "Pivot is repeatedly the smallest or largest remaining element.",
+        "Pivot is always the median."
+      ],
+      "answer": "Pivot is repeatedly the smallest or largest remaining element.",
+      "hint_teacher": "Analyze the recurrence when partitioning is maximally unbalanced.",
+      "hint_peer": "Bad pivots make one side almost the whole array every time.",
+      "explanation_teacher": "If quicksort repeatedly chooses the smallest or largest element as pivot, one partition has size 0 and the other has size n-1. The recurrence becomes T(n) = T(n-1) + O(n), which sums to O(n^2).",
+      "explanation_peer": "It becomes like removing one item at a time instead of cutting the problem in half."
+    },
+    {
+      "id": "mcq_4",
+      "question": "In merge sort, when does the merge step preserve stability?",
+      "options": [
+        "When the right element is copied whenever keys are equal.",
+        "When the left element is copied whenever keys are equal.",
+        "When both halves are sorted descending.",
+        "When no temporary array is used."
+      ],
+      "answer": "When the left element is copied whenever keys are equal.",
+      "hint_teacher": "During merging, compare the tie-breaking rule with the original order of the two halves.",
+      "hint_peer": "Pick the left one on ties to avoid moving equal items ahead of each other.",
+      "explanation_teacher": "In merge sort, the left half contains elements that appeared before the right half in the original array. If equal keys occur, copying from the left half first preserves their original relative order, making the merge stable.",
+      "explanation_peer": "On a tie, take the one that was already earlier."
+    },
+    {
+      "id": "mcq_5",
+      "question": "What is the typical auxiliary space complexity of heap sort?",
+      "options": [
+        "O(n)",
+        "O(log n)",
+        "O(1)",
+        "O(n log n)"
+      ],
+      "answer": "O(1)",
+      "hint_teacher": "Heap sort builds and repairs the heap inside the input array.",
+      "hint_peer": "Heap sort is famous for being an in-place O(n log n) comparison sort.",
+      "explanation_teacher": "Heap sort uses the input array itself to represent the heap and performs swaps in place. Apart from a few loop variables, it does not require extra arrays, so its auxiliary space is O(1).",
+      "explanation_peer": "No big helper array is needed; it rearranges the original array directly."
+    },
+    {
+      "id": "mcq_6",
+      "question": "Counting sort is most appropriate when:",
+      "options": [
+        "The input is already reverse sorted.",
+        "Elements are arbitrary objects with only a less-than comparator.",
+        "The key range k is small relative to n.",
+        "The input must be sorted using only comparisons."
+      ],
+      "answer": "The key range k is small relative to n.",
+      "hint_teacher": "Counting sort depends on the range of possible key values, not just the number of elements.",
+      "hint_peer": "It works great when the numbers live in a small bucket range.",
+      "explanation_teacher": "Counting sort counts occurrences of each key in a frequency array of size k. Its time is O(n+k), so it is efficient when k is not too large compared with n. It is not a general comparison sort for arbitrary objects.",
+      "explanation_peer": "If you have a million numbers but they are only from 0 to 9, counting sort is a strong choice."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Insertion sort performs especially well when:",
+      "options": [
+        "The array is small or nearly sorted.",
+        "The array contains only unique values.",
+        "The array is stored on disk.",
+        "The array length is extremely large and random."
+      ],
+      "answer": "The array is small or nearly sorted.",
+      "hint_teacher": "Consider the number of inversions and the cost of shifting elements.",
+      "hint_peer": "Insertion sort is like sorting playing cards; it is easy when the cards are already close to sorted.",
+      "explanation_teacher": "Insertion sort runs in O(n+d), where d is the number of inversions. If the array is nearly sorted, d is small, making insertion sort efficient. It also has low overhead, which helps on small arrays.",
+      "explanation_peer": "If everything is almost in place, insertion sort only needs a few small moves."
+    },
+    {
+      "id": "mcq_8",
+      "question": "Which characteristic is true of selection sort?",
+      "options": [
+        "It is stable by default in all implementations.",
+        "It performs O(n) swaps but O(n^2) comparisons.",
+        "It is faster than merge sort on large random arrays.",
+        "It requires O(n) auxiliary space."
+      ],
+      "answer": "It performs O(n) swaps but O(n^2) comparisons.",
+      "hint_teacher": "Selection sort repeatedly selects the minimum element and swaps it into its final position.",
+      "hint_peer": "It checks a lot but swaps only once per position.",
+      "explanation_teacher": "Selection sort scans the unsorted portion to find the minimum element in each pass, requiring O(n^2) comparisons. It performs at most one swap per pass, so the number of swaps is O(n).",
+      "explanation_peer": "It is slow because it keeps searching, but it does not move items around very often."
+    },
+    {
+      "id": "mcq_9",
+      "question": "For radix sort on n integers with d digits and base b, a typical time complexity is:",
+      "options": [
+        "O(n^2)",
+        "O(d log n)",
+        "O(d(n + b))",
+        "O(log_b n)"
+      ],
+      "answer": "O(d(n + b))",
+      "hint_teacher": "Radix sort usually applies a stable counting sort once per digit.",
+      "hint_peer": "Each digit pass costs about O(n+b), and there are d digit passes.",
+      "explanation_teacher": "Radix sort processes each of the d digit positions. If each pass uses counting sort with base b, one pass costs O(n+b), so the total time is O(d(n+b)).",
+      "explanation_peer": "Think of sorting by ones place, then tens place, then hundreds place, and so on."
+    },
+    {
+      "id": "mcq_10",
+      "question": "You need records sorted primarily by department and secondarily by salary. Which stable-sorting strategy is correct?",
+      "options": [
+        "Sort by department only, because salary will automatically be correct.",
+        "Sort by salary first, then sort by department using a stable sort.",
+        "Sort by department first, then sort by salary using a stable sort.",
+        "Use selection sort because it is stable."
+      ],
+      "answer": "Sort by salary first, then sort by department using a stable sort.",
+      "hint_teacher": "For stable multi-key sorting, sort by the least significant key first.",
+      "hint_peer": "Do the tie-breaker first, then the main key last.",
+      "explanation_teacher": "If department is the primary key and salary is the secondary key, a stable sort should first order by salary and then stably order by department. The second stable sort preserves salary order within each department.",
+      "explanation_peer": "Last stable sort wins for the main category, while earlier sort order survives inside ties."
+    },
+    {
+      "id": "mcq_11",
+      "question": "What is the best-case time complexity of bubble sort with an early-exit optimization?",
+      "options": [
+        "O(n^2)",
+        "O(n)",
+        "O(log n)",
+        "O(n log n)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "An early-exit optimization detects whether a full pass made no swaps.",
+      "hint_peer": "If the list is already sorted, bubble sort can notice after one pass.",
+      "explanation_teacher": "Bubble sort with a swapped flag stops after one pass if no swaps occur. On an already sorted array, this requires one linear scan, so the best-case time complexity is O(n).",
+      "explanation_peer": "Already sorted means bubble sort can say, nothing moved, so we are done."
+    },
+    {
+      "id": "mcq_12",
+      "question": "Why must a custom comparator used for sorting be transitive?",
+      "options": [
+        "Transitivity guarantees the sort can use counting sort.",
+        "Transitivity makes the algorithm stable.",
+        "Transitivity reduces space complexity to O(1).",
+        "Without transitivity, the ordering can be inconsistent and sorting behavior may be undefined or incorrect."
+      ],
+      "answer": "Without transitivity, the ordering can be inconsistent and sorting behavior may be undefined or incorrect.",
+      "hint_teacher": "A valid total order must be reflexive, antisymmetric, and transitive.",
+      "hint_peer": "If A < B and B < C but C < A, the sort cannot know what correct order means.",
+      "explanation_teacher": "Sorting algorithms assume the comparator defines a consistent order. If transitivity fails, the algorithm may produce contradictory decisions, leading to undefined behavior, incorrect output, or nontermination in some implementations.",
+      "explanation_peer": "A broken comparator gives the sort a confusing rulebook."
+    },
+    {
+      "id": "mcq_13",
+      "question": "External sorting is mainly used when:",
+      "options": [
+        "The dataset is too large to fit in main memory.",
+        "The array contains only strings.",
+        "The algorithm must be stable.",
+        "The input is already sorted."
+      ],
+      "answer": "The dataset is too large to fit in main memory.",
+      "hint_teacher": "External sorting uses disk or other secondary storage as part of the sorting process.",
+      "hint_peer": "External means the data does not all fit in RAM.",
+      "explanation_teacher": "External sorting is designed for massive datasets that exceed available memory. It typically sorts manageable chunks in memory, writes sorted runs to disk, and then merges those runs.",
+      "explanation_peer": "It is the strategy for sorting files that are too huge to load at once."
+    },
+    {
+      "id": "mcq_14",
+      "question": "Which description best matches Timsort?",
+      "options": [
+        "An in-place heap-based sort with O(1) extra space.",
+        "A randomized quicksort variant that always chooses a random pivot.",
+        "A stable hybrid sort that exploits existing ordered runs and is used in Python and Java libraries.",
+        "A non-comparison sort that only works for non-negative integers."
+      ],
+      "answer": "A stable hybrid sort that exploits existing ordered runs and is used in Python and Java libraries.",
+      "hint_teacher": "Timsort combines ideas from merge sort and insertion sort and is adaptive to existing order.",
+      "hint_peer": "Python's built-in sort is Timsort.",
+      "explanation_teacher": "Timsort is a stable, adaptive, hybrid sorting algorithm. It detects naturally occurring runs, extends short runs with insertion sort, and merges runs using merge-sort-like logic. It is used in Python's list.sort and Java's object sorting APIs.",
+      "explanation_peer": "It is smart because it takes advantage when the data is already partly sorted."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which algorithm is not based primarily on comparisons between elements?",
+      "options": [
+        "Merge sort",
+        "Counting sort",
+        "Heap sort",
+        "Quicksort"
+      ],
+      "answer": "Counting sort",
+      "hint_teacher": "Identify the algorithm that uses key frequencies rather than pairwise comparisons.",
+      "hint_peer": "Counting sort counts buckets instead of comparing every item directly.",
+      "explanation_teacher": "Counting sort is a non-comparison sorting algorithm. It counts how many times each key appears and uses prefix sums to place elements, allowing O(n+k) time when the key range k is manageable.",
+      "explanation_peer": "Merge, heap, and quicksort compare items; counting sort counts them."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Sort Binary Array",
+      "difficulty": "Easy",
+      "statement": "Given a binary array nums containing only 0s and 1s, return the array sorted in nondecreasing order so that all 0s appear before all 1s.",
+      "examples": [
+        {
+          "input": "nums = [1, 0, 1, 0, 1]",
+          "output": "nums = [0, 0, 1, 1, 1]",
+          "explanation": "All zeros are placed before all ones."
+        },
+        {
+          "input": "nums = [0, 0, 0]",
+          "output": "nums = [0, 0, 0]",
+          "explanation": "The array is already sorted."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 10^5",
+        "Each nums[i] is either 0 or 1.",
+        "Return the sorted array in nondecreasing order."
+      ],
+      "hint1_teacher": "Because the domain contains only two values, count the number of zeros and reconstruct the sorted array.",
+      "hint1_peer": "Just count how many 0s there are, then write that many 0s followed by 1s.",
+      "hint2_teacher": "For an in-place linear-time solution, use a two-pointer partition similar to the Dutch National Flag technique.",
+      "hint2_peer": "Keep a left pointer looking for 1s and a right pointer looking for 0s, then swap them.",
+      "solution_regular": {
+        "approach": "Count the number of zeros, compute the number of ones, and build a new sorted array.",
+        "code": "def solve(nums):\n    zeros = nums.count(0)\n    ones = len(nums) - zeros\n    return [0] * zeros + [1] * ones\n",
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "solution_optimal": {
+        "approach": "Use two pointers to partition the array in place: move 0s toward the left and 1s toward the right.",
+        "code": "def solve(nums):\n    left = 0\n    right = len(nums) - 1\n\n    while left < right:\n        while left < right and nums[left] == 0:\n            left += 1\n        while left < right and nums[right] == 1:\n            right -= 1\n        if left < right:\n            nums[left], nums[right] = nums[right], nums[left]\n            left += 1\n            right -= 1\n\n    return nums\n",
+        "time": "O(n)",
+        "space": "O(1)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Sort an Array",
+      "difficulty": "Medium",
+      "statement": "Given an integer array nums, return the array sorted in ascending order without using built-in sorting functions.",
+      "examples": [
+        {
+          "input": "nums = [5, 2, 3, 1]",
+          "output": "nums = [1, 2, 3, 5]",
+          "explanation": "The integers are rearranged in ascending order."
+        },
+        {
+          "input": "nums = [-1, 3, -1, 2]",
+          "output": "nums = [-1, -1, 2, 3]",
+          "explanation": "Duplicate values are preserved and negative values are sorted correctly."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 5 * 10^4",
+        "-5 * 10^4 <= nums[i] <= 5 * 10^4",
+        "The returned array must be sorted in nondecreasing order."
+      ],
+      "hint1_teacher": "Use a divide-and-conquer sorting algorithm such as merge sort to guarantee O(n log n) time.",
+      "hint1_peer": "Split the array in half, sort both halves, then merge them like two sorted piles of cards.",
+      "hint2_teacher": "Avoid worst-case quicksort behavior by using a guaranteed comparison sort or careful pivot randomization.",
+      "hint2_peer": "Built-in sort is easy, but merge sort shows the algorithmic idea and avoids bad pivot cases.",
+      "solution_regular": {
+        "approach": "Use insertion sort for clarity. It repeatedly inserts each element into its correct position among the already sorted prefix.",
+        "code": "def solve(nums):\n    arr = nums\n\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n\n        while j >= 0 and arr[j] > key:\n            arr[j + 1] = arr[j]\n            j -= 1\n\n        arr[j + 1] = key\n\n    return arr\n",
+        "time": "O(n^2)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "Use merge sort with a temporary array. Recursively sort halves, then merge them while preserving order.",
+        "code": "def solve(nums):\n    temp = [0] * len(nums)\n\n    def merge(lo, mid, hi):\n        i = lo\n        j = mid\n        k = lo\n\n        while i < mid and j < hi:\n            if nums[i] <= nums[j]:\n                temp[k] = nums[i]\n                i += 1\n            else:\n                temp[k] = nums[j]\n                j += 1\n            k += 1\n\n        while i < mid:\n            temp[k] = nums[i]\n            i += 1\n            k += 1\n\n        while j < hi:\n            temp[k] = nums[j]\n            j += 1\n            k += 1\n\n        for idx in range(lo, hi):\n            nums[idx] = temp[idx]\n\n    def sort(lo, hi):\n        if hi - lo <= 1:\n            return\n\n        mid = (lo + hi) // 2\n        sort(lo, mid)\n        sort(mid, hi)\n\n        if nums[mid - 1] <= nums[mid]:\n            return\n\n        merge(lo, mid, hi)\n\n    sort(0, len(nums))\n    return nums\n",
+        "time": "O(n log n)",
+        "space": "O(n)"
+      }
+    }
+  ]
+}

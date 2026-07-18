@@ -1,0 +1,156 @@
+[
+  {
+    "severity": "CRITICAL",
+    "file": "backend/.env",
+    "lines": "entire file",
+    "issue": "Secrets committed to repository (GEMINI_API_KEY, DATABASE_URL, API keys)",
+    "repro_steps": "Open backend/.env in repository and inspect values.",
+    "suggested_fix": "Rotate/revoke exposed keys immediately; remove backend/.env from repo; add to .gitignore; use secret manager; provide backend/.env.example.",
+    "status": "open"
+  },
+  {
+    "severity": "CRITICAL",
+    "file": "backend/app.py",
+    "lines": "~520-980",
+    "issue": "Arbitrary code execution risk: execute_code_locally runs user code without sandboxing; execute_code_via_piston silently falls back to local execution when Judge0 not configured.",
+    "repro_steps": "Call POST /api/code/execute-raw or /api/code/run with code that reads files or performs network requests when Judge0 unset; observe host-side effects.",
+    "suggested_fix": "Disable local execution fallback in production; require ALLOW_LOCAL_EXECUTION env opt-in; use an isolated runner (Judge0 or containerized sandbox with seccomp, cgroups, network disabled); enforce auth and rate limits on execution endpoints.",
+    "status": "open"
+  },
+  {
+    "severity": "CRITICAL",
+    "file": "backend/app.py",
+    "lines": "~880-920",
+    "issue": "/api/code/execute-raw accepted arbitrary files and executed them without auth, rate-limits or size caps (RCE + DoS).",
+    "repro_steps": "POST a Python file containing system calls or large payload to /api/code/execute-raw and observe execution.",
+    "suggested_fix": "Require API key dependency; add rate limiting and payload size limits; reject execution when Judge0 not configured; return 503 when execution unavailable. (Patched in repo.)",
+    "status": "mitigated (patched)",
+    "notes": "Endpoint now requires API key and returns 503 if execution service unavailable."
+  },
+  {
+    "severity": "CRITICAL",
+    "file": "backend/auth.py",
+    "lines": "1-40",
+    "issue": "API key handling used plain equality and defaulted to empty string; misconfiguration returned 500; non-constant-time compare.",
+    "repro_steps": "Unset API_SECRET_KEY and call protected endpoint -> returns 500; probe for timing differences when validating keys.",
+    "suggested_fix": "Fail fast when API_SECRET_KEY missing in deployment; use hmac.compare_digest for constant-time comparison; return 401 for invalid keys. (Patched in repo.)",
+    "status": "mitigated (patched)"
+  },
+  {
+    "severity": "HIGH",
+    "file": "backend/placement_assessment_system/api.py",
+    "lines": "multiple (~1-800)",
+    "issue": "Multiple issues: undefined variables used when saving submits (mcqAnswers/codingSubmissions), unsanitized LLM translation and hinting, DDL auto-migrations in request path.",
+    "repro_steps": "POST /api/assessment/submit with normal payload -> server error; invoke translation/hint with large code -> LLM call; call endpoints with restricted DB role -> migration DDL may fail.",
+    "suggested_fix": "Replace undefined variables with req.answers/req.coding_submissions or sanitized objects; enforce input size limits and sanitize before LLM calls; move migrations to Alembic/startup migration jobs and avoid DDL during request handling.",
+    "status": "open"
+  },
+  {
+    "severity": "HIGH",
+    "file": "backend/rag/retriever.py",
+    "lines": "~1-200",
+    "issue": "Similarity threshold likely misconfigured (SIMILARITY_THRESHOLD=1.3) and no retry/backoff on embedding calls.",
+    "repro_steps": "Call retrieve_context() for a relevant query and observe empty or incorrect results; revoke GEMINI key and observe unhandled exceptions.",
+    "suggested_fix": "Confirm embedding distance/similarity metric scale and set appropriate threshold; add try/except around gemini embedding calls with retry/backoff and graceful fallback (cached embeddings).",
+    "status": "open"
+  },
+  {
+    "severity": "HIGH",
+    "file": "backend/rag/generator.py",
+    "lines": "~1-200",
+    "issue": "Model client uses global api_key and returns model outputs with little sanitization; errors expose misconfiguration.",
+    "repro_steps": "Call RAG endpoints with missing/invalid key and observe exceptions; call with prompt that may trigger code fence returns and see unsanitized content.",
+    "suggested_fix": "Centralize model client creation with robust error handling; sanitize/strip code fences and unsafe content before returning or persisting; log provenance and timestamp.",
+    "status": "open"
+  },
+  {
+    "severity": "HIGH",
+    "file": "backend/app.py",
+    "lines": "~1068-1120",
+    "issue": "Fragile result comparisons: direct stdout == expected equality is brittle to whitespace and canonicalization.",
+    "repro_steps": "Provide test where expected is 'Hello' and actual 'Hello\n' -> marked failed.",
+    "suggested_fix": "Normalize outputs before comparison: trim, normalize newlines, JSON-compare where applicable, and canonicalize expected values. Add per-language normalization helpers.",
+    "status": "open"
+  },
+  {
+    "severity": "HIGH",
+    "file": "backend/scraper/create_embeddings.py",
+    "lines": "entire file",
+    "issue": "Embeddings computed locally with SentenceTransformer model; resource-intensive and unbounded (RAM/CPU).",
+    "repro_steps": "Run embedding script on large corpus -> high memory usage and potential OOM.",
+    "suggested_fix": "Run embedding generation offline in controlled batch workers with limits; or use managed embedding service; add batching and per-item try/except.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "backend/scraper/download_book.py",
+    "lines": "entire file",
+    "issue": "Crawler writes files to disk following relative links without path normalization; no robots.txt handling or robust politeness checks.",
+    "repro_steps": "If a crawled page contains crafted relative paths, crawler may write outside intended directory; uncontrolled crawl may overload target site.",
+    "suggested_fix": "Resolve and validate paths (Path.resolve()) ensuring they are inside output_dir; respect robots.txt; cap depth/rate and run off-line as a controlled job.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "backend/scraper/book_parser.py",
+    "lines": "entire file",
+    "issue": "Parses HTML and writes plain JSON; may retain HTML-derived text that could be used unsafely in frontend (XSS) if later rendered with innerHTML.",
+    "repro_steps": "Parse HTML input with malicious content and later render in frontend using dangerouslySetInnerHTML -> XSS.",
+    "suggested_fix": "Store plain-text only, escape HTML, or ensure frontend always sanitizes before rendering; avoid dangerouslySetInnerHTML for untrusted content.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "backend/scraper/store_embeddings.py",
+    "lines": "entire file",
+    "issue": "Deletes and recreates ChromaDB collection unconditionally (risk of data loss) and inserts items one-by-one (inefficient).",
+    "repro_steps": "Run script -> old collection removed; slow insertion for wide dataset.",
+    "suggested_fix": "Use atomic create-and-swap pattern, batch inserts, and backup old collection before deletion.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "backend/utils/cache_manager.py",
+    "lines": "entire file",
+    "issue": "In-memory cache not thread/process-safe (no locks) and no eviction policy; unsafe in multi-worker deployments.",
+    "repro_steps": "Under concurrent access, race conditions may occur; multi-process deployment loses cache state.",
+    "suggested_fix": "Add threading.Lock around get/set or move to Redis/memcached for multi-process deployments; add max entries and LRU eviction.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "backend/check_rag.py",
+    "lines": "entire file",
+    "issue": "Connects to ChromaDB and prints documents without error handling; may leak or expose data in logs.",
+    "repro_steps": "Run script in production -> prints dataset to stdout/log.",
+    "suggested_fix": "Avoid printing sensitive data; add try/except; use config-driven paths; restrict execution to admin/maintenance runs.",
+    "status": "open"
+  },
+  {
+    "severity": "MEDIUM",
+    "file": "src/components/ui/chart.tsx",
+    "lines": "~70-110",
+    "issue": "Uses dangerouslySetInnerHTML to inject generated CSS variables; could be abused if config values come from untrusted sources.",
+    "repro_steps": "If chart `config` contains attacker-controlled values, CSS may inject unexpected content.",
+    "suggested_fix": "Validate/sanitize colors and ensure `config` cannot be populated from untrusted user input; whitelist accepted tokens or validate color strings.",
+    "status": "open"
+  },
+  {
+    "severity": "LOW",
+    "file": "src/utils/markdown.tsx",
+    "lines": "entire file",
+    "issue": "Custom markdown renderer implemented safely (no dangerouslySetInnerHTML).",
+    "repro_steps": "N/A",
+    "suggested_fix": "Continue to avoid rendering raw HTML. Consider adding more markdown features if needed.",
+    "status": "closed (info)"
+  },
+  {
+    "severity": "LOW",
+    "file": "package.json, backend/requirements.txt, backend/scraper/venv, dist/",
+    "lines": "n/a",
+    "issue": "Third-party dependencies present; repo contains committed virtualenv and build artifacts.",
+    "repro_steps": "Inspect repo -> backend/scraper/venv and dist/ directories present.",
+    "suggested_fix": "Remove venv and dist from repo, add to .gitignore; run `npm audit` and `pip-audit` (or safety) and remediate critical CVEs by upgrading/pinning.",
+    "status": "open"
+  }
+]

@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+google-generativeai
+chromadb
+
+beautifulsoup4
+requests
+pytest
+httpx
+slowapi
+psycopg2-binary

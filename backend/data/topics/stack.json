@@ -1,0 +1,391 @@
+{
+  "topic": "Stack",
+  "overview": {
+    "what_is_it": "A stack is a linear data structure that follows Last-In-First-Out order, where the most recently added element is the first one removed.",
+    "why_it_matters": "Stacks provide a simple and efficient way to manage order-dependent operations such as undo, expression evaluation, parsing, recursion, and depth-first traversal.",
+    "core_idea": "Think of a stack like a pile of plates: you add and remove from the top only.",
+    "time_complexity": "Push O(1), Pop O(1), Peek O(1), Search O(n), Iteration O(n); array-list implementation gives amortized O(1) push.",
+    "space_complexity": "O(n) for n stored elements; auxiliary stack space can be O(n) in the worst case.",
+    "when_to_use": [
+      "When the most recent item must be processed first, such as undo, browser back history, or function call tracking.",
+      "When matching nested or paired structures, such as parentheses, brackets, tags, or scopes.",
+      "When converting or evaluating expressions, such as infix to postfix or postfix evaluation.",
+      "When implementing depth-first search iteratively.",
+      "When maintaining a monotonic sequence of candidates for next greater, previous greater, or range-style problems."
+    ],
+    "common_mistakes": [
+      "Popping from an empty stack without checking for underflow.",
+      "Using a queue when the required processing order is Last-In-First-Out.",
+      "Forgetting to compare a closing delimiter with the most recent opening delimiter.",
+      "Keeping irrelevant elements in a monotonic stack instead of popping them when a stronger candidate arrives.",
+      "Assuming stack search is O(1) when arbitrary search is O(n)."
+    ]
+  },
+  "pseudocode": "CLASS Stack:\n  CREATE empty array items\n\n  FUNCTION push(x):\n    APPEND x to items\n\n  FUNCTION pop():\n    IF items is empty:\n      SIGNAL underflow error\n    RETURN REMOVE last item from items\n\n  FUNCTION peek():\n    IF items is empty:\n      SIGNAL empty stack error\n    RETURN last item in items\n\n  FUNCTION is_empty():\n    RETURN items has length 0\n\n  FUNCTION size():\n    RETURN length of items",
+  "real_world_usage": [
+    {
+      "use_case": "Function call management",
+      "description": "Programming languages use a call stack to store function frames, return addresses, and local state until each function returns."
+    },
+    {
+      "use_case": "Undo and redo systems",
+      "description": "Text editors and design tools use stacks to reverse the most recent user actions first."
+    },
+    {
+      "use_case": "Expression evaluation",
+      "description": "Compilers and calculators use stacks to evaluate postfix expressions and convert between expression formats."
+    },
+    {
+      "use_case": "Browser history",
+      "description": "A back button can be modeled with a stack of visited pages, where the latest page is popped to return to the previous one."
+    },
+    {
+      "use_case": "Depth-first search",
+      "description": "Iterative graph and tree traversal uses a stack to explore the newest discovered node before older candidates."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "LIFO",
+      "last in first out",
+      "push",
+      "pop",
+      "peek",
+      "top",
+      "balanced parentheses",
+      "undo",
+      "backtracking",
+      "call stack",
+      "expression evaluation",
+      "next greater",
+      "previous greater",
+      "monotonic stack",
+      "depth-first search"
+    ],
+    "patterns": [
+      "Need to process the most recent item before older items.",
+      "Need to match opening and closing delimiters in nested order.",
+      "Need to reverse the order of elements without using extra reversal logic.",
+      "Need to defer a decision until a future closing or boundary event occurs.",
+      "Need to maintain a decreasing or increasing sequence of candidate values."
+    ],
+    "constraints": [
+      "n can be large, so avoid repeated full scans when a monotonic stack can process each element once.",
+      "Nested depth may be large, so avoid naive recursion if call stack overflow is possible.",
+      "Input may contain invalid or unmatched symbols, so empty-stack checks are required.",
+      "All elements may be unique in next greater or previous greater problems, but duplicates should be handled explicitly if not guaranteed."
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which statement best captures the defining behavior of a stack?",
+      "options": [
+        "The first element inserted is always the first removed",
+        "The most recently inserted element is removed first",
+        "Elements are removed in random order",
+        "Elements are removed by priority"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Recall the formal ordering rule associated with stacks.",
+      "hint_peer": "LIFO means the last thing you put in is the first thing you take out.",
+      "explanation_teacher": "A stack follows Last-In-First-Out order. The element most recently pushed onto the stack is the first one available to be popped, because all stack operations occur at one end called the top.",
+      "explanation_peer": "Imagine a stack of plates. You put a new plate on top, and when you need one, you take the top plate first."
+    },
+    {
+      "id": "mcq_2",
+      "question": "In an array-based stack, where should push and pop occur to preserve O(1) operations?",
+      "options": [
+        "At the beginning of the array",
+        "At the end of the array",
+        "At the middle of the array",
+        "Anywhere, because all positions are equally efficient"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Consider which array operation avoids shifting existing elements.",
+      "hint_peer": "Appending to the end is usually cheap; inserting at the front makes everything move.",
+      "explanation_teacher": "If the top of the stack is represented by the end of an array or dynamic list, push is append and pop is remove-last, both of which are O(1) on average or amortized O(1). Pushing or popping at the beginning would require shifting elements.",
+      "explanation_peer": "Use the end like the top of a pile. Do not make the whole pile move every time."
+    },
+    {
+      "id": "mcq_3",
+      "question": "What is the worst-case time complexity of searching for an arbitrary value in a stack without destroying it?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "A stack gives fast access only to the top element, not arbitrary elements.",
+      "hint_peer": "If the value is buried at the bottom, you may need to inspect everything.",
+      "explanation_teacher": "Although push, pop, and peek are O(1), searching for an arbitrary value may require inspecting all n elements in the worst case. To preserve the stack, inspected elements would need to be pushed back after the search.",
+      "explanation_peer": "You can quickly see the top card, but finding a specific card may mean checking the whole deck."
+    },
+    {
+      "id": "mcq_4",
+      "question": "Which problem is most naturally modeled by a stack?",
+      "options": [
+        "Undoing the last action in a text editor",
+        "Finding the shortest path in an unweighted graph",
+        "Scheduling tasks by highest priority",
+        "Sorting an array using cyclic rotations"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Look for a situation where the latest action must be reversed first.",
+      "hint_peer": "Undo usually reverses your most recent move before older moves.",
+      "explanation_teacher": "Undo systems need Last-In-First-Out behavior because the most recent action is the first one that should be undone. Shortest path in an unweighted graph is more naturally BFS, priority scheduling uses a priority queue, and cyclic sorting is unrelated.",
+      "explanation_peer": "If you typed, deleted, then bolded text, undo should remove the bold action first."
+    },
+    {
+      "id": "mcq_5",
+      "question": "Starting with an empty stack, perform push(A), push(B), push(C), pop(), pop(), push(D), pop(). Which sequence is popped?",
+      "options": [
+        "A, B, D",
+        "C, B, D",
+        "C, D, B",
+        "B, C, D"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Simulate the operations one at a time and record only pop results.",
+      "hint_peer": "The stack becomes A, B, C from bottom to top, so C comes out first.",
+      "explanation_teacher": "After push(A), push(B), and push(C), the stack from bottom to top is A, B, C. The first pop removes C, the second removes B, push(D) adds D on top, and the final pop removes D. Thus the popped sequence is C, B, D.",
+      "explanation_peer": "Last in was C, then B, then D. So the popped order is C, B, D."
+    },
+    {
+      "id": "mcq_6",
+      "question": "For balanced parentheses checking, why does a stack work?",
+      "options": [
+        "Because parentheses must be processed in first-in-first-out order",
+        "Because every closing delimiter must match the most recent unmatched opening delimiter",
+        "Because stacks automatically sort delimiters by type",
+        "Because balanced strings always have even length and no other checks are needed"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Focus on the nested matching order of delimiters.",
+      "hint_peer": "In ([ ]), the ] has to close the [, not the (. The most recent opener matters.",
+      "explanation_teacher": "Balanced delimiter checking requires that each closing symbol matches the latest unmatched opening symbol. This is exactly the Last-In-First-Out behavior provided by a stack. Even length is necessary but not sufficient, as shown by strings like ([)].",
+      "explanation_peer": "The newest open bracket is waiting to be closed first, just like the top plate."
+    },
+    {
+      "id": "mcq_7",
+      "question": "What is stack underflow?",
+      "options": [
+        "Trying to push onto a full stack",
+        "Trying to pop from an empty stack",
+        "Trying to peek at the top element",
+        "Trying to allocate too much memory for the stack"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Underflow means attempting to remove from an empty structure.",
+      "hint_peer": "You cannot pop if there is nothing on top.",
+      "explanation_teacher": "Stack underflow occurs when a pop operation is attempted while the stack is empty. This is an invalid operation unless the implementation explicitly handles it with an error, exception, or sentinel value.",
+      "explanation_peer": "It is like trying to take a plate from an empty pile."
+    },
+    {
+      "id": "mcq_8",
+      "question": "How does recursion relate to stacks?",
+      "options": [
+        "Recursion has no relationship to stacks",
+        "Each recursive call frame is pushed and later popped in LIFO order",
+        "Recursion always uses a heap instead of a call stack",
+        "Recursion can never cause stack overflow"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Think about what happens when a function calls itself before returning.",
+      "hint_peer": "Every unfinished function call waits above the previous one.",
+      "explanation_teacher": "Most programming languages implement recursion using a call stack. When a function is called, its frame is pushed; when it returns, its frame is popped. Deep recursion can exhaust available stack memory, causing stack overflow.",
+      "explanation_peer": "Recursive calls pile up like nested boxes, and the last opened box closes first."
+    },
+    {
+      "id": "mcq_9",
+      "question": "Which data structure choice changes iterative depth-first search into breadth-first search in a graph traversal?",
+      "options": [
+        "Replace the stack with a queue",
+        "Replace the stack with a hash set",
+        "Replace the stack with a priority queue",
+        "Replace the stack with a linked list only"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "DFS explores the newest frontier node first, while BFS explores nodes in discovery order.",
+      "hint_peer": "DFS uses a stack; BFS uses a line, which is a queue.",
+      "explanation_teacher": "Iterative DFS uses a stack to explore deeper along the most recently discovered path. BFS uses a queue to explore nodes level by level in the order they were discovered.",
+      "explanation_peer": "DFS goes deep with a stack. BFS goes wide with a queue."
+    },
+    {
+      "id": "mcq_10",
+      "question": "In infix-to-postfix conversion, why are operators stored on a stack?",
+      "options": [
+        "Because operands are never output",
+        "Because an operator may need to wait until higher-precedence operators or closing parentheses are handled",
+        "Because postfix expressions never contain operators",
+        "Because stacks automatically sort operators alphabetically"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Operator output depends on precedence and parentheses.",
+      "hint_peer": "If you see + before *, you cannot output + yet because * has higher priority.",
+      "explanation_teacher": "During infix-to-postfix conversion, operators are temporarily stored on a stack until their correct output time is known. Higher-precedence operators and operators inside parentheses must be resolved before lower-precedence operators are emitted.",
+      "explanation_peer": "The stack holds operators that are waiting their turn."
+    },
+    {
+      "id": "mcq_11",
+      "question": "What is the main benefit of a monotonic stack?",
+      "options": [
+        "It keeps values sorted by insertion time",
+        "It stores only unique values",
+        "It maintains candidates in increasing or decreasing order so each element can often be processed once",
+        "It eliminates the need for arrays or lists"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Monotonic means the stored values follow a consistent increasing or decreasing pattern.",
+      "hint_peer": "Useful for next greater problems because smaller useless candidates get popped quickly.",
+      "explanation_teacher": "A monotonic stack maintains elements in increasing or decreasing order according to the problem. This allows many algorithms, such as next greater element, to process each element at most once, often reducing time complexity from quadratic to linear.",
+      "explanation_peer": "It keeps only the candidates that still matter."
+    },
+    {
+      "id": "mcq_12",
+      "question": "For a dynamic array stack, what is the amortized time complexity of push when resizing is handled by geometric growth?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n) for every push",
+        "O(n^2) always"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Occasional resizing costs O(n), but it happens rarely enough that the average cost remains constant.",
+      "hint_peer": "Most pushes are cheap; rare big pushes get averaged out.",
+      "explanation_teacher": "When a dynamic array doubles its capacity upon resizing, the expensive resize operations are spread across many cheap append operations. Therefore, push has amortized O(1) time complexity.",
+      "explanation_peer": "You pay a bigger bill sometimes, but the average cost per push stays constant."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Which condition indicates a valid final state for balanced delimiter checking?",
+      "options": [
+        "The stack contains only closing symbols",
+        "The stack is empty after all symbols are processed",
+        "The stack size equals the input length",
+        "The last pushed symbol remains on the stack"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Every opening delimiter must be matched and removed by a corresponding closing delimiter.",
+      "hint_peer": "If anything is left over, something was never closed.",
+      "explanation_teacher": "In a balanced delimiter algorithm, each valid closing delimiter pops its matching opening delimiter. After processing the entire input, the stack must be empty for the string to be balanced.",
+      "explanation_peer": "No leftover openers means everything got closed properly."
+    },
+    {
+      "id": "mcq_14",
+      "question": "When computing next greater elements with a monotonic decreasing stack, what does popping a smaller element when a larger element arrives mean?",
+      "options": [
+        "The smaller element has no greater element to its right",
+        "The current larger element is the next greater element for the popped element",
+        "The popped element should be pushed again immediately",
+        "The order of elements is irrelevant"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "The first larger element seen to the right resolves the next greater query for smaller waiting elements.",
+      "hint_peer": "If a bigger number shows up, it answers the question for smaller numbers waiting below it.",
+      "explanation_teacher": "In a monotonic decreasing stack, elements wait for a future value greater than themselves. When a larger value arrives, it is the next greater element for every smaller value popped from the top, because no earlier value to the right was large enough.",
+      "explanation_peer": "The new bigger number is the answer for the smaller numbers it knocks out."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which statement correctly distinguishes a stack from a queue?",
+      "options": [
+        "A stack is FIFO and a queue is LIFO",
+        "A stack is LIFO and a queue is FIFO",
+        "Both stack and queue are LIFO",
+        "Both stack and queue allow random access by priority"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Compare the insertion and removal ends of the two structures.",
+      "hint_peer": "Stack is last in first out; queue is first in first out.",
+      "explanation_teacher": "A stack removes the most recently inserted element first, which is LIFO. A queue removes the earliest inserted element first, which is FIFO. This difference determines which structure fits a problem.",
+      "explanation_peer": "Stack: newest first. Queue: oldest first."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Valid Parentheses",
+      "difficulty": "Easy",
+      "statement": "Given a string s containing only the characters '(', ')', '{', '}', '[' and ']', determine whether the input string is valid. A string is valid if every opening bracket has a matching closing bracket of the same type and brackets are closed in the correct order.",
+      "examples": [
+        {
+          "input": "s = \"()\"",
+          "output": "true",
+          "explanation": "The opening parenthesis is closed immediately by the matching closing parenthesis."
+        },
+        {
+          "input": "s = \"([{}])\"",
+          "output": "true",
+          "explanation": "Each closing bracket matches the most recent unmatched opening bracket."
+        },
+        {
+          "input": "s = \"([)]\"",
+          "output": "false",
+          "explanation": "The closing bracket ) does not match the most recent opening bracket [."
+        }
+      ],
+      "constraints": [
+        "1 <= s.length <= 10^4",
+        "s consists only of the characters '(', ')', '{', '}', '[' and ']'"
+      ],
+      "hint1_teacher": "Use a stack to store opening brackets until they are matched by closing brackets.",
+      "hint1_peer": "When you see an opener, save it. When you see a closer, check the most recent opener.",
+      "hint2_teacher": "Create a mapping from each closing bracket to its corresponding opening bracket, and reject the string if a pop does not match.",
+      "hint2_peer": "Make a cheat sheet like ) means (, ] means [, and } means {.",
+      "solution_regular": {
+        "approach": "Scan the string from left to right. Push every opening bracket onto the stack. For every closing bracket, check whether the stack is non-empty and whether the top matches the expected opening bracket. If any check fails, return false. At the end, the stack must be empty.",
+        "code": "def isValid_regular(s):\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        elif ch in ')]}':\n            if not stack:\n                return False\n            top = stack.pop()\n            if pairs[ch] != top:\n                return False\n        else:\n            return False\n\n    return len(stack) == 0",
+        "time": "O(n), where n is the length of the string",
+        "space": "O(n) in the worst case when all characters are opening brackets"
+      },
+      "solution_optimal": {
+        "approach": "Use the same stack-based matching strategy, but add early rejection for odd-length strings and unknown characters. This avoids unnecessary work while preserving linear time.",
+        "code": "def isValid(s: str) -> bool:\n    if len(s) % 2 == 1:\n        return False\n\n    pairs = {')': '(', ']': '[', '}': '{'}\n    stack = []\n\n    for ch in s:\n        if ch in pairs:\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n        else:\n            stack.append(ch)\n\n    return len(stack) == 0",
+        "time": "O(n), where n is the length of the string",
+        "space": "O(n) in the worst case"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Next Greater Element I",
+      "difficulty": "Medium",
+      "statement": "The next greater element of some element x in an array is the first greater element to the right of x in the same array. You are given two distinct integer arrays nums1 and nums2 such that nums1 is a subset of nums2. For each element in nums1, find its next greater element in nums2. If no greater element exists, return -1 for that position.",
+      "examples": [
+        {
+          "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+          "output": "[-1,3,-1]",
+          "explanation": "For 4 there is no greater element to the right. For 1 the next greater is 3. For 2 there is no greater element to the right."
+        },
+        {
+          "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+          "output": "[3,-1]",
+          "explanation": "For 2 the next greater is 3. For 4 there is no greater element to the right."
+        }
+      ],
+      "constraints": [
+        "1 <= nums1.length <= nums2.length <= 1000",
+        "0 <= nums1[i], nums2[i] <= 10^4",
+        "All integers in nums1 and nums2 are unique",
+        "All integers in nums1 also appear in nums2"
+      ],
+      "hint1_teacher": "A straightforward approach is to locate each nums1 value inside nums2 and scan rightward until a greater value is found.",
+      "hint1_peer": "For each number in nums1, find it in nums2 and look to the right for the first bigger number.",
+      "hint2_teacher": "For an optimal solution, precompute the next greater element for every value in nums2 using a monotonic decreasing stack.",
+      "hint2_peer": "Walk through nums2 once. Keep smaller waiting numbers in a stack, and when a bigger number appears, it becomes their answer.",
+      "solution_regular": {
+        "approach": "For each element x in nums1, find x in nums2, then scan to the right until the first value greater than x is found. If no such value exists, append -1.",
+        "code": "def nextGreaterElement_regular(nums1, nums2):\n    result = []\n\n    for x in nums1:\n        found_x = False\n        answer = -1\n\n        for y in nums2:\n            if y == x:\n                found_x = True\n            elif found_x and y > x:\n                answer = y\n                break\n\n        result.append(answer)\n\n    return result",
+        "time": "O(m * n), where m is nums1.length and n is nums2.length",
+        "space": "O(m) for the result array"
+      },
+      "solution_optimal": {
+        "approach": "Traverse nums2 once while maintaining a monotonic decreasing stack. Whenever the current number is greater than the stack top, the current number is the next greater element for the popped value. Store these answers in a map, then answer each nums1 query in O(1).",
+        "code": "def nextGreaterElement(nums1, nums2):\n    next_greater = {}\n    stack = []\n\n    for num in nums2:\n        while stack and stack[-1] < num:\n            smaller = stack.pop()\n            next_greater[smaller] = num\n        stack.append(num)\n\n    return [next_greater.get(num, -1) for num in nums1]",
+        "time": "O(n + m), where n is nums2.length and m is nums1.length",
+        "space": "O(n) for the stack and next greater map"
+      }
+    }
+  ]
+}

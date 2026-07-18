@@ -1,0 +1,384 @@
+{
+  "topic": "Binary Trees",
+  "overview": {
+    "what_is_it": "A binary tree is a hierarchical data structure where each node has at most two children, commonly called left and right.",
+    "why_it_matters": "Binary trees model hierarchical relationships and support efficient traversal, searching, sorting, and aggregation when balanced.",
+    "core_idea": "Each problem can often be solved by handling the current node plus its left subtree and right subtree.",
+    "time_complexity": "Traversal is O(n); BST search/insert/delete is O(h), where h is height: O(log n) balanced, O(n) skewed.",
+    "space_complexity": "DFS recursion/stack uses O(h), BFS queue uses O(w), and worst-case auxiliary space is O(n).",
+    "when_to_use": [
+      "Representing hierarchical data with at most two branches per node",
+      "Searching, sorting, or organizing data with ordering constraints such as a BST",
+      "Processing expression trees, decision trees, heaps, or prefix-code trees"
+    ],
+    "common_mistakes": [
+      "Forgetting the null base case in recursive tree traversal",
+      "Confusing height, depth, and level",
+      "Assuming every binary tree has the binary search tree ordering property",
+      "Ignoring that a skewed tree can make height O(n)",
+      "Mutating pointers during traversal without restoring them"
+    ]
+  },
+  "pseudocode": "FUNCTION height(node):\n  IF node is NIL:\n    RETURN -1\n  left_height <- height(node.left)\n  right_height <- height(node.right)\n  RETURN 1 + max(left_height, right_height)\n\nFUNCTION preorder(node):\n  IF node is NIL:\n    RETURN\n  PROCESS node.value\n  preorder(node.left)\n  preorder(node.right)\n\nFUNCTION inorder(node):\n  IF node is NIL:\n    RETURN\n  inorder(node.left)\n  PROCESS node.value\n  inorder(node.right)\n\nFUNCTION postorder(node):\n  IF node is NIL:\n    RETURN\n  postorder(node.left)\n  postorder(node.right)\n  PROCESS node.value\n\nFUNCTION levelOrder(root):\n  IF root is NIL:\n    RETURN\n  create empty queue Q\n  enqueue root into Q\n  WHILE Q is not empty:\n    node <- dequeue Q\n    PROCESS node.value\n    IF node.left is not NIL:\n      enqueue node.left into Q\n    IF node.right is not NIL:\n      enqueue node.right into Q",
+  "real_world_usage": [
+    {
+      "use_case": "Expression parsing and evaluation",
+      "description": "Compilers and calculators use expression trees where operators are internal nodes and operands are leaves, making evaluation straightforward with postorder traversal."
+    },
+    {
+      "use_case": "Huffman coding and data compression",
+      "description": "Huffman coding builds a binary tree where frequent symbols get shorter bit paths and rare symbols get longer bit paths."
+    },
+    {
+      "use_case": "Decision systems and rule engines",
+      "description": "Binary decision trees represent yes/no questions where each branch leads to another decision or final outcome."
+    },
+    {
+      "use_case": "Tournament brackets",
+      "description": "Single-elimination tournaments naturally form binary trees, with each match combining two competitors into one winner."
+    },
+    {
+      "use_case": "Priority queues using binary heaps",
+      "description": "A binary heap is a complete binary tree stored in an array, enabling efficient insertion and removal of the highest or lowest priority element."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "binary tree",
+      "root",
+      "left child",
+      "right child",
+      "subtree",
+      "height",
+      "depth",
+      "level",
+      "leaf",
+      "null",
+      "balanced",
+      "BST",
+      "traversal",
+      "ancestor",
+      "descendant"
+    ],
+    "patterns": [
+      "DFS recursion on left and right subtrees",
+      "BFS level-order traversal with a queue",
+      "Postorder aggregation where child answers are combined at the parent",
+      "Preorder construction, cloning, or serialization",
+      "Inorder traversal for BST sorted-order properties",
+      "Path problems that pass accumulated state from parent to child",
+      "Diameter or LCA problems that combine subtree results"
+    ],
+    "constraints": [
+      "n nodes; tree height h can be O(n) if the tree is skewed",
+      "Empty tree is usually represented by null or None",
+      "Values may repeat unless the problem explicitly states BST ordering",
+      "Output arrays for traversals count as O(n) extra space"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which statement best distinguishes a binary tree from a binary search tree?",
+      "options": [
+        "Option A: Every BST is a binary tree with an ordering rule on left/right subtrees, but not every binary tree is a BST.",
+        "Option B: Every binary tree is automatically a BST because it has at most two children.",
+        "Option C: A BST cannot have null children, while a binary tree can.",
+        "Option D: A BST must be complete, while a binary tree may be incomplete."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Separate the structural property from the ordering property.",
+      "hint_peer": "BST is just a binary tree with the sorted rule turned on.",
+      "explanation_teacher": "A binary tree only restricts each node to at most two children. A BST adds the invariant that every value in the left subtree is less than the node and every value in the right subtree is greater, with duplicates defined by convention. Therefore every BST is a binary tree, but the converse is false.",
+      "explanation_peer": "All BSTs are binary trees, but not all binary trees are sorted."
+    },
+    {
+      "id": "mcq_2",
+      "question": "If height is defined as the number of edges on the longest root-to-leaf path, what is the height of a binary tree with exactly one node?",
+      "options": [
+        "Option A: 0",
+        "Option B: 1",
+        "Option C: 2",
+        "Option D: Undefined"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "A single node has no downward edges.",
+      "hint_peer": "One lonely node means zero steps down.",
+      "explanation_teacher": "With the edge-count convention, a single node has no edges below it, so its height is 0. Some resources use a node-count convention where the height would be 1, so always check the stated definition.",
+      "explanation_peer": "No edges means height 0 under the edge definition."
+    },
+    {
+      "id": "mcq_3",
+      "question": "What is the maximum number of nodes in a binary tree of height h, assuming height is counted in edges?",
+      "options": [
+        "Option A: 2^(h + 1) - 1",
+        "Option B: 2^h - 1",
+        "Option C: h + 1",
+        "Option D: h^2"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Sum the maximum nodes per level: 1 + 2 + 4 + ... + 2^h.",
+      "hint_peer": "Full tree levels fill as 1, 2, 4, ... so add the geometric series.",
+      "explanation_teacher": "At level d, a binary tree can have at most 2^d nodes. Summing from d = 0 to h gives 1 + 2 + 4 + ... + 2^h = 2^(h + 1) - 1.",
+      "explanation_peer": "A perfect tree with h edges has h + 1 levels, so the node count is the sum of powers of two."
+    },
+    {
+      "id": "mcq_4",
+      "question": "Which traversal order corresponds to preorder traversal of a binary tree?",
+      "options": [
+        "Option A: Root, left subtree, right subtree",
+        "Option B: Left subtree, root, right subtree",
+        "Option C: Left subtree, right subtree, root",
+        "Option D: Right subtree, left subtree, root"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Preorder processes the current node before its children.",
+      "hint_peer": "Pre means parent goes first.",
+      "explanation_teacher": "Preorder visits the root first, then recursively visits the left subtree, then recursively visits the right subtree. It is useful for copying trees and serializing tree structure.",
+      "explanation_peer": "The order is node, left, right."
+    },
+    {
+      "id": "mcq_5",
+      "question": "Which traversal is most natural when a node's result depends on results from both children?",
+      "options": [
+        "Option A: Preorder",
+        "Option B: Postorder",
+        "Option C: Level order",
+        "Option D: Random order"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Compute child results before combining them at the parent.",
+      "hint_peer": "Children first, parent last.",
+      "explanation_teacher": "Postorder visits the left subtree, then the right subtree, then the current node. This makes it ideal for problems like computing height, summing subtree values, deleting a tree, or evaluating expression trees.",
+      "explanation_peer": "If the parent needs child answers, visit children before the parent."
+    },
+    {
+      "id": "mcq_6",
+      "question": "For a valid binary search tree with unique values, which traversal returns values in sorted ascending order?",
+      "options": [
+        "Option A: Preorder",
+        "Option B: Postorder",
+        "Option C: Inorder",
+        "Option D: Level order"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Use the BST invariant: left subtree values are smaller, right subtree values are larger.",
+      "hint_peer": "For a BST, inorder is the sorted-order button.",
+      "explanation_teacher": "Inorder traversal visits the left subtree, then the node, then the right subtree. In a BST, this visits smaller values before larger values, producing ascending order.",
+      "explanation_peer": "Left, node, right gives sorted values in a BST."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Why is a null base case essential in most recursive binary tree algorithms?",
+      "options": [
+        "Option A: It makes every tree balanced.",
+        "Option B: It defines the empty subtree and prevents accessing children of a nonexistent node.",
+        "Option C: It guarantees O(log n) time.",
+        "Option D: It converts the tree into a linked list."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Recursion must stop when there is no node left to process.",
+      "hint_peer": "If there is no node, do not try to read its children.",
+      "explanation_teacher": "The null base case represents an empty subtree. Without it, recursion would attempt to access left or right children of a nonexistent node, causing errors or infinite recursion.",
+      "explanation_peer": "The empty tree is the stop sign for recursion."
+    },
+    {
+      "id": "mcq_8",
+      "question": "If a binary tree with n nodes is height-balanced, what is the typical height of the tree?",
+      "options": [
+        "Option A: O(log n)",
+        "Option B: O(n)",
+        "Option C: O(n log n)",
+        "Option D: O(1)"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Balanced trees keep subtrees roughly equal in height, limiting growth of the longest path.",
+      "hint_peer": "Balanced means short and wide enough; skewed means basically a linked list.",
+      "explanation_teacher": "A height-balanced binary tree keeps height logarithmic in the number of nodes, so operations that follow one root-to-leaf path are typically O(log n). Without balance, a tree can degenerate into O(n) height.",
+      "explanation_peer": "Balanced trees avoid the long skinny shape."
+    },
+    {
+      "id": "mcq_9",
+      "question": "Which data structure naturally supports level-order traversal of a binary tree?",
+      "options": [
+        "Option A: Stack",
+        "Option B: Hash map",
+        "Option C: Queue",
+        "Option D: Heap"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Level-order traversal is breadth-first, so nodes should be processed in first-in, first-out order.",
+      "hint_peer": "Levels need a line, not a pile.",
+      "explanation_teacher": "BFS visits nodes in nondecreasing distance from the root. A FIFO queue preserves that order by processing older frontier nodes before newer nodes.",
+      "explanation_peer": "Use a queue to visit one level before the next."
+    },
+    {
+      "id": "mcq_10",
+      "question": "Which definition describes a perfect binary tree?",
+      "options": [
+        "Option A: Every node has either 0 or 2 children.",
+        "Option B: All levels except possibly the last are full, and the last level is filled left to right.",
+        "Option C: Every internal node has exactly one child.",
+        "Option D: All internal nodes have two children and all leaves are at the same depth."
+      ],
+      "answer": "Option D",
+      "hint_teacher": "Perfect means every level is completely filled.",
+      "hint_peer": "Perfect means no gaps anywhere.",
+      "explanation_teacher": "A perfect binary tree has all internal nodes with two children and all leaves at the same depth. A full tree only requires 0 or 2 children, while a complete tree fills levels left to right.",
+      "explanation_peer": "Perfect means every level is completely full."
+    },
+    {
+      "id": "mcq_11",
+      "question": "In a completely skewed binary tree with n nodes, what remains true for standard traversal algorithms?",
+      "options": [
+        "Option A: Traversal time becomes O(log n).",
+        "Option B: Traversal time remains O(n), but height becomes O(n).",
+        "Option C: Traversal time becomes O(1).",
+        "Option D: The tree automatically becomes balanced."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Traversal time depends on how many nodes are visited; height depends on the longest root-to-leaf path.",
+      "hint_peer": "You still visit everyone, but the call stack can get tall.",
+      "explanation_teacher": "Any traversal that visits every node takes O(n) time regardless of shape. However, in a skewed tree, the height and recursive stack depth can become O(n).",
+      "explanation_peer": "Skewed trees are still O(n) to traverse, but they lose the nice short height."
+    },
+    {
+      "id": "mcq_12",
+      "question": "For the lowest common ancestor problem in a general binary tree, why is it incorrect to rely only on node values?",
+      "options": [
+        "Option A: General binary trees cannot contain numeric values.",
+        "Option B: General binary trees always have duplicate values.",
+        "Option C: General binary trees do not necessarily satisfy BST ordering, so subtree containment matters more than value comparison.",
+        "Option D: Lowest common ancestor is only defined for leaves."
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Use the structural property: whether p and q appear in the left or right subtree.",
+      "hint_peer": "Do not use BST comparisons unless the problem says BST.",
+      "explanation_teacher": "In a general binary tree, node values do not determine side membership. LCA is found by subtree containment: if p and q split across left and right subtrees, the current node is the LCA; otherwise recurse into the side containing both.",
+      "explanation_peer": "In a normal binary tree, left does not always mean smaller."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Why are null markers often included when serializing a binary tree?",
+      "options": [
+        "Option A: To preserve missing child positions and reconstruct the exact shape.",
+        "Option B: To make the tree balanced during deserialization.",
+        "Option C: To remove duplicate values.",
+        "Option D: To convert preorder into postorder."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "A list of non-null values alone may correspond to multiple tree shapes.",
+      "hint_peer": "Without nulls, [1,2] could mean several different trees.",
+      "explanation_teacher": "Preorder or level-order values without null markers may not uniquely identify the tree structure. Null markers explicitly show where children are missing, allowing exact reconstruction.",
+      "explanation_peer": "Nulls tell you where the holes are."
+    },
+    {
+      "id": "mcq_14",
+      "question": "What is the main advantage and tradeoff of Morris inorder traversal?",
+      "options": [
+        "Option A: It is always faster than recursive inorder traversal but uses O(n) extra memory.",
+        "Option B: It uses O(1) extra space but temporarily modifies tree pointers to create threads.",
+        "Option C: It works only for BSTs and cannot handle duplicates.",
+        "Option D: It avoids visiting nodes more than once."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Morris traversal threads the tree temporarily instead of using a stack or recursion.",
+      "hint_peer": "It borrows empty right pointers as breadcrumbs and puts them back.",
+      "explanation_teacher": "Morris traversal creates temporary threads from a node's inorder predecessor to the current node, visits the left subtree, restores the thread, and continues. It uses O(1) extra space but temporarily changes pointers.",
+      "explanation_peer": "It saves memory by reusing null pointers as temporary links."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which statement correctly describes the diameter of a binary tree?",
+      "options": [
+        "Option A: The number of nodes on the shortest path from the root to a leaf.",
+        "Option B: The maximum depth of the tree plus one.",
+        "Option C: The number of edges from the root to the deepest leaf.",
+        "Option D: The number of edges on the longest path between any two nodes; it can be computed by maximizing left_height + right_height over all nodes."
+      ],
+      "answer": "Option D",
+      "hint_teacher": "The longest path may pass through any node, not necessarily the root.",
+      "hint_peer": "The longest path bends through some node; check every possible bend.",
+      "explanation_teacher": "Diameter is the longest path between any two nodes. At each node, the best path through it has length left_height + right_height in edges, and the answer is the maximum over all nodes.",
+      "explanation_peer": "For each node, ask how far you can go down the left and right sides, then take the biggest sum."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "Easy",
+      "statement": "Given the root of a binary tree, return its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.",
+      "examples": [
+        {
+          "input": "root = [3,9,20,null,null,15,7]",
+          "output": "3",
+          "explanation": "The longest path is 3 -> 20 -> 15 or 3 -> 20 -> 7, which contains 3 nodes."
+        },
+        {
+          "input": "root = []",
+          "output": "0",
+          "explanation": "An empty tree has depth 0."
+        }
+      ],
+      "constraints": [
+        "0 <= number of nodes <= 10^4",
+        "-100 <= Node.val <= 100"
+      ],
+      "hint1_teacher": "The depth of an empty subtree is 0, and the depth of a non-empty subtree is one plus the maximum depth of its children.",
+      "hint1_peer": "If there is no node, there is no depth to count.",
+      "hint2_teacher": "Use recursion to compute the depth of the left and right subtrees, then combine them at the current node.",
+      "hint2_peer": "Ask both kids how tall their subtree is, take the taller one, and add yourself.",
+      "solution_regular": {
+        "approach": "Use recursive DFS. For each node, return 1 plus the maximum depth of its left and right subtrees.",
+        "code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\nclass Solution:\n    def maxDepth(self, root):\n        if root is None:\n            return 0\n        left_depth = self.maxDepth(root.left)\n        right_depth = self.maxDepth(root.right)\n        return 1 + max(left_depth, right_depth)",
+        "time": "O(n)",
+        "space": "O(h)"
+      },
+      "solution_optimal": {
+        "approach": "Use iterative BFS with a queue. Each completed queue level increases the depth by one.",
+        "code": "from collections import deque\n\nclass Solution:\n    def maxDepth(self, root):\n        if root is None:\n            return 0\n        queue = deque([root])\n        depth = 0\n        while queue:\n            for _ in range(len(queue)):\n                node = queue.popleft()\n                if node.left:\n                    queue.append(node.left)\n                if node.right:\n                    queue.append(node.right)\n            depth += 1\n        return depth",
+        "time": "O(n)",
+        "space": "O(w)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Binary Tree Level Order Traversal",
+      "difficulty": "Medium",
+      "statement": "Given the root of a binary tree, return the level order traversal of its nodes' values. Return the values grouped by level from left to right.",
+      "examples": [
+        {
+          "input": "root = [3,9,20,null,null,15,7]",
+          "output": "[[3],[9,20],[15,7]]",
+          "explanation": "Level 0 has 3, level 1 has 9 and 20, and level 2 has 15 and 7."
+        },
+        {
+          "input": "root = []",
+          "output": "[]",
+          "explanation": "An empty tree has no levels."
+        }
+      ],
+      "constraints": [
+        "0 <= number of nodes <= 2000",
+        "-1000 <= Node.val <= 1000"
+      ],
+      "hint1_teacher": "Level order traversal is breadth-first traversal, so a FIFO queue naturally preserves left-to-right order within each level.",
+      "hint1_peer": "Imagine visiting the tree floor by floor from top to bottom.",
+      "hint2_teacher": "Process exactly the nodes currently in the queue to form one complete level before moving to the next level.",
+      "hint2_peer": "The queue already contains the next floor; count len(queue) before you start popping.",
+      "solution_regular": {
+        "approach": "Use recursive DFS with a depth parameter. Append each node to the list corresponding to its depth.",
+        "code": "class Solution:\n    def levelOrder(self, root):\n        levels = []\n\n        def dfs(node, depth):\n            if node is None:\n                return\n            if depth == len(levels):\n                levels.append([])\n            levels[depth].append(node.val)\n            dfs(node.left, depth + 1)\n            dfs(node.right, depth + 1)\n\n        dfs(root, 0)\n        return levels",
+        "time": "O(n)",
+        "space": "O(h)"
+      },
+      "solution_optimal": {
+        "approach": "Use iterative BFS with a queue. For each level, process exactly the nodes already in the queue, collect their values, and enqueue their children.",
+        "code": "from collections import deque\n\nclass Solution:\n    def levelOrder(self, root):\n        if root is None:\n            return []\n        queue = deque([root])\n        levels = []\n        while queue:\n            level = []\n            for _ in range(len(queue)):\n                node = queue.popleft()\n                level.append(node.val)\n                if node.left:\n                    queue.append(node.left)\n                if node.right:\n                    queue.append(node.right)\n            levels.append(level)\n        return levels",
+        "time": "O(n)",
+        "space": "O(w)"
+      }
+    }
+  ]
+}

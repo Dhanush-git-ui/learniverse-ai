@@ -1,0 +1,365 @@
+{
+  "topic": "AVL Tree",
+  "overview": {
+    "what_is_it": "An AVL tree is a self-balancing binary search tree where every node's balance factor is -1, 0, or 1.",
+    "why_it_matters": "It guarantees O(log n) search, insertion, and deletion even for sorted or adversarial input.",
+    "core_idea": "After each update, climb upward and rotate only where the height difference threatens balance.",
+    "time_complexity": "Search, insertion, and deletion are O(log n) worst case; each rotation is O(1), and height updates occur along one root-to-leaf path.",
+    "space_complexity": "O(n) for n stored nodes; O(log n) recursion stack for balanced AVL operations.",
+    "when_to_use": [
+      "In-memory ordered maps or sets needing strict worst-case logarithmic operations",
+      "Applications with many lookups and relatively stable data where tighter balance improves search",
+      "Systems requiring deterministic performance rather than amortized or probabilistic behavior"
+    ],
+    "common_mistakes": [
+      "Updating height before returning from recursive insert or delete",
+      "Using only balance-factor signs without identifying inner versus outer cases",
+      "Forgetting that deletion may require multiple rotations up the ancestor path",
+      "Treating any height-balanced tree as an AVL tree without enforcing BST order"
+    ]
+  },
+  "pseudocode": "AVLNode(key):\n  node.key = key\n  node.left = null\n  node.right = null\n  node.height = 1\n\nheight(node):\n  if node is null:\n    return 0\n  return node.height\n\nbalance_factor(node):\n  return height(node.left) - height(node.right)\n\nupdate(node):\n  node.height = 1 + max(height(node.left), height(node.right))\n\nleft_rotate(x):\n  y = x.right\n  T2 = y.left\n  y.left = x\n  x.right = T2\n  update(x)\n  update(y)\n  return y\n\nright_rotate(y):\n  x = y.left\n  T2 = x.right\n  x.right = y\n  y.left = T2\n  update(y)\n  update(x)\n  return x\n\nrebalance(z):\n  bf = balance_factor(z)\n  if bf > 1:\n    if balance_factor(z.left) < 0:\n      z.left = left_rotate(z.left)\n    return right_rotate(z)\n  if bf < -1:\n    if balance_factor(z.right) > 0:\n      z.right = right_rotate(z.right)\n    return left_rotate(z)\n  return z\n\nminimum_node(node):\n  while node.left is not null:\n    node = node.left\n  return node\n\ninsert(root, key):\n  if root is null:\n    return AVLNode(key)\n  if key < root.key:\n    root.left = insert(root.left, key)\n  else if key > root.key:\n    root.right = insert(root.right, key)\n  else:\n    return root\n  update(root)\n  return rebalance(root)\n\ndelete(root, key):\n  if root is null:\n    return null\n  if key < root.key:\n    root.left = delete(root.left, key)\n  else if key > root.key:\n    root.right = delete(root.right, key)\n  else:\n    if root.left is null:\n      return root.right\n    if root.right is null:\n      return root.left\n    successor = minimum_node(root.right)\n    root.key = successor.key\n    root.right = delete(root.right, successor.key)\n  update(root)\n  return rebalance(root)",
+  "real_world_usage": [
+    {
+      "use_case": "Database indexing",
+      "description": "In-memory ordered indexes and metadata catalogs can use AVL trees to keep key lookup, insertion, and deletion bounded by O(log n)."
+    },
+    {
+      "use_case": "Compiler symbol tables",
+      "description": "Sorted identifiers, scopes, or namespace entries benefit from AVL ordering when deterministic lookup time matters."
+    },
+    {
+      "use_case": "Memory management",
+      "description": "Free-block allocators can maintain block addresses in AVL order to find, split, merge, and delete blocks efficiently."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "self-balancing",
+      "balance factor",
+      "height-balanced",
+      "left rotation",
+      "right rotation",
+      "binary search tree",
+      "O(log n) worst-case"
+    ],
+    "patterns": [
+      "Maintain ordered keys with guaranteed logarithmic updates",
+      "After insert or delete, check imbalance only on the ancestor path",
+      "Balance factor outside [-1, 0, 1] implies LL, RR, LR, or RL rotation"
+    ],
+    "constraints": [
+      "Need guaranteed worst-case O(log n) search and update time",
+      "Memory overhead for height or balance-factor fields is acceptable",
+      "Duplicate-key policy must be defined before implementation"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "What invariant distinguishes an AVL tree from a general binary search tree?",
+      "options": [
+        "Every node has at most two children and an in-order traversal is sorted.",
+        "For every node, the heights of the left and right subtrees differ by at most 1.",
+        "Every root-to-leaf path has exactly the same length.",
+        "Every node's key is greater than both children's keys."
+      ],
+      "answer": "For every node, the heights of the left and right subtrees differ by at most 1.",
+      "hint_teacher": "Separate the binary-search-tree ordering invariant from the AVL height-balance invariant.",
+      "hint_peer": "BST keeps keys sorted; AVL also keeps both sides from getting too tall.",
+      "explanation_teacher": "An AVL tree is a binary search tree with an additional invariant: for every node, the height difference between its left and right subtrees is at most 1. A sorted in-order traversal alone describes a BST, not necessarily an AVL tree.",
+      "explanation_peer": "AVL is a BST with a height-checking bodyguard at every node."
+    },
+    {
+      "id": "mcq_2",
+      "question": "If balance factor is defined as height(left) - height(right), what does a balance factor of -2 at node x indicate?",
+      "options": [
+        "The left subtree is taller than the right subtree by 2.",
+        "The right subtree is taller than the left subtree by 2.",
+        "Node x is a leaf.",
+        "Duplicate keys were inserted under node x."
+      ],
+      "answer": "The right subtree is taller than the left subtree by 2.",
+      "hint_teacher": "Use the sign of height(left) - height(right) to identify the heavier side.",
+      "hint_peer": "Negative means the right side is winning the height race.",
+      "explanation_teacher": "A balance factor of -2 means height(left) - height(right) = -2, so the right subtree is two levels taller than the left subtree. This violates the AVL condition and requires rebalancing.",
+      "explanation_peer": "If the number is -2, the right side is too heavy."
+    },
+    {
+      "id": "mcq_3",
+      "question": "Which rotation fixes an LL imbalance at node z?",
+      "options": [
+        "A single right rotation at z.",
+        "A single left rotation at z.",
+        "A left rotation followed by a right rotation at z.",
+        "No rotation is needed."
+      ],
+      "answer": "A single right rotation at z.",
+      "hint_teacher": "LL means the inserted node is in the left subtree of the left child.",
+      "hint_peer": "Left-left means one right turn fixes it.",
+      "explanation_teacher": "In an LL case, the left child of z is left-heavy. A single right rotation around z moves the left child upward and restores the height-balance invariant.",
+      "explanation_peer": "Think of pulling the taller left side up and swinging z down to the right."
+    },
+    {
+      "id": "mcq_4",
+      "question": "Which rotation sequence fixes an LR imbalance at node z?",
+      "options": [
+        "Left rotate z, then right rotate z.",
+        "Left rotate z.left, then right rotate z.",
+        "Right rotate z.left, then right rotate z.",
+        "Right rotate z.right, then left rotate z."
+      ],
+      "answer": "Left rotate z.left, then right rotate z.",
+      "hint_teacher": "LR means the insertion is in the right subtree of the left child, so first convert it to an LL shape.",
+      "hint_peer": "Left-right needs a zig-zag fix: first left, then right.",
+      "explanation_teacher": "For an LR imbalance, the problematic node is in the right subtree of z.left. A left rotation on z.left converts the structure into an LL case, after which a right rotation on z restores balance.",
+      "explanation_peer": "Straighten the bent branch first, then rotate the heavy side up."
+    },
+    {
+      "id": "mcq_5",
+      "question": "During AVL insertion, why is it sufficient to check and rebalance only the ancestors of the inserted node?",
+      "options": [
+        "Only descendants of the inserted node can change height.",
+        "Only the path from the root to the inserted node can have changed subtree heights.",
+        "The AVL property applies only to leaves.",
+        "The BST property must be checked globally after every insertion."
+      ],
+      "answer": "Only the path from the root to the inserted node can have changed subtree heights.",
+      "hint_teacher": "Consider which subtree heights are affected by adding one leaf.",
+      "hint_peer": "Only the road you walked down during insertion feels the change.",
+      "explanation_teacher": "Insertion changes the height of subtrees only along the search path from the root to the new node. Therefore, only ancestors on that path can become imbalanced.",
+      "explanation_peer": "If a node was not on the insertion path, its subtree did not grow."
+    },
+    {
+      "id": "mcq_6",
+      "question": "What is the worst-case time complexity of insertion in an AVL tree with n nodes?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "answer": "O(log n)",
+      "hint_teacher": "AVL height is logarithmic, and insertion follows one root-to-leaf path plus constant work per level.",
+      "hint_peer": "AVL stays short, so insertion does not scan the whole tree.",
+      "explanation_teacher": "An AVL tree has height O(log n). Insertion descends one path, updates heights on the way back, and performs at most a constant number of rotations at the first imbalanced ancestor, so the total worst-case time is O(log n).",
+      "explanation_peer": "The tree is forced to stay balanced, so the path is short."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Why can AVL searches perform fewer comparisons than red-black tree searches on the same data?",
+      "options": [
+        "AVL trees are usually more tightly balanced.",
+        "AVL trees allow only negative keys.",
+        "Red-black trees are not binary trees.",
+        "AVL trees do not use comparisons."
+      ],
+      "answer": "AVL trees are usually more tightly balanced.",
+      "hint_teacher": "Compare the height bounds and balancing strictness of AVL trees and red-black trees.",
+      "hint_peer": "AVL is the stricter gym coach, so the tree is often shorter.",
+      "explanation_teacher": "Both AVL trees and red-black trees guarantee O(log n) search time, but AVL trees enforce a stricter height balance. This often yields a smaller height and therefore fewer comparisons in successful and unsuccessful searches.",
+      "explanation_peer": "Both are fast, but AVL is usually more tightly trimmed."
+    },
+    {
+      "id": "mcq_8",
+      "question": "What recurrence gives the minimum number of nodes in an AVL tree of height h, using height(null)=0 and height(single node)=1?",
+      "options": [
+        "h",
+        "2^h - 1",
+        "N(h) = 1 + N(h-1) + N(h-2) for h >= 2, with N(0)=0 and N(1)=1",
+        "Fibonacci(h)"
+      ],
+      "answer": "N(h) = 1 + N(h-1) + N(h-2) for h >= 2, with N(0)=0 and N(1)=1",
+      "hint_teacher": "To minimize nodes at height h while preserving AVL balance, make the two child heights differ by exactly 1.",
+      "hint_peer": "The skinniest AVL tree has one tall child and one slightly shorter child.",
+      "explanation_teacher": "A minimum-size AVL tree of height h has root height h, one child of height h-1, and the other child of height h-2. Thus N(h)=1+N(h-1)+N(h-2), which grows exponentially and implies h=O(log n).",
+      "explanation_peer": "Minimum AVL trees are Fibonacci-shaped, not perfectly full."
+    },
+    {
+      "id": "mcq_9",
+      "question": "After a right rotation around y, which node becomes the root of the rotated subtree?",
+      "options": [
+        "y",
+        "y.left",
+        "y.right",
+        "The smallest key in y.right"
+      ],
+      "answer": "y.left",
+      "hint_teacher": "In a right rotation, the left child moves upward.",
+      "hint_peer": "Right rotation means the left kid gets promoted.",
+      "explanation_teacher": "A right rotation around y makes x=y.left the new root of the local subtree. Node y becomes x.right, and x.right's old subtree becomes y.left.",
+      "explanation_peer": "For a right rotation, the left child goes up and the old root goes down right."
+    },
+    {
+      "id": "mcq_10",
+      "question": "Which statement about deletion in AVL trees is true?",
+      "options": [
+        "Deletion never causes imbalance.",
+        "Deletion may require rotations at multiple ancestors.",
+        "Deletion always restores balance with exactly one rotation.",
+        "Deletion changes balance factors but never changes subtree heights."
+      ],
+      "answer": "Deletion may require rotations at multiple ancestors.",
+      "hint_teacher": "Compare how insertion changes one subtree height versus how deletion can shrink a subtree and affect many ancestors.",
+      "hint_peer": "Deleting is messier than inserting because the height change can ripple upward.",
+      "explanation_teacher": "After deletion, heights may change along the path from the removed node to the root. Multiple ancestors can become imbalanced, so AVL deletion may require rebalancing at several levels.",
+      "explanation_peer": "One delete can make several ancestors wobble."
+    },
+    {
+      "id": "mcq_11",
+      "question": "If an AVL implementation stores no height field, what must it compute after updates?",
+      "options": [
+        "The key order of the entire tree.",
+        "Subtree heights by traversal, unless cached elsewhere.",
+        "Only the number of leaves.",
+        "The parent pointer for every node."
+      ],
+      "answer": "Subtree heights by traversal, unless cached elsewhere.",
+      "hint_teacher": "Balance factors depend on subtree heights.",
+      "hint_peer": "No height field means you have to ask the tree how tall each side is.",
+      "explanation_teacher": "AVL rebalancing requires balance factors, which are computed from subtree heights. Without storing height or balance information, the implementation must recompute heights by traversing subtrees, which increases time cost.",
+      "explanation_peer": "You can skip the height field, but you cannot skip knowing heights somehow."
+    },
+    {
+      "id": "mcq_12",
+      "question": "When duplicate keys are inserted, which design choice preserves AVL correctness most directly?",
+      "options": [
+        "Ignore duplicates or store a count/list at the node while preserving BST ordering.",
+        "Place duplicates arbitrarily in both subtrees.",
+        "Make duplicate keys always larger than every key.",
+        "Store duplicates only in leaves regardless of key order."
+      ],
+      "answer": "Ignore duplicates or store a count/list at the node while preserving BST ordering.",
+      "hint_teacher": "The BST ordering invariant must remain unambiguous.",
+      "hint_peer": "Do not scatter equal keys wherever you want; keep the tree rules clean.",
+      "explanation_teacher": "An AVL tree is also a BST, so duplicate handling must preserve a consistent ordering rule. Common choices are ignoring duplicates, storing a frequency count, or storing a list of equal keys at the existing node.",
+      "explanation_peer": "Equal keys need a home, but they should not break the BST layout."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Which sequence of keys inserted into an initially empty AVL tree first requires a single left rotation?",
+      "options": [
+        "10, 20, 30",
+        "30, 20, 10",
+        "20, 10, 30",
+        "10, 30, 20"
+      ],
+      "answer": "10, 20, 30",
+      "hint_teacher": "A single left rotation fixes an RR imbalance.",
+      "hint_peer": "Insert increasing keys and the right side gets too long.",
+      "explanation_teacher": "Inserting 10, 20, 30 creates a right-right imbalance at node 10. The fix is a single left rotation around 10. The sequence 30, 20, 10 requires a single right rotation, while 10, 30, 20 requires a right-left double rotation.",
+      "explanation_peer": "10, 20, 30 makes a straight line to the right, so rotate left."
+    },
+    {
+      "id": "mcq_14",
+      "question": "What is the primary space overhead of a standard AVL node compared with a plain BST node?",
+      "options": [
+        "A hash table.",
+        "A height or balance-factor field.",
+        "An adjacency matrix.",
+        "A priority queue."
+      ],
+      "answer": "A height or balance-factor field.",
+      "hint_teacher": "AVL decisions are based on local height information.",
+      "hint_peer": "Each node needs a tiny memory note saying how tall its branches are.",
+      "explanation_teacher": "A standard AVL node commonly stores key, left child, right child, and height or balance factor. This extra field enables O(1) local balance checks and O(log n) update operations.",
+      "explanation_peer": "AVL pays one small field per node to stay balanced fast."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which property guarantees that an AVL tree's height is O(log n)?",
+      "options": [
+        "Each node has a parent pointer.",
+        "The minimum subtree size grows at least like a Fibonacci recurrence.",
+        "The tree stores keys in an array.",
+        "Every node has exactly two children."
+      ],
+      "answer": "The minimum subtree size grows at least like a Fibonacci recurrence.",
+      "hint_teacher": "Use the minimum-node recurrence for AVL trees to derive the height bound.",
+      "hint_peer": "AVL trees cannot stay skinny forever; their smallest possible size grows fast with height.",
+      "explanation_teacher": "Because an AVL tree of height h must contain at least 1+N(h-1)+N(h-2) nodes, the minimum size grows exponentially with h. Inverting that relationship gives h=O(log n).",
+      "explanation_peer": "The tree is not allowed to get too skinny, so height stays logarithmic."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Validate AVL Tree",
+      "difficulty": "Easy",
+      "statement": "Given the root of a binary tree where each node has key, left, and right, determine whether it is an AVL tree. The tree must satisfy the binary-search-tree ordering property and every node's left and right subtree heights must differ by at most 1. Assume height(null)=0.",
+      "examples": [
+        {
+          "input": "root = [2,1,3]",
+          "output": "true",
+          "explanation": "BST order holds and every node has balance factor 0."
+        },
+        {
+          "input": "root = [1,2,2,null,3,null,4]",
+          "output": "false",
+          "explanation": "BST order fails because 2 appears in the left subtree of 1, and several nodes are not height-balanced."
+        }
+      ],
+      "constraints": [
+        "0 <= number of nodes <= 10^5",
+        "-10^9 <= key <= 10^9",
+        "Recursion depth may be large; use an iterative approach or increase recursion limit if using recursion."
+      ],
+      "hint1_teacher": "Validate the BST ordering property and the AVL height-balance property separately.",
+      "hint1_peer": "First ask: are the keys in the right places? Then ask: are the branches too uneven?",
+      "hint2_teacher": "A node is AVL-valid only if its left and right subtrees are AVL-valid and its balance factor is in [-1, 0, 1].",
+      "hint2_peer": "Every node needs a local height check, not just the root.",
+      "solution_regular": {
+        "approach": "Compute height for each node and validate BST ordering separately. Return false if any balance factor is outside [-1, 0, 1].",
+        "code": "class Node:\n    def __init__(self, key):\n        self.key = key\n        self.left = None\n        self.right = None\n\ndef is_avl_regular(root):\n    def is_bst(node, low, high):\n        if node is None:\n            return True\n        if not (low < node.key < high):\n            return False\n        return is_bst(node.left, low, node.key) and is_bst(node.right, node.key, high)\n\n    def height(node):\n        if node is None:\n            return 0\n        return 1 + max(height(node.left), height(node.right))\n\n    def balanced(node):\n        if node is None:\n            return True\n        if abs(height(node.left) - height(node.right)) > 1:\n            return False\n        return balanced(node.left) and balanced(node.right)\n\n    return is_bst(root, float('-inf'), float('inf')) and balanced(root)",
+        "time": "O(n^2) worst case on skewed trees; O(n log n) on balanced trees.",
+        "space": "O(h) recursion stack, where h is tree height."
+      },
+      "solution_optimal": {
+        "approach": "Traverse once, validating BST ranges and computing subtree heights together. A node is invalid if its key range is violated or its balance factor is outside [-1, 0, 1].",
+        "code": "def is_avl_optimal(root):\n    if root is None:\n        return True\n\n    height = {None: 0}\n    stack = [(root, float('-inf'), float('inf'), False)]\n\n    while stack:\n        node, low, high, seen = stack.pop()\n        if node is None:\n            continue\n\n        if seen:\n            if not (low < node.key < high):\n                return False\n\n            left_height = height[node.left]\n            right_height = height[node.right]\n            if abs(left_height - right_height) > 1:\n                return False\n\n            height[node] = 1 + max(left_height, right_height)\n        else:\n            stack.append((node, low, high, True))\n            stack.append((node.right, node.key, high, False))\n            stack.append((node.left, low, node.key, False))\n\n    return True",
+        "time": "O(n)",
+        "space": "O(n) for the height map; O(h) for the iterative stack."
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "AVL Insertions and Level Order",
+      "difficulty": "Medium",
+      "statement": "Given a list of integer keys, insert them into an initially empty AVL tree. If a key already exists, ignore it. Return the level-order traversal of the final AVL tree.",
+      "examples": [
+        {
+          "input": "keys = [10, 20, 30, 40, 50, 25]",
+          "output": "[40, 25, 50, 20, 30, 10]",
+          "explanation": "Inserting 10, 20, 30 triggers a left rotation; later insertions trigger rotations that leave the shown AVL shape."
+        },
+        {
+          "input": "keys = [5, 5, 3, 7]",
+          "output": "[5, 3, 7]",
+          "explanation": "The duplicate key 5 is ignored, and the remaining keys form a balanced BST."
+        }
+      ],
+      "constraints": [
+        "1 <= len(keys) <= 10^5",
+        "-10^9 <= key <= 10^9",
+        "Duplicate keys must be ignored.",
+        "Return keys in level-order from left to right at each depth."
+      ],
+      "hint1_teacher": "Use recursive insertion to locate the node, update height, then rebalance using balance factors on the return path.",
+      "hint1_peer": "Do the normal BST insert, then fix the first wobbly ancestor with the right rotation combo.",
+      "hint2_teacher": "Classify imbalance as LL, RR, LR, or RL and apply single or double rotations accordingly.",
+      "hint2_peer": "Left-heavy left child means right rotate; left-heavy right child means left-right double rotate.",
+      "solution_regular": {
+        "approach": "Implement AVL insertion without caching height in nodes. Heights are recomputed from subtrees whenever balance factors are needed, which is simple and correct but slower.",
+        "code": "class Node:\n    def __init__(self, key):\n        self.key = key\n        self.left = None\n        self.right = None\n\ndef height(node):\n    if node is None:\n        return 0\n    return 1 + max(height(node.left), height(node.right))\n\ndef balance_factor(node):\n    if node is None:\n        return 0\n    return height(node.left) - height(node.right)\n\ndef left_rotate(x):\n    y = x.right\n    t = y.left\n    y.left = x\n    x.right = t\n    return y\n\ndef right_rotate(y):\n    x = y.left\n    t = x.right\n    x.right = y\n    y.left = t\n    return x\n\ndef rebalance(node):\n    bf = balance_factor(node)\n    if bf > 1:\n        if balance_factor(node.left) < 0:\n            node.left = left_rotate(node.left)\n        return right_rotate(node)\n    if bf < -1:\n        if balance_factor(node.right) > 0:\n            node.right = right_rotate(node.right)\n        return left_rotate(node)\n    return node\n\ndef insert(node, key):\n    if node is None:\n        return Node(key)\n    if key < node.key:\n        node.left = insert(node.left, key)\n    elif key > node.key:\n        node.right = insert(node.right, key)\n    else:\n        return node\n    return rebalance(node)\n\ndef level_order(root):\n    if root is None:\n        return []\n    queue = [root]\n    result = []\n    while queue:\n        node = queue.pop(0)\n        result.append(node.key)\n        if node.left:\n            queue.append(node.left)\n        if node.right:\n            queue.append(node.right)\n    return result\n\ndef avl_level_order_regular(keys):\n    root = None\n    for key in keys:\n        root = insert(root, key)\n    return level_order(root)",
+        "time": "O(n^2) worst case for n insertions because heights are recomputed repeatedly.",
+        "space": "O(h) recursion stack plus O(w) traversal queue, where w is maximum width."
+      },
+      "solution_optimal": {
+        "approach": "Store height in each node. After each insertion, update heights along the recursion return path and perform at most the necessary AVL rotations.",
+        "code": "from collections import deque\n\nclass Node:\n    def __init__(self, key):\n        self.key = key\n        self.left = None\n        self.right = None\n        self.height = 1\n\ndef height(node):\n    if node is None:\n        return 0\n    return node.height\n\ndef update(node):\n    node.height = 1 + max(height(node.left), height(node.right))\n\ndef balance_factor(node):\n    if node is None:\n        return 0\n    return height(node.left) - height(node.right)\n\ndef left_rotate(x):\n    y = x.right\n    t = y.left\n    y.left = x\n    x.right = t\n    update(x)\n    update(y)\n    return y\n\ndef right_rotate(y):\n    x = y.left\n    t = x.right\n    x.right = y\n    y.left = t\n    update(y)\n    update(x)\n    return x\n\ndef rebalance(node):\n    update(node)\n    bf = balance_factor(node)\n    if bf > 1:\n        if balance_factor(node.left) < 0:\n            node.left = left_rotate(node.left)\n        return right_rotate(node)\n    if bf < -1:\n        if balance_factor(node.right) > 0:\n            node.right = right_rotate(node.right)\n        return left_rotate(node)\n    return node\n\ndef insert(node, key):\n    if node is None:\n        return Node(key)\n    if key < node.key:\n        node.left = insert(node.left, key)\n    elif key > node.key:\n        node.right = insert(node.right, key)\n    else:\n        return node\n    update(node)\n    return rebalance(node)\n\ndef level_order(root):\n    if root is None:\n        return []\n    queue = deque([root])\n    result = []\n    while queue:\n        node = queue.popleft()\n        result.append(node.key)\n        if node.left:\n            queue.append(node.left)\n        if node.right:\n            queue.append(node.right)\n    return result\n\ndef avl_level_order_optimal(keys):\n    root = None\n    for key in keys:\n        root = insert(root, key)\n    return level_order(root)",
+        "time": "O(n log n) for n insertions.",
+        "space": "O(n) for nodes plus O(log n) recursion stack; O(w) temporary queue during level-order traversal."
+      }
+    }
+  ]
+}

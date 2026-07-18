@@ -1,0 +1,397 @@
+{
+  "topic": "Tree",
+  "overview": {
+    "what_is_it": "A tree is a connected acyclic graph, often rooted, where each node has zero or more child nodes.",
+    "why_it_matters": "Trees model hierarchy and enable efficient search, sorting, routing, indexing, and expression evaluation.",
+    "core_idea": "Break a problem into a root plus smaller subtrees, then combine results from children.",
+    "time_complexity": "Traversal: O(n); BST operations: average O(log n), worst O(n), balanced O(log n); heap operations: O(log n).",
+    "space_complexity": "Traversal recursion or queue: O(h) or O(w); stored nodes: O(n); height h is O(log n) when balanced and O(n) when skewed.",
+    "when_to_use": [
+      "Hierarchical data such as file systems, organization charts, XML, HTML DOM, or category menus",
+      "Fast ordered lookup, sorted iteration, or range queries using binary search trees",
+      "Prefix search and autocomplete using tries",
+      "Level-by-level processing using breadth-first search",
+      "Aggregating subtree information such as sums, depths, paths, or maximum values"
+    ],
+    "common_mistakes": [
+      "Forgetting the null or empty-tree base case in recursion",
+      "Assuming every binary tree is a binary search tree",
+      "Checking only immediate children when validating a BST instead of enforcing ancestor bounds",
+      "Ignoring skewed-tree worst cases where height becomes O(n)",
+      "Confusing depth, height, level, and diameter",
+      "Modifying a tree while traversing it without understanding the effect on traversal correctness"
+    ]
+  },
+  "pseudocode": "DFS(root):\n  if root is null:\n    return\n  visit root\n  for each child in root.children:\n    DFS(child)\n\nBFS(root):\n  create an empty queue\n  enqueue root\n  while queue is not empty:\n    node = dequeue\n    visit node\n    for each non-null child of node:\n      enqueue child\n\nBST_Search(root, target):\n  current = root\n  while current is not null:\n    if target equals current.value:\n      return current\n    if target is less than current.value:\n      current = current.left\n    else:\n      current = current.right\n  return null",
+  "real_world_usage": [
+    {
+      "use_case": "Database indexing",
+      "description": "B-trees and B+ trees store sorted keys with balanced height, enabling fast insertion, deletion, and range queries."
+    },
+    {
+      "use_case": "File systems",
+      "description": "Directories and files form a tree where each folder can contain files or nested folders."
+    },
+    {
+      "use_case": "Autocomplete",
+      "description": "Tries store characters along paths so prefixes can be searched and suggested efficiently."
+    },
+    {
+      "use_case": "Expression evaluation",
+      "description": "Expression trees represent operators as internal nodes and operands as leaves, making evaluation and compilation easier."
+    },
+    {
+      "use_case": "Network routing",
+      "description": "Spanning trees and tree-like next-hop structures help networks avoid loops and organize routing paths."
+    },
+    {
+      "use_case": "Priority queues",
+      "description": "Binary heaps use the complete binary tree property to support efficient priority insertion and removal."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "root",
+      "parent",
+      "child",
+      "leaf",
+      "subtree",
+      "depth",
+      "height",
+      "level",
+      "binary tree",
+      "binary search tree",
+      "trie",
+      "heap",
+      "LCA",
+      "diameter",
+      "path",
+      "prefix",
+      "balanced"
+    ],
+    "patterns": [
+      "Recursive DFS naturally processes a node and its subtrees",
+      "Postorder traversal is useful when child results are needed before the parent result",
+      "Preorder traversal is useful when the parent must be processed before children",
+      "BFS or level-order traversal is useful for depth, levels, or nearest node by edge count",
+      "BST problems often require maintaining lower and upper value bounds",
+      "Tree DP combines values from left and right subtrees to compute a global answer"
+    ],
+    "constraints": [
+      "Number of nodes n may be large, so O(n) traversal is often expected",
+      "Skewed trees can make height O(n), causing recursion depth issues",
+      "Balanced trees guarantee height O(log n)",
+      "Duplicates may or may not be allowed depending on the tree definition",
+      "The root may be null in many coding problems"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which statement best defines a tree in graph theory?",
+      "options": [
+        "Option A: A connected acyclic graph",
+        "Option B: A graph with exactly one cycle",
+        "Option C: A graph where every node has degree two",
+        "Option D: A directed graph with no incoming edges"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Recall the two defining graph properties of a tree: connectivity and absence of cycles.",
+      "hint_peer": "A tree is like a family tree: everything connects, but you never loop back to someone twice.",
+      "explanation_teacher": "A tree is an undirected graph that is connected and contains no cycles. For n nodes, a tree has exactly n - 1 edges. If a connected graph gains one extra edge, it creates a cycle; if it loses one edge, it becomes disconnected.",
+      "explanation_peer": "No loops, no disconnected pieces. That is the tree rule."
+    },
+    {
+      "id": "mcq_2",
+      "question": "Which traversal visits a node before all of its descendants?",
+      "options": [
+        "Option A: Inorder",
+        "Option B: Preorder",
+        "Option C: Postorder",
+        "Option D: Level-order only"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Preorder follows the order root, left subtree, right subtree in a binary tree.",
+      "hint_peer": "Preorder means parent gets visited first.",
+      "explanation_teacher": "Preorder traversal processes the current node first, then recursively processes its children. This is useful for copying trees, serializing hierarchical structures, and creating prefix expressions.",
+      "explanation_peer": "Think preorder as parent before kids."
+    },
+    {
+      "id": "mcq_3",
+      "question": "In a binary tree of height h measured in edges, what is the maximum possible number of nodes?",
+      "options": [
+        "Option A: h",
+        "Option B: 2h + 1",
+        "Option C: 2^(h + 1) - 1",
+        "Option D: h^2"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "A full binary tree has levels 0 through h, and level i can contain at most 2^i nodes.",
+      "hint_peer": "Add 1 + 2 + 4 + ... up to the last level.",
+      "explanation_teacher": "If height is measured in edges, there are h + 1 levels. The maximum nodes are 1 + 2 + 4 + ... + 2^h, which equals 2^(h + 1) - 1.",
+      "explanation_peer": "Each level can double, so the total is the geometric series sum."
+    },
+    {
+      "id": "mcq_4",
+      "question": "What does an inorder traversal of a valid binary search tree produce?",
+      "options": [
+        "Option A: Nodes in descending order",
+        "Option B: Nodes in sorted ascending order",
+        "Option C: Nodes grouped by depth",
+        "Option D: Nodes in random order"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Inorder traversal visits left subtree, node, then right subtree, matching BST ordering.",
+      "hint_peer": "For a BST, left is smaller and right is bigger, so left-node-right gives sorted order.",
+      "explanation_teacher": "A binary search tree satisfies the rule that all values in the left subtree are smaller than the node and all values in the right subtree are larger. Therefore, inorder traversal produces values in nondecreasing order, or strictly increasing if duplicates are disallowed.",
+      "explanation_peer": "Left, root, right is the sorted walk for a BST."
+    },
+    {
+      "id": "mcq_5",
+      "question": "Why are balanced search trees preferred over arbitrary binary search trees?",
+      "options": [
+        "Option A: They guarantee O(1) search for every key",
+        "Option B: They guarantee height O(log n), keeping operations efficient",
+        "Option C: They remove the need for comparisons",
+        "Option D: They only work for numeric keys"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "The cost of BST operations depends primarily on tree height.",
+      "hint_peer": "Balanced means the tree does not become a long skinny line.",
+      "explanation_teacher": "In an arbitrary BST, insertion order can create a skewed tree of height O(n), making search, insertion, and deletion O(n). Balanced trees such as AVL trees and red-black trees maintain height O(log n), so operations remain O(log n).",
+      "explanation_peer": "A balanced tree stays short, so you do not have to walk through too many nodes."
+    },
+    {
+      "id": "mcq_6",
+      "question": "Which data structure is most appropriate for prefix search such as autocomplete?",
+      "options": [
+        "Option A: Stack",
+        "Option B: Trie",
+        "Option C: Hash table only",
+        "Option D: Linked list"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Prefix search benefits from sharing common character prefixes among strings.",
+      "hint_peer": "Autocomplete cares about words that start the same way, so a prefix tree is natural.",
+      "explanation_teacher": "A trie stores strings character by character along paths from the root. Common prefixes share nodes, making prefix lookup, insertion, and suggestion efficient.",
+      "explanation_peer": "Trie is short for retrieval tree, and it is great for words with shared beginnings."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Which structural property must a binary heap satisfy?",
+      "options": [
+        "Option A: It must be a complete binary tree",
+        "Option B: It must be a full binary tree",
+        "Option C: It must be a binary search tree",
+        "Option D: It must have all leaves at different depths"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "The shape property of a binary heap is completeness.",
+      "hint_peer": "A heap fills levels from left to right.",
+      "explanation_teacher": "A binary heap is a complete binary tree satisfying a heap-order property. Completeness allows efficient array-based storage and O(log n) insertion and deletion.",
+      "explanation_peer": "Heap shape means no holes before the last level."
+    },
+    {
+      "id": "mcq_8",
+      "question": "When deleting a node with two children from a binary search tree, which replacement preserves BST ordering?",
+      "options": [
+        "Option A: Any leaf from the tree",
+        "Option B: The inorder predecessor or inorder successor",
+        "Option C: The root of the entire tree",
+        "Option D: A randomly chosen node from the right subtree"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "The replacement must be adjacent to the deleted value in sorted order.",
+      "hint_peer": "Use the biggest value on the left or the smallest value on the right.",
+      "explanation_teacher": "The inorder predecessor is the maximum node in the left subtree, and the inorder successor is the minimum node in the right subtree. Either one can replace the deleted node while preserving the BST ordering rule.",
+      "explanation_peer": "Swap with the closest smaller or closest larger value."
+    },
+    {
+      "id": "mcq_9",
+      "question": "For recursive depth-first search on a tree, what does the auxiliary space complexity usually depend on?",
+      "options": [
+        "Option A: The number of leaves only",
+        "Option B: The tree height h",
+        "Option C: The maximum node value",
+        "Option D: The number of edges in a cycle"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Recursive DFS uses the call stack along the current root-to-leaf path.",
+      "hint_peer": "The stack grows as deep as your recursion goes.",
+      "explanation_teacher": "Recursive DFS stores one active call per node along the current path from the root to a leaf. Therefore, auxiliary space is O(h), where h is the height of the tree.",
+      "explanation_peer": "If the tree is a tall skinny line, recursion stack can get tall too."
+    },
+    {
+      "id": "mcq_10",
+      "question": "What does breadth-first search naturally compute on a tree?",
+      "options": [
+        "Option A: Only the maximum value",
+        "Option B: Nodes grouped by increasing depth or level",
+        "Option C: Only leaf nodes",
+        "Option D: The inorder sequence"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "BFS uses a queue and expands nodes level by level.",
+      "hint_peer": "BFS is like spreading ripples outward from the root.",
+      "explanation_teacher": "Breadth-first search visits all nodes at depth d before nodes at depth d + 1. This makes it ideal for level-order traversal and finding the nearest node by number of edges.",
+      "explanation_peer": "BFS goes one level at a time."
+    },
+    {
+      "id": "mcq_11",
+      "question": "Which traversal is best suited for deleting or freeing nodes because children are processed before the parent?",
+      "options": [
+        "Option A: Preorder",
+        "Option B: Inorder",
+        "Option C: Postorder",
+        "Option D: Random order"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Postorder processes subtrees before their root.",
+      "hint_peer": "Kids first, parent last.",
+      "explanation_teacher": "Postorder traversal visits children before the current node. This is useful when a parent depends on child results or when child resources must be released before releasing the parent.",
+      "explanation_peer": "Clean up the branches before cutting the trunk."
+    },
+    {
+      "id": "mcq_12",
+      "question": "What is the diameter of a tree?",
+      "options": [
+        "Option A: The number of nodes in the root's left subtree",
+        "Option B: The length of the longest path between any two nodes",
+        "Option C: The number of leaves",
+        "Option D: The shortest path from the root to a leaf"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Diameter is a global path measure, not just a root-to-leaf measure.",
+      "hint_peer": "It is the longest walk you can take between two nodes without needing to start at the root.",
+      "explanation_teacher": "The diameter of a tree is the maximum number of edges on any path between two nodes. It may pass through the root or through some other internal node.",
+      "explanation_peer": "Diameter is the tree's longest possible route between two points."
+    },
+    {
+      "id": "mcq_13",
+      "question": "In the lowest common ancestor problem on a binary tree, when can a node be identified as the LCA of two target nodes?",
+      "options": [
+        "Option A: Only if it is the root",
+        "Option B: When both targets are in its left subtree",
+        "Option C: When one target is in its left subtree and the other is in its right subtree, or one target is the node itself",
+        "Option D: When it has the largest value among nearby nodes"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "The LCA is the deepest node that has both targets in its subtree.",
+      "hint_peer": "It is where the paths from the two targets first meet going upward.",
+      "explanation_teacher": "A node is the LCA if the two targets are separated into different child subtrees, or if one of the targets is the node itself and the other lies in one of its subtrees.",
+      "explanation_peer": "Find the first common meeting point of the two target paths."
+    },
+    {
+      "id": "mcq_14",
+      "question": "Why is checking only node.value > left.value and node.value < right.value insufficient for validating a binary search tree?",
+      "options": [
+        "Option A: It ignores the possibility that ancestor bounds constrain entire subtrees",
+        "Option B: It only works for postorder traversal",
+        "Option C: It requires the tree to be balanced",
+        "Option D: It cannot handle leaf nodes"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "BST validity is a range condition inherited from all ancestors, not just the immediate parent.",
+      "hint_peer": "A node can be okay compared with its parent but still break a rule from a grandparent.",
+      "explanation_teacher": "Every node in a left subtree must be less than an ancestor, and every node in a right subtree must be greater than an ancestor. Therefore, validation must pass lower and upper bounds down the tree or use inorder ordering.",
+      "explanation_peer": "Do not just check direct neighbors; check the whole valid range."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which problem pattern most strongly suggests using tree dynamic programming with postorder traversal?",
+      "options": [
+        "Option A: Counting how many times a value appears in an array",
+        "Option B: Computing a result for each node from results of its children, such as diameter or subtree sum",
+        "Option C: Sorting numbers with quicksort",
+        "Option D: Searching a linked list linearly"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Tree DP often computes child information first, then combines it at the parent.",
+      "hint_peer": "If the parent answer depends on child answers, think postorder.",
+      "explanation_teacher": "Postorder traversal ensures that each subtree has already computed its result before the parent combines those results. This pattern appears in diameter, maximum path sum, subtree sums, and balanced-tree checks.",
+      "explanation_peer": "Solve the small trees first, then use them to solve the bigger tree."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "Easy",
+      "statement": "Given the root of a binary tree, return its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.",
+      "examples": [
+        {
+          "input": "root = [3,9,20,null,null,15,7]",
+          "output": "3",
+          "explanation": "The longest path is 3 -> 20 -> 15 or 3 -> 20 -> 7, which contains 3 nodes."
+        },
+        {
+          "input": "root = [1,null,2]",
+          "output": "2",
+          "explanation": "The longest path is 1 -> 2, which contains 2 nodes."
+        }
+      ],
+      "constraints": [
+        "The number of nodes is in the range [0, 10000].",
+        "Node values are integers.",
+        "The tree is represented in level-order with null for absent children.",
+        "The root may be null."
+      ],
+      "hint1_teacher": "The depth of a node is one plus the maximum depth of its children.",
+      "hint1_peer": "Ask the left and right child how deep they are, then take the bigger one.",
+      "hint2_teacher": "A recursive depth-first search directly expresses the height recurrence.",
+      "hint2_peer": "Base case: no node means depth 0.",
+      "solution_regular": {
+        "approach": "Use recursive DFS. If the current node is null, return 0. Otherwise, return 1 plus the maximum depth of the left and right subtrees.",
+        "code": "def maxDepth(root):\n    if root is None:\n        return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))",
+        "time": "O(n)",
+        "space": "O(h)"
+      },
+      "solution_optimal": {
+        "approach": "Use iterative BFS level by level. Each completed level increases the depth counter by one, avoiding recursion stack usage.",
+        "code": "from collections import deque\n\ndef maxDepth(root):\n    if root is None:\n        return 0\n    queue = deque([root])\n    depth = 0\n    while queue:\n        depth += 1\n        for _ in range(len(queue)):\n            node = queue.popleft()\n            if node.left:\n                queue.append(node.left)\n            if node.right:\n                queue.append(node.right)\n    return depth",
+        "time": "O(n)",
+        "space": "O(w)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Validate Binary Search Tree",
+      "difficulty": "Medium",
+      "statement": "Given the root of a binary tree, determine whether it is a valid binary search tree. A valid BST satisfies these rules: the left subtree of a node contains only values strictly less than the node's value, the right subtree contains only values strictly greater than the node's value, and both subtrees are also valid BSTs.",
+      "examples": [
+        {
+          "input": "root = [2,1,3]",
+          "output": "true",
+          "explanation": "The left child 1 is less than 2, and the right child 3 is greater than 2, so the tree is a valid BST."
+        },
+        {
+          "input": "root = [5,1,4,null,null,3,6]",
+          "output": "false",
+          "explanation": "The right subtree root has value 4, which is less than the root value 5, violating the BST property."
+        }
+      ],
+      "constraints": [
+        "The number of nodes is in the range [0, 10000].",
+        "Node values are integers in the range [-2^31, 2^31 - 1].",
+        "The tree may be empty.",
+        "The BST definition used here requires strict inequality for left and right subtrees."
+      ],
+      "hint1_teacher": "Inorder traversal of a valid BST produces values in strictly increasing order.",
+      "hint1_peer": "If you walk a BST left-root-right and see a decrease, it is invalid.",
+      "hint2_teacher": "Alternatively, carry a valid value range down the tree for every node.",
+      "hint2_peer": "Each node lives between invisible low and high walls.",
+      "solution_regular": {
+        "approach": "Perform inorder traversal and collect all node values. A valid BST must produce a strictly increasing sequence.",
+        "code": "def isValidBST(root):\n    values = []\n\n    def inorder(node):\n        if node is None:\n            return\n        inorder(node.left)\n        values.append(node.val)\n        inorder(node.right)\n\n    inorder(root)\n\n    for i in range(1, len(values)):\n        if values[i] <= values[i - 1]:\n            return False\n    return True",
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "solution_optimal": {
+        "approach": "Use recursive range validation. Each node must lie within a lower and upper bound inherited from its ancestors.",
+        "code": "def isValidBST(root):\n    def valid(node, low, high):\n        if node is None:\n            return True\n        if low is not None and node.val <= low:\n            return False\n        if high is not None and node.val >= high:\n            return False\n        return valid(node.left, low, node.val) and valid(node.right, node.val, high)\n\n    return valid(root, None, None)",
+        "time": "O(n)",
+        "space": "O(h)"
+      }
+    }
+  ]
+}

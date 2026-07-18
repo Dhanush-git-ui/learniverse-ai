@@ -1,0 +1,399 @@
+{
+  "topic": "Graph Algorithms",
+  "overview": {
+    "what_is_it": "Algorithms that process graphs, which are sets of vertices connected by edges, to answer questions about reachability, paths, cycles, ordering, and connectivity.",
+    "why_it_matters": "They turn relationship-heavy problems into efficient traversal, ordering, connectivity, routing, and optimization tasks.",
+    "core_idea": "Explore connections in the right order and exploit graph properties such as weights, direction, acyclicity, and connectivity.",
+    "time_complexity": "BFS/DFS: O(V + E); Dijkstra with heap: O((V + E) log V); Bellman-Ford: O(VE); Floyd-Warshall: O(V^3); Kruskal: O(E log E).",
+    "space_complexity": "Adjacency list: O(V + E); adjacency matrix: O(V^2); traversal arrays, queues, and heaps are commonly O(V) to O(E) depending on the algorithm.",
+    "when_to_use": [
+      "Modeling relationships such as roads, networks, prerequisites, or social connections",
+      "Finding shortest paths, minimum hops, connected components, cycles, or ordering constraints",
+      "Searching implicit state spaces such as grids, puzzles, or game boards",
+      "Optimizing network design with minimum spanning tree algorithms"
+    ],
+    "common_mistakes": [
+      "Forgetting to mark nodes as visited in cyclic graphs",
+      "Using DFS or BFS for weighted shortest paths without considering edge weights",
+      "Treating directed edges as bidirectional by mistake",
+      "Not checking whether all nodes were visited or ordered",
+      "Using O(V^2) memory on large sparse graphs"
+    ]
+  },
+  "pseudocode": "Choose representation:\n  if sparse: adjacency list\n  if dense: adjacency matrix\n\nTraversal template:\n  mark start as visited\n  process start\n  for each neighbor not visited:\n    mark neighbor visited\n    process neighbor\n\nUnweighted shortest path:\n  run BFS from source\n  store distance and parent when first discovered\n\nWeighted nonnegative shortest path:\n  set distance[source] = 0 and all others = infinity\n  push source into min-priority queue\n  while queue not empty:\n    pop vertex u with smallest tentative distance\n    if popped distance is stale: continue\n    for each edge (u, v, weight):\n      if distance[u] + weight < distance[v]:\n        distance[v] = distance[u] + weight\n        parent[v] = u\n        push (distance[v], v)\n\nDirected dependency ordering:\n  compute indegree for every vertex\n  enqueue vertices with indegree 0\n  while queue not empty:\n    remove u\n    append u to order\n    for each neighbor v of u:\n      indegree[v] -= 1\n      if indegree[v] == 0: enqueue v\n  if order contains all vertices: graph is acyclic\n  otherwise: graph has a directed cycle\n\nConnectivity and cycles:\n  use BFS/DFS to count components\n  use Union-Find to merge endpoints and detect whether an edge connects vertices already in the same set",
+  "real_world_usage": [
+    {
+      "use_case": "GPS and route planning",
+      "description": "Roads are modeled as weighted directed or undirected edges, and shortest-path algorithms such as Dijkstra estimate fastest travel routes."
+    },
+    {
+      "use_case": "Task scheduling and build systems",
+      "description": "Dependencies between tasks form a directed graph, and topological sorting determines a valid execution order."
+    },
+    {
+      "use_case": "Social network analysis",
+      "description": "Users are vertices and friendships or interactions are edges, allowing community detection, influence spread, and connectivity analysis."
+    },
+    {
+      "use_case": "Network reliability",
+      "description": "Connectivity algorithms identify whether servers, routers, or devices remain reachable after failures."
+    },
+    {
+      "use_case": "Recommendation and knowledge graphs",
+      "description": "Entities and relationships are represented as graph edges, enabling traversal-based recommendations and relationship discovery."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "graph",
+      "nodes",
+      "vertices",
+      "edges",
+      "grid",
+      "matrix",
+      "dependencies",
+      "prerequisites",
+      "shortest path",
+      "minimum hops",
+      "cycle",
+      "connected components",
+      "strongly connected components",
+      "topological order",
+      "union find",
+      "weighted",
+      "unweighted",
+      "directed",
+      "undirected"
+    ],
+    "patterns": [
+      "Minimum number of steps or hops suggests BFS",
+      "Explore all reachable states, cells, or nodes suggests DFS or BFS",
+      "Dependencies must be ordered suggests topological sort",
+      "Connect all nodes with minimum total cost suggests minimum spanning tree",
+      "Repeated connectivity or cycle queries suggest Union-Find",
+      "Nonnegative weighted shortest paths suggest Dijkstra",
+      "Negative weights or negative-cycle detection suggest Bellman-Ford",
+      "All-pairs shortest paths suggest Floyd-Warshall"
+    ],
+    "constraints": [
+      "Negative weights rule out Dijkstra",
+      "Directed cycles make topological sorting impossible",
+      "Sparse graphs usually favor adjacency lists",
+      "Dense graphs may tolerate adjacency matrices",
+      "V and E sizes determine whether O(V^2), O(VE), or O((V + E) log V) is acceptable",
+      "Implicit grids can be treated as graphs with four-neighbor edges"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "In an unweighted graph, why does BFS find a shortest path from a source to every reachable vertex?",
+      "options": [
+        "It explores vertices in nondecreasing number of edges from the source",
+        "It always visits the highest-degree vertex first",
+        "It sorts edges by weight before traversal",
+        "It uses recursion to backtrack through all paths"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Use the FIFO queue property and reason about distance layers from the source.",
+      "hint_peer": "BFS spreads like ripples, so the first time you touch a node is through the fewest hops.",
+      "explanation_teacher": "BFS uses a queue, so it processes all vertices at distance d before any vertex at distance d + 1. Therefore, the first discovery of a vertex gives a path with the minimum number of edges from the source.",
+      "explanation_peer": "Think of BFS as expanding one ring at a time. The first ring is 1 hop, the next is 2 hops, and so on."
+    },
+    {
+      "id": "mcq_2",
+      "question": "Why can Dijkstra's algorithm fail when a graph contains negative edge weights?",
+      "options": [
+        "It requires an adjacency matrix representation",
+        "It finalizes a vertex too early because it assumes a popped minimum distance cannot later improve",
+        "It only works on directed acyclic graphs",
+        "It ignores edge weights entirely"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Examine the greedy proof of Dijkstra's algorithm and identify where nonnegative weights are required.",
+      "hint_peer": "If a later road can reduce your cost, the 'best so far' route may not actually be final.",
+      "explanation_teacher": "Dijkstra relies on the fact that with nonnegative weights, extending a path cannot decrease its cost. With negative edges, a vertex already removed from the priority queue may later be reachable through a cheaper path.",
+      "explanation_peer": "Dijkstra locks in a shortest distance once a node is popped. Negative edges can break that lock."
+    },
+    {
+      "id": "mcq_3",
+      "question": "What condition must a directed graph satisfy for a topological ordering to exist?",
+      "options": [
+        "It must be complete",
+        "It must be bipartite",
+        "It must be acyclic",
+        "It must have no isolated vertices"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "A topological order requires every directed edge u -> v to place u before v.",
+      "hint_peer": "If tasks depend on each other in a circle, nobody can go first.",
+      "explanation_teacher": "A directed cycle would require each vertex in the cycle to appear before the next, eventually forcing a vertex to appear before itself. Thus, a directed acyclic graph is necessary for a valid topological ordering.",
+      "explanation_peer": "Topological sort is for prerequisites. A circular prerequisite chain makes an order impossible."
+    },
+    {
+      "id": "mcq_4",
+      "question": "In Kruskal's algorithm for a minimum spanning tree, why are edges sorted by weight?",
+      "options": [
+        "It computes indegrees for every edge",
+        "It ensures DFS visits vertices in sorted order",
+        "It guarantees shortest paths from a chosen source",
+        "It lets the algorithm greedily choose the cheapest edge that does not create a cycle"
+      ],
+      "answer": "Option D",
+      "hint_teacher": "Kruskal repeatedly applies the cut property using the lightest safe edge.",
+      "hint_peer": "Kruskal keeps picking the cheapest edge that does not close a loop.",
+      "explanation_teacher": "Kruskal sorts edges so it can consider them from cheapest to most expensive. An edge is added only if its endpoints are in different components, which prevents cycles while greedily minimizing total tree weight.",
+      "explanation_peer": "Sort the roads by price, then keep the cheapest ones that connect new pieces without making a loop."
+    },
+    {
+      "id": "mcq_5",
+      "question": "What does the Union-Find data structure primarily help with in graph problems?",
+      "options": [
+        "Single-source shortest paths in weighted graphs",
+        "Maintaining component membership and detecting cycles when adding edges",
+        "Finding strongly connected components in directed graphs",
+        "Producing a topological ordering"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Consider how union operations merge disjoint sets and how find operations test whether endpoints are already connected.",
+      "hint_peer": "Union-Find answers: are these two nodes already in the same group?",
+      "explanation_teacher": "Union-Find maintains disjoint sets of vertices. If an edge connects vertices already in the same set, adding it creates a cycle in an undirected graph; otherwise, the sets can be unioned.",
+      "explanation_peer": "It is like grouping friends. If two people are already in the same group, connecting them again makes a loop."
+    },
+    {
+      "id": "mcq_6",
+      "question": "Which statement correctly describes strongly connected components in a directed graph?",
+      "options": [
+        "Strongly connected components apply only to undirected graphs",
+        "Strongly connected components require all edge weights to be nonnegative",
+        "Every vertex in a strongly connected component can reach every other vertex in that component",
+        "Strongly connected components are identical to connected components in every graph"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Focus on mutual reachability rather than one-way reachability.",
+      "hint_peer": "In an SCC, you can get from anyone to anyone else by following arrows.",
+      "explanation_teacher": "A strongly connected component is a maximal set of vertices in a directed graph such that every vertex can reach every other vertex in the set. This differs from ordinary connected components in undirected graphs, where edge direction is absent.",
+      "explanation_peer": "An SCC is a group where every node can visit every other node if you follow the arrows both ways through the group."
+    },
+    {
+      "id": "mcq_7",
+      "question": "What does Bellman-Ford relaxation over V - 1 iterations guarantee when no reachable negative cycle exists?",
+      "options": [
+        "Shortest paths from the source have been propagated through all simple paths",
+        "A minimum spanning tree has been selected",
+        "All vertices have indegree zero",
+        "The graph is guaranteed to be bipartite"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "A simple shortest path contains at most V - 1 edges.",
+      "hint_peer": "After enough full passes, the shortest distances have had enough chances to ripple outward.",
+      "explanation_teacher": "Any simple path has at most V - 1 edges. Repeatedly relaxing all edges for V - 1 rounds ensures that shortest-path distances are correctly propagated, assuming no reachable negative cycle exists.",
+      "explanation_peer": "Bellman-Ford gives every edge many chances to improve distances. After V - 1 rounds, the shortest routes should settle."
+    },
+    {
+      "id": "mcq_8",
+      "question": "What does the Floyd-Warshall algorithm compute?",
+      "options": [
+        "A minimum spanning tree",
+        "Breadth-first search distances from one source",
+        "An Eulerian path",
+        "Shortest path distances between every pair of vertices"
+      ],
+      "answer": "Option D",
+      "hint_teacher": "Floyd-Warshall is a dynamic programming algorithm over intermediate vertices.",
+      "hint_peer": "Floyd-Warshall builds a table of best distances between every pair.",
+      "explanation_teacher": "Floyd-Warshall computes all-pairs shortest path distances by considering whether each vertex can serve as an intermediate step between two other vertices.",
+      "explanation_peer": "It fills a giant distance table so you can answer shortest path questions between any two nodes."
+    },
+    {
+      "id": "mcq_9",
+      "question": "When is an adjacency list usually preferable to an adjacency matrix?",
+      "options": [
+        "The graph is dense and contains almost every possible edge",
+        "The graph is sparse, with far fewer edges than V^2",
+        "Constant-time edge existence checks are more important than memory",
+        "The graph has no edge weights"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Compare memory usage: adjacency lists use O(V + E), while adjacency matrices use O(V^2).",
+      "hint_peer": "If most possible edges are missing, do not waste memory storing all the empty slots.",
+      "explanation_teacher": "Adjacency lists store only existing edges, making them memory-efficient for sparse graphs. Adjacency matrices are better when the graph is dense or when constant-time edge existence queries are critical.",
+      "explanation_peer": "Use an adjacency list when the graph is mostly empty space."
+    },
+    {
+      "id": "mcq_10",
+      "question": "In DFS on a graph that may contain cycles, what prevents infinite recursion?",
+      "options": [
+        "A priority queue",
+        "Edge sorting",
+        "A visited set or visited array",
+        "A degree counter"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "DFS must distinguish between unvisited, visiting, and fully processed vertices in some problems.",
+      "hint_peer": "You need a memory of where you have already been.",
+      "explanation_teacher": "Without marking visited vertices, DFS can follow a cycle indefinitely. A visited set or array ensures each vertex is processed appropriately and prevents repeated traversal.",
+      "explanation_peer": "Visited is the breadcrumb trail that stops DFS from going in circles forever."
+    },
+    {
+      "id": "mcq_11",
+      "question": "Which problem is best modeled using bipartite graph coloring?",
+      "options": [
+        "Checking whether vertices can be split into two groups so every edge crosses groups",
+        "Computing a minimum spanning tree",
+        "Topologically sorting dependencies",
+        "Computing all-pairs shortest paths"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "A bipartite graph is two-colorable.",
+      "hint_peer": "Try coloring neighbors with opposite colors.",
+      "explanation_teacher": "Bipartite coloring determines whether a graph can be divided into two sets such that every edge connects vertices from different sets. DFS or BFS can test this by assigning alternating colors.",
+      "explanation_peer": "If you can color the graph with two colors and no neighbors share a color, it is bipartite."
+    },
+    {
+      "id": "mcq_12",
+      "question": "In Kahn's algorithm for topological sorting, what does the initial queue contain?",
+      "options": [
+        "Vertices with the largest outgoing edge weights",
+        "Vertices with the highest degree",
+        "Vertices already marked visited",
+        "Vertices with indegree zero"
+      ],
+      "answer": "Option D",
+      "hint_teacher": "A vertex with indegree zero has no remaining prerequisites.",
+      "hint_peer": "Start with the tasks that nobody is waiting on.",
+      "explanation_teacher": "Kahn's algorithm begins with all vertices whose indegree is zero because they have no incoming dependency constraints. Removing such a vertex may create new zero-indegree vertices.",
+      "explanation_peer": "Pick the tasks with no prerequisites first."
+    },
+    {
+      "id": "mcq_13",
+      "question": "For a graph with nonnegative edge weights, which algorithm is typically most appropriate for efficient single-source shortest paths?",
+      "options": [
+        "Depth-first search",
+        "Dijkstra's algorithm with a min-priority queue",
+        "Kruskal's algorithm",
+        "A recursive flood fill"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Use a greedy algorithm that settles vertices by increasing tentative distance.",
+      "hint_peer": "For positive-weight shortest paths, think Dijkstra.",
+      "explanation_teacher": "Dijkstra's algorithm with a min-priority queue efficiently computes single-source shortest paths when all edge weights are nonnegative, because it always expands the currently closest unsettled vertex.",
+      "explanation_peer": "Dijkstra is the standard tool for shortest paths when weights are not negative."
+    },
+    {
+      "id": "mcq_14",
+      "question": "What is relaxation in shortest-path algorithms?",
+      "options": [
+        "Deleting visited vertices from the graph",
+        "Sorting vertices alphabetically before traversal",
+        "Updating a tentative distance when a newly discovered path is shorter",
+        "Merging two minimum spanning trees"
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Relaxation tests whether dist[u] + weight(u, v) improves dist[v].",
+      "hint_peer": "Relaxation means: did I just find a better route to this node?",
+      "explanation_teacher": "Relaxation is the operation of checking whether a path through vertex u gives a smaller distance to vertex v. If it does, the algorithm updates dist[v] and possibly its parent pointer.",
+      "explanation_peer": "Relaxation is the distance update step used by Dijkstra and Bellman-Ford."
+    },
+    {
+      "id": "mcq_15",
+      "question": "What is the key difference between connected components and strongly connected components?",
+      "options": [
+        "Connected components describe reachability in undirected graphs, while SCCs require mutual reachability in directed graphs",
+        "Connected components require positive edge weights, while SCCs do not",
+        "SCCs only exist in trees",
+        "Connected components are found with Dijkstra's algorithm, while SCCs are found with BFS"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Compare reachability in undirected graphs with mutual reachability in directed graphs.",
+      "hint_peer": "Connected components ignore arrow direction; SCCs care about arrow direction.",
+      "explanation_teacher": "In an undirected graph, connected components group vertices that can reach one another because edges are symmetric. In a directed graph, an SCC requires that every vertex can reach every other vertex by following directed edges.",
+      "explanation_peer": "Connected components are groups where paths exist. SCCs are groups where paths exist in both directions."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Number of Islands",
+      "difficulty": "Easy",
+      "statement": "Given an m x n binary grid where '1' represents land and '0' represents water, return the number of islands. An island is formed by connecting adjacent lands horizontally or vertically and is surrounded by water. You may assume all four edges of the grid are surrounded by water.",
+      "examples": [
+        {
+          "input": "grid = [['1','1','1','1','0'], ['1','1','0','1','0'], ['1','1','0','0','0'], ['0','0','0','0','0']]",
+          "output": "1",
+          "explanation": "All land cells are connected horizontally or vertically, so there is one island."
+        },
+        {
+          "input": "grid = [['1','1','0','0','0'], ['1','1','0','0','0'], ['0','0','1','0','0'], ['0','0','0','1','1']]",
+          "output": "3",
+          "explanation": "There are two separate land cells in the lower-right area and one larger island in the upper-left area."
+        }
+      ],
+      "constraints": [
+        "m == grid.length",
+        "n == grid[i].length",
+        "1 <= m, n <= 300",
+        "grid[i][j] is '0' or '1'"
+      ],
+      "hint1_teacher": "Treat each land cell as a graph vertex and adjacent land cells as edges.",
+      "hint1_peer": "When you find a '1', flood-fill the whole island so you do not count it again.",
+      "hint2_teacher": "Use DFS or BFS to mark all cells belonging to the same island before continuing the scan.",
+      "hint2_peer": "Every time you see unvisited land, start a traversal and count one island.",
+      "solution_regular": {
+        "approach": "Use recursive DFS. Iterate through every cell; when an unvisited land cell is found, increment the island count and recursively mark all connected land cells as visited by changing them to water.",
+        "code": "class Solution:\n    def numIslands(self, grid):\n        if not grid or not grid[0]:\n            return 0\n\n        rows, cols = len(grid), len(grid[0])\n\n        def dfs(r, c):\n            if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != '1':\n                return\n            grid[r][c] = '0'\n            dfs(r + 1, c)\n            dfs(r - 1, c)\n            dfs(r, c + 1)\n            dfs(r, c - 1)\n\n        islands = 0\n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] == '1':\n                    islands += 1\n                    dfs(r, c)\n        return islands",
+        "time": "O(m * n)",
+        "space": "O(m * n) recursion stack in worst case; O(1) extra visited storage if mutating grid is allowed"
+      },
+      "solution_optimal": {
+        "approach": "Use iterative BFS with in-place marking. This avoids recursion depth issues while still visiting each cell a constant number of times.",
+        "code": "from collections import deque\n\nclass Solution:\n    def numIslands(self, grid):\n        if not grid or not grid[0]:\n            return 0\n\n        rows, cols = len(grid), len(grid[0])\n        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]\n        islands = 0\n\n        for r in range(rows):\n            for c in range(cols):\n                if grid[r][c] != '1':\n                    continue\n                islands += 1\n                grid[r][c] = '0'\n                queue = deque([(r, c)])\n                while queue:\n                    x, y = queue.popleft()\n                    for dx, dy in directions:\n                        nx, ny = x + dx, y + dy\n                        if 0 <= nx < rows and 0 <= ny < cols and grid[nx][ny] == '1':\n                            grid[nx][ny] = '0'\n                            queue.append((nx, ny))\n        return islands",
+        "time": "O(m * n)",
+        "space": "O(m * n) queue in worst case; avoids recursion stack and uses no separate visited set when mutating grid is allowed"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Network Delay Time",
+      "difficulty": "Medium",
+      "statement": "There are n network nodes labeled from 1 to n. You are given times, where times[i] = [u_i, v_i, w_i] represents a directed signal from node u_i to node v_i that takes w_i units of time. A signal is sent from node k. Return the minimum time required for all n nodes to receive the signal. If it is impossible for all nodes to receive the signal, return -1.",
+      "examples": [
+        {
+          "input": "times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2",
+          "output": "2",
+          "explanation": "Node 2 reaches nodes 1 and 3 in 1 unit, and node 3 reaches node 4 in 1 more unit, so the maximum arrival time is 2."
+        },
+        {
+          "input": "times = [[1,2,1]], n = 2, k = 2",
+          "output": "-1",
+          "explanation": "The signal starts at node 2, but there is no outgoing path from node 2 to node 1."
+        }
+      ],
+      "constraints": [
+        "1 <= k <= n <= 100",
+        "1 <= times.length <= 6000",
+        "times[i].length == 3",
+        "1 <= u_i, v_i <= n",
+        "u_i != v_i",
+        "1 <= w_i <= 100",
+        "All (u_i, v_i) pairs are distinct."
+      ],
+      "hint1_teacher": "Model the network as a directed weighted graph and solve a single-source shortest-path problem.",
+      "hint1_peer": "The signal spreads like shortest paths from the starting node.",
+      "hint2_teacher": "After computing shortest arrival times, the answer is the maximum distance among all nodes; unreachable nodes imply -1.",
+      "hint2_peer": "Find the slowest node that still gets the signal.",
+      "solution_regular": {
+        "approach": "Use Bellman-Ford as a straightforward shortest-path baseline. Relax all directed edges n - 1 times, then take the maximum distance from the source.",
+        "code": "class Solution:\n    def networkDelayTime(self, times, n, k):\n        INF = 10**18\n        dist = [INF] * (n + 1)\n        dist[k] = 0\n\n        for _ in range(n - 1):\n            changed = False\n            for u, v, w in times:\n                if dist[u] != INF and dist[u] + w < dist[v]:\n                    dist[v] = dist[u] + w\n                    changed = True\n            if not changed:\n                break\n\n        answer = max(dist[1:])\n        return -1 if answer == INF else answer",
+        "time": "O(n * E), where E = len(times)",
+        "space": "O(n)"
+      },
+      "solution_optimal": {
+        "approach": "Use Dijkstra's algorithm with a min-heap because all edge weights are positive. Build an adjacency list, compute shortest arrival times from k, and return the maximum reachable distance.",
+        "code": "from collections import defaultdict\nimport heapq\n\nclass Solution:\n    def networkDelayTime(self, times, n, k):\n        graph = defaultdict(list)\n        for u, v, w in times:\n            graph[u].append((v, w))\n\n        INF = 10**18\n        dist = [INF] * (n + 1)\n        dist[k] = 0\n        heap = [(0, k)]\n\n        while heap:\n            d, u = heapq.heappop(heap)\n            if d != dist[u]:\n                continue\n            for v, w in graph[u]:\n                nd = d + w\n                if nd < dist[v]:\n                    dist[v] = nd\n                    heapq.heappush(heap, (nd, v))\n\n        answer = max(dist[1:])\n        return -1 if answer == INF else answer",
+        "time": "O((n + E) log n), where E = len(times)",
+        "space": "O(n + E)"
+      }
+    }
+  ]
+}

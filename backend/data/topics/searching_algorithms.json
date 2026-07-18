@@ -1,0 +1,377 @@
+{
+  "topic": "Searching Algorithms",
+  "overview": {
+    "what_is_it": "Searching algorithms are techniques for locating a target value, position, or condition in a collection or search space.",
+    "why_it_matters": "They make lookup, indexing, debugging, and decision tasks faster by avoiding unnecessary comparisons.",
+    "core_idea": "Use structure such as order, monotonicity, or distribution to discard candidates that cannot contain the answer.",
+    "time_complexity": "Linear O(n); Binary O(log n); Jump O(sqrt(n)); Ternary O(log n); Interpolation O(log log n) average and O(n) worst; Exponential O(log n) after finding a bound.",
+    "space_complexity": "Iterative searches are O(1); recursive binary or ternary search uses O(log n) call stack; auxiliary storage is usually O(1).",
+    "when_to_use": [
+      "Find a value in a small or unsorted list",
+      "Find a value in a sorted array faster than scanning",
+      "Locate a boundary in monotonic data",
+      "Search an unknown-size or unbounded sorted range"
+    ],
+    "common_mistakes": [
+      "Using binary search on unsorted data",
+      "Updating left and right incorrectly and accidentally discarding the target",
+      "Stopping at any duplicate instead of searching for first or last occurrence",
+      "Making off-by-one errors with inclusive and exclusive boundaries"
+    ]
+  },
+  "pseudocode": "function LINEAR_SEARCH(A, target):\n    for index from 0 to length(A) - 1:\n        if A[index] == target:\n            return index\n    return -1\n\nfunction BINARY_SEARCH(A, target):\n    left = 0\n    right = length(A) - 1\n    while left <= right:\n        mid = left + floor((right - left) / 2)\n        if A[mid] == target:\n            return mid\n        else if A[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
+  "real_world_usage": [
+    {
+      "use_case": "Database index lookup",
+      "description": "Indexes use search structures such as B-trees to quickly locate rows by key instead of scanning every record."
+    },
+    {
+      "use_case": "Debugging a regression",
+      "description": "If commits are ordered and a bug appears after a certain point, binary search can find the first bad commit efficiently."
+    },
+    {
+      "use_case": "Autocomplete and dictionary lookup",
+      "description": "Sorted word lists or trie-like structures help find matching prefixes or exact words quickly."
+    },
+    {
+      "use_case": "Numerical optimization",
+      "description": "Ternary search can find the minimum or maximum of a unimodal cost function in engineering and machine learning settings."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "find target",
+      "exists",
+      "first occurrence",
+      "last occurrence",
+      "lower_bound",
+      "upper_bound",
+      "rotated sorted",
+      "monotonic",
+      "unimodal",
+      "search space"
+    ],
+    "patterns": [
+      "Sorted array plus need for O(log n) suggests binary search",
+      "Find first or last position suggests boundary binary search",
+      "Rotated sorted array suggests identifying the sorted half",
+      "Unbounded sorted search suggests exponential search",
+      "Unimodal function suggests ternary search or binary search on answer"
+    ],
+    "constraints": [
+      "n can be up to 10^5 or 10^9",
+      "Array is sorted or condition is monotonic",
+      "Duplicates may exist",
+      "Random access is available for binary or jump search"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "Which statement best captures why binary search is faster than linear search on a sorted array?",
+      "options": [
+        "Option A: It compares the target with every element until a match is found.",
+        "Option B: It repeatedly halves the candidate interval by using the sorted order.",
+        "Option C: It hashes each value to an index.",
+        "Option D: It sorts the array during the search."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Compare how many candidates remain after each comparison.",
+      "hint_peer": "Linear checks one by one; binary keeps throwing away half the list.",
+      "explanation_teacher": "Binary search relies on sorted order. Each comparison with the middle element determines whether the target can only be in the left half or the right half, so the search interval shrinks by roughly half each step. This produces O(log n) time instead of O(n).",
+      "explanation_peer": "Imagine looking for a word in a dictionary. You do not read every page; you keep opening near the middle and eliminating half the book."
+    },
+    {
+      "id": "mcq_2",
+      "question": "What is the essential precondition for using standard binary search on an array?",
+      "options": [
+        "Option A: The array contains only positive integers.",
+        "Option B: The array has no duplicates.",
+        "Option C: The array is sorted according to the same comparison used for the target.",
+        "Option D: The array length is a power of two."
+      ],
+      "answer": "Option C",
+      "hint_teacher": "Binary search decisions depend on ordering.",
+      "hint_peer": "If the list is scrambled, the middle tells you almost nothing.",
+      "explanation_teacher": "Binary search assumes that all elements before a position are less than or equal to it and all elements after are greater than or equal to it, or vice versa depending on ordering. Without this sorted structure, eliminating half the array after one comparison is invalid.",
+      "explanation_peer": "Binary search needs the list to be in order, like a phone book. Randomly shuffled names break the trick."
+    },
+    {
+      "id": "mcq_3",
+      "question": "Why is mid often computed as left + (right - left) // 2 instead of (left + right) // 2 in many programming languages?",
+      "options": [
+        "Option A: It makes the search logarithmic.",
+        "Option B: It avoids possible integer overflow and keeps mid inside the current interval.",
+        "Option C: It handles duplicate values automatically.",
+        "Option D: It is required for recursive search."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Think about fixed-width integer limits.",
+      "hint_peer": "Adding two huge indices can overflow even if their average fits.",
+      "explanation_teacher": "The expressions are mathematically equivalent for normal integers, but left + right can exceed the maximum value of a fixed-width integer type. Computing left + (right - left) // 2 avoids that overflow while still producing a midpoint inside [left, right].",
+      "explanation_peer": "It is the safe middle formula. Same answer, less chance of your program exploding on huge arrays."
+    },
+    {
+      "id": "mcq_4",
+      "question": "What invariant must remain true when updating binary search boundaries?",
+      "options": [
+        "Option A: The array length must stay constant.",
+        "Option B: The target, if present, must remain inside the maintained search interval.",
+        "Option C: The array must be re-sorted after every update.",
+        "Option D: The comparison direction must flip after every step."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Before changing left or right, ask whether the target could still be in the remaining interval.",
+      "hint_peer": "Never close the door on the room where the answer might be hiding.",
+      "explanation_teacher": "Correct boundary updates preserve the invariant that all possible answers are still within the current interval. For example, in an ascending array, if A[mid] > target, then mid and everything to its right cannot contain the target, so setting right = mid - 1 is safe.",
+      "explanation_peer": "Binary search is like narrowing a hallway. You can shrink it, but you cannot accidentally remove the exit."
+    },
+    {
+      "id": "mcq_5",
+      "question": "For finding the first occurrence of a duplicate target in a sorted array, which strategy is correct?",
+      "options": [
+        "Option A: Stop immediately when any occurrence of the target is found.",
+        "Option B: When nums[mid] >= target, record mid as a candidate and search the left half.",
+        "Option C: Always search the right half after equality.",
+        "Option D: Use jump search only."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Treat the found index as a possible answer, then continue searching for an earlier one.",
+      "hint_peer": "If you find the target, do not celebrate yet; there might be an earlier twin.",
+      "explanation_teacher": "The first occurrence is the leftmost index satisfying nums[index] == target. When equality occurs, mid is a candidate, but an earlier equal value may exist, so the algorithm must continue searching left while remembering the best candidate.",
+      "explanation_peer": "Finding one copy is not enough. Keep moving left to see if there is an even earlier copy."
+    },
+    {
+      "id": "mcq_6",
+      "question": "In a rotated sorted array with distinct values, why can we often decide which half is sorted?",
+      "options": [
+        "Option A: One side of the middle index is guaranteed to be sorted because rotation preserves sorted order within each side.",
+        "Option B: All values left of the middle are always smaller than all values right of the middle.",
+        "Option C: The smallest value is always at the middle index.",
+        "Option D: The array becomes hashable after rotation."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Compare nums[left], nums[mid], and nums[right] to identify the ordered side.",
+      "hint_peer": "Even after rotation, at least one half still looks like a normal sorted list.",
+      "explanation_teacher": "A rotated sorted array consists of two sorted segments. At any midpoint, either the left half or the right half is sorted. Once the sorted half is identified, we can check whether the target lies inside it and search accordingly.",
+      "explanation_peer": "The list is bent, not destroyed. One side of the bend is still nicely ordered."
+    },
+    {
+      "id": "mcq_7",
+      "question": "What is the main advantage of interpolation search over binary search?",
+      "options": [
+        "Option A: It works on unsorted data.",
+        "Option B: It uses value distribution to estimate the target position and can be faster on uniformly distributed sorted data.",
+        "Option C: It always requires less memory than binary search.",
+        "Option D: It guarantees O(log log n) worst-case time."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Interpolation search guesses where the target should be based on numeric values.",
+      "hint_peer": "Binary opens the middle page; interpolation guesses a smarter page number.",
+      "explanation_teacher": "Interpolation search estimates the likely position using the target value relative to the low and high values. On uniformly distributed numeric data, this can approach O(log log n), but skewed distributions can degrade performance to O(n).",
+      "explanation_peer": "If you know the list is evenly spread out, you can guess closer to the answer instead of always checking the exact middle."
+    },
+    {
+      "id": "mcq_8",
+      "question": "When is exponential search especially useful?",
+      "options": [
+        "Option A: Searching a sorted array of unknown or unbounded length",
+        "Option B: Searching an unsorted array with no order",
+        "Option C: Finding connected components in a graph",
+        "Option D: Resolving hash table collisions"
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Exponential search first finds a range by checking indices 1, 2, 4, 8, and so on.",
+      "hint_peer": "It is useful when you do not know how big the sorted list is.",
+      "explanation_teacher": "Exponential search repeatedly doubles the index until it finds a range that may contain the target, then performs binary search inside that range. This is useful for infinite streams, unbounded arrays, or situations where the upper bound is unknown.",
+      "explanation_peer": "First jump farther and farther until you pass the answer, then binary search inside the last jump range."
+    },
+    {
+      "id": "mcq_9",
+      "question": "Why might jump search be preferred over binary search in some external memory or linked-list-like contexts?",
+      "options": [
+        "Option A: It uses no comparisons.",
+        "Option B: It reduces frequent backward jumps and can be cheaper when random access is expensive.",
+        "Option C: It is always O(1) time.",
+        "Option D: It works on unsorted lists without modification."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Consider the cost of moving backward versus moving forward through blocks.",
+      "hint_peer": "Jump search takes bigger forward steps and then searches a smaller block.",
+      "explanation_teacher": "Jump search moves forward by fixed block sizes, then performs a linear scan inside one block. This can reduce costly backward movement compared with binary search when random access or backward traversal is expensive.",
+      "explanation_peer": "Binary search keeps bouncing around. Jump search mostly moves forward, then checks one neighborhood."
+    },
+    {
+      "id": "mcq_10",
+      "question": "Ternary search is most appropriate for which type of problem?",
+      "options": [
+        "Option A: Searching a sorted array for an exact key",
+        "Option B: Finding the extremum of a unimodal function",
+        "Option C: Searching a hash table",
+        "Option D: Finding connected components in a graph"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Ternary search compares two interior points to eliminate one third of a continuous or discrete search interval.",
+      "hint_peer": "It is for hill-shaped or valley-shaped functions, not just normal lookup.",
+      "explanation_teacher": "Ternary search divides the interval into three parts and removes the part that cannot contain the minimum or maximum of a unimodal function. For exact lookup in a sorted array, binary search is usually simpler and equally logarithmic.",
+      "explanation_peer": "Use ternary search when the answer is at the bottom of a valley or top of a hill."
+    },
+    {
+      "id": "mcq_11",
+      "question": "Which invariant is central to binary searching for the first element satisfying a monotonic predicate?",
+      "options": [
+        "Option A: The predicate is false before the first true value and true from that value onward.",
+        "Option B: All elements must be equal to the target.",
+        "Option C: The array must contain no duplicates.",
+        "Option D: The predicate must be random."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Many binary search problems are really searches for the first true in a false-false-true-true pattern.",
+      "hint_peer": "If the condition changes from no to yes only once, binary search can find the switch.",
+      "explanation_teacher": "For a monotonic predicate, once the condition becomes true, it remains true. This creates a boundary between false and true values, and binary search can locate the first true index in O(log n).",
+      "explanation_peer": "Look for the switch point where the answer changes from no to yes."
+    },
+    {
+      "id": "mcq_12",
+      "question": "What is the time and space complexity of recursive binary search without tail-call optimization?",
+      "options": [
+        "Option A: O(1) time and O(1) space",
+        "Option B: O(log n) time and O(log n) stack space",
+        "Option C: O(n) time and O(1) stack space",
+        "Option D: O(n log n) time and O(n) stack space"
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Each recursive call halves the interval, and each active call uses stack space.",
+      "hint_peer": "The depth is about the number of times you can cut the array in half.",
+      "explanation_teacher": "Recursive binary search performs one call per halving step, so it takes O(log n) time. Without tail-call optimization, each pending recursive call remains on the call stack, giving O(log n) auxiliary space.",
+      "explanation_peer": "Same fast time as iterative binary search, but recursion stacks up a few function calls."
+    },
+    {
+      "id": "mcq_13",
+      "question": "In a matrix sorted in ascending order across each row and down each column, why is starting at the top-right corner useful?",
+      "options": [
+        "Option A: Each comparison can eliminate either one row or one column.",
+        "Option B: It guarantees the target is on the main diagonal.",
+        "Option C: It sorts the matrix during traversal.",
+        "Option D: It guarantees O(1) time."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "At the top-right, moving left decreases values and moving down increases values.",
+      "hint_peer": "Every step lets you cross out a whole row or column.",
+      "explanation_teacher": "Starting at the top-right gives two useful directions. If the current value is larger than the target, every value below it in that column is also too large, so the column can be eliminated. If the current value is smaller, every value to its left in that row is also too small, so the row can be eliminated.",
+      "explanation_peer": "Top-right is a smart corner because you always know which direction makes the number smaller or larger."
+    },
+    {
+      "id": "mcq_14",
+      "question": "Why can comparison-based search in a sorted array not generally beat O(log n) with only comparisons?",
+      "options": [
+        "Option A: Each comparison can eliminate at most about half the remaining possibilities in the decision-tree model.",
+        "Option B: Array indices are random.",
+        "Option C: Duplicates always force scanning all elements.",
+        "Option D: Memory limits prevent faster algorithms."
+      ],
+      "answer": "Option A",
+      "hint_teacher": "Use the decision tree lower bound for comparison-based search.",
+      "hint_peer": "A yes-or-no comparison cannot magically remove most possibilities every time.",
+      "explanation_teacher": "In the comparison model, each comparison has limited outcomes and can distinguish only a bounded number of cases. To identify one position among n possible positions requires at least logarithmically many comparisons in the worst case, giving the O(log n) lower bound for binary-search-like comparison search.",
+      "explanation_peer": "You need enough yes-or-no questions to narrow n possibilities down to one."
+    },
+    {
+      "id": "mcq_15",
+      "question": "Which choice best distinguishes linear search from binary search in terms of data access and ordering?",
+      "options": [
+        "Option A: Linear search needs sorted order, while binary search does not.",
+        "Option B: Linear search scans sequentially and works on unsorted data; binary search uses random access to sorted data.",
+        "Option C: Both require hashing.",
+        "Option D: Binary search always examines every element."
+      ],
+      "answer": "Option B",
+      "hint_teacher": "Compare the assumptions and access pattern of each algorithm.",
+      "hint_peer": "Linear is page by page; binary is jump-to-the-middle in an ordered book.",
+      "explanation_teacher": "Linear search checks elements one by one and does not require sorted data. Binary search requires sorted data and efficient access to middle elements, which is natural for arrays but not for structures like singly linked lists.",
+      "explanation_peer": "Linear search is simple and flexible; binary search is faster but needs order and quick middle access."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Binary Search in a Sorted Array",
+      "difficulty": "Easy",
+      "statement": "Given a sorted array nums in ascending order and an integer target, return the index of target if it exists in nums. Otherwise, return -1. Your optimal solution should run in O(log n) time.",
+      "examples": [
+        {
+          "input": "nums = [-1,0,3,5,9,12], target = 9",
+          "output": "4",
+          "explanation": "9 appears at index 4."
+        },
+        {
+          "input": "nums = [-1,0,3,5,9,12], target = 2",
+          "output": "-1",
+          "explanation": "2 is not present in nums."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 10^4",
+        "-10^4 <= nums[i], target <= 10^4",
+        "All integers in nums are unique.",
+        "nums is sorted in ascending order."
+      ],
+      "hint1_teacher": "Use the sorted property to eliminate half of the remaining indices after each comparison.",
+      "hint1_peer": "Check the middle. If it is too small, go right; if it is too big, go left.",
+      "hint2_teacher": "Maintain an inclusive interval [left, right] and update boundaries so the target remains possible if it exists.",
+      "hint2_peer": "Do not let your left and right pointers cross without returning -1.",
+      "solution_regular": {
+        "approach": "Use linear search as a correct baseline by checking each element until the target is found.",
+        "code": "def linear_search(nums: list[int], target: int) -> int:\n    for index, value in enumerate(nums):\n        if value == target:\n            return index\n    return -1",
+        "time": "O(n)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "Use binary search because the array is sorted. Repeatedly compare the target with the middle element and discard the half that cannot contain the target.",
+        "code": "def binary_search(nums: list[int], target: int) -> int:\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = left + (right - left) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1",
+        "time": "O(log n)",
+        "space": "O(1)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Search in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "statement": "Given an integer array nums sorted in ascending order and then rotated at an unknown pivot, and an integer target, return the index of target if it exists in nums. Otherwise, return -1. The array contains distinct values.",
+      "examples": [
+        {
+          "input": "nums = [4,5,6,7,0,1,2], target = 0",
+          "output": "4",
+          "explanation": "0 appears at index 4."
+        },
+        {
+          "input": "nums = [4,5,6,7,0,1,2], target = 3",
+          "output": "-1",
+          "explanation": "3 is not present in nums."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 5000",
+        "-10^4 <= nums[i], target <= 10^4",
+        "All values in nums are unique.",
+        "nums is sorted in ascending order and then rotated at some pivot."
+      ],
+      "hint1_teacher": "At each midpoint, at least one side of the array is normally sorted.",
+      "hint1_peer": "Find the clean half first, then check whether the target belongs there.",
+      "hint2_teacher": "If the left half is sorted, test whether the target lies between nums[left] and nums[mid]. Otherwise, the right half is sorted.",
+      "hint2_peer": "If one side is ordered and the target fits inside it, search there; if not, search the other side.",
+      "solution_regular": {
+        "approach": "Scan all elements and return the index of the first matching value.",
+        "code": "def rotated_search_linear(nums: list[int], target: int) -> int:\n    for index, value in enumerate(nums):\n        if value == target:\n            return index\n    return -1",
+        "time": "O(n)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "Use modified binary search. After computing mid, determine whether the left or right half is sorted, then decide whether the target lies in that sorted half.",
+        "code": "def rotated_search(nums: list[int], target: int) -> int:\n    left, right = 0, len(nums) - 1\n    while left <= right:\n        mid = left + (right - left) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[left] <= nums[mid]:\n            if nums[left] <= target < nums[mid]:\n                right = mid - 1\n            else:\n                left = mid + 1\n        else:\n            if nums[mid] < target <= nums[right]:\n                left = mid + 1\n            else:\n                right = mid - 1\n    return -1",
+        "time": "O(log n)",
+        "space": "O(1)"
+      }
+    }
+  ]
+}

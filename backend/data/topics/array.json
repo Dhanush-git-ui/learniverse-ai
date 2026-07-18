@@ -1,0 +1,379 @@
+{
+  "topic": "Array",
+  "overview": {
+    "what_is_it": "An array is an ordered collection stored in contiguous memory, where each element is accessed by an integer index.",
+    "why_it_matters": "Arrays provide fast indexed access and form the foundation for strings, matrices, heaps, hash-table buckets, and many algorithms.",
+    "core_idea": "Think of an array as numbered boxes in a row: index 0 is the first box, and each next index moves one position forward.",
+    "time_complexity": "Access O(1); append O(1) amortized for dynamic arrays; search O(n) unsorted; binary search O(log n) sorted; insert/delete O(n).",
+    "space_complexity": "O(n) storage for n elements; auxiliary space is often O(1) for simple scans and O(n) for maps or prefix arrays.",
+    "when_to_use": [
+      "Need fast random access by index",
+      "Store an ordered collection of homogeneous values",
+      "Process fixed or dynamically growing lists efficiently"
+    ],
+    "common_mistakes": [
+      "Using 1-based indexing in 0-based languages",
+      "Ignoring empty arrays or single-element edge cases",
+      "Modifying an array while iterating over it without a clear plan",
+      "Assuming arrays are sorted unless the problem says so"
+    ]
+  },
+  "pseudocode": "Procedure ARRAY-SEARCH(A, target):\n  n <- length(A)\n  foundIndex <- -1\n  for i from 0 to n - 1 do\n    if A[i] equals target then\n      foundIndex <- i\n      stop\n  return foundIndex",
+  "real_world_usage": [
+    {
+      "use_case": "Database indexing",
+      "description": "B-tree nodes store sorted arrays of keys and child pointers, allowing fast lookup and range scans."
+    },
+    {
+      "use_case": "Network routing",
+      "description": "Routers keep adjacency lists and port tables as arrays so neighbor and interface lookups can use indices efficiently."
+    },
+    {
+      "use_case": "Image processing",
+      "description": "A grayscale image can be represented as a 1D array of pixel intensities or a 2D array of rows and columns."
+    },
+    {
+      "use_case": "Audio processing",
+      "description": "Digital audio samples are arrays of amplitude values indexed by time, enabling filtering, compression, and playback."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "array",
+      "list",
+      "subarray",
+      "subsequence",
+      "index",
+      "prefix sum",
+      "sliding window",
+      "two pointers",
+      "sorted",
+      "duplicates"
+    ],
+    "patterns": [
+      "Use two pointers when the array is sorted or when a window boundary can move monotonically",
+      "Use prefix sums or hash maps for subarray sum queries",
+      "Use binary search when the array is sorted and you need a value or boundary",
+      "Use in-place swaps for duplicate removal, partitioning, or rearranging"
+    ],
+    "constraints": [
+      "n up to 10^5 or larger usually rules out O(n^2)",
+      "Values may be negative, zero, or duplicated unless stated otherwise",
+      "Input may be empty; handle n = 0 explicitly",
+      "Preserve order only if the problem requires it"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "For an array A with n elements in a 0-based language, which index accesses the last element?",
+      "options": [
+        "A[n]",
+        "A[n - 1]",
+        "A[0]",
+        "A[n + 1]"
+      ],
+      "answer": "A[n - 1]",
+      "hint_teacher": "Array indices start at 0, so the first element is offset 0 from the base address.",
+      "hint_peer": "Count boxes from zero, not one.",
+      "explanation_teacher": "In zero-based indexing, the element at position i is located i positions after the first element. Therefore, the nth element has index n - 1.",
+      "explanation_peer": "If there are 5 boxes, their labels are 0, 1, 2, 3, and 4. The last one is 4."
+    },
+    {
+      "id": "mcq_2",
+      "question": "Which operation is typically O(1) for an array when the index is known?",
+      "options": [
+        "Reading A[i]",
+        "Finding a target in an unsorted array",
+        "Deleting a middle element",
+        "Sorting the array"
+      ],
+      "answer": "Reading A[i]",
+      "hint_teacher": "Arrays use contiguous memory, so the address of A[i] can be computed directly from the base address.",
+      "hint_peer": "If you already know the box number, you can jump straight to it.",
+      "explanation_teacher": "Because array elements are stored contiguously, accessing A[i] requires computing base_address + i * element_size, which takes constant time.",
+      "explanation_peer": "Knowing the index is like knowing the exact seat number in a theater row."
+    },
+    {
+      "id": "mcq_3",
+      "question": "Why is searching for a value in an unsorted array O(n) in the worst case?",
+      "options": [
+        "Each comparison takes O(n)",
+        "The target may be absent or at the final position, requiring inspection of all elements",
+        "Array indices are not integers",
+        "The array must be copied before searching"
+      ],
+      "answer": "The target may be absent or at the final position, requiring inspection of all elements",
+      "hint_teacher": "Without ordering or indexing by value, no element can be safely skipped.",
+      "hint_peer": "If the array is not sorted, the answer could be hiding at the very end.",
+      "explanation_teacher": "In an unsorted array, the target gives no information about where it might appear. The worst case occurs when the target is last or absent, so every element must be checked.",
+      "explanation_peer": "It is like checking every drawer in a messy room because you do not know where the item is."
+    },
+    {
+      "id": "mcq_4",
+      "question": "Why is appending to a dynamic array often described as O(1) amortized rather than always O(1)?",
+      "options": [
+        "Because append never allocates memory",
+        "Because occasional resizing copies many elements, but the average cost over many appends is constant",
+        "Because dynamic arrays are always sorted",
+        "Because append uses binary search"
+      ],
+      "answer": "Because occasional resizing copies many elements, but the average cost over many appends is constant",
+      "hint_teacher": "When capacity is exhausted, a dynamic array allocates a larger backing array and copies old elements.",
+      "hint_peer": "Most pushes are cheap, but sometimes the array has to move to a bigger home.",
+      "explanation_teacher": "A single append can trigger resizing and take O(n), but if capacity grows geometrically, the total copying cost over many appends spreads out to O(1) per append on average.",
+      "explanation_peer": "Moving houses is rare, so the average moving cost per day is still small."
+    },
+    {
+      "id": "mcq_5",
+      "question": "What is the main practical difference between a static array and a dynamic array?",
+      "options": [
+        "Static arrays can grow automatically, dynamic arrays cannot",
+        "Static arrays have a fixed capacity after allocation, while dynamic arrays can grow by allocating a larger backing array",
+        "Static arrays are always sorted",
+        "Dynamic arrays provide O(1) worst-case middle insertion"
+      ],
+      "answer": "Static arrays have a fixed capacity after allocation, while dynamic arrays can grow by allocating a larger backing array",
+      "hint_teacher": "Consider whether the size is fixed at creation or can expand during execution.",
+      "hint_peer": "Static means the size is locked; dynamic means it can stretch.",
+      "explanation_teacher": "A static array has a predetermined capacity, while a dynamic array manages a resizable backing array, usually by allocating more space and copying elements when needed.",
+      "explanation_peer": "A static array is like a fixed-size tray; a dynamic array is like a tray that can be replaced with a bigger one."
+    },
+    {
+      "id": "mcq_6",
+      "question": "Which condition is essential before applying standard binary search to an array?",
+      "options": [
+        "The array must be sorted according to the comparison order",
+        "The array must contain only positive numbers",
+        "The array must have no duplicates",
+        "The array must be stored in a linked list"
+      ],
+      "answer": "The array must be sorted according to the comparison order",
+      "hint_teacher": "Binary search depends on eliminating half of the remaining search space after each comparison.",
+      "hint_peer": "You can only throw away half the array if you know which side the answer must be on.",
+      "explanation_teacher": "Binary search relies on sorted order to decide whether the target must lie to the left or right of the midpoint. Duplicates may exist, but the array still needs sorted ordering.",
+      "explanation_peer": "Binary search is like using a dictionary: it only works because words are in order."
+    },
+    {
+      "id": "mcq_7",
+      "question": "A prefix sum array P is often used to answer range sum queries because:",
+      "options": [
+        "It stores the array in sorted order",
+        "It lets sum(A[l..r]) be computed as P[r+1] - P[l] when P[0] = 0",
+        "It removes all duplicates",
+        "It makes every element O(1)"
+      ],
+      "answer": "It lets sum(A[l..r]) be computed as P[r+1] - P[l] when P[0] = 0",
+      "hint_teacher": "A prefix sum stores cumulative totals up to each index.",
+      "hint_peer": "Store running totals, then subtract two totals to get the middle part.",
+      "explanation_teacher": "If P[i] stores the sum of the first i elements, then the sum from l to r is the total up to r plus one minus the total before l.",
+      "explanation_peer": "If you know the total distance to two milestones, subtracting them gives the distance between the milestones."
+    },
+    {
+      "id": "mcq_8",
+      "question": "For a sorted array, the two-pointer technique is especially useful when:",
+      "options": [
+        "The problem asks for a pair, window, or boundary that can move monotonically",
+        "The array must be randomized first",
+        "Only recursive divide and conquer can work",
+        "The array contains only strings"
+      ],
+      "answer": "The problem asks for a pair, window, or boundary that can move monotonically",
+      "hint_teacher": "Two pointers work well when moving one pointer gives predictable information about the next move.",
+      "hint_peer": "Put one finger at the start and one at the end, then slide them intelligently.",
+      "explanation_teacher": "In sorted arrays, comparing the sum or condition at two pointers often tells us whether to move the left pointer rightward or the right pointer leftward, avoiding repeated checks.",
+      "explanation_peer": "It is like closing a book from both sides until the pages meet."
+    },
+    {
+      "id": "mcq_9",
+      "question": "What distinguishes a subarray from a subsequence?",
+      "options": [
+        "A subarray is contiguous; a subsequence preserves order but may skip elements",
+        "A subsequence is contiguous; a subarray may skip elements",
+        "They are always identical",
+        "A subarray cannot be empty, but a subsequence must be empty"
+      ],
+      "answer": "A subarray is contiguous; a subsequence preserves order but may skip elements",
+      "hint_teacher": "Focus on whether skipped elements are allowed between chosen elements.",
+      "hint_peer": "Subarray means one continuous slice; subsequence means keep the order but you can skip stuff.",
+      "explanation_teacher": "A subarray consists of consecutive elements from the original array. A subsequence is formed by deleting zero or more elements without changing the order of the remaining elements.",
+      "explanation_peer": "A subarray is a single cut-out strip; a subsequence is a highlight list that keeps the original order."
+    },
+    {
+      "id": "mcq_10",
+      "question": "An in-place array algorithm usually means:",
+      "options": [
+        "It uses no variables at all",
+        "It uses only O(1) extra auxiliary space besides the input array, often modifying it directly",
+        "It cannot change any input values",
+        "It always runs faster than an out-of-place algorithm"
+      ],
+      "answer": "It uses only O(1) extra auxiliary space besides the input array, often modifying it directly",
+      "hint_teacher": "In-place refers mainly to auxiliary memory, not whether variables are used.",
+      "hint_peer": "In-place means you mostly rearrange the given array instead of building a big new one.",
+      "explanation_teacher": "An in-place algorithm uses constant extra space beyond the input, though it may modify the array. It is not guaranteed to be faster, but it saves memory.",
+      "explanation_peer": "It is like reorganizing books on the same shelf instead of buying a second shelf."
+    },
+    {
+      "id": "mcq_11",
+      "question": "The sliding window technique is most appropriate when the problem involves:",
+      "options": [
+        "A contiguous segment whose left and right endpoints can move monotonically",
+        "Random access to arbitrary indices only",
+        "Only sorting the entire array",
+        "A recursive tree traversal"
+      ],
+      "answer": "A contiguous segment whose left and right endpoints can move monotonically",
+      "hint_teacher": "Sliding windows maintain a current contiguous range and update it incrementally.",
+      "hint_peer": "Use it when the answer is a continuous chunk and you can slide the chunk along.",
+      "explanation_teacher": "Sliding windows are useful for contiguous subarrays or substrings when expanding and shrinking the window can be done without restarting from every position.",
+      "explanation_peer": "It is like moving a camera frame across a panorama instead of taking a new photo from scratch each time."
+    },
+    {
+      "id": "mcq_12",
+      "question": "Why can deleting an element from the middle of an array be O(n)?",
+      "options": [
+        "The array must be searched with binary search",
+        "Elements after the deleted position may need to be shifted left to preserve contiguity",
+        "The CPU cache becomes empty",
+        "The array must be converted to a linked list"
+      ],
+      "answer": "Elements after the deleted position may need to be shifted left to preserve contiguity",
+      "hint_teacher": "Arrays must remain contiguous after deletion unless order is allowed to break.",
+      "hint_peer": "After removing one box from the middle, everyone behind it has to move forward.",
+      "explanation_teacher": "To keep elements contiguous and preserve order, every element after the deleted index may need to be shifted one position left, which can take linear time.",
+      "explanation_peer": "It is like removing one person from the middle of a line; everyone behind them steps forward."
+    },
+    {
+      "id": "mcq_13",
+      "question": "In the Two Sum problem, using a hash map changes the dominant work from:",
+      "options": [
+        "O(n^2) pairwise checks to expected O(n) lookups",
+        "O(1) to O(n)",
+        "O(log n) to O(n log n)",
+        "O(n) to impossible"
+      ],
+      "answer": "O(n^2) pairwise checks to expected O(n) lookups",
+      "hint_teacher": "A hash map stores previously seen values so the complement can be checked quickly.",
+      "hint_peer": "Instead of pairing everyone with everyone, remember what you have already seen.",
+      "explanation_teacher": "A brute-force solution checks all pairs. With a hash map, each element is processed once, and the needed complement is looked up in expected O(1) time.",
+      "explanation_peer": "It turns a room full of handshake checks into a quick name-tag lookup."
+    },
+    {
+      "id": "mcq_14",
+      "question": "If a sorted array contains duplicates, where will equal values appear?",
+      "options": [
+        "They are never present in sorted arrays",
+        "Adjacent to each other",
+        "Only at the beginning",
+        "Only at the end"
+      ],
+      "answer": "Adjacent to each other",
+      "hint_teacher": "Sorted order groups equal keys together under the comparison order.",
+      "hint_peer": "If the array is sorted, equal numbers sit side by side.",
+      "explanation_teacher": "In a sorted array, if two elements are equal, no smaller or larger element can be ordered between them, so equal values appear in a contiguous block.",
+      "explanation_peer": "Sorted duplicates line up like identical books placed next to each other."
+    },
+    {
+      "id": "mcq_15",
+      "question": "When an array may contain negative numbers, why can a simple expanding sliding window fail for arbitrary subarray-sum targets?",
+      "options": [
+        "Negative values can decrease the sum when the window expands, so monotonic sum assumptions break",
+        "Negative numbers make indices invalid",
+        "Sliding windows require arrays to be sorted",
+        "Hash maps cannot store negative numbers"
+      ],
+      "answer": "Negative values can decrease the sum when the window expands, so monotonic sum assumptions break",
+      "hint_teacher": "Many sliding window arguments assume that expanding the window only increases or preserves the relevant measure.",
+      "hint_peer": "With negatives, adding one more item can make the total smaller.",
+      "explanation_teacher": "For nonnegative arrays, expanding a window never decreases the sum, which supports monotonic pointer movement. Negative values break that property, so prefix sums with a frequency map are often safer for arbitrary target sums.",
+      "explanation_peer": "The window is no longer like a bucket that only fills up; sometimes adding an item makes the amount go down."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Two Sum",
+      "difficulty": "Easy",
+      "statement": "Given an integer array nums and an integer target, return the indices of the two numbers such that they add up to target. You may assume exactly one valid answer exists, and you may not use the same element twice.",
+      "examples": [
+        {
+          "input": "nums = [2, 7, 11, 15], target = 9",
+          "output": "[0, 1]",
+          "explanation": "nums[0] + nums[1] = 2 + 7 = 9."
+        },
+        {
+          "input": "nums = [3, 2, 4], target = 6",
+          "output": "[1, 2]",
+          "explanation": "nums[1] + nums[2] = 2 + 4 = 6."
+        },
+        {
+          "input": "nums = [3, 3], target = 6",
+          "output": "[0, 1]",
+          "explanation": "The two equal elements form the target."
+        }
+      ],
+      "constraints": [
+        "2 <= nums.length <= 10^4",
+        "-10^9 <= nums[i] <= 10^9",
+        "-10^9 <= target <= 10^9",
+        "Exactly one valid answer exists."
+      ],
+      "hint1_teacher": "A brute-force approach checks every pair of distinct indices.",
+      "hint1_peer": "Try all pairs first, even if it feels slow.",
+      "hint2_teacher": "For each value x, check whether target - x has already appeared.",
+      "hint2_peer": "Keep a cheat sheet of numbers you have seen.",
+      "solution_regular": {
+        "approach": "Check every pair of indices i and j where i < j. Return the first pair whose values sum to target.",
+        "code": "def two_sum(nums, target):\n    n = len(nums)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return []",
+        "time": "O(n^2)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "Traverse the array once while storing each value and its index in a hash map. For each value, check whether its complement target - value has already been seen.",
+        "code": "def two_sum(nums, target):\n    seen = {}\n    for i, value in enumerate(nums):\n        need = target - value\n        if need in seen:\n            return [seen[need], i]\n        seen[value] = i\n    return []",
+        "time": "O(n) expected",
+        "space": "O(n)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Subarray Sum Equals K",
+      "difficulty": "Medium",
+      "statement": "Given an integer array nums and an integer k, return the total number of continuous subarrays whose sum equals k.",
+      "examples": [
+        {
+          "input": "nums = [1, 1, 1], k = 2",
+          "output": "2",
+          "explanation": "The subarrays [1,1] ending at index 1 and [1,1] ending at index 2 both sum to 2."
+        },
+        {
+          "input": "nums = [1, -1, 0], k = 0",
+          "output": "3",
+          "explanation": "Subarrays [1,-1], [0], and [1,-1,0] each sum to 0."
+        }
+      ],
+      "constraints": [
+        "1 <= nums.length <= 2 * 10^4",
+        "-1000 <= nums[i] <= 1000",
+        "-10^7 <= k <= 10^7"
+      ],
+      "hint1_teacher": "Enumerate all start positions and accumulate sums to every possible end position.",
+      "hint1_peer": "Start at each index and keep a running total.",
+      "hint2_teacher": "Use prefix sums: a subarray sum equals k when two prefix sums differ by k.",
+      "hint2_peer": "Remember how many prefix sums you have seen; if current_prefix - k appeared before, you found subarrays.",
+      "solution_regular": {
+        "approach": "For every start index, extend the end index while maintaining a running sum. Count each time the running sum equals k.",
+        "code": "def subarray_sum(nums, k):\n    count = 0\n    n = len(nums)\n    for start in range(n):\n        total = 0\n        for end in range(start, n):\n            total += nums[end]\n            if total == k:\n                count += 1\n    return count",
+        "time": "O(n^2)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "Maintain a running prefix sum and a frequency map of previous prefix sums. If prefix_sum - k has appeared before, each occurrence represents a subarray ending at the current index with sum k.",
+        "code": "def subarray_sum(nums, k):\n    count = 0\n    prefix_sum = 0\n    freq = {0: 1}\n    for value in nums:\n        prefix_sum += value\n        count += freq.get(prefix_sum - k, 0)\n        freq[prefix_sum] = freq.get(prefix_sum, 0) + 1\n    return count",
+        "time": "O(n)",
+        "space": "O(n)"
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+# Environment
+.env
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Node
+node_modules/
+dist/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Learniverse AI specific ignores
+.env
+__pycache__/
+*.pyc
+node_modules/
+dist/
+dist-ssr/
+
+# Python Virtual Environments
+venv/
+.venv/
+ENV/
+env/
+
+# Vector database & raw assets
+chroma_db/
+backend/chroma_db/
+backend/data/chroma_db/
+backend/data/raw/
+backend/data/raw_calculus/
+backend/data/chunks/
+backend/data/embeddings/
+backend/data/*.json
+
+# Local virtualenvs and build artifacts
+backend/scraper/venv/
+dist/
+node_modules/
+*.sqlite3
+
+# Cache & Build logs
+.eslintcache
+.vite/
+.parcel-cache
+
+# Agents & Rules
+.agents/rules/
+.cursor/rules/
+AGENTS.md
+

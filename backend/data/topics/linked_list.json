@@ -1,0 +1,370 @@
+{
+  "topic": "Linked List",
+  "overview": {
+    "what_is_it": "A linked list is a linear data structure made of nodes, where each node stores data and a reference to the next node, and optionally the previous node.",
+    "why_it_matters": "It enables efficient insertion and deletion without shifting elements, which is useful for dynamic collections and pointer-based algorithms.",
+    "core_idea": "Think of it as a chain of nodes connected by arrows, where you move from one node to the next instead of jumping by index.",
+    "time_complexity": "Access by index O(n); search O(n); insert/delete at head O(1); insert/delete after known node O(1); insert/delete by value O(n); reversing or merging O(n) or O(m+n).",
+    "space_complexity": "O(n) for n nodes; O(1) extra for traversal, reversal, and merging; recursive algorithms may use O(n) call stack.",
+    "when_to_use": [
+      "Frequent insertions and deletions at the front, end, or after known nodes",
+      "Building stacks, queues, adjacency lists, LRU cache chains, or undo history",
+      "When contiguous memory or random access is not required"
+    ],
+    "common_mistakes": [
+      "Losing the head or next pointer before reassigning links",
+      "Not updating both next and prev pointers in a doubly linked list",
+      "Forgetting null or None checks and causing runtime errors",
+      "Creating cycles while reversing, merging, or splitting lists"
+    ]
+  },
+  "pseudocode": "NODE(value):\n    create node with node.value = value and node.next = null\n\nINSERT_HEAD(list, value):\n    newNode = NODE(value)\n    newNode.next = list.head\n    list.head = newNode\n\nINSERT_TAIL(list, value):\n    newNode = NODE(value)\n    if list.head == null:\n        list.head = newNode\n        return\n    current = list.head\n    while current.next != null:\n        current = current.next\n    current.next = newNode\n\nSEARCH(list, value):\n    current = list.head\n    while current != null:\n        if current.value == value:\n            return current\n        current = current.next\n    return null\n\nDELETE_VALUE(list, value):\n    if list.head == null:\n        return\n    if list.head.value == value:\n        list.head = list.head.next\n        return\n    previous = list.head\n    current = list.head.next\n    while current != null and current.value != value:\n        previous = current\n        current = current.next\n    if current != null:\n        previous.next = current.next\n\nREVERSE(list):\n    previous = null\n    current = list.head\n    while current != null:\n        nextNode = current.next\n        current.next = previous\n        previous = current\n        current = nextNode\n    list.head = previous",
+  "real_world_usage": [
+    {
+      "use_case": "Browser history and undo-redo systems",
+      "description": "Pages or states can be represented as nodes, with links allowing movement forward, backward, or through an action history."
+    },
+    {
+      "use_case": "Music or video playlists",
+      "description": "Each media item can point to the next item, making insertion, removal, and reordering straightforward."
+    },
+    {
+      "use_case": "Operating system memory management",
+      "description": "Free memory blocks are often tracked as linked lists so blocks can be allocated, merged, or released dynamically."
+    },
+    {
+      "use_case": "Hash table collision handling",
+      "description": "Separate chaining uses linked lists at each bucket to store multiple keys that hash to the same index."
+    },
+    {
+      "use_case": "Graph adjacency lists",
+      "description": "Each vertex can store a linked list of neighboring vertices, which is memory-efficient for sparse graphs."
+    }
+  ],
+  "recognition_guide": {
+    "keywords": [
+      "node",
+      "next",
+      "prev",
+      "head",
+      "tail",
+      "null",
+      "cycle",
+      "reverse",
+      "merge",
+      "slow and fast pointers",
+      "dummy node"
+    ],
+    "patterns": [
+      "Traverse with current = head until current is null",
+      "Use a dummy node before the head for deletion, merge, or partition operations",
+      "Use two pointers for cycle detection, middle-node problems, or distance-based logic",
+      "Reverse links while saving the next pointer before changing current.next",
+      "Maintain previous, current, and next pointers when deleting, reversing, or relinking nodes"
+    ],
+    "constraints": [
+      "Linked list nodes may not support random access",
+      "Values may be duplicate unless the problem states otherwise",
+      "The number of nodes may be large, so avoid unnecessary O(n^2) traversal",
+      "The input may contain cycles unless explicitly guaranteed acyclic"
+    ]
+  },
+  "mcqs": [
+    {
+      "id": "mcq_1",
+      "question": "In a singly linked list, why is accessing the kth node by index O(n)?",
+      "options": [
+        "Nodes store only their own value and next pointer, so traversal from head is required.",
+        "The list is always unsorted, so every search must inspect all nodes.",
+        "Linked lists are implemented using hash tables internally.",
+        "The kth node can be found by arithmetic on the head address."
+      ],
+      "answer": "Nodes store only their own value and next pointer, so traversal from head is required.",
+      "hint_teacher": "Compare random access in arrays with sequential access through next pointers.",
+      "hint_peer": "You cannot teleport to position k; you have to walk the chain.",
+      "explanation_teacher": "Unlike arrays, linked-list nodes are not stored contiguously and do not support index arithmetic. To reach index k, the algorithm must follow k next pointers from the head.",
+      "explanation_peer": "It is like finding the fifth person in a line by asking each person who stands next."
+    },
+    {
+      "id": "mcq_2",
+      "question": "Which operation is O(1) on a singly linked list when the head pointer is available?",
+      "options": [
+        "Inserting at the head",
+        "Accessing the last node",
+        "Deleting the last node",
+        "Binary searching the list"
+      ],
+      "answer": "Inserting at the head",
+      "hint_teacher": "Consider how many pointers must be updated when inserting before the current head.",
+      "hint_peer": "Adding a new first node only needs the new node and the old head.",
+      "explanation_teacher": "Insertion at the head requires creating a node, pointing it to the old head, and updating the head pointer. None of these steps depends on the list length.",
+      "explanation_peer": "You just put the new node at the front and point it to the old front."
+    },
+    {
+      "id": "mcq_3",
+      "question": "What is the key danger when reversing a singly linked list in place?",
+      "options": [
+        "Using too much memory for the values",
+        "Overwriting a node's next pointer before saving the next node",
+        "Changing the node values instead of the links",
+        "Needing a tail pointer for every reversal"
+      ],
+      "answer": "Overwriting a node's next pointer before saving the next node",
+      "hint_teacher": "Think about how you keep track of the remaining list when you break the link of the current node.",
+      "hint_peer": "If you cut the link to the next element, you lose the rest of the list unless you saved it beforehand.",
+      "explanation_teacher": "Reversing requires changing current.next to point to the previous node. If you do this without storing the original current.next, you lose the reference to the rest of the list and cannot continue.",
+      "explanation_peer": "It is like cutting the branch you are standing on; save the next node's address before changing the pointer."
+    },
+    {
+      "id": "mcq_4",
+      "question": "How does a doubly linked list differ from a singly linked list?",
+      "options": [
+        "Each node has an additional pointer to the previous node",
+        "It can only be traversed backward",
+        "It uses less memory per node",
+        "It does not support O(1) head insertion"
+      ],
+      "answer": "Each node has an additional pointer to the previous node",
+      "hint_teacher": "Think about bidirectionality in node connections.",
+      "hint_peer": "Doubly linked means you can go both forward and backward from any node.",
+      "explanation_teacher": "A doubly linked list node contains data, a 'next' pointer, and a 'prev' pointer. This allows traversal in both directions and O(1) deletion of a node when only that node's reference is given.",
+      "explanation_peer": "Every node has two hands: one holds the next node, and the other holds the previous one."
+    },
+    {
+      "id": "mcq_5",
+      "question": "In a singly linked list, what is the time complexity to delete a node at the tail if only the head is given?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n log n)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "Think about how you reach the second-to-last node to update its next pointer to null.",
+      "hint_peer": "To cut off the tail, you need to find the node right before it. You have to walk from the head to find it.",
+      "explanation_teacher": "Even if we have a tail pointer, deleting the tail requires setting the second-to-last node's next pointer to null. In a singly linked list, we must traverse from the head to find this second-to-last node, taking O(n) time.",
+      "explanation_peer": "You have to walk all the way to the end to tell the second-to-last guy to stop pointing to the last guy."
+    },
+    {
+      "id": "mcq_6",
+      "question": "What is the primary advantage of a circular linked list?",
+      "options": [
+        "It allows O(1) random access by index",
+        "It is always sorted",
+        "Any node can be a starting point for traversal of the whole list",
+        "It uses less memory than a singly linked list"
+      ],
+      "answer": "Any node can be a starting point for traversal of the whole list",
+      "hint_teacher": "Consider what happens when the tail points back to the head.",
+      "hint_peer": "Since it is a loop, you can start anywhere and still visit everyone.",
+      "explanation_teacher": "In a circular linked list, the last node points back to the first node. Since there is no null terminator, you can traverse the entire list starting from any arbitrary node.",
+      "explanation_peer": "It is like a carousel: no matter where you get on, you can go all the way around."
+    },
+    {
+      "id": "mcq_7",
+      "question": "Which algorithm is commonly used to detect a cycle in a linked list?",
+      "options": [
+        "Binary search",
+        "Floyd's Cycle-Finding Algorithm (Tortoise and Hare)",
+        "Dijkstra's Algorithm",
+        "Kruskal's Algorithm"
+      ],
+      "answer": "Floyd's Cycle-Finding Algorithm (Tortoise and Hare)",
+      "hint_teacher": "Think about using two pointers moving at different speeds.",
+      "hint_peer": "If one runner runs twice as fast as the other in a circular track, they will eventually meet.",
+      "explanation_teacher": "Floyd's algorithm uses two pointers: a slow pointer moving one node at a time, and a fast pointer moving two nodes. If there is a cycle, the fast pointer will eventually catch up and meet the slow pointer.",
+      "explanation_peer": "The fast hare laps the slow tortoise if they are running in a loop."
+    },
+    {
+      "id": "mcq_8",
+      "question": "What is a 'dummy' or 'sentinel' node in linked list algorithms?",
+      "options": [
+        "A node that stores invalid data used to simplify edge cases",
+        "The node that contains the actual head value",
+        "A temporary node used to hold deleted data",
+        "The last node in a circular list"
+      ],
+      "answer": "A node that stores invalid data used to simplify edge cases",
+      "hint_teacher": "Consider how you handle operations (like insertion/deletion) at the head compared to the middle of the list.",
+      "hint_peer": "It is a placeholder node placed before the head so the head is treated just like any other middle node.",
+      "explanation_teacher": "A dummy node is a placeholder node whose next pointer initially references the head. Using it avoids special-case code for head changes (like deleting or inserting at the head), making the code cleaner.",
+      "explanation_peer": "It acts as a buffer at the front of the list, so you do not have to write special 'if' statements for the head."
+    },
+    {
+      "id": "mcq_9",
+      "question": "If you want to find the middle node of a linked list in one pass, what is the best approach?",
+      "options": [
+        "Count all nodes, then traverse again to count/2",
+        "Use two pointers, one moving at twice the speed of the other",
+        "Use a hash map to map indices to nodes",
+        "It is impossible to find the middle in one pass"
+      ],
+      "answer": "Use two pointers, one moving at twice the speed of the other",
+      "hint_teacher": "Think about the relative speeds of two pointers starting at the same time.",
+      "hint_peer": "When the fast runner reaches the finish line, the slow runner is exactly at the halfway mark.",
+      "explanation_teacher": "By moving a slow pointer one step and a fast pointer two steps, when the fast pointer reaches the end of the list, the slow pointer will be exactly at the middle node.",
+      "explanation_peer": "One pointer moves double speed. When it hits the end, the normal speed one is at the center."
+    },
+    {
+      "id": "mcq_10",
+      "question": "What is the space complexity of reversing a linked list iteratively?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n^2)"
+      ],
+      "answer": "O(1)",
+      "hint_teacher": "Count the number of extra pointers/variables created during the iterative loop.",
+      "hint_peer": "You only need a few pointers (prev, curr, next) to flip the links. You do not build any new structures.",
+      "explanation_teacher": "Iteratively reversing a linked list only requires a constant number of pointer variables (such as prev, current, next) to track positions, which consumes O(1) auxiliary space.",
+      "explanation_peer": "Since we just modify the pointers of the existing nodes, we do not need extra memory."
+    },
+    {
+      "id": "mcq_11",
+      "question": "What is the space complexity of reversing a linked list recursively?",
+      "options": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n^2)"
+      ],
+      "answer": "O(n)",
+      "hint_teacher": "Think about the recursion stack frame allocation for each node.",
+      "hint_peer": "Each recursive call waits for the next one, creating a pile of calls equal to the length of the list.",
+      "explanation_teacher": "A recursive implementation of list reversal creates a stack frame for every node in the list. This results in O(n) space complexity due to the call stack.",
+      "explanation_peer": "The call stack grows with the number of nodes, using linear memory."
+    },
+    {
+      "id": "mcq_12",
+      "question": "When deleting a node in a singly linked list given only a reference to that node (not the head), how can it be done in O(1) time?",
+      "options": [
+        "Traverse to find the node's predecessor",
+        "Copy the data from the next node into this node, then skip the next node",
+        "It is mathematically impossible",
+        "Use a recursive traversal"
+      ],
+      "answer": "Copy the data from the next node into this node, then skip the next node",
+      "hint_teacher": "Since you cannot look backward to find the predecessor, can you make this node look like the next one instead?",
+      "hint_peer": "Steal the value of the next node, and then delete the next node.",
+      "explanation_teacher": "To delete a node 'curr' without the head reference, copy the value of curr.next into curr, and then update curr.next to curr.next.next. This effectively deletes the next node after copying its value, achieving the same result.",
+      "explanation_peer": "Clone the next node's data into your current node, and bypass the next node."
+    },
+    {
+      "id": "mcq_13",
+      "question": "Which of the following is a disadvantage of linked lists compared to arrays?",
+      "options": [
+        "Dynamic size allocation",
+        "Efficient insertions at the head",
+        "Extra memory overhead for storing pointers",
+        "No risk of memory fragmentation"
+      ],
+      "answer": "Extra memory overhead for storing pointers",
+      "hint_teacher": "Consider what variables are stored in an array element versus a linked list node.",
+      "hint_peer": "Every node has to carry the address of the next node, which takes up extra memory.",
+      "explanation_teacher": "Each node in a linked list must store at least one pointer (reference) in addition to its value. In a 64-bit system, this pointer takes 8 bytes, which represents significant memory overhead compared to arrays.",
+      "explanation_peer": "You need to store the map (pointers) along with the cargo (data), which costs extra bytes."
+    },
+    {
+      "id": "mcq_14",
+      "question": "What happens if a linked list traversal loop condition is 'while current.next != null' instead of 'while current != null'?",
+      "options": [
+        "It skips the head node",
+        "It stops before processing the last node",
+        "It results in an infinite loop",
+        "It throws a null pointer exception immediately"
+      ],
+      "answer": "It stops before processing the last node",
+      "hint_teacher": "Consider the state of the loop when 'current' is pointing to the last node.",
+      "hint_peer": "When you are at the last node, its next is null, so the loop ends before you run the code inside for it.",
+      "explanation_teacher": "When current is the last node, current.next is null. If the condition is 'current.next != null', the loop terminates and the last node is not processed inside the loop.",
+      "explanation_peer": "It cuts the party short right before the last guest is processed."
+    },
+    {
+      "id": "mcq_15",
+      "question": "In a skip list, why are multiple forward pointers stored in nodes?",
+      "options": [
+        "To allow backward traversal",
+        "To skip nodes during search, allowing O(log n) average time complexity",
+        "To store duplicates of the data",
+        "To resolve hash collisions"
+      ],
+      "answer": "To skip nodes during search, allowing O(log n) average time complexity",
+      "hint_teacher": "Think about how express lanes on a highway allow you to skip local exits.",
+      "hint_peer": "It creates shortcuts that let you skip over chunks of the list.",
+      "explanation_teacher": "A skip list uses multiple levels of forward pointers to bypass large segments of the list during search, achieving logarithmic average time complexity similar to binary search on an array.",
+      "explanation_peer": "It is like having local and express train tracks so you do not stop at every single station."
+    }
+  ],
+  "coding_problems": [
+    {
+      "id": "easy_1",
+      "title": "Reverse Linked List",
+      "difficulty": "Easy",
+      "statement": "Given the head of a singly linked list, reverse the list, and return the reversed list.",
+      "examples": [
+        {
+          "input": "head = [1,2,3,4,5]",
+          "output": "[5,4,3,2,1]"
+        },
+        {
+          "input": "head = [1,2]",
+          "output": "[2,1]"
+        }
+      ],
+      "constraints": [
+        "The number of nodes in the list is the range [0, 5000].",
+        "-5000 <= Node.val <= 5000"
+      ],
+      "hint1_teacher": "Use three pointers (prev, curr, next) to reverse the links iteratively.",
+      "hint1_peer": "Keep track of the previous node, the current node, and the next node as you traverse.",
+      "hint2_teacher": "Change curr.next to prev, then slide prev and curr forward.",
+      "hint2_peer": "Point the current node backwards, then move to the next one.",
+      "solution_regular": {
+        "approach": "Traverse the list iteratively, maintaining pointers to the previous node and the next node. In each step, adjust the current node's next pointer to point to the previous node, then move variables forward.",
+        "code": "def solve(head):\n    prev = None\n    curr = head\n    while curr:\n        next_node = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_node\n    return prev",
+        "time": "O(n)",
+        "space": "O(1)"
+      },
+      "solution_optimal": {
+        "approach": "The iterative approach is already optimal in terms of space O(1) and time O(n). A recursive solution would take O(n) space on the call stack.",
+        "code": "def solve(head):\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return prev",
+        "time": "O(n)",
+        "space": "O(1)"
+      }
+    },
+    {
+      "id": "medium_1",
+      "title": "Linked List Cycle",
+      "difficulty": "Medium",
+      "statement": "Given head, the head of a linked list, determine if the linked list has a cycle in it. Return true if there is a cycle, and false otherwise.",
+      "examples": [
+        {
+          "input": "head = [3,2,0,-4], pos = 1",
+          "output": "true",
+          "explanation": "There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed)."
+        }
+      ],
+      "constraints": [
+        "The number of nodes in the list is in the range [0, 10^4].",
+        "-10^5 <= Node.val <= 10^5"
+      ],
+      "hint1_teacher": "Use a hash set to store visited nodes, or use two pointers moving at different speeds.",
+      "hint1_peer": "You can either remember nodes you've seen, or use the tortoise and hare method.",
+      "hint2_teacher": "If a cycle exists, the fast pointer will eventually meet the slow pointer.",
+      "hint2_peer": "Move one pointer by 1 step and the other by 2 steps. If they meet, there is a loop.",
+      "solution_regular": {
+        "approach": "Traverse the list and store each visited node's reference in a set. If we encounter a node that is already in the set, there is a cycle.",
+        "code": "def solve(head):\n    visited = set()\n    curr = head\n    while curr:\n        if curr in visited:\n            return True\n        visited.add(curr)\n        curr = curr.next\n    return False",
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "solution_optimal": {
+        "approach": "Use Floyd's Cycle-Finding Algorithm (two pointers). The slow pointer moves one step at a time, while the fast pointer moves two steps. If they meet, a cycle exists. If the fast pointer reaches null, there is no cycle.",
+        "code": "def solve(head):\n    if not head or not head.next:\n        return False\n    slow = head\n    fast = head.next\n    while slow != fast:\n        if not fast or not fast.next:\n            return False\n        slow = slow.next\n        fast = fast.next.next\n    return True",
+        "time": "O(n)",
+        "space": "O(1)"
+      }
+    }
+  ]
+}
