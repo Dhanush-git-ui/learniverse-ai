@@ -1,8 +1,8 @@
 import os
-import requests
 import re
 from rag.prompts import TEACHER_PROMPT, PEER_PROMPT
-from config import GEMINI_MODEL_NAME
+from config import settings
+from utils.http_client import http_client
 
 RAG_PROMPT_TEMPLATE = """
 You are a helpful learning assistant. Answer the question using the context provided.
@@ -27,13 +27,13 @@ def _strip_code_fences(text: str) -> str:
     return text.strip()
 
 class OpenRouterModel:
-    def __init__(self, model_name: str = GEMINI_MODEL_NAME, api_key: str | None = None):
+    def __init__(self, model_name: str = settings.GEMINI_MODEL_NAME, api_key: str | None = None):
         self.model_name = model_name
-        self.api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        self.api_key = api_key or settings.GEMINI_API_KEY
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY must be set in environment")
 
-    def generate_content(self, prompt: str, generation_config: dict | None = None) -> str:
+    async def generate_content(self, prompt: str, generation_config: dict | None = None) -> str:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -50,11 +50,10 @@ class OpenRouterModel:
         }
 
         try:
-            resp = requests.post(
+            resp = await http_client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
-                json=payload,
-                timeout=45,
+                json=payload
             )
             resp.raise_for_status()
             data = resp.json()
@@ -80,34 +79,39 @@ def format_history(history_list) -> str:
         formatted.append(f"{role_label}: {content}")
     return "\n".join(formatted)
 
-def get_model() -> OpenRouterModel:
-    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not key:
-        raise ValueError("Error: GEMINI_API_KEY is not configured on the backend.")
-    return OpenRouterModel(GEMINI_MODEL_NAME, api_key=key)
+_model_instance = None
 
-def generate_answer(question: str, context: str) -> str:
+def get_model() -> OpenRouterModel:
+    global _model_instance
+    if _model_instance is None:
+        key = settings.GEMINI_API_KEY
+        if not key:
+            raise ValueError("Error: GEMINI_API_KEY is not configured on the backend.")
+        _model_instance = OpenRouterModel(settings.GEMINI_MODEL_NAME, api_key=key)
+    return _model_instance
+
+async def generate_answer(question: str, context: str) -> str:
     try:
         model = get_model()
         prompt = RAG_PROMPT_TEMPLATE.format(context=context, question=question)
-        return model.generate_content(prompt)
+        return await model.generate_content(prompt)
     except Exception as e:
         return f"Error during generation: {str(e)}"
 
-def generate_teacher_answer(query, topic_questions, history=None, topic="General"):
+async def generate_teacher_answer(query, topic_questions, history=None, topic="General"):
     try:
         model = get_model()
         history_str = format_history(history)
         prompt = TEACHER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
-        return model.generate_content(prompt)
+        return await model.generate_content(prompt)
     except Exception as e:
         return f"Error during teacher generation: {str(e)}"
 
-def generate_peer_answer(query, topic_questions, history=None, topic="General"):
+async def generate_peer_answer(query, topic_questions, history=None, topic="General"):
     try:
         model = get_model()
         history_str = format_history(history)
         prompt = PEER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
-        return model.generate_content(prompt, generation_config={"temperature": 0.7})
+        return await model.generate_content(prompt, generation_config={"temperature": 0.7})
     except Exception as e:
         return f"Error during peer generation: {str(e)}"

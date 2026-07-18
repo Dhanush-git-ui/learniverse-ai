@@ -1,7 +1,6 @@
-import os
 import hmac
 from fastapi import Header, HTTPException
-
+from config import settings
 
 async def verify_api_key(x_api_key: str = Header(default=None)):
     """Simple API key verification with constant-time comparison.
@@ -12,7 +11,7 @@ async def verify_api_key(x_api_key: str = Header(default=None)):
       allowing unauthenticated access.
     - Comparison uses `hmac.compare_digest` to avoid timing attacks.
     """
-    api_secret_key = os.environ.get("API_SECRET_KEY")
+    api_secret_key = settings.API_SECRET_KEY
     if not api_secret_key:
         raise HTTPException(status_code=500, detail="API authentication is not configured")
 

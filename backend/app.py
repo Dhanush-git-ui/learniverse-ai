@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import asyncio
 import requests
 import re
 import ast
@@ -10,6 +11,17 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
+import logging
+import time as _time_module
+
+# Configure structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("learniverse.backend")
+
 from dotenv import load_dotenv
 env_path = os.path.join(backend_dir, ".env")
 if os.path.exists(env_path):
@@ -18,6 +30,9 @@ load_dotenv()
 
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 from typing import List
 import threading
@@ -27,20 +42,15 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 # Limit concurrent code executions
-_code_execution_semaphore = threading.Semaphore(50)
+_code_execution_semaphore = None
 
 # Only import lightweight config at startup. Defer heavy RAG imports to request time.
 from config import ALLOWED_ORIGINS
 from auth import verify_api_key
 
-# Fail-fast check for critical configuration at startup
-required_env_vars = ["DATABASE_URL", "GEMINI_API_KEY", "API_SECRET_KEY"]
-missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
-if missing_vars:
-    print(f"CRITICAL STARTUP ERROR: Missing required environment variables: {', '.join(missing_vars)}", file=sys.stderr)
-    sys.exit(1)
+from config import settings
 
-DB_URL = os.environ.get("DATABASE_URL")
+DB_URL = settings.DATABASE_URL
 
 from psycopg2.pool import ThreadedConnectionPool
 from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
@@ -63,7 +73,97 @@ def release_db_conn(conn):
     if _db_pool and conn:
         _db_pool.putconn(conn)
 
-app = FastAPI(title="Learniverse AI RAG Backend")
+from contextlib import asynccontextmanager
+from utils.http_client import http_client
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize DB pool
+    global _db_pool, _code_execution_semaphore
+    _code_execution_semaphore = asyncio.Semaphore(50)
+    if DB_URL and (_db_pool is None or _db_pool.closed):
+        _db_pool = ThreadedConnectionPool(
+            minconn=DB_POOL_MIN_CONNS,
+            maxconn=DB_POOL_MAX_CONNS,
+            dsn=DB_URL
+        )
+    
+    # Startup: Preload some topics
+    try:
+        from utils.cache_manager import topic_cache
+        for topic in ["Stack & Queue", "Linked Lists", "Sorting Algorithms", "Searching Algorithms", "Binary Trees", "Graph Algorithms"]:
+            load_preloaded_topic(topic)
+    except Exception as e:
+        print(f"Failed to preload topics: {e}")
+        
+    yield
+    
+    # Shutdown: Close DB pool
+    if _db_pool is not None and not _db_pool.closed:
+        _db_pool.closeall()
+    
+    # Shutdown: Close HTTP client
+    await http_client.aclose()
+
+app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
+
+# Feature-detect Brotli support. If available we add a lightweight middleware
+# that serves Brotli-compressed responses when the client offers `br`.
+try:
+    import brotli as _brotli_pkg
+    _HAS_BROTLI = True
+except Exception:
+    _HAS_BROTLI = False
+
+
+if _HAS_BROTLI:
+    @app.middleware("http")
+    async def brotli_middleware(request, call_next):
+        # Only bother when client explicitly accepts br
+        if 'br' not in request.headers.get('accept-encoding', ''):
+            return await call_next(request)
+
+        response = await call_next(request)
+
+        # Respect existing encodings
+        if response.headers.get('Content-Encoding'):
+            return response
+
+        content_type = response.headers.get('content-type', '')
+        # Only compress text-like responses
+        if not any(ct in content_type for ct in ('text/', 'application/javascript', 'application/json', 'application/xml', 'image/svg+xml')):
+            return response
+
+        # Obtain the full body. Many Starlette Response objects expose `.body`.
+        body = getattr(response, 'body', None)
+        if body is None:
+            try:
+                body = b''.join([chunk async for chunk in response.body_iterator])
+            except Exception:
+                return response
+
+        if not body:
+            return response
+
+        try:
+            compressed = _brotli_pkg.compress(body, quality=4)
+        except Exception:
+            return response
+
+        response.body = compressed
+        response.headers['Content-Encoding'] = 'br'
+        response.headers['Content-Length'] = str(len(compressed))
+        vary = response.headers.get('Vary')
+        if vary:
+            if 'Accept-Encoding' not in vary:
+                response.headers['Vary'] = vary + ', Accept-Encoding'
+        else:
+            response.headers['Vary'] = 'Accept-Encoding'
+
+        return response
+
+# Compression for API responses (reduces bandwidth and speeds up transfer)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 def get_rate_limit_key(request: Request) -> str:
     # Rate limit by the authenticated client API key first to protect shared NAT environments
@@ -103,26 +203,55 @@ def _normalize_output_text(s: str) -> str:
 
 
 def _compare_expected_actual(expected, actual, language: str | None = None) -> bool:
-    # Handle structured expected values (dict/list)
-    try:
-        if isinstance(expected, (dict, list)):
-            parsed = json.loads(actual) if isinstance(actual, str) else actual
-            return parsed == expected
-    except Exception:
-        pass
+    import ast
+    
+    # Try parsing actual if it is a string representation of a struct
+    act_parsed = actual
+    if isinstance(actual, str):
+        actual_stripped = actual.strip()
+        # Handle python booleans and nulls mapped to None
+        if actual_stripped.lower() == "true":
+            act_parsed = True
+        elif actual_stripped.lower() == "false":
+            act_parsed = False
+        elif actual_stripped.lower() in ("null", "none"):
+            act_parsed = None
+        else:
+            try:
+                act_parsed = ast.literal_eval(actual_stripped)
+            except Exception:
+                try:
+                    act_parsed = json.loads(actual_stripped)
+                except Exception:
+                    pass
 
-    # Try parsing both as JSON and compare semantically
-    try:
-        exp_json = json.loads(expected) if isinstance(expected, str) else expected
-        act_json = json.loads(actual)
-        return exp_json == act_json
-    except Exception:
-        pass
+    # Try parsing expected if it is a string representation of a struct
+    exp_parsed = expected
+    if isinstance(expected, str):
+        expected_stripped = expected.strip()
+        if expected_stripped.lower() == "true":
+            exp_parsed = True
+        elif expected_stripped.lower() == "false":
+            exp_parsed = False
+        elif expected_stripped.lower() in ("null", "none"):
+            exp_parsed = None
+        else:
+            try:
+                exp_parsed = ast.literal_eval(expected_stripped)
+            except Exception:
+                try:
+                    exp_parsed = json.loads(expected_stripped)
+                except Exception:
+                    pass
+
+    # Handle structured expected values (dict/list/bool)
+    if type(exp_parsed) in (dict, list, bool, type(None)) and type(exp_parsed) == type(act_parsed):
+        return exp_parsed == act_parsed
 
     # Numeric comparison
     try:
-        exp_num = float(str(expected).strip())
-        act_num = float(str(actual).strip())
+        exp_num = float(str(exp_parsed).strip())
+        act_num = float(str(act_parsed).strip())
         return abs(exp_num - act_num) < 1e-6
     except Exception:
         pass
@@ -147,6 +276,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_static_cache_headers(request, call_next):
+    """Add long-lived cache headers for static asset requests to improve load times.
+
+    Only applies to common static asset extensions to avoid caching API responses.
+    """
+    response = await call_next(request)
+    path = request.url.path.lower()
+    static_exts = ('.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.woff2', '.woff', '.ttf')
+    if path.startswith('/static') or any(path.endswith(ext) for ext in static_exts) or path.startswith('/assets'):
+        # Cache for 1 year and mark immutable when served from build output
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    return response
+
+@app.middleware("http")
+async def request_timing_middleware(request: Request, call_next):
+    """Log every request with timing information."""
+    import time as _t
+    start = _t.perf_counter()
+    response = await call_next(request)
+    duration_ms = round((_t.perf_counter() - start) * 1000, 1)
+    path = request.url.path
+    skip_exts = (".js", ".css", ".png", ".ico", ".svg", ".woff", ".woff2", ".ttf")
+    if not path.startswith("/static") and not any(path.endswith(ext) for ext in skip_exts):
+        logger.info("%s %s → %d (%sms)", request.method, path, response.status_code, duration_ms)
+    return response
 
 class ChatMessage(BaseModel):
     role: str
@@ -177,13 +334,13 @@ class EvaluationRequest(BaseModel):
 
 @app.post("/api/chat", response_model=ChatResponse, dependencies=[Depends(verify_api_key)])
 @limiter.limit("30/minute")
-def chat(request: Request, chat_req: ChatRequest):
+async def chat(request: Request, chat_req: ChatRequest):
     try:
         # Lazy import the RAG orchestrator to avoid heavy startup memory usage
         from rag.rag_pipeline import run_rag_pipeline
 
         # Hand the payload over to our operational RAG orchestrator
-        response_bundle = run_rag_pipeline(
+        response_bundle = await run_rag_pipeline(
             query=chat_req.message,
             topic=chat_req.topic,
             category=chat_req.category,
@@ -222,33 +379,39 @@ def home():
 
 @app.get("/health")
 def health():
+    """Full health check: database, chromadb, and LLM key presence."""
     checks = {"api": "ok"}
     try:
-        import psycopg2
-        conn = psycopg2.connect(os.environ.get("DATABASE_URL", ""), connect_timeout=3)
-        conn.close()
+        conn = get_db_conn()
+        release_db_conn(conn)
         checks["database"] = "ok"
-    except Exception:
-        checks["database"] = "error"
+    except Exception as e:
+        checks["database"] = f"error: {str(e)}"
+        logger.warning("Health check: database error: %s", e)
 
     try:
         from rag.retriever import get_chroma_collection
         _, col = get_chroma_collection()
         col.count()
         checks["chromadb"] = "ok"
-    except Exception:
+    except Exception as e:
         checks["chromadb"] = "error"
+        logger.warning("Health check: chromadb error: %s", e)
 
-    try:
-        import google.generativeai as genai
-        # Fast API key verify check without sending full prompts
-        genai.get_model("models/gemini-pro")
-        checks["gemini"] = "ok"
-    except Exception:
-        checks["gemini"] = "error"
+    # Fast key-presence check without making an LLM call
+    from config import settings
+    checks["llm"] = "ok" if settings.GEMINI_API_KEY else "unconfigured"
 
     overall = "healthy" if all(v == "ok" for v in checks.values()) else "degraded"
-    return {"status": overall, "checks": checks}
+    status_code = 200 if overall == "healthy" else 503
+    from fastapi.responses import JSONResponse
+    return JSONResponse(content={"status": overall, "checks": checks}, status_code=status_code)
+
+
+@app.get("/readiness")
+def readiness():
+    """Lightweight liveness check for load balancers — just confirms the process is alive."""
+    return {"status": "ok"}
 
 
 @app.get("/api/topics")
@@ -269,7 +432,7 @@ from utils.cache_manager import topic_cache
 
 @app.get("/api/topic/overview", dependencies=[Depends(verify_api_key)])
 @limiter.limit("20/minute")
-def get_topic_overview(request: Request, topic: str = Query(...)):
+async def get_topic_overview(request: Request, topic: str = Query(...)):
     if topic not in VALID_TOPICS:
         raise HTTPException(status_code=400, detail="Invalid topic name.")
     
@@ -282,7 +445,7 @@ def get_topic_overview(request: Request, topic: str = Query(...)):
         from rag.dsa_prompts import OVERVIEW_PROMPT
         model = get_model()
         prompt = OVERVIEW_PROMPT.format(topic=topic)
-        response = model.generate_content(prompt)
+        response = await model.generate_content(prompt)
         # model.generate_content returns a sanitized string
         result = {"markdown": response if isinstance(response, str) else str(response)}
         
@@ -290,13 +453,13 @@ def get_topic_overview(request: Request, topic: str = Query(...)):
         topic_cache.set(cache_key, result, 3600)
         return result
     except Exception as e:
-        print(f"[ERROR] get_topic_overview: {e}")
+        logger.error("[get_topic_overview]: %s", e)
         raise HTTPException(status_code=500, detail="Failed to generate topic overview.")
 
 
 @app.post("/api/evaluate", dependencies=[Depends(verify_api_key)])
 @limiter.limit("10/minute")
-def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
+async def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
     prompt = f"""
     You are an AI Socratic Grader. Compare the student's answer to the expected solution.
     Determine if the student has understood the concept.
@@ -312,7 +475,7 @@ def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
     from rag.generator import get_model
 
     model = get_model()
-    resp = model.generate_content(prompt)
+    resp = await model.generate_content(prompt)
     try:
         # Extract JSON block
         clean_text = resp.text.strip()
@@ -329,7 +492,7 @@ def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
                 
 @app.get("/api/topic/mcqs", dependencies=[Depends(verify_api_key)])
 @limiter.limit("20/minute")
-def get_topic_mcqs(request: Request, topic: str = Query(...)):
+async def get_topic_mcqs(request: Request, topic: str = Query(...)):
     if topic not in VALID_TOPICS:
         raise HTTPException(status_code=400, detail="Invalid topic name.")
     
@@ -342,7 +505,7 @@ def get_topic_mcqs(request: Request, topic: str = Query(...)):
         from rag.dsa_prompts import MCQ_PROMPT
         model = get_model()
         prompt = MCQ_PROMPT.format(topic=topic)
-        response = model.generate_content(prompt)
+        response = await model.generate_content(prompt)
         raw_text = response.text.strip()
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
@@ -354,12 +517,12 @@ def get_topic_mcqs(request: Request, topic: str = Query(...)):
         topic_cache.set(cache_key, result, 3600)
         return result
     except Exception as e:
-        print(f"[ERROR] get_topic_mcqs: {e}")
+        logger.error("[get_topic_mcqs]: %s", e)
         raise HTTPException(status_code=500, detail="Failed to generate MCQs.")
 
 @app.get("/api/topic/coding", dependencies=[Depends(verify_api_key)])
 @limiter.limit("20/minute")
-def get_topic_coding(request: Request, topic: str = Query(...)):
+async def get_topic_coding(request: Request, topic: str = Query(...)):
     if topic not in VALID_TOPICS:
         raise HTTPException(status_code=400, detail="Invalid topic name.")
     try:
@@ -368,7 +531,7 @@ def get_topic_coding(request: Request, topic: str = Query(...)):
 
         model = get_model()
         prompt = CODING_PROMPT.format(topic=topic)
-        response = model.generate_content(prompt)
+        response = await model.generate_content(prompt)
         
         # Clean up code blocks
         raw_text = response.text.strip()
@@ -380,7 +543,7 @@ def get_topic_coding(request: Request, topic: str = Query(...)):
         coding_challenges = json.loads(raw_text.strip())
         return {"challenges": coding_challenges}
     except Exception as e:
-        print(f"[ERROR] get_topic_coding: {e}")
+        logger.error("[get_topic_coding]: %s", e)
         raise HTTPException(status_code=500, detail="Failed to generate coding challenges. Please try again.")
 
 # Add this at the very bottom of backend/app.py
@@ -388,6 +551,11 @@ def get_topic_coding(request: Request, topic: str = Query(...)):
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "topics")
 
 def load_preloaded_topic(topic_name: str) -> dict:
+    from utils.cache_manager import topic_cache
+    cache_key = f"preloaded_topic_{topic_name}"
+    cached = topic_cache.get(cache_key)
+    if cached:
+        return cached
     if topic_name == "Stack & Queue":
         # Load stack.json and queue.json and merge them!
         stack_data = {}
@@ -430,6 +598,7 @@ def load_preloaded_topic(topic_name: str) -> dict:
             "mcqs": stack_data.get("mcqs", []) + queue_data.get("mcqs", []),
             "coding_problems": stack_data.get("coding_problems", []) + queue_data.get("coding_problems", [])
         }
+        topic_cache.set(cache_key, merged, 3600*24)
         return merged
 
     # Map other topic names if they differ from filenames
@@ -446,7 +615,9 @@ def load_preloaded_topic(topic_name: str) -> dict:
     
     if os.path.exists(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            topic_cache.set(cache_key, data, 3600*24)
+            return data
     else:
         return {
             "topic": topic_name,
@@ -487,6 +658,11 @@ def _parse_example_value(value: str):
         return normalized
 
 def get_test_cases_for_problem(problem_id: str) -> tuple[list, dict, dict]:
+    from utils.cache_manager import topic_cache
+    cache_key = f"test_cases_{problem_id}"
+    cached = topic_cache.get(cache_key)
+    if cached:
+        return cached[0], cached[1], cached[2]
     topics_dir = os.path.join(os.path.dirname(__file__), "data", "topics")
     if not os.path.exists(topics_dir):
         return [], {}, {}
@@ -502,6 +678,7 @@ def get_test_cases_for_problem(problem_id: str) -> tuple[list, dict, dict]:
                         tc = parse_examples_into_test_cases(problem.get("examples", []))
                         reg = problem.get("solution_regular", {})
                         opt = problem.get("solution_optimal", {})
+                        topic_cache.set(cache_key, (tc, reg, opt), 3600*24)
                         return tc, reg, opt
         except Exception as e:
             print(f"Error loading topic file {file_name}: {e}")
@@ -729,6 +906,29 @@ public class Main {{
 
 
     return user_code
+
+
+# Serve built frontend (Vite `dist/`) when available. This allows the backend
+# to serve the production frontend build directly for simple deployments.
+DIST_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dist'))
+if os.path.isdir(DIST_DIR):
+    try:
+        # Mount the dist directory under a dedicated mount so API routes remain reachable.
+        app.mount('/_dist', StaticFiles(directory=DIST_DIR), name='dist')
+        @app.get('/{full_path:path}', include_in_schema=False)
+        async def _serve_spa(full_path: str):
+            # Prevent accidentally serving API endpoints through the SPA fallback
+            if full_path.startswith('api') or full_path.startswith('health'):
+                raise HTTPException(status_code=404)
+            file_path = os.path.join(DIST_DIR, full_path)
+            if os.path.exists(file_path) and os.path.isfile(file_path):
+                return FileResponse(file_path)
+            index_path = os.path.join(DIST_DIR, 'index.html')
+            if os.path.exists(index_path):
+                return FileResponse(index_path, media_type='text/html')
+            raise HTTPException(status_code=404)
+    except Exception as e:
+        print(f"Warning: could not mount frontend dist directory: {e}")
 
 
 
@@ -1007,7 +1207,7 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> dict:
     api_key = judge0_api_key
 
     if not url and not api_key:
-        print("[JUDGE0] No JUDGE0_URL or JUDGE0_API_KEY configured; skipping Judge0 execution.")
+        logger.info("[JUDGE0] No JUDGE0_URL or JUDGE0_API_KEY configured; skipping Judge0 execution.")
         return None
 
     try:
@@ -1056,33 +1256,82 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> dict:
                 }
             }
         else:
-            print(f"[JUDGE0] API call returned status {resp.status_code}")
+            logger.info("[JUDGE0] API call returned status {resp.status_code}")
             return None
     except Exception as e:
-        print(f"[JUDGE0] Exception occurred: {e}")
+        logger.error("[JUDGE0] Exception occurred: %s", e)
+        return None
+
+def execute_code_via_piston_api(language: str, code: str, stdin: str = "") -> dict:
+    import requests
+    lang_map = {
+        "python": "python",
+        "py": "python",
+        "javascript": "javascript",
+        "js": "javascript",
+        "java": "java",
+        "cpp": "cpp",
+        "c++": "cpp"
+    }
+    version_map = {
+        "python": "3.10.0",
+        "javascript": "18.15.0",
+        "java": "15.0.2",
+        "cpp": "10.2.0"
+    }
+    lang = lang_map.get(language.lower(), "python")
+    version = version_map.get(lang, "*")
+    
+    payload = {
+        "language": lang,
+        "version": version,
+        "files": [{"content": code}],
+        "stdin": stdin
+    }
+    try:
+        resp = requests.post("https://emkc.org/api/v2/piston/execute", json=payload, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        run = data.get("run", {})
+        compile_res = data.get("compile", {})
+        
+        stdout = run.get("stdout", "")
+        stderr = run.get("stderr", "")
+        if compile_res and compile_res.get("stderr"):
+            stderr = compile_res.get("stderr") + "\n" + stderr
+            
+        return {
+            "run": {
+                "stdout": stdout,
+                "stderr": stderr.strip(),
+                "code": run.get("code", 0)
+            }
+        }
+    except Exception as e:
+        logger.error("[PISTON API] Exception occurred: %s", e)
         return None
 
 def execute_code_via_piston(language: str, code: str, stdin: str = "") -> dict:
-    # Prefer Judge0 whenever it is configured. The old name is kept for compatibility.
+    from config import settings
+    # 1. Prefer Judge0 whenever it is configured
     judge0_res = execute_code_via_judge0(language, code, stdin)
     if judge0_res is not None:
         return judge0_res
 
-    # If Judge0 is not configured, only allow a local fallback when the
-    # operator explicitly enables it via `ALLOW_LOCAL_EXECUTION=true` in the
-    # environment. By default we refuse to execute arbitrary code locally.
-    allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
-    env_mode = os.environ.get("ENV", "production").lower()
-    # Only allow local fallback in explicit development mode to avoid accidental RCE in production
-    if not (allow_local and env_mode == "development"):
-        # Caller should treat None as 'execution unavailable'
-        print("[EXECUTION] Judge0 not configured and local execution disabled in this environment.")
+    # 2. Fallback to Sandboxed Piston API
+    piston_res = execute_code_via_piston_api(language, code, stdin)
+    if piston_res is not None:
+        return piston_res
+
+    # 3. If everything fails, only allow local fallback in explicit development mode
+    if not (settings.ALLOW_LOCAL_EXECUTION and settings.IS_DEV):
+        logger.info("[EXECUTION] Judge0 & Piston failed, and local execution disabled in this environment.")
         return None
 
-    print("[EXECUTION] Falling back to local sandbox execution (development opt-in).")
+    logger.info("[EXECUTION] Falling back to local sandbox execution (development opt-in).")
     return execute_code_locally(language, code, stdin)
 
-def generate_code_review(problem_id: str, user_code: str, language: str, passed_count: int, total_count: int) -> str:
+async def generate_code_review(problem_id: str, user_code: str, language: str, passed_count: int, total_count: int) -> str:
     prompt = f"""
 You are an expert technical interviewer. Review the following student code submission for accuracy, code quality, and efficiency.
 Provide a constructive 2-3 sentence review of their approach.
@@ -1099,7 +1348,7 @@ Write a direct, encouraging, and brief review.
         from rag.generator import get_model
 
         model = get_model()
-        response = model.generate_content(prompt)
+        response = await model.generate_content(prompt)
         return response.strip() if isinstance(response, str) else str(response).strip()
     except Exception:
         return f"Code submitted successfully. Test cases passed: {passed_count}/{total_count}. Excellent work!"
@@ -1132,32 +1381,38 @@ class CodeRunRequest(BaseModel):
     language: str
     problemId: str
 
+from fastapi.concurrency import run_in_threadpool
+
 @app.post("/api/code/run", dependencies=[Depends(verify_api_key)])
-@limiter.limit("10/minute")
-def run_user_code(request: Request, code_req: CodeRunRequest):
+@limiter.limit("20/minute")
+async def run_user_code(request: Request, code_req: CodeRunRequest):
     if code_req.code and len(code_req.code) > 20000:
         raise HTTPException(status_code=413, detail="Payload too large")
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
     
     test_cases = []
     
     # 1. First, check if it's a placement assessment question (code_0001, etc.) in the database
     if code_req.problemId.startswith("code_"):
-        db_conn = None
-        try:
-            db_conn = get_db_conn()
-            db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
-            db_cur.execute("SELECT examples FROM questions WHERE id = %s", (code_req.problemId,))
-            row = db_cur.fetchone()
-            db_cur.close()
-            if row and row["examples"]:
-                test_cases = json.loads(row["examples"]) if isinstance(row["examples"], str) else row["examples"]
-        except Exception as e:
-            print("[ERROR] Database check in run_user_code:", e)
-        finally:
-            if db_conn:
-                release_db_conn(db_conn)
+        def fetch_db_test_cases():
+            import psycopg2
+            from psycopg2.extras import RealDictCursor
+            db_conn = None
+            try:
+                db_conn = get_db_conn()
+                db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
+                db_cur.execute("SELECT examples FROM questions WHERE id = %s", (code_req.problemId,))
+                row = db_cur.fetchone()
+                db_cur.close()
+                if row and row["examples"]:
+                    return json.loads(row["examples"]) if isinstance(row["examples"], str) else row["examples"]
+            except Exception as e:
+                print("[ERROR] Database check in run_user_code:", e)
+            finally:
+                if db_conn:
+                    release_db_conn(db_conn)
+            return []
+            
+        test_cases = await run_in_threadpool(fetch_db_test_cases)
             
     # 2. Otherwise fallback to preloaded topic files
     if not test_cases:
@@ -1176,13 +1431,11 @@ def run_user_code(request: Request, code_req: CodeRunRequest):
         passed_cases = 0
         total_cases = len(test_cases)
         
-        acquired = _code_execution_semaphore.acquire(timeout=30)
-        if not acquired:
-            raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
         try:
+            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
             for idx, tc in enumerate(test_cases):
                 # Pass the raw input string as stdin!
-                execution_result = execute_code_via_piston(code_req.language, code_req.code, tc["input"])
+                execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, tc["input"])
                 stdout = execution_result.get("run", {}).get("stdout", "").strip()
                 stderr = execution_result.get("run", {}).get("stderr", "").strip()
                 code = execution_result.get("run", {}).get("code", 0)
@@ -1218,11 +1471,12 @@ def run_user_code(request: Request, code_req: CodeRunRequest):
     # For standard function-style topic questions, use the legacy wrapper harness
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
-    acquired = _code_execution_semaphore.acquire(timeout=30)
-    if not acquired:
+    try:
+        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+    except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
-        execution_result = execute_code_via_piston(code_req.language, harness_code)
+        execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
         _code_execution_semaphore.release()
         
@@ -1262,12 +1516,10 @@ def run_user_code(request: Request, code_req: CodeRunRequest):
 
 @app.post("/api/code/submit", dependencies=[Depends(verify_api_key)])
 @limiter.limit("10/minute")
-def submit_user_code(request: Request, code_req: CodeRunRequest):
+async def submit_user_code(request: Request, code_req: CodeRunRequest):
     if code_req.code and len(code_req.code) > 20000:
         raise HTTPException(status_code=413, detail="Payload too large")
     import time
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
     
     test_cases = []
     reg_sol = {}
@@ -1275,36 +1527,43 @@ def submit_user_code(request: Request, code_req: CodeRunRequest):
     
     # 1. First, check if it's a placement assessment question (code_0001, etc.) in the database
     if code_req.problemId.startswith("code_"):
-        db_conn = None
-        try:
-            db_conn = get_db_conn()
-            db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
-            db_cur.execute("SELECT examples, answer, explanation FROM questions WHERE id = %s", (code_req.problemId,))
-            row = db_cur.fetchone()
-            db_cur.close()
-            if row:
-                test_cases = json.loads(row["examples"]) if isinstance(row["examples"], str) else (row["examples"] or [])
-                try:
-                    sols = json.loads(row["answer"]) if row["answer"] else {}
-                except:
-                    sols = {}
-                reg_sol = {
-                    "approach": "Standard brute force approach.",
-                    "code": sols.get("brute_code", ""),
-                    "time": sols.get("time_complexity", "O(N)"),
-                    "space": sols.get("space_complexity", "O(N)")
-                }
-                opt_sol = {
-                    "approach": row["explanation"] or "Optimal approach.",
-                    "code": sols.get("optimal_code", ""),
-                    "time": sols.get("time_complexity", "O(N)"),
-                    "space": sols.get("space_complexity", "O(N)")
-                }
-        except Exception as e:
-            print("[ERROR] Database check in submit_user_code:", e)
-        finally:
-            if db_conn:
-                release_db_conn(db_conn)
+        def fetch_db_submit_info():
+            import psycopg2
+            from psycopg2.extras import RealDictCursor
+            db_conn = None
+            try:
+                db_conn = get_db_conn()
+                db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
+                db_cur.execute("SELECT examples, answer, explanation FROM questions WHERE id = %s", (code_req.problemId,))
+                row = db_cur.fetchone()
+                db_cur.close()
+                if row:
+                    tc = json.loads(row["examples"]) if isinstance(row["examples"], str) else (row["examples"] or [])
+                    try:
+                        sols = json.loads(row["answer"]) if row["answer"] else {}
+                    except:
+                        sols = {}
+                    rs = {
+                        "approach": "Standard brute force approach.",
+                        "code": sols.get("brute_code", ""),
+                        "time": sols.get("time_complexity", "O(N)"),
+                        "space": sols.get("space_complexity", "O(N)")
+                    }
+                    osol = {
+                        "approach": row["explanation"] or "Optimal approach.",
+                        "code": sols.get("optimal_code", ""),
+                        "time": sols.get("time_complexity", "O(N)"),
+                        "space": sols.get("space_complexity", "O(N)")
+                    }
+                    return tc, rs, osol
+            except Exception as e:
+                print("[ERROR] Database check in submit_user_code:", e)
+            finally:
+                if db_conn:
+                    release_db_conn(db_conn)
+            return [], {}, {}
+        
+        test_cases, reg_sol, opt_sol = await run_in_threadpool(fetch_db_submit_info)
             
     # 2. Otherwise fallback to preloaded topic files
     if not test_cases:
@@ -1328,12 +1587,13 @@ def submit_user_code(request: Request, code_req: CodeRunRequest):
     # If it is a placement assessment question, execute each testcase individually feeding standard input
     if code_req.problemId.startswith("code_"):
         start_time = time.perf_counter()
-        acquired = _code_execution_semaphore.acquire(timeout=30)
-        if not acquired:
+        try:
+            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+        except asyncio.TimeoutError:
             raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
         try:
             for idx, tc in enumerate(test_cases):
-                execution_result = execute_code_via_piston(code_req.language, code_req.code, tc["input"])
+                execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, tc["input"])
                 stdout = execution_result.get("run", {}).get("stdout", "").strip()
                 stderr = execution_result.get("run", {}).get("stderr", "").strip()
                 code = execution_result.get("run", {}).get("code", 0)
@@ -1348,7 +1608,7 @@ def submit_user_code(request: Request, code_req: CodeRunRequest):
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
         run_time_str = f"{elapsed_ms}ms"
         
-        review = generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
+        review = await generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
         
         return {
             "passed_cases": passed_cases,
@@ -1364,11 +1624,12 @@ def submit_user_code(request: Request, code_req: CodeRunRequest):
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
     start_time = time.perf_counter()
-    acquired = _code_execution_semaphore.acquire(timeout=30)
-    if not acquired:
+    try:
+        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+    except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
-        execution_result = execute_code_via_piston(code_req.language, harness_code)
+        execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
         _code_execution_semaphore.release()
         

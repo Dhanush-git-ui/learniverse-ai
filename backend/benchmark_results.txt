@@ -1,0 +1,4 @@
+Health: 3081.82 ms
+Topic All Content: 2054.86 ms
+Chat RAG: 8183.58 ms
+Evaluate: 4531.47 ms

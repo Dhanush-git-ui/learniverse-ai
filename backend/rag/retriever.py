@@ -2,14 +2,18 @@ import os
 import chromadb
 from pathlib import Path
 import google.generativeai as genai
-from dotenv import load_dotenv
 
-# Load environment variables
+# Important: This assumes config is imported/available, but retriever might be 
+# imported from inside app.py which already set up path, or from terminal directly.
+# Let's ensure backend_dir is in path.
+import sys
 backend_dir = Path(__file__).resolve().parent.parent
-load_dotenv(backend_dir / ".env")
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
-# Configure Gemini API
-gemini_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+from config import settings
+
+gemini_key = settings.GEMINI_API_KEY
 if gemini_key:
     genai.configure(api_key=gemini_key)
 
@@ -29,7 +33,7 @@ def get_chroma_collection():
 
 def get_gemini_embedding(text: str):
     """Fetches embedding via Google Gemini API without using local PyTorch RAM."""
-    current_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    current_key = settings.GEMINI_API_KEY
     if current_key:
         genai.configure(api_key=current_key)
     
@@ -61,15 +65,8 @@ def retrieve_context(query, category="DSA", top_k=5, num_results=None):
     metadatas = results["metadatas"][0] if results and "metadatas" in results and results["metadatas"] else []
     distances = results["distances"][0] if results and "distances" in results and results["distances"] else []
 
-    # Import SIMILARITY_THRESHOLD dynamically
-    import sys
-    backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    if backend_dir not in sys.path:
-        sys.path.insert(0, backend_dir)
-    try:
-        from config import SIMILARITY_THRESHOLD
-    except ImportError:
-        SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))
+    # Import SIMILARITY_THRESHOLD from centralized settings
+    SIMILARITY_THRESHOLD = settings.SIMILARITY_THRESHOLD
 
     retrieved_chunks = []
 

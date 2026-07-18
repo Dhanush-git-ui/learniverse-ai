@@ -1,15 +1,11 @@
 import time
 import threading
+import json
 from typing import Dict, Any, Optional
-
+from config import settings
 
 class MemoryCache:
-    """A simple in-memory TTL cache with basic thread-safety.
-
-    Note: This is safe for single-process multi-threaded use. For
-    multi-process deployments (multiple workers), use an external cache
-    like Redis or memcached.
-    """
+    """A simple in-memory TTL cache with basic thread-safety."""
 
     def __init__(self):
         self._cache: Dict[str, Dict[str, Any]] = {}
@@ -38,6 +34,51 @@ class MemoryCache:
         with self._lock:
             self._cache.clear()
 
+class RedisCache:
+    """Redis-backed cache."""
+    def __init__(self, redis_client):
+        self.redis = redis_client
+
+    def get(self, key: str) -> Optional[Any]:
+        try:
+            val = self.redis.get(key)
+            if val:
+                return json.loads(val)
+        except Exception as e:
+            print(f"[CACHE ERROR] Redis get failed for {key}: {e}")
+        return None
+
+    def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None) -> None:
+        try:
+            val_str = json.dumps(value)
+            if ttl_seconds:
+                self.redis.setex(key, ttl_seconds, val_str)
+            else:
+                self.redis.set(key, val_str)
+        except Exception as e:
+            print(f"[CACHE ERROR] Redis set failed for {key}: {e}")
+
+    def clear(self) -> None:
+        try:
+            self.redis.flushdb()
+        except Exception as e:
+            print(f"[CACHE ERROR] Redis clear failed: {e}")
+
+def _init_cache():
+    if settings.REDIS_URL:
+        try:
+            import redis
+            client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+            # Test connection
+            client.ping()
+            print("[CACHE] Using Redis for caching.")
+            return RedisCache(client)
+        except Exception as e:
+            print(f"[CACHE] Failed to connect to Redis, falling back to MemoryCache: {e}")
+    else:
+        print("[CACHE] REDIS_URL not configured, using MemoryCache.")
+    
+    return MemoryCache()
 
 # Global cache instance
-topic_cache = MemoryCache()
+topic_cache = _init_cache()
