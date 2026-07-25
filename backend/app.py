@@ -88,6 +88,13 @@ async def lifespan(app: FastAPI):
             dsn=DB_URL
         )
     
+    # Run database schema migrations
+    try:
+        from placement_assessment_system.api import ensure_schema
+        ensure_schema()
+    except Exception as e:
+        print(f"Failed to run schema migrations: {e}")
+    
     # Startup: Preload some topics
     try:
         from utils.cache_manager import topic_cache
