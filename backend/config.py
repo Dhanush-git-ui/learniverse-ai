@@ -17,8 +17,8 @@ class Settings:
         
         # Database
         self.DATABASE_URL = os.environ.get("DATABASE_URL")
-        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "2"))
-        self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "10"))
+        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "10"))
+        self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "100"))
         
         # RAG Configuration
         self.SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))

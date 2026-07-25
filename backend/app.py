@@ -80,7 +80,7 @@ from utils.http_client import http_client
 async def lifespan(app: FastAPI):
     # Startup: Initialize DB pool
     global _db_pool, _code_execution_semaphore
-    _code_execution_semaphore = asyncio.Semaphore(50)
+    _code_execution_semaphore = asyncio.Semaphore(80)
     if DB_URL and (_db_pool is None or _db_pool.closed):
         _db_pool = ThreadedConnectionPool(
             minconn=DB_POOL_MIN_CONNS,
@@ -106,61 +106,6 @@ async def lifespan(app: FastAPI):
     await http_client.aclose()
 
 app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
-
-# Feature-detect Brotli support. If available we add a lightweight middleware
-# that serves Brotli-compressed responses when the client offers `br`.
-try:
-    import brotli as _brotli_pkg
-    _HAS_BROTLI = True
-except Exception:
-    _HAS_BROTLI = False
-
-
-if _HAS_BROTLI:
-    @app.middleware("http")
-    async def brotli_middleware(request, call_next):
-        # Only bother when client explicitly accepts br
-        if 'br' not in request.headers.get('accept-encoding', ''):
-            return await call_next(request)
-
-        response = await call_next(request)
-
-        # Respect existing encodings
-        if response.headers.get('Content-Encoding'):
-            return response
-
-        content_type = response.headers.get('content-type', '')
-        # Only compress text-like responses
-        if not any(ct in content_type for ct in ('text/', 'application/javascript', 'application/json', 'application/xml', 'image/svg+xml')):
-            return response
-
-        # Obtain the full body. Many Starlette Response objects expose `.body`.
-        body = getattr(response, 'body', None)
-        if body is None:
-            try:
-                body = b''.join([chunk async for chunk in response.body_iterator])
-            except Exception:
-                return response
-
-        if not body:
-            return response
-
-        try:
-            compressed = _brotli_pkg.compress(body, quality=4)
-        except Exception:
-            return response
-
-        response.body = compressed
-        response.headers['Content-Encoding'] = 'br'
-        response.headers['Content-Length'] = str(len(compressed))
-        vary = response.headers.get('Vary')
-        if vary:
-            if 'Accept-Encoding' not in vary:
-                response.headers['Vary'] = vary + ', Accept-Encoding'
-        else:
-            response.headers['Vary'] = 'Accept-Encoding'
-
-        return response
 
 # Compression for API responses (reduces bandwidth and speeds up transfer)
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -1432,7 +1377,10 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
         total_cases = len(test_cases)
         
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=10.0)
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=429, detail="Compiler is currently busy running other submissions. Please retry in 10 seconds.")
+        try:
             for idx, tc in enumerate(test_cases):
                 # Pass the raw input string as stdin!
                 execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, tc["input"])

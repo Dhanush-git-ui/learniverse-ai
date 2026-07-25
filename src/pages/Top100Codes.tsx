@@ -9,8 +9,6 @@ import {
   CheckCircle2, 
   XCircle, 
   Terminal, 
-  ChevronDown, 
-  ChevronRight, 
   Search, 
   Code,
   Sparkles,

@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Book, HelpCircle, CheckCircle, XCircle, Code, Award, Sparkles, Lightbulb, ChevronDown, ChevronUp, Play, Terminal, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Book, Code, Award, Sparkles, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ConversationBox from '@/components/ConversationBox';
-import QuestionCard from '@/components/QuestionCard';
-import ProgressIndicator from '@/components/ProgressIndicator';
 import { getTopicBySlug } from '@/services/TopicService';
 import { useToast } from "@/hooks/use-toast";
-import Editor from '@monaco-editor/react';
 import CodingWorkspace from '@/components/coding/CodingWork';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 
-const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
+export const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
   "Two Sum": { id: 1, url: "https://leetcode.com/problems/two-sum/" },
   "Subarray Sum Equals K": { id: 560, url: "https://leetcode.com/problems/subarray-sum-equals-k/" },
   "Sort Binary Array": { id: 905, url: "https://leetcode.com/problems/sort-array-by-parity/" },
@@ -52,7 +49,7 @@ const TopicDetailPage = () => {
 
   // 1. Declare all Hooks at the very top level
   const [activeTab, setActiveTab] = useState<'overview' | 'socratic' | 'mcq' | 'coding'>('overview');
-  const [overviewMarkdown, setOverviewMarkdown] = useState('');
+  const [_overviewMarkdown, _setOverviewMarkdown] = useState('');
   const [topicData, setTopicData] = useState<any>(null);
   const [mcqs, setMcqs] = useState<any[]>([]);
   const [codingChallenges, setCodingChallenges] = useState<any[]>([]);
@@ -74,15 +71,15 @@ const TopicDetailPage = () => {
   const [codingHintMode, setCodingHintMode] = useState<'teacher' | 'peer'>('teacher');
   const [revealCodingHint1, setRevealCodingHint1] = useState(false);
   const [revealCodingHint2, setRevealCodingHint2] = useState(false);
-  const [revealOptimalSolutions, setRevealOptimalSolutions] = useState(false);
+  const [_revealOptimalSolutions, setRevealOptimalSolutions] = useState(false);
 
   // Existing Socratic practice state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [completedQuestions, setCompletedQuestions] = useState<number[]>([]);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
+  const [_showFeedback, setShowFeedback] = useState(false);
+  const [_feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | null>(null);
   const [hintsUsedForCurrentQuestion, setHintsUsedForCurrentQuestion] = useState(0);
   const [sessionProgress, setSessionProgress] = useState({
     totalCorrect: 0,
@@ -135,14 +132,30 @@ const TopicDetailPage = () => {
       setRevealOptimalSolutions(false);
       setCompilationResult(null);
 
+      // Extract dynamic parameter names (e.g., nums, target)
+      const params = getParamsFromExample(p.examples[0]?.input || '');
+      const paramStr = params.join(', ');
+
       if (selectedLang === 'python') {
-        setUserCode(`# Solution for ${p.title}\ndef solve(nums):\n    # Write your solution here\n    pass`);
+        setUserCode(`# Solution for ${p.title}\ndef solve(${paramStr}):\n    # Write your solution here\n    pass`);
       } else if (selectedLang === 'cpp') {
-        setUserCode(`// Solution for ${p.title}\n#include <iostream>\n#include <vector>\nusing namespace std;\n\nvector<int> solve(vector<int>& nums) {\n    // Write your solution here\n    return nums;\n}`);
+        const cppParams = params.map(param => {
+          if (param.toLowerCase().includes('target') || param === 'k' || param === 'val') return `int ${param}`;
+          if (param.toLowerCase().includes('head')) return `ListNode* ${param}`;
+          return `vector<int>& ${param}`;
+        }).join(', ');
+        const cppReturnType = p.title.toLowerCase().includes('cycle') ? 'bool' : p.title.toLowerCase().includes('sum') ? 'int' : 'vector<int>';
+        setUserCode(`// Solution for ${p.title}\n#include <iostream>\n#include <vector>\nusing namespace std;\n\n${cppReturnType} solve(${cppParams}) {\n    // Write your solution here\n    return ${params[0] || 'nums'};\n}`);
       } else if (selectedLang === 'java') {
-        setUserCode(`// Solution for ${p.title}\nimport java.util.*;\nclass Solution {\n    public int[] solve(int[] nums) {\n        // Write your solution here\n        return nums;\n    }\n}`);
+        const javaParams = params.map(param => {
+          if (param.toLowerCase().includes('target') || param === 'k' || param === 'val') return `int ${param}`;
+          if (param.toLowerCase().includes('head')) return `ListNode ${param}`;
+          return `int[] ${param}`;
+        }).join(', ');
+        const javaReturnType = p.title.toLowerCase().includes('cycle') ? 'boolean' : p.title.toLowerCase().includes('sum') ? 'int' : 'int[]';
+        setUserCode(`// Solution for ${p.title}\nimport java.util.*;\nclass Solution {\n    public ${javaReturnType} solve(${javaParams}) {\n        // Write your solution here\n        return ${params[0] || 'nums'};\n    }\n}`);
       } else {
-        setUserCode(`// Solution for ${p.title}\nfunction solve(nums) {\n    // Write your solution here\n    return nums;\n}`);
+        setUserCode(`// Solution for ${p.title}\nfunction solve(${paramStr}) {\n    // Write your solution here\n    return ${params[0] || 'nums'};\n}`);
       }
     }
   }, [selectedProblemIdx, codingChallenges, selectedLang]);
@@ -150,13 +163,14 @@ const TopicDetailPage = () => {
   useEffect(() => {
     setStartTime(new Date());
     setShowFeedback(false);
+    setFeedbackType(null);
     setHintsUsedForCurrentQuestion(0);
   }, [currentQuestionIndex]);
 
   useEffect(() => {
     if (userAnswers.length > 0) {
-      const totalCorrect = userAnswers.filter(a => a.isCorrect).length;
-      const totalTime = userAnswers.reduce((sum, a) => sum + a.timeTaken, 0);
+      const totalCorrect = userAnswers.filter((a: UserAnswer) => a.isCorrect).length;
+      const totalTime = userAnswers.reduce((sum: number, a: UserAnswer) => sum + a.timeTaken, 0);
 
       setSessionProgress({
         totalCorrect,
@@ -250,7 +264,7 @@ const TopicDetailPage = () => {
     }
   }, [selectedProblemIdx, codingChallenges, selectedLang]);
 
-  const handlePreviousQuestion = () => {
+  const _handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prevIndex => prevIndex - 1);
     }
@@ -272,7 +286,7 @@ const TopicDetailPage = () => {
     return accuracy > 0.4;
   };
 
-  const handleSubmitAnswer = (answer: string) => {
+  const _handleSubmitAnswer = (answer: string) => {
     const endTime = new Date();
     const timeTaken = startTime ? Math.round((endTime.getTime() - startTime.getTime()) / 1000) : 0;
     const isCorrect = analyzeAnswer(answer);
@@ -301,7 +315,7 @@ const TopicDetailPage = () => {
     });
   };
 
-  const handleRequestHint = () => {
+  const _handleRequestHint = () => {
     setHintsUsedForCurrentQuestion(prev => prev + 1);
   };
 

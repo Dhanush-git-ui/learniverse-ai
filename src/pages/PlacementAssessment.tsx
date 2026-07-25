@@ -99,65 +99,100 @@ export default function PlacementAssessment() {
     }
   }, [step]);
 
-  // Preload or resume attempt on page load
-  useEffect(() => {
-    const preloadOrResume = async () => {
-      setLoadingQuestions(true);
-      setErrorMsg(null);
-      
-      let savedUserId = localStorage.getItem('learniverse_assessment_user_id');
-      if (!savedUserId) {
-        savedUserId = 'candidate_' + Math.floor(1000 + Math.random() * 9000);
-        localStorage.setItem('learniverse_assessment_user_id', savedUserId);
-      }
-      
-      try {
-        const response = await fetch('/api/assessment/start', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-          },
-          body: JSON.stringify({
-            user_id: savedUserId,
-            browser_info: {
-              user_agent: navigator.userAgent,
-              screen_resolution: `${window.screen.width}x${window.screen.height}`,
-              platform: navigator.platform
-            }
-          })
-        });
-        
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          setErrorMsg(errData.detail || `Server returned status code ${response.status}`);
-          return;
-        }
+  // Roll Number State & Validation
+  const [rollNumber, setRollNumber] = useState<string>(() => localStorage.getItem('learniverse_roll_number') || '');
+  const [rollNumberError, setRollNumberError] = useState<string | null>(null);
 
-        const data = await response.json();
-        if (data.attempt_id && data.questions) {
-          setAttemptId(data.attempt_id);
-          setQuestions(data.questions);
-          // If resuming an active test
-          if (data.duration < 7200) {
-            setTimeLeft(data.duration);
-            setStep('test');
+  const validateRollNumber = (input: string): boolean => {
+    const cleaned = input.trim().toUpperCase();
+    // Match format like 23E51A0561 (2 digits + 1 letter + 2 digits + 1 letter + 4 digits)
+    const pattern = /^[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{4}$/;
+    return pattern.test(cleaned);
+  };
+
+  const startAssessmentSession = async (rollToUse?: string): Promise<boolean> => {
+    const rawRoll = rollToUse !== undefined ? rollToUse : rollNumber;
+    const cleanRoll = rawRoll.trim().toUpperCase();
+    
+    if (!cleanRoll) {
+      setRollNumberError("Please enter your Roll Number before starting.");
+      return false;
+    }
+    
+    if (!validateRollNumber(cleanRoll)) {
+      setRollNumberError("Invalid Roll Number format. Expected format: 23E51A0561");
+      return false;
+    }
+    
+    setRollNumberError(null);
+    setLoadingQuestions(true);
+    setErrorMsg(null);
+    
+    localStorage.setItem('learniverse_roll_number', cleanRoll);
+    localStorage.setItem('learniverse_assessment_user_id', cleanRoll);
+
+    try {
+      const response = await fetch('/api/assessment/start', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({
+          roll_number: cleanRoll,
+          user_id: cleanRoll,
+          browser_info: {
+            user_agent: navigator.userAgent,
+            screen_resolution: `${window.screen.width}x${window.screen.height}`,
+            platform: navigator.platform
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        setErrorMsg(errData.detail || `Server returned status code ${response.status}`);
+        return false;
+      }
+
+      const data = await response.json();
+      if (data.attempt_id && data.questions) {
+        setAttemptId(data.attempt_id);
+        setQuestions(data.questions);
+        const savedDraft = localStorage.getItem(`draft_answers_${data.attempt_id}`);
+        if (savedDraft) {
+          try {
+            setAnswers(JSON.parse(savedDraft));
+          } catch (e) {
+            console.error("Failed to parse saved draft answers", e);
           }
         }
-      } catch (e: any) {
-        console.error("Failed to start/resume assessment", e);
-        setErrorMsg("Failed to connect to the assessment server. Check if your backend is running.");
-      } finally {
-        setLoadingQuestions(false);
+        if (data.duration < 7200) {
+          setTimeLeft(data.duration);
+        }
+        return true;
       }
-    };
-    preloadOrResume();
-  }, []);
+      return false;
+    } catch (e: any) {
+      console.error("Failed to start assessment", e);
+      setErrorMsg("Failed to connect to the assessment server. Check if your backend is running.");
+      return false;
+    } finally {
+      setLoadingQuestions(false);
+    }
+  };
+
+  // Save draft answers to localStorage on change
+  useEffect(() => {
+    if (attemptId && Object.keys(answers).length > 0) {
+      localStorage.setItem(`draft_answers_${attemptId}`, JSON.stringify(answers));
+    }
+  }, [answers, attemptId]);
 
   const handleResetAttempts = async () => {
     setErrorMsg(null);
     setLoadingQuestions(true);
-    const userId = localStorage.getItem('learniverse_assessment_user_id');
+    const userId = localStorage.getItem('learniverse_assessment_user_id') || rollNumber;
     if (!userId) {
       setLoadingQuestions(false);
       return;
@@ -175,6 +210,7 @@ export default function PlacementAssessment() {
       
       if (response.ok) {
         localStorage.removeItem('learniverse_assessment_user_id');
+        localStorage.removeItem('learniverse_roll_number');
         window.location.reload();
       } else {
         const errData = await response.json().catch(() => ({}));
@@ -663,7 +699,7 @@ export default function PlacementAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-neutral-100 flex flex-col items-center justify-center p-6 select-none"
+    <div className="min-h-screen bg-black text-neutral-100 flex flex-col items-center justify-center p-6 select-none"
          onCopy={(e) => e.preventDefault()}
          onPaste={(e) => e.preventDefault()}
          onCut={(e) => e.preventDefault()}
@@ -735,6 +771,37 @@ export default function PlacementAssessment() {
 
           </div>
 
+          {/* Roll Number Input Box */}
+          <div className="border-4 border-black bg-white p-5 rounded-none shadow-[4px_4px_0px_rgba(0,0,0,1)] mb-6 text-black">
+            <label className="block text-xs font-black uppercase tracking-wider mb-2 text-black/90 flex items-center justify-between">
+              <span>🎓 Candidate Roll Number</span>
+              <span className="text-red-600 font-bold text-[10px]">* Required for Exam</span>
+            </label>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input 
+                type="text" 
+                value={rollNumber}
+                onChange={(e) => {
+                  setRollNumber(e.target.value);
+                  if (rollNumberError) setRollNumberError(null);
+                }}
+                placeholder="e.g. 23E51A0561"
+                maxLength={10}
+                className="flex-1 bg-neutral-100 border-2 border-black p-3 font-mono font-bold text-base tracking-widest text-black placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black uppercase"
+              />
+            </div>
+            <p className="text-[11px] font-semibold text-neutral-600 mt-2 flex items-center gap-1.5">
+              <span>Format:</span>
+              <code className="bg-amber-100 border border-black/30 px-2 py-0.5 rounded font-mono font-bold text-amber-900">23E51A0561</code>
+              <span className="text-neutral-500">(Case-insensitive)</span>
+            </p>
+            {rollNumberError && (
+              <div className="mt-2 text-xs font-bold text-red-600 bg-red-100 border-2 border-red-500 p-2.5 font-mono">
+                ⚠️ {rollNumberError}
+              </div>
+            )}
+          </div>
+
           {errorMsg && (
             <div className="space-y-4 mb-6">
               <div className="bg-red-500 text-white border-4 border-black p-4 font-bold font-mono text-xs shadow-[4px_4px_0px_rgba(0,0,0,1)] text-left flex items-start space-x-2">
@@ -755,70 +822,111 @@ export default function PlacementAssessment() {
           )}
 
           <Button 
-            onClick={() => setStep('instructions')} 
-            disabled={loadingQuestions || !!errorMsg || questions.length === 0}
-            className="w-full bg-black hover:bg-neutral-900 text-white font-black text-lg py-4 border-4 border-black shadow-[4px_4px_0px_rgba(255,255,255,1)] hover:shadow-[6px_6px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all rounded-none uppercase tracking-wider disabled:bg-neutral-800 disabled:text-neutral-500 disabled:shadow-none disabled:border-neutral-700 disabled:pointer-events-none"
+            onClick={async () => {
+              const ok = await startAssessmentSession(rollNumber);
+              if (ok) setStep('instructions');
+            }} 
+            disabled={loadingQuestions}
+            className="w-full bg-black hover:bg-neutral-900 text-white font-black text-lg py-4 border-4 border-black shadow-[4px_4px_0px_rgba(255,255,255,1)] hover:shadow-[6px_6px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all rounded-none uppercase tracking-wider disabled:bg-neutral-800 disabled:text-neutral-500 disabled:shadow-none disabled:border-neutral-700"
           >
-            {loadingQuestions ? 'Preloading Questions...' : errorMsg ? 'Setup Failed' : 'Begin Assessment Setup'}
+            {loadingQuestions ? 'Preloading Questions...' : 'Begin Assessment Setup'}
           </Button>
 
         </div>
       )}
 
       {step === 'instructions' && (
-        <div className="max-w-lg w-full bg-[#121212] border border-[#242424] p-8 rounded-2xl shadow-xl">
-          <h2 className="text-xl font-bold mb-4">Assessment Guidelines</h2>
-          <div className="text-sm text-neutral-300 space-y-3 mb-6 leading-relaxed">
-            <p className="border-l-2 border-[#ffa116] pl-3 bg-[#ffa116]/5 py-1 text-amber-300 text-xs">
-              This system uses strict webcam and browser focus tracking. Any anomalous actions trigger warnings.
-            </p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Fullscreen is **strictly mandatory**. Exiting will pause the test.</li>
-              <li>Changing browser tabs or opening secondary apps records a **Violation**.</li>
-              <li>**3 violations** will result in immediate disqualification and auto-submission.</li>
-              <li>Right-click, text selection, copy/paste shortcuts are disabled.</li>
+        <div className="max-w-lg w-full bg-[#050505] border border-neutral-800 p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] space-y-6 animate-fade-in text-neutral-100">
+          <h2 className="text-2xl font-extrabold tracking-tight text-white">Assessment Guidelines</h2>
+          
+          <div className="flex items-start gap-3 border-l-2 border-[#ffa116] pl-4 py-3 bg-[#ffa116]/5 text-amber-200 text-xs rounded-r-lg">
+            <ShieldAlert className="w-4 h-4 text-[#ffa116] flex-shrink-0 mt-0.5" />
+            <p className="leading-relaxed">This system uses strict webcam and browser focus tracking. Any anomalous actions trigger warnings.</p>
+          </div>
+
+          <div className="text-sm text-neutral-300 space-y-3.5 leading-relaxed">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3.5">
+                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
+                <span>Fullscreen is <strong className="text-white font-bold">strictly mandatory</strong>. Exiting will pause the test.</span>
+              </li>
+              <li className="flex items-start gap-3.5">
+                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
+                <span>Changing browser tabs or opening secondary apps records a <strong className="text-white font-bold">Violation</strong>.</span>
+              </li>
+              <li className="flex items-start gap-3.5">
+                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
+                <span><strong className="text-rose-400 font-bold">3 violations</strong> will result in immediate disqualification and auto-submission.</span>
+              </li>
+              <li className="flex items-start gap-3.5">
+                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
+                <span>Right-click, text selection, copy/paste shortcuts are disabled.</span>
+              </li>
             </ul>
           </div>
-          <Button onClick={() => setStep('system_check')} className="w-full bg-[#ffa116] hover:bg-[#e68e0d] text-black font-bold">
+
+          <Button 
+            onClick={() => setStep('system_check')} 
+            className="w-full bg-[#ffa116] hover:bg-[#ffb034] text-black font-extrabold py-3.5 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_20px_rgba(255,161,22,0.2)] active:scale-[0.99]"
+          >
             I Agree, Run Compatibility Check
           </Button>
         </div>
       )}
 
       {step === 'system_check' && (
-        <div className="max-w-md w-full bg-[#121212] border border-[#242424] p-8 rounded-2xl shadow-xl text-center">
-          <Monitor className="w-12 h-12 text-indigo-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-4">System Checks</h2>
-          <div className="text-xs text-left bg-[#0a0a0a] p-4 rounded-xl border border-[#2d2d2d] space-y-3 mb-6 font-mono">
-            <p className="text-emerald-400">✓ Browser support: Verified (Chrome/Chromium V8)</p>
-            <p className="text-emerald-400">✓ Display resolution: Compatible ({window.innerWidth}x{window.innerHeight}px)</p>
-            <p className="text-emerald-400">✓ Connection Latency: 24ms (Optimal)</p>
-            <p className="text-emerald-400">✓ Monaco IDE Canvas: Preloaded</p>
+        <div className="max-w-md w-full bg-[#050505] border border-neutral-800 p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] text-center space-y-6 animate-fade-in text-neutral-100">
+          <div className="w-16 h-16 bg-indigo-500/10 border border-indigo-500/30 rounded-full flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(99,102,241,0.15)]">
+            <Monitor className="w-8 h-8 text-indigo-400" />
           </div>
-          <Button onClick={startCamera} className="w-full bg-[#ffa116] hover:bg-[#e68e0d] text-black font-bold">
+          <h2 className="text-2xl font-extrabold tracking-tight text-white">System Checks</h2>
+          <div className="text-xs text-left bg-[#0c0c0c] p-4 rounded-xl border border-neutral-850 space-y-3 font-mono leading-relaxed text-emerald-400/90">
+            <p>✓ Browser support: Verified (Chrome/Chromium V8)</p>
+            <p>✓ Display resolution: Compatible ({window.innerWidth}x{window.innerHeight}px)</p>
+            <p>✓ Connection Latency: 24ms (Optimal)</p>
+            <p>✓ Monaco IDE Canvas: Preloaded</p>
+          </div>
+          <Button 
+            onClick={startCamera} 
+            className="w-full bg-[#ffa116] hover:bg-[#ffb034] text-black font-extrabold py-3.5 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_20px_rgba(255,161,22,0.2)] active:scale-[0.99]"
+          >
             Activate Proctor Webcam
           </Button>
         </div>
       )}
 
       {step === 'camera_check' && (
-        <div className="max-w-md w-full bg-[#121212] border border-[#242424] p-8 rounded-2xl shadow-xl text-center">
-          <Video className="w-12 h-12 text-[#ffa116] mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-3">Camera Calibration</h2>
-          <p className="text-xs text-neutral-400 mb-4">Adjust your lighting and ensure your face is fully visible inside the frame.</p>
-          <video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-black rounded-xl border border-[#2d2d2d] mb-6 object-cover" />
-          <Button onClick={() => setStep('fullscreen_gate')} className="w-full bg-[#ffa116] hover:bg-[#e68e0d] text-black font-bold">
+        <div className="max-w-md w-full bg-[#050505] border border-neutral-800 p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] text-center space-y-5 animate-fade-in text-neutral-100">
+          <div className="w-16 h-16 bg-[#ffa116]/10 border border-[#ffa116]/30 rounded-full flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(255,161,22,0.15)]">
+            <Video className="w-8 h-8 text-[#ffa116]" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold tracking-tight text-white">Camera Calibration</h2>
+            <p className="text-xs text-neutral-400 mt-2 leading-relaxed">Adjust your lighting and ensure your face is fully visible inside the frame.</p>
+          </div>
+          <video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-black rounded-xl border border-neutral-800 object-cover scale-x-[-1]" />
+          <Button 
+            onClick={() => setStep('fullscreen_gate')} 
+            className="w-full bg-[#ffa116] hover:bg-[#ffb034] text-black font-extrabold py-3.5 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_20px_rgba(255,161,22,0.2)] active:scale-[0.99]"
+          >
             Verify Camera & Proceed
           </Button>
         </div>
       )}
 
       {step === 'fullscreen_gate' && (
-        <div className="max-w-md w-full bg-[#121212] border border-[#242424] p-8 rounded-2xl shadow-xl text-center">
-          <Maximize2 className="w-12 h-12 text-emerald-400 mx-auto mb-4 animate-bounce" />
-          <h2 className="text-xl font-bold mb-2">Secure Test Environment</h2>
-          <p className="text-neutral-400 text-xs mb-6">Clicking the button will lock this assessment into fullscreen and start the timer.</p>
-          <Button onClick={enterFullScreen} className="w-full bg-[#ffa116] hover:bg-[#e68e0d] text-black font-bold">
+        <div className="max-w-md w-full bg-[#050505] border border-neutral-800 p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] text-center space-y-6 animate-fade-in text-neutral-100">
+          <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(16,185,129,0.2)] animate-bounce">
+            <Maximize2 className="w-8 h-8 text-emerald-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold tracking-tight text-white">Secure Test Environment</h2>
+            <p className="text-neutral-400 text-xs mt-2 leading-relaxed">Clicking the button will lock this assessment into fullscreen and start the timer.</p>
+          </div>
+          <Button 
+            onClick={enterFullScreen} 
+            className="w-full bg-[#ffa116] hover:bg-[#ffb034] text-black font-extrabold py-3.5 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_20px_rgba(255,161,22,0.2)] active:scale-[0.99]"
+          >
             Lock Screen & Start Exam
           </Button>
         </div>
@@ -1153,60 +1261,62 @@ export default function PlacementAssessment() {
       )}
 
       {step === 'score' && resultsData && (
-        <div className="max-w-4xl w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl space-y-8 animate-fade-in">
+        <div className="max-w-4xl w-full bg-[#050505] border border-neutral-800 p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.9)] space-y-8 animate-fade-in text-neutral-100">
           {violations >= 3 ? (
-            <div className="bg-rose-950/40 border border-rose-900/30 p-6 rounded-xl text-center space-y-2">
-              <XCircle className="w-16 h-16 text-rose-500 mx-auto" />
-              <h2 className="text-2xl font-bold text-rose-400">ASSESSMENT DISQUALIFIED</h2>
-              <p className="text-sm text-slate-350">The exam was automatically terminated after exceeding the policy threshold (3 violations).</p>
+            <div className="bg-rose-950/20 border border-rose-900/40 p-6 rounded-xl text-center space-y-2">
+              <XCircle className="w-16 h-16 text-rose-500 mx-auto animate-pulse" />
+              <h2 className="text-2xl font-black tracking-tight text-rose-400">ASSESSMENT DISQUALIFIED</h2>
+              <p className="text-sm text-neutral-350">The exam was automatically terminated after exceeding the policy threshold (3 violations).</p>
             </div>
           ) : (
-            <div className="text-center space-y-2">
-              <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto" />
-              <h2 className="text-2xl font-bold">Assessment Completed</h2>
-              <p className="text-sm text-slate-400">Attempt graded successfully. Your metrics are outlined below.</p>
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(16,185,129,0.2)]">
+                <CheckCircle2 className="w-9 h-9 text-emerald-400" />
+              </div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-white">Assessment Completed</h2>
+              <p className="text-sm text-neutral-400 max-w-md mx-auto">Attempt graded successfully. Your metrics are outlined below.</p>
             </div>
           )}
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-left font-mono">
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-850">
-              <span className="text-[10px] text-slate-500 block uppercase tracking-wider">Aptitude</span>
-              <span className="text-base font-bold text-slate-200">{resultsData.aptitude} Marks</span>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-left font-mono">
+            <div className="bg-[#0d0d0d] p-4 rounded-xl border border-neutral-800/80 hover:border-neutral-700 transition-all">
+              <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider mb-1">Aptitude</span>
+              <span className="text-lg font-extrabold text-white">{resultsData.aptitude} <span className="text-xs text-neutral-400 font-normal">Marks</span></span>
             </div>
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-850">
-              <span className="text-[10px] text-slate-550 block uppercase tracking-wider">Verbal</span>
-              <span className="text-base font-bold text-slate-200">{resultsData.verbal} Marks</span>
+            <div className="bg-[#0d0d0d] p-4 rounded-xl border border-neutral-800/80 hover:border-neutral-700 transition-all">
+              <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider mb-1">Verbal</span>
+              <span className="text-lg font-extrabold text-white">{resultsData.verbal} <span className="text-xs text-neutral-400 font-normal">Marks</span></span>
             </div>
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-850">
-              <span className="text-[10px] text-slate-550 block uppercase tracking-wider">Fundamentals</span>
-              <span className="text-base font-bold text-slate-200">{resultsData.comp_fundamentals || 0} Marks</span>
+            <div className="bg-[#0d0d0d] p-4 rounded-xl border border-neutral-800/80 hover:border-neutral-700 transition-all">
+              <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider mb-1">Fundamentals</span>
+              <span className="text-lg font-extrabold text-white">{resultsData.comp_fundamentals || 0} <span className="text-xs text-neutral-400 font-normal">Marks</span></span>
             </div>
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-850">
-              <span className="text-[10px] text-slate-550 block uppercase tracking-wider">Coding</span>
-              <span className="text-base font-bold text-slate-200">{resultsData.coding} Marks</span>
+            <div className="bg-[#0d0d0d] p-4 rounded-xl border border-neutral-800/80 hover:border-neutral-700 transition-all">
+              <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider mb-1">Coding</span>
+              <span className="text-lg font-extrabold text-white">{resultsData.coding} <span className="text-xs text-neutral-400 font-normal">Marks</span></span>
             </div>
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 col-span-2 md:col-span-1 text-center bg-blue-950/20 border-blue-900/30">
-              <span className="text-[10px] text-slate-550 block uppercase tracking-wider">Total Score</span>
-              <span className="text-base font-bold text-blue-400">{resultsData.total} Marks</span>
+            <div className="bg-[#09152b] p-4 rounded-xl border border-blue-500/40 col-span-2 md:col-span-1 text-center shadow-[0_0_20px_rgba(59,130,246,0.12)]">
+              <span className="text-[10px] text-blue-400 block uppercase font-bold tracking-wider mb-1">Total Score</span>
+              <span className="text-lg font-black text-blue-400">{resultsData.total} <span className="text-xs text-blue-300 font-normal">Marks</span></span>
             </div>
           </div>
 
-          <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850/80 text-xs text-left space-y-2 text-slate-300 flex justify-between items-center">
-            <div>
-              <p>📋 <span className="font-semibold text-slate-100">Violations Count</span>: {violations} violations recorded.</p>
-              <p>🛡 <span className="font-semibold text-slate-100">Safety Clearance</span>: {violations >= 3 ? <span className="text-rose-400 font-bold">Declined</span> : <span className="text-emerald-400 font-bold">Approved</span>}</p>
+          <div className="bg-[#0d0d0d] p-4.5 rounded-xl border border-neutral-800 text-xs text-left space-y-2 text-neutral-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-1">
+              <p className="flex items-center gap-2">📋 <span className="font-semibold text-neutral-200">Violations Count</span>: <span className="font-mono text-neutral-300 font-bold">{violations} violations recorded.</span></p>
+              <p className="flex items-center gap-2">🛡 <span className="font-semibold text-neutral-200">Safety Clearance</span>: {violations >= 3 ? <span className="text-rose-400 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">Declined</span> : <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Approved</span>}</p>
             </div>
-            <Button onClick={downloadPDFReport} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+            <Button onClick={downloadPDFReport} className="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold px-5 py-2.5 rounded-lg text-xs transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
               Download Detailed Report (PDF)
             </Button>
           </div>
 
           {/* Interactive Report Viewer */}
           <div className="space-y-4 text-left">
-            <h3 className="text-lg font-bold border-b border-slate-800 pb-2">Post-Exam Analysis Report</h3>
+            <h3 className="text-lg font-bold border-b border-neutral-800 pb-3 text-white">Post-Exam Analysis Report</h3>
             
             {/* Filter Tabs */}
-            <div className="flex border-b border-slate-800/60 space-x-6 text-sm font-semibold">
+            <div className="flex border-b border-neutral-800 space-x-6 text-sm font-semibold">
               {[
                 { id: 'wrong', label: 'What Went Wrong' },
                 { id: 'unattempted', label: 'Did Not Attempt' },
@@ -1216,7 +1326,7 @@ export default function PlacementAssessment() {
                 <button
                   key={tab.id}
                   onClick={() => setReportTab(tab.id as any)}
-                  className={`pb-2 border-b-2 transition-all ${reportTab === tab.id ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-slate-450 hover:text-slate-300'}`}
+                  className={`pb-3 border-b-2 transition-all ${reportTab === tab.id ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-neutral-400 hover:text-neutral-200'}`}
                 >
                   {tab.label}
                 </button>
@@ -1224,20 +1334,20 @@ export default function PlacementAssessment() {
             </div>
 
             {/* List Viewer */}
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
               {reportTab === 'wrong' && (
                 reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm">No incorrect attempts! Excellent work.</p>
+                  <p className="text-neutral-400 text-sm py-4 text-center">No incorrect attempts! Excellent work.</p>
                 ) : (
                   reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950 p-5 rounded-xl border border-slate-850 space-y-2">
-                      <span className="text-[10px] text-blue-400 font-mono font-bold uppercase">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-205 text-slate-200">{q.question}</h4>
-                      <div className="grid grid-cols-2 gap-4 text-xs mt-2 pt-2 border-t border-slate-900">
-                        <p className="text-rose-400"><span className="font-semibold text-slate-450">Your Answer:</span> {q.user_answer}</p>
-                        <p className="text-emerald-400"><span className="font-semibold text-slate-450">Correct Option:</span> {q.correct_option}</p>
+                    <div key={q.id || idx} className="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800/90 space-y-3 hover:border-neutral-700 transition-all">
+                      <span className="text-[10px] text-blue-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-neutral-100 text-base leading-snug">{q.question}</h4>
+                      <div className="grid grid-cols-2 gap-4 text-xs mt-2 pt-2 border-t border-neutral-900">
+                        <p className="text-rose-400 font-medium"><span className="font-semibold text-neutral-400">Your Answer:</span> {q.user_answer}</p>
+                        <p className="text-emerald-400 font-medium"><span className="font-semibold text-neutral-400">Correct Option:</span> {q.correct_option}</p>
                       </div>
-                      <p className="text-xs text-slate-400 bg-slate-900/50 p-2.5 rounded border border-slate-800 mt-2"><span className="font-bold text-slate-350">Explanation:</span> {q.explanation}</p>
+                      <p className="text-xs text-neutral-300 bg-[#121212] p-3 rounded-lg border border-neutral-800 mt-2 leading-relaxed"><span className="font-bold text-neutral-200">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -1245,14 +1355,14 @@ export default function PlacementAssessment() {
 
               {reportTab === 'unattempted' && (
                 reportData.filter(r => r.user_answer === "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm">No questions left unattempted!</p>
+                  <p className="text-neutral-400 text-sm py-4 text-center">No questions left unattempted!</p>
                 ) : (
                   reportData.filter(r => r.user_answer === "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950 p-5 rounded-xl border border-slate-850 space-y-2">
-                      <span className="text-[10px] text-yellow-500 font-mono font-bold uppercase">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-205 text-slate-200">{q.question}</h4>
-                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-slate-450">Correct Option:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-400 bg-slate-900/50 p-2.5 rounded border border-slate-800 mt-1"><span className="font-bold text-slate-350">Explanation:</span> {q.explanation}</p>
+                    <div key={q.id || idx} className="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800/90 space-y-3 hover:border-neutral-700 transition-all">
+                      <span className="text-[10px] text-amber-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-neutral-100 text-base leading-snug">{q.question}</h4>
+                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-neutral-400">Correct Option:</span> {q.correct_option}</p>
+                      <p className="text-xs text-neutral-300 bg-[#121212] p-3 rounded-lg border border-neutral-800 mt-1 leading-relaxed"><span className="font-bold text-neutral-200">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -1260,14 +1370,14 @@ export default function PlacementAssessment() {
 
               {reportTab === 'correct' && (
                 reportData.filter(r => r.is_correct && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm">No correct answers found.</p>
+                  <p className="text-neutral-400 text-sm py-4 text-center">No correct answers found.</p>
                 ) : (
                   reportData.filter(r => r.is_correct && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950 p-5 rounded-xl border border-slate-850 space-y-2">
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-205 text-slate-200">{q.question}</h4>
-                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-slate-450">Your Correct Answer:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-400 bg-slate-900/50 p-2.5 rounded border border-slate-800 mt-1"><span className="font-bold text-slate-350">Explanation:</span> {q.explanation}</p>
+                    <div key={q.id || idx} className="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800/90 space-y-3 hover:border-neutral-700 transition-all">
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-neutral-100 text-base leading-snug">{q.question}</h4>
+                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-neutral-400">Your Correct Answer:</span> {q.correct_option}</p>
+                      <p className="text-xs text-neutral-300 bg-[#121212] p-3 rounded-lg border border-neutral-800 mt-1 leading-relaxed"><span className="font-bold text-neutral-200">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -1275,35 +1385,35 @@ export default function PlacementAssessment() {
 
               {reportTab === 'coding' && (
                 reportData.filter(r => r.category === "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm">No coding submissions found.</p>
+                  <p className="text-neutral-400 text-sm py-4 text-center">No coding submissions found.</p>
                 ) : (
                   reportData.filter(r => r.category === "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950 p-5 rounded-xl border border-slate-850 space-y-4">
-                      <div className="flex justify-between items-center border-b border-slate-900 pb-2">
-                        <span className="text-[10px] text-indigo-400 font-mono font-bold uppercase">Coding Challenge ➜ {q.topic}</span>
-                        <span className="text-xs text-slate-400 font-mono bg-slate-900 px-2 py-0.5 rounded">Passed: {q.coding_details.passed_cases}/{q.coding_details.total_cases} test cases</span>
+                    <div key={q.id || idx} className="bg-[#0a0a0a] p-5 rounded-xl border border-neutral-800/90 space-y-4 hover:border-neutral-700 transition-all">
+                      <div className="flex justify-between items-center border-b border-neutral-800/80 pb-2">
+                        <span className="text-[10px] text-indigo-400 font-mono font-bold uppercase tracking-wider">Coding Challenge ➜ {q.topic}</span>
+                        <span className="text-xs text-neutral-300 font-mono bg-[#181818] border border-neutral-700/60 px-2.5 py-0.5 rounded">Passed: {q.coding_details.passed_cases}/{q.coding_details.total_cases} test cases</span>
                       </div>
-                      <h4 className="font-semibold text-slate-205 text-slate-200">{q.question}</h4>
+                      <h4 className="font-semibold text-neutral-100 text-base leading-snug">{q.question}</h4>
                       
                       {/* Code comparison panel */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
                         <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Your Solution Code:</span>
-                          <pre className="p-3 bg-slate-900 border border-slate-850 rounded overflow-x-auto text-rose-300 max-h-[200px]">{q.coding_details.user_code || '// No code submitted'}</pre>
+                          <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-bold block">Your Solution Code:</span>
+                          <pre className="p-3 bg-[#111111] border border-neutral-800 rounded-lg overflow-x-auto text-rose-300 max-h-[200px]">{q.coding_details.user_code || '// No code submitted'}</pre>
                         </div>
                         <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Optimal Reference Solution:</span>
-                          <pre className="p-3 bg-slate-900 border border-slate-850 rounded overflow-x-auto text-emerald-300 max-h-[200px]">{q.coding_details.optimal_code || '// Optimal solution template'}</pre>
+                          <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-bold block">Optimal Reference Solution:</span>
+                          <pre className="p-3 bg-[#111111] border border-neutral-800 rounded-lg overflow-x-auto text-emerald-300 max-h-[200px]">{q.coding_details.optimal_code || '// Optimal solution template'}</pre>
                         </div>
                       </div>
 
                       {/* Complexity details */}
-                      <div className="bg-slate-900/60 p-3.5 rounded border border-slate-850 text-xs space-y-2">
+                      <div className="bg-[#111111] p-3.5 rounded-lg border border-neutral-800 text-xs space-y-2">
                         <div className="flex space-x-6 font-mono text-[10px] uppercase text-indigo-400">
-                          <span>Time Complexity limit: <strong className="text-slate-200">{q.coding_details.time_complexity}</strong></span>
-                          <span>Space Complexity limit: <strong className="text-slate-200">{q.coding_details.space_complexity}</strong></span>
+                          <span>Time Complexity limit: <strong className="text-neutral-200">{q.coding_details.time_complexity}</strong></span>
+                          <span>Space Complexity limit: <strong className="text-neutral-200">{q.coding_details.space_complexity}</strong></span>
                         </div>
-                        <p className="text-slate-400 border-t border-slate-900 pt-2"><span className="font-bold text-slate-350">Optimal Explanation:</span> {q.explanation}</p>
+                        <p className="text-neutral-300 border-t border-neutral-800/80 pt-2 leading-relaxed"><span className="font-bold text-neutral-200">Optimal Explanation:</span> {q.explanation}</p>
                       </div>
                     </div>
                   ))
@@ -1312,9 +1422,31 @@ export default function PlacementAssessment() {
             </div>
           </div>
 
-          <Button onClick={() => setStep('landing')} className="w-full bg-blue-600 hover:bg-blue-700">
-            Return to Assessment Portal
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <Button 
+              onClick={async () => {
+                setAnswers({});
+                setViolations(0);
+                setResultsData(null);
+                setReportData([]);
+                setAttemptId(null);
+                setErrorMsg(null);
+                if (rollNumber && validateRollNumber(rollNumber)) {
+                  const ok = await startAssessmentSession(rollNumber);
+                  if (ok) setStep('instructions');
+                } else {
+                  setStep('landing');
+                }
+              }} 
+              className="flex-1 bg-[#ffa116] hover:bg-[#ffb034] text-black font-extrabold py-3.5 px-6 rounded-xl uppercase tracking-wider text-sm transition-all shadow-[0_0_25px_rgba(255,161,22,0.25)] active:scale-[0.99]"
+            >
+              🔄 Retake Assessment (Unlimited Attempts)
+            </Button>
+
+            <Button onClick={() => setStep('landing')} className="flex-1 bg-[#181818] hover:bg-[#242424] text-white font-bold py-3.5 px-6 rounded-xl border border-neutral-800 text-sm transition-all">
+              Return to Landing Portal
+            </Button>
+          </div>
         </div>
       )}
     </div>

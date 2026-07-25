@@ -12,3 +12,4 @@ httpx
 slowapi
 psycopg2-binary
 redis
+brotli
