@@ -17,8 +17,8 @@ class Settings:
         
         # Database
         self.DATABASE_URL = os.environ.get("DATABASE_URL")
-        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "10"))
-        self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "100"))
+        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "20"))
+        self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "150"))
         
         # RAG Configuration
         self.SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))
@@ -28,21 +28,26 @@ class Settings:
         self.ALLOW_LOCAL_EXECUTION = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
         self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip()
         self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip()
-        
+        self.CODE_EXECUTION_SEMAPHORE_LIMIT = int(os.environ.get("CODE_EXECUTION_SEMAPHORE_LIMIT", "150"))
+
         # Assessment settings
         self.ASSESSMENT_MAX_DURATION_SECONDS = int(os.environ.get("ASSESSMENT_MAX_DURATION_SECONDS", "7200"))
         self.ASSESSMENT_GRACE_PERIOD_SECONDS = int(os.environ.get("ASSESSMENT_GRACE_PERIOD_SECONDS", "300"))
-        
+
         # Redis
         self.REDIS_URL = os.environ.get("REDIS_URL", "")
-        
+
         # CORS
         frontend_url = os.environ.get("FRONTEND_URL", "https://learniverse-ai.vercel.app")
         self.ALLOWED_ORIGINS = [
             "http://localhost:8080",
             "http://127.0.0.1:8080",
+            "http://localhost:8081",
+            "http://127.0.0.1:8081",
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
             frontend_url,
         ]
 
@@ -56,5 +61,6 @@ RAG_NUM_RESULTS = settings.RAG_NUM_RESULTS
 GEMINI_MODEL_NAME = settings.GEMINI_MODEL_NAME
 DB_POOL_MIN_CONNS = settings.DB_POOL_MIN_CONNS
 DB_POOL_MAX_CONNS = settings.DB_POOL_MAX_CONNS
+CODE_EXECUTION_SEMAPHORE_LIMIT = settings.CODE_EXECUTION_SEMAPHORE_LIMIT
 
 

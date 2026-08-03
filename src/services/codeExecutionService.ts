@@ -217,11 +217,16 @@ function buildPythonHarness(
   ];
 
   examples.forEach((ex, i) => {
-    const pairs = parseInputPairs(ex.input);
+    let pairs = parseInputPairs(ex.input);
+    if (pairs.length === 0 && ex.input?.trim()) {
+      pairs = [{ name: 'input_data', value: ex.input }];
+    }
     const posPair = pairs.find(p => p.name === 'pos');
     const posVal = posPair ? posPair.value : '-1';
 
-    lines.push(`# Case ${i}: ${ex.input}`);
+    const safeComment = (ex.input || '').split('\n').map(l => `# ${l}`).join('\n');
+    lines.push(`# Case ${i}:`);
+    lines.push(safeComment);
     pairs.forEach(p => {
       if (p.name.toLowerCase() === 'head') {
         lines.push(`${p.name} = __list_to_linked_list(${toPythonValue(p.value)}, ${posVal})`);
@@ -312,11 +317,16 @@ function buildJavaScriptHarness(
   ];
 
   examples.forEach((ex, i) => {
-    const pairs = parseInputPairs(ex.input);
+    let pairs = parseInputPairs(ex.input);
+    if (pairs.length === 0 && ex.input?.trim()) {
+      pairs = [{ name: 'input_data', value: ex.input }];
+    }
     const posPair = pairs.find(p => p.name === 'pos');
     const posVal = posPair ? posPair.value : '-1';
 
-    lines.push(`// Case ${i}: ${ex.input}`);
+    const safeComment = (ex.input || '').split('\n').map(l => `// ${l}`).join('\n');
+    lines.push(`// Case ${i}:`);
+    lines.push(safeComment);
     pairs.forEach(p => {
       if (p.name.toLowerCase() === 'head') {
         lines.push(`const ${p.name}_${i} = __listToLinkedList(${toJSValue(p.value)}, ${posVal});`);

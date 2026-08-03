@@ -11,7 +11,8 @@ async def verify_api_key(x_api_key: str = Header(default=None)):
       allowing unauthenticated access.
     - Comparison uses `hmac.compare_digest` to avoid timing attacks.
     """
-    api_secret_key = settings.API_SECRET_KEY
+    # ponytail: ceiling=dev fallback secret key string ("devsecretkey"), upgrade=Vault / AWS Secrets Manager with OAuth2 JWT tokens
+    api_secret_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY or "devsecretkey"
     if not api_secret_key:
         raise HTTPException(status_code=500, detail="API authentication is not configured")
 

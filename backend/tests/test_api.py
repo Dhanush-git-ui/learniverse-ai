@@ -75,8 +75,9 @@ class TestAPI(unittest.TestCase):
             "category": "DSA",
             "history": []
         }
+        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "devsecretkey")}
         
-        response = self.client.post("/api/chat", json=payload)
+        response = self.client.post("/api/chat", json=payload, headers=headers)
         self.assertEqual(response.status_code, 200)
         
         data = response.json()
@@ -99,8 +100,9 @@ class TestAPI(unittest.TestCase):
             "category": "DSA",
             "history": []
         }
+        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "devsecretkey")}
         
-        response = self.client.post("/api/chat", json=payload)
+        response = self.client.post("/api/chat", json=payload, headers=headers)
         # Status code should be 500
         self.assertEqual(response.status_code, 500)
         # Detail should be our generic error message, not the traceback

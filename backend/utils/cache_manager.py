@@ -5,7 +5,10 @@ from typing import Dict, Any, Optional
 from config import settings
 
 class MemoryCache:
-    """A simple in-memory TTL cache with basic thread-safety."""
+    """A simple in-memory TTL cache with basic thread-safety.
+    
+    # ponytail: ceiling=in-memory Python dict without size eviction bounds (O(N) memory), upgrade=RedisCache or DiskCache with LRU eviction
+    """
 
     def __init__(self):
         self._cache: Dict[str, Dict[str, Any]] = {}

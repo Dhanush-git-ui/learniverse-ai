@@ -1,31 +1,36 @@
-# placement_assessment_system/seed_questions_fixed.py
+# placement_assessment_system/seed_questions.py
 # ============================================================
-# FIXED VERSION — Replace your existing seed_questions.py
-# ============================================================
-# Fixes applied:
-#   B-2: DB credentials moved to environment variable
+# WEBSCRAPED QUESTION SEEDING ENGINE
 # ============================================================
 
 import json
 import os
+import sys
 import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 
-# Load environment variables from backend/.env
+# Ensure validator can be imported
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from validator import validate_and_enrich_question
+
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-# [FIX B-2] Read DB URL from environment variable
 DB_URL = os.environ.get("DATABASE_URL")
-if not DB_URL:
-    raise RuntimeError("DATABASE_URL not set. Add it to backend/.env")
 
 def seed_database():
-    # Adjusted dataset path since script runs inside backend/placement_assessment_system/
-    dataset_path = "../../placement_assessment_mongodb_dataset.json"
-    
-    if not os.path.exists(dataset_path):
-        print(f"Dataset file not found at: {os.path.abspath(dataset_path)}")
+    if not DB_URL:
+        print("[WARNING] DATABASE_URL not set. Skipping DB seed execution.")
+        return
+
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "../../../questions.json"),
+        os.path.join(os.path.dirname(__file__), "../../questions.json"),
+        "questions.json"
+    ]
+    dataset_path = next((p for p in possible_paths if os.path.exists(p)), None)
+    if not dataset_path:
+        print("Dataset file questions.json not found.")
         return
 
     with open(dataset_path, "r", encoding="utf-8") as f:
@@ -34,91 +39,94 @@ def seed_database():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
-    print("Seeding questions in batches...")
+    # Ensure schema migrations on questions table
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS question_type VARCHAR(50) DEFAULT 'mcq';")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS subtopic VARCHAR(100);")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS estimated_time INT DEFAULT 90;")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS blooms_level VARCHAR(50) DEFAULT 'Understand';")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]'::jsonb;")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS language VARCHAR(30) DEFAULT 'general';")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS generator_version VARCHAR(20) DEFAULT 'v2.0';")
+    conn.commit()
 
-    # 1. Prepare and seed Aptitude, Verbal, and Computer Fundamentals questions
-    mcq_tuples = []
-    for category in ["aptitude_questions", "verbal_questions", "computer_fundamentals_questions"]:
-        questions_list = data.get(category, [])
-        cat_name = category.replace("_questions", "").title()
-        
-        for q in questions_list:
-            mcq_tuples.append((
-                q.get("_id"),
-                cat_name,
-                q.get("topic"),
-                q.get("difficulty"),
-                q.get("question"),
-                json.dumps(q.get("options")) if q.get("options") else None,
-                q.get("correctOption"),
-                q.get("answer"),
-                q.get("explanation"),
-                q.get("marks", 1),
-                q.get("negativeMarks", 0.25),
-                q.get("timeLimit"),
-                None # examples
-            ))
+    print(f"Seeding and validating {len(data)} webscraped questions from {dataset_path}...")
 
-    if mcq_tuples:
-        print(f"Inserting {len(mcq_tuples)} MCQ questions...")
-        execute_values(
-            cur,
-            """
-            INSERT INTO questions (id, category, topic, difficulty, question, options, correct_option, answer, explanation, marks, negative_marks, time_limit, examples)
-            VALUES %s
-            ON CONFLICT (id) DO NOTHING;
-            """,
-            mcq_tuples
-        )
+    rows_to_insert = []
+    rejected_count = 0
 
-    # 2. Prepare and seed Coding Questions
-        # 2. Prepare and seed Coding Questions
-    coding_tuples = []
-    coding_questions = data.get("coding_questions", [])
-    for q in coding_questions:
-        q_text = q.get("problemStatement") or q.get("question")
-        
-        # Serialize solutions and complexities to JSON inside the answer column
-        solutions_json = json.dumps({
-            "optimal_code": q.get("optimalSolution") or "",
-            "brute_code": q.get("bruteForceSolution") or "",
-            "time_complexity": q.get("expectedTime") or "O(N)",
-            "space_complexity": q.get("expectedSpaceComplexity") or "O(1)"
-        })
-        
-        coding_tuples.append((
-            q.get("_id"),
-            "Coding",
-            q.get("topic"),
-            q.get("difficulty"),
-            q_text,
-            None, # options
-            None, # correct_option
-            solutions_json, # Store structured solutions inside 'answer'
-            q.get("explanation"),
-            q.get("marks", 10),
-            q.get("negativeMarks", 0),
-            None, # time_limit
-            json.dumps(q.get("examples", []))
+    for raw_q in data:
+        q_dict = {
+            "id": raw_q.get("id"),
+            "category": raw_q.get("category_label") or raw_q.get("category"),
+            "question_type": "mcq",
+            "topic": raw_q.get("topic") or "General",
+            "subtopic": raw_q.get("topic"),
+            "difficulty": raw_q.get("difficulty") or "Medium",
+            "question": raw_q.get("question"),
+            "options": raw_q.get("options"),
+            "correct_option": "A",
+            "answer": raw_q.get("answer"),
+            "explanation": raw_q.get("solution"),
+            "marks": 1,
+            "negative_marks": 0.25,
+            "time_limit": 120,
+        }
+
+        is_valid, errs, enriched = validate_and_enrich_question(q_dict)
+        if not is_valid:
+            rejected_count += 1
+            continue
+
+        rows_to_insert.append((
+            enriched["id"],
+            enriched["category"],
+            enriched.get("question_type", "mcq"),
+            enriched["topic"],
+            enriched["subtopic"],
+            enriched["difficulty"],
+            enriched["question"],
+            json.dumps(enriched["options"]) if enriched.get("options") else None,
+            enriched.get("correct_option"),
+            enriched.get("answer"),
+            enriched.get("explanation"),
+            enriched.get("marks", 1),
+            enriched.get("negative_marks", 0.25),
+            enriched.get("time_limit", 120),
+            enriched.get("estimated_time", 90),
+            enriched.get("blooms_level", "Understand"),
+            json.dumps(enriched.get("tags", [])),
+            enriched.get("language", "general"),
+            enriched.get("generator_version", "v2.0"),
+            None # examples
         ))
 
-
-    if coding_tuples:
-        print(f"Inserting {len(coding_tuples)} coding questions...")
+    if rows_to_insert:
+        print(f"Inserting {len(rows_to_insert)} webscraped questions into Neon DB...")
         execute_values(
             cur,
             """
-            INSERT INTO questions (id, category, topic, difficulty, question, options, correct_option, answer, explanation, marks, negative_marks, time_limit, examples)
+            INSERT INTO questions (
+                id, category, question_type, topic, subtopic, difficulty, question,
+                options, correct_option, answer, explanation, marks, negative_marks,
+                time_limit, estimated_time, blooms_level, tags, language, generator_version, examples
+            )
             VALUES %s
-            ON CONFLICT (id) DO NOTHING;
+            ON CONFLICT (id) DO UPDATE SET
+                question = EXCLUDED.question,
+                options = EXCLUDED.options,
+                correct_option = EXCLUDED.correct_option,
+                explanation = EXCLUDED.explanation,
+                subtopic = EXCLUDED.subtopic,
+                tags = EXCLUDED.tags,
+                generator_version = EXCLUDED.generator_version;
             """,
-            coding_tuples
+            rows_to_insert
         )
 
     conn.commit()
     cur.close()
     conn.close()
-    print("Database seeding completed successfully!")
+    print(f"Database seeding completed successfully! Inserted/Updated: {len(rows_to_insert)}, Rejected: {rejected_count}")
 
 if __name__ == "__main__":
     seed_database()

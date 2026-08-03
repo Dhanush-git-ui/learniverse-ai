@@ -31,7 +31,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 from typing import List
@@ -43,6 +43,13 @@ from slowapi.errors import RateLimitExceeded
 
 # Limit concurrent code executions
 _code_execution_semaphore = None
+
+def get_code_execution_semaphore():
+    global _code_execution_semaphore
+    if _code_execution_semaphore is None:
+        _code_execution_semaphore = asyncio.Semaphore(settings.CODE_EXECUTION_SEMAPHORE_LIMIT)
+    return _code_execution_semaphore
+
 
 # Only import lightweight config at startup. Defer heavy RAG imports to request time.
 from config import ALLOWED_ORIGINS
@@ -66,12 +73,22 @@ def get_db_conn():
             maxconn=DB_POOL_MAX_CONNS,
             dsn=DB_URL
         )
-    return _db_pool.getconn()
+    conn = _db_pool.getconn()
+    if conn.closed != 0:
+        try:
+            _db_pool.putconn(conn, close=True)
+        except Exception:
+            pass
+        conn = _db_pool.getconn()
+    return conn
 
 def release_db_conn(conn):
     global _db_pool
     if _db_pool and conn:
-        _db_pool.putconn(conn)
+        try:
+            _db_pool.putconn(conn, close=(conn.closed != 0))
+        except Exception:
+            pass
 
 from contextlib import asynccontextmanager
 from utils.http_client import http_client
@@ -80,7 +97,7 @@ from utils.http_client import http_client
 async def lifespan(app: FastAPI):
     # Startup: Initialize DB pool
     global _db_pool, _code_execution_semaphore
-    _code_execution_semaphore = asyncio.Semaphore(80)
+    _code_execution_semaphore = asyncio.Semaphore(settings.CODE_EXECUTION_SEMAPHORE_LIMIT)
     if DB_URL and (_db_pool is None or _db_pool.closed):
         _db_pool = ThreadedConnectionPool(
             minconn=DB_POOL_MIN_CONNS,
@@ -97,6 +114,7 @@ async def lifespan(app: FastAPI):
     
     # Startup: Preload some topics
     try:
+        from utils.data_loader import load_preloaded_topic
         from utils.cache_manager import topic_cache
         for topic in ["Stack & Queue", "Linked Lists", "Sorting Algorithms", "Searching Algorithms", "Binary Trees", "Graph Algorithms"]:
             load_preloaded_topic(topic)
@@ -118,19 +136,29 @@ app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 def get_rate_limit_key(request: Request) -> str:
-    # Rate limit by the authenticated client API key first to protect shared NAT environments
-    api_key = request.headers.get("x-api-key")
-    if api_key:
-        return api_key
-    # Fall back to X-Forwarded-For if behind a proxy
+    # Priority 1: Candidate Roll Number header if provided by frontend
+    roll = request.headers.get("x-roll-number") or request.query_params.get("roll_number")
+    if roll:
+        return f"roll_{roll}"
+    # Priority 2: X-Forwarded-For or client IP address + request path
     forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "127.0.0.1"
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
+    return f"{ip}_{request.url.path}"
 
 limiter = Limiter(key_func=get_rate_limit_key)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled Exception on %s %s: %s", request.method, request.url.path, exc, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "An internal server error occurred while processing your request. Please try again later.",
+            "error_type": type(exc).__name__
+        }
+    )
 
 # Auto-bootstrap: ensure ChromaDB persistent folder exists to avoid silent failures
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
@@ -220,10 +248,11 @@ def _compare_expected_actual(expected, actual, language: str | None = None) -> b
     return _normalize_output_text(exp_s) == _normalize_output_text(act_s)
 
 
-# Add CORS Middleware to allow requests from specific frontend origins
+# Add CORS Middleware to allow requests from specific frontend origins & ngrok
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -397,16 +426,19 @@ async def get_topic_overview(request: Request, topic: str = Query(...)):
         from rag.dsa_prompts import OVERVIEW_PROMPT
         model = get_model()
         prompt = OVERVIEW_PROMPT.format(topic=topic)
-        response = await model.generate_content(prompt)
+        response = await asyncio.wait_for(model.generate_content(prompt), timeout=30.0)
         # model.generate_content returns a sanitized string
         result = {"markdown": response if isinstance(response, str) else str(response)}
         
         # Cache for 1 hour (3600 seconds)
         topic_cache.set(cache_key, result, 3600)
         return result
+    except asyncio.TimeoutError:
+        logger.error("[get_topic_overview]: Timeout generating overview for %s", topic)
+        raise HTTPException(status_code=504, detail="AI service timed out. Please try again in a few seconds.")
     except Exception as e:
         logger.error("[get_topic_overview]: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to generate topic overview.")
+        raise HTTPException(status_code=500, detail="Failed to generate topic overview. Please try again.")
 
 
 @app.post("/api/evaluate", dependencies=[Depends(verify_api_key)])
@@ -457,7 +489,7 @@ async def get_topic_mcqs(request: Request, topic: str = Query(...)):
         from rag.dsa_prompts import MCQ_PROMPT
         model = get_model()
         prompt = MCQ_PROMPT.format(topic=topic)
-        response = await model.generate_content(prompt)
+        response = await asyncio.wait_for(model.generate_content(prompt), timeout=30.0)
         raw_text = response.text.strip()
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
@@ -468,9 +500,12 @@ async def get_topic_mcqs(request: Request, topic: str = Query(...)):
         
         topic_cache.set(cache_key, result, 3600)
         return result
+    except asyncio.TimeoutError:
+        logger.error("[get_topic_mcqs]: Timeout for %s", topic)
+        raise HTTPException(status_code=504, detail="AI service timed out generating MCQs. Please try again.")
     except Exception as e:
         logger.error("[get_topic_mcqs]: %s", e)
-        raise HTTPException(status_code=500, detail="Failed to generate MCQs.")
+        raise HTTPException(status_code=500, detail="Failed to generate MCQs. Please try again.")
 
 @app.get("/api/topic/coding", dependencies=[Depends(verify_api_key)])
 @limiter.limit("20/minute")
@@ -483,7 +518,7 @@ async def get_topic_coding(request: Request, topic: str = Query(...)):
 
         model = get_model()
         prompt = CODING_PROMPT.format(topic=topic)
-        response = await model.generate_content(prompt)
+        response = await asyncio.wait_for(model.generate_content(prompt), timeout=30.0)
         
         # Clean up code blocks
         raw_text = response.text.strip()
@@ -494,6 +529,9 @@ async def get_topic_coding(request: Request, topic: str = Query(...)):
                 
         coding_challenges = json.loads(raw_text.strip())
         return {"challenges": coding_challenges}
+    except asyncio.TimeoutError:
+        logger.error("[get_topic_coding]: Timeout for %s", topic)
+        raise HTTPException(status_code=504, detail="AI service timed out generating coding challenges. Please try again.")
     except Exception as e:
         logger.error("[get_topic_coding]: %s", e)
         raise HTTPException(status_code=500, detail="Failed to generate coding challenges. Please try again.")
@@ -668,11 +706,23 @@ import sys
 # USER CODE
 {user_code}
 
-# FALLBACK DEF
+# RESOLVE SOLVE ENTRY POINT
+_target_fn = None
 try:
-    solve
+    _target_fn = solve
 except NameError:
-    def solve(*args, **kwargs): return None
+    try:
+        if 'Solution' in globals():
+            _sol_inst = Solution()
+            if hasattr(_sol_inst, 'solve'):
+                _target_fn = _sol_inst.solve
+    except Exception:
+        pass
+
+if _target_fn is None:
+    def _missing_solve(*args, **kwargs):
+        raise NameError("Entry point 'solve' function or 'class Solution' not found. Please define a top-level solve() function or a Solution class with a solve method.")
+    _target_fn = _missing_solve
 
 # DRIVER
 test_cases = {test_cases_json}
@@ -684,19 +734,19 @@ for tc in test_cases:
         import inspect
         has_args = False
         try:
-            sig = inspect.signature(solve)
+            sig = inspect.signature(_target_fn)
             has_args = len(sig.parameters) > 0
         except:
             has_args = True
             
         if not has_args:
-            actual = solve()
+            actual = _target_fn()
         elif isinstance(args, dict):
-            actual = solve(**args)
+            actual = _target_fn(**args)
         elif isinstance(args, list) or isinstance(args, tuple):
-            actual = solve(args)
+            actual = _target_fn(args)
         else:
-            actual = solve(args)
+            actual = _target_fn(args)
             
         passed = (actual == expected)
         results.append({{
@@ -719,9 +769,16 @@ print(json.dumps(results))
 // USER CODE
 {user_code}
 
-// FALLBACK DEF
-if (typeof solve === 'undefined') {{
-    var solve = () => null;
+// RESOLVE SOLVE ENTRY POINT
+let targetFn = typeof solve === 'function' ? solve : null;
+if (!targetFn && typeof Solution !== 'undefined') {{
+    try {{
+        const sol = new Solution();
+        if (typeof sol.solve === 'function') targetFn = sol.solve.bind(sol);
+    }} catch (e) {{}}
+}}
+if (!targetFn) {{
+    targetFn = () => {{ throw new Error("Entry point 'solve' function or 'class Solution' not found."); }};
 }}
 
 // DRIVER
@@ -733,15 +790,15 @@ for (let i = 0; i < testCases.length; i++) {{
     const expected = tc.expected;
     try {{
         let actual;
-        const hasArgs = typeof solve === 'function' && solve.length > 0;
-        if (!hasArgs && typeof solve === 'function') {{
-            actual = solve();
+        const hasArgs = typeof targetFn === 'function' && targetFn.length > 0;
+        if (!hasArgs && typeof targetFn === 'function') {{
+            actual = targetFn();
         }} else if (Array.isArray(args)) {{
-            actual = solve(args);
+            actual = targetFn(args);
         }} else if (typeof args === 'object' && args !== null) {{
-            actual = solve(...Object.values(args));
+            actual = targetFn(...Object.values(args));
         }} else {{
-            actual = solve(args);
+            actual = targetFn(args);
         }}
         
         const isDeepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -1377,44 +1434,55 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
             "results": [{"testcase": "Configuration check", "expected": "Test cases defined", "actual": "No test cases found for problem ID", "passed": False}]
         }
         
-    # If it is a placement assessment question, execute each test case individually feeding standard input
+    # If it is a placement assessment question, execute test cases in parallel feeding standard input
     if code_req.problemId.startswith("code_"):
-        results = []
+        results = [None] * len(test_cases)
         passed_cases = 0
         total_cases = len(test_cases)
         
+        sem = get_code_execution_semaphore()
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=10.0)
+            await asyncio.wait_for(sem.acquire(), timeout=10.0)
         except asyncio.TimeoutError:
             raise HTTPException(status_code=429, detail="Compiler is currently busy running other submissions. Please retry in 10 seconds.")
         try:
-            for idx, tc in enumerate(test_cases):
-                # Pass the raw input string as stdin!
+            async def run_single_testcase(idx, tc):
                 execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, tc["input"])
+                if not execution_result:
+                    return idx, {
+                        "testcase": f"Case {idx+1}",
+                        "expected": tc["expected"],
+                        "actual": "Code execution service offline.",
+                        "passed": False
+                    }, False
                 stdout = execution_result.get("run", {}).get("stdout", "").strip()
                 stderr = execution_result.get("run", {}).get("stderr", "").strip()
                 code = execution_result.get("run", {}).get("code", 0)
                 
                 if code != 0 or stderr:
                     error_msg = stderr if stderr else f"Execution failed with exit code {code}"
-                    results.append({
+                    return idx, {
                         "testcase": f"Case {idx+1}",
                         "expected": tc["expected"],
                         "actual": error_msg,
                         "passed": False
-                    })
+                    }, False
                 else:
                     passed = _compare_expected_actual(tc["expected"], stdout, code_req.language)
-                    if passed:
-                        passed_cases += 1
-                    results.append({
+                    return idx, {
                         "testcase": f"Case {idx+1}",
                         "expected": tc["expected"],
                         "actual": stdout,
                         "passed": passed
-                    })
+                    }, passed
+
+            tc_outputs = await asyncio.gather(*[run_single_testcase(i, tc) for i, tc in enumerate(test_cases)])
+            for idx, res_obj, passed in tc_outputs:
+                results[idx] = res_obj
+                if passed:
+                    passed_cases += 1
         finally:
-            _code_execution_semaphore.release()
+            sem.release()
             
         all_passed = (passed_cases == total_cases and total_cases > 0)
         return {
@@ -1426,14 +1494,15 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
     # For standard function-style topic questions, use the legacy wrapper harness
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
+    sem = get_code_execution_semaphore()
     try:
-        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+        await asyncio.wait_for(sem.acquire(), timeout=30.0)
     except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
         execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
-        _code_execution_semaphore.release()
+        sem.release()
         
     if not execution_result:
         return {
@@ -1539,26 +1608,30 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
     passed_cases = 0
     total_cases = len(test_cases) if test_cases else 1
     
-    # If it is a placement assessment question, execute each testcase individually feeding standard input
+    # If it is a placement assessment question, execute test cases in parallel feeding standard input
     if code_req.problemId.startswith("code_"):
         start_time = time.perf_counter()
+        sem = get_code_execution_semaphore()
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+            await asyncio.wait_for(sem.acquire(), timeout=30.0)
         except asyncio.TimeoutError:
             raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
         try:
-            for idx, tc in enumerate(test_cases):
+            async def run_single_testcase(tc):
                 execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, tc["input"])
+                if not execution_result:
+                    return False
                 stdout = execution_result.get("run", {}).get("stdout", "").strip()
                 stderr = execution_result.get("run", {}).get("stderr", "").strip()
                 code = execution_result.get("run", {}).get("code", 0)
-                
                 if code == 0 and not stderr:
-                    passed = _compare_expected_actual(tc["expected"], stdout, code_req.language)
-                    if passed:
-                        passed_cases += 1
+                    return _compare_expected_actual(tc["expected"], stdout, code_req.language)
+                return False
+
+            case_results = await asyncio.gather(*[run_single_testcase(tc) for tc in test_cases])
+            passed_cases = sum(1 for p in case_results if p)
         finally:
-            _code_execution_semaphore.release()
+            sem.release()
             
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
         run_time_str = f"{elapsed_ms}ms"
@@ -1579,14 +1652,15 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
     start_time = time.perf_counter()
+    sem = get_code_execution_semaphore()
     try:
-        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+        await asyncio.wait_for(sem.acquire(), timeout=30.0)
     except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
         execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
-        _code_execution_semaphore.release()
+        sem.release()
         
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
     run_time_str = f"{elapsed_ms}ms"
@@ -1605,7 +1679,7 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
                 passed_cases = 1
                 total_cases = 1
                 
-    review = generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
+    review = await generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
     
     return {
         "passed_cases": passed_cases,

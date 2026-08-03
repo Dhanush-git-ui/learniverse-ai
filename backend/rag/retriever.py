@@ -25,6 +25,7 @@ _chroma_client = None
 _dsa_collection = None
 
 def get_chroma_collection():
+    # ponytail: ceiling=local Chroma SQLite vector DB scan, upgrade=Qdrant / Pinecone distributed cluster
     global _chroma_client, _dsa_collection
     if _chroma_client is None:
         _chroma_client = chromadb.PersistentClient(path=str(RAG_DIR.parent / "chroma_db"))

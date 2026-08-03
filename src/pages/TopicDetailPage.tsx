@@ -116,6 +116,17 @@ const TopicDetailPage = () => {
     }
   }, [slug, topic?.title]);
 
+  // Helper to dynamically extract parameter names from the first example input
+  const getParamsFromExample = (inputStr: string): string[] => {
+    if (!inputStr) return ['nums'];
+    const matches = Array.from(inputStr.matchAll(/(\w+)\s*=/g));
+    if (matches.length > 0) {
+      return matches.map(m => m[1]);
+    }
+    // Fallback if it is a raw array/value
+    return ['nums'];
+  };
+
   // Sync templates on language/problem switch
   useEffect(() => {
     if (codingChallenges.length > 0) {
@@ -208,61 +219,6 @@ const TopicDetailPage = () => {
       });
     }
   };
-
-  // Helper to dynamically extract parameter names from the first example input
-  const getParamsFromExample = (inputStr: string): string[] => {
-    if (!inputStr) return ['nums'];
-    const matches = Array.from(inputStr.matchAll(/(\w+)\s*=/g));
-    if (matches.length > 0) {
-      return matches.map(m => m[1]);
-    }
-    // Fallback if it is a raw array/value
-    return ['nums'];
-  };
-
-  // Sync templates on language/problem switch
-  useEffect(() => {
-    if (codingChallenges.length > 0) {
-      let currentIdx = selectedProblemIdx;
-      if (currentIdx >= codingChallenges.length) {
-        currentIdx = 0;
-        setSelectedProblemIdx(0);
-      }
-      const p = codingChallenges[currentIdx];
-      if (!p) return;
-
-      setRevealCodingHint1(false);
-      setRevealCodingHint2(false);
-      setRevealOptimalSolutions(false);
-      setCompilationResult(null);
-
-      // Extract dynamic parameter names (e.g., nums, target)
-      const params = getParamsFromExample(p.examples[0]?.input || '');
-      const paramStr = params.join(', ');
-
-      if (selectedLang === 'python') {
-        setUserCode(`# Solution for ${p.title}\ndef solve(${paramStr}):\n    # Write your solution here\n    pass`);
-      } else if (selectedLang === 'cpp') {
-        const cppParams = params.map(param => {
-          if (param.toLowerCase().includes('target') || param === 'k' || param === 'val') return `int ${param}`;
-          if (param.toLowerCase().includes('head')) return `ListNode* ${param}`;
-          return `vector<int>& ${param}`;
-        }).join(', ');
-        const cppReturnType = p.title.toLowerCase().includes('cycle') ? 'bool' : p.title.toLowerCase().includes('sum') ? 'int' : 'vector<int>';
-        setUserCode(`// Solution for ${p.title}\n#include <iostream>\n#include <vector>\nusing namespace std;\n\n${cppReturnType} solve(${cppParams}) {\n    // Write your solution here\n    return ${params[0] || 'nums'};\n}`);
-      } else if (selectedLang === 'java') {
-        const javaParams = params.map(param => {
-          if (param.toLowerCase().includes('target') || param === 'k' || param === 'val') return `int ${param}`;
-          if (param.toLowerCase().includes('head')) return `ListNode ${param}`;
-          return `int[] ${param}`;
-        }).join(', ');
-        const javaReturnType = p.title.toLowerCase().includes('cycle') ? 'boolean' : p.title.toLowerCase().includes('sum') ? 'int' : 'int[]';
-        setUserCode(`// Solution for ${p.title}\nimport java.util.*;\nclass Solution {\n    public ${javaReturnType} solve(${javaParams}) {\n        // Write your solution here\n        return ${params[0] || 'nums'};\n    }\n}`);
-      } else {
-        setUserCode(`// Solution for ${p.title}\nfunction solve(${paramStr}) {\n    // Write your solution here\n    return ${params[0] || 'nums'};\n}`);
-      }
-    }
-  }, [selectedProblemIdx, codingChallenges, selectedLang]);
 
   const _handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
