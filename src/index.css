@@ -8,35 +8,35 @@
 @layer base {
   :root {
     /* Light theme (H S% L%) */
-    --background: 210 33% 99%;
-    --foreground: 210 16% 12%;
+    --background: 210 33% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 16% 12%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 16% 12%;
+    --popover-foreground: 222 47% 11%;
 
     /* Primary brand blue */
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 203 91% 38%;
+    --primary-foreground: 0 0% 100%;
 
     /* Secondary / accents */
-    --secondary: 260 70% 94%; /* soft purple */
-    --secondary-foreground: 210 16% 12%;
+    --secondary: 215 52% 46%; /* softer secondary blue */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 90%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 202 45% 90%;
+    --muted-foreground: 222 47% 30%;
 
-    --accent: 260 64% 60%; /* purple accent */
-    --accent-foreground: 210 40% 98%;
+    --accent: 23 85% 48%; /* orange accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 23 85% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --border: 202 45% 90%;
+    --input: 202 45% 90%;
+    --ring: 203 91% 38%;
 
     --radius: 0.75rem;
   }
@@ -55,13 +55,13 @@
     --primary: 217 91% 60%;
     --primary-foreground: 222 47% 11%;
 
-    --secondary: 260 64% 24%;
+    --secondary: 24 100% 20%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 260 64% 44%;
+    --accent: 24 100% 50%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 63% 31%;
@@ -102,13 +102,13 @@
     @apply bg-blue-900/30 backdrop-blur-md border border-blue-700/20;
   }
 
-  /* Purple accent glass card */
-  .purple-glass {
-    @apply bg-purple-50/90 backdrop-blur-md border border-purple-100/50 shadow-lg;
+  /* Orange accent glass card */
+  .orange-glass {
+    @apply bg-orange-50/90 backdrop-blur-md border border-orange-100/50 shadow-lg;
   }
   
-  .dark .purple-glass {
-    @apply bg-purple-900/30 backdrop-blur-md border border-purple-700/20;
+  .dark .orange-glass {
+    @apply bg-orange-900/30 backdrop-blur-md border border-orange-700/20;
   }
   
   /* Custom animations */

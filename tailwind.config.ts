@@ -66,28 +66,28 @@ export default {
 				},
 				// Custom colors for LearnIverse
 				blue: {
-					50: "#e6f0ff",
-					100: "#b3d1ff",
-					200: "#80b3ff",
-					300: "#4d94ff",
-					400: "#1a75ff",
-					500: "#0366FF", // Primary blue
-					600: "#0052cc",
-					700: "#003d99",
-					800: "#002966",
-					900: "#001433",
+					50: "#fff5f0",
+					100: "#ffe6d6",
+					200: "#fccca3",
+					300: "#f7b172",
+					400: "#E08852", // Muted orange tone
+					500: "#E26212", // Bold orange accent
+					600: "#c7530c",
+					700: "#9e4007",
+					800: "#7d3408",
+					900: "#662c0a",
 				},
 				purple: {
-					50: "#f5f3ff",
-					100: "#ede9fe",
-					200: "#ddd6fe",
-					300: "#c4b5fd",
-					400: "#a78bfa",
-					500: "#8b5cf6", // Primary purple
-					600: "#7c3aed",
-					700: "#6d28d9",
-					800: "#5b21b6",
-					900: "#4c1d95",
+					50: "#F8FAFC", // Off-white canvas
+					100: "#D9E9F2", // Light blue tint
+					200: "#b5d4e6",
+					300: "#8cbada",
+					400: "#62a1cd",
+					500: "#386bb1", // Softer secondary blue
+					600: "#0977bb", // Vibrant primary blue
+					700: "#075e96",
+					800: "#0F172A", // Slate blue body text
+					900: "#0a0a0a", // Subtle blacks
 				},
 			},
 			borderRadius: {
