@@ -1,4 +1,4 @@
-import React from 'react';
+import AlgorithmStepPanel from './AlgorithmStepPanel';
 
 interface Example {
   input: string;
@@ -16,14 +16,40 @@ interface Challenge {
 
 interface ProblemDescriptionPanelProps {
   challenge: Challenge;
+  algorithmText?: string;
+  setAlgorithmText?: (text: string) => void;
+  timeComplexity?: string;
+  setTimeComplexity?: (tc: string) => void;
+  spaceComplexity?: string;
+  setSpaceComplexity?: (sc: string) => void;
 }
 
-export default function ProblemDescriptionPanel({ challenge }: ProblemDescriptionPanelProps) {
+export default function ProblemDescriptionPanel({ 
+  challenge,
+  algorithmText = '',
+  setAlgorithmText,
+  timeComplexity = '',
+  setTimeComplexity,
+  spaceComplexity = '',
+  setSpaceComplexity
+}: ProblemDescriptionPanelProps) {
   if (!challenge) return null;
 
   return (
     <div className="space-y-6 text-slate-705 dark:text-slate-300 select-text">
-    {/* Description statement */}
+      {/* Step 1: Algorithm Section */}
+      {setAlgorithmText && (
+        <AlgorithmStepPanel
+          algorithmText={algorithmText}
+          setAlgorithmText={setAlgorithmText}
+          timeComplexity={timeComplexity}
+          setTimeComplexity={setTimeComplexity}
+          spaceComplexity={spaceComplexity}
+          setSpaceComplexity={setSpaceComplexity}
+        />
+      )}
+
+      {/* Description statement */}
     <div className="text-sm leading-relaxed whitespace-pre-wrap font-sans text-slate-600 dark:text-slate-300">
       {challenge.statement}
     </div>

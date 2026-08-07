@@ -1,4 +1,3 @@
-import React from 'react';
 import { Award, ExternalLink, Sparkles, Bookmark, Share2 } from 'lucide-react';
 
 const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
