@@ -1,6 +1,7 @@
-# placement_assessment_system/api.py
+﻿# placement_assessment_system/api.py
 # ============================================================
 # HIGH-SCALE & PRODUCTION-GRADE PLACEMENT ASSESSMENT ENGINE
+# Supports PostgreSQL (production) & SQLite (local fallback)
 # ============================================================
 
 import os
@@ -9,18 +10,18 @@ import random
 import re
 import csv
 import io
+import uuid
+import sqlite3
 import time as _time
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional
-import psycopg2
-from psycopg2.extras import RealDictCursor, Json, execute_values
 from decimal import Decimal
 
 def _make_json_serializable(obj):
-    """Recursively convert Decimal objects to float/int for psycopg2 Json and json.dumps compatibility."""
+    """Recursively convert Decimal objects to float/int for psycopg2 Json, sqlite3 and json.dumps compatibility."""
     if isinstance(obj, Decimal):
         return float(obj) if obj % 1 != 0 else int(obj)
     elif isinstance(obj, dict):
@@ -32,74 +33,852 @@ def _make_json_serializable(obj):
     return obj
 
 
-from psycopg2.pool import ThreadedConnectionPool
 from auth import verify_api_key as require_api_key
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv()
 
 router = APIRouter(prefix="/api/assessment", dependencies=[Depends(require_api_key)])
 
 DB_URL = os.environ.get("DATABASE_URL")
-if not DB_URL:
-    print("[WARNING] DATABASE_URL environment variable is not set. Database operations will fail.")
+SQLITE_DB_PATH = os.path.join(os.path.dirname(__file__), "assessment_local.db")
 
-# [FIX B-6] Connection pool instead of per-request connections
 _db_pool = None
+
+_RETRYABLE_PG_FRAGMENTS = (
+    "ssl connection has been closed",
+    "connection is closed",
+    "server closed the connection unexpectedly",
+    "could not connect to server",
+    "ssl syscall error",
+    "connection reset by peer",
+    "terminating connection due to administrator command",
+)
+
+def _is_retryable_pg_error(exc: Exception) -> bool:
+    return any(f in str(exc).lower() for f in _RETRYABLE_PG_FRAGMENTS)
+
+def _ping_conn(conn) -> bool:
+    if conn.closed != 0:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        return True
+    except Exception:
+        return False
 
 def _get_pool():
     global _db_pool
     if not DB_URL:
-        raise RuntimeError("DATABASE_URL environment variable is not set. Please configure it in your environment.")
+        return None
     if _db_pool is None or _db_pool.closed:
-        from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
-        _db_pool = ThreadedConnectionPool(
-            minconn=DB_POOL_MIN_CONNS,
-            maxconn=DB_POOL_MAX_CONNS,
-            dsn=DB_URL
-        )
-        # NOTE: schema migrations should run out-of-band (startup job or CI)
-        # to avoid DDL in request-time code paths. If you need to ensure
-        # specific columns exist in development, run `ensure_schema()`
-        # manually during startup.
+        try:
+            from psycopg2.pool import ThreadedConnectionPool
+            from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
+            _db_pool = ThreadedConnectionPool(
+                minconn=DB_POOL_MIN_CONNS,
+                maxconn=DB_POOL_MAX_CONNS,
+                dsn=DB_URL,
+            )
+        except Exception as e:
+            print(f"[DB POOL] Could not connect to PostgreSQL: {e}. Falling back to SQLite.")
+            _db_pool = None
     return _db_pool
+
+def _get_live_conn(pool, max_retries: int = 3):
+    global _db_pool
+    last_err: Exception = RuntimeError("No connection attempts made")
+
+    for attempt in range(max_retries):
+        if attempt > 0:
+            _time.sleep(0.5)
+
+        try:
+            conn = pool.getconn()
+        except Exception as err:
+            last_err = err
+            try:
+                pool.closeall()
+            except Exception:
+                pass
+            _db_pool = None
+            try:
+                from psycopg2.pool import ThreadedConnectionPool
+                from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
+                pool = ThreadedConnectionPool(
+                    minconn=DB_POOL_MIN_CONNS,
+                    maxconn=DB_POOL_MAX_CONNS,
+                    dsn=DB_URL,
+                )
+                _db_pool = pool
+            except Exception as reconnect_err:
+                last_err = reconnect_err
+            continue
+
+        if _ping_conn(conn):
+            return conn
+
+        try:
+            import psycopg2
+            last_err = psycopg2.OperationalError("Stale pooled connection discarded")
+            pool.putconn(conn, close=True)
+        except Exception:
+            pass
+
+    return None
+
+
+# ------------------------------------------------------------
+# SQLITE COMPATIBILITY LAYER FOR OFFLINE / LOCAL DEVELOPMENT
+# ------------------------------------------------------------
+
+def _init_sqlite_db():
+    conn = sqlite3.connect(SQLITE_DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS questions (
+            id TEXT PRIMARY KEY,
+            category TEXT NOT NULL,
+            question_type TEXT DEFAULT 'mcq',
+            topic TEXT NOT NULL,
+            subtopic TEXT,
+            difficulty TEXT NOT NULL,
+            question TEXT NOT NULL,
+            options TEXT,
+            correct_option TEXT,
+            answer TEXT,
+            explanation TEXT,
+            marks INT DEFAULT 1,
+            negative_marks REAL DEFAULT 0.25,
+            time_limit INT DEFAULT 120,
+            estimated_time INT DEFAULT 90,
+            blooms_level TEXT DEFAULT 'Understand',
+            tags TEXT DEFAULT '[]',
+            generator_version TEXT DEFAULT 'v2.0',
+            examples TEXT
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS test_sessions (
+            session_id TEXT PRIMARY KEY,
+            test_id TEXT DEFAULT 'placement_assessment_v1',
+            student_roll_number TEXT NOT NULL,
+            student_name TEXT DEFAULT 'Student',
+            branch TEXT DEFAULT 'CSE',
+            year TEXT DEFAULT '4th Year',
+            start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            end_time TIMESTAMP,
+            status TEXT DEFAULT 'started',
+            total_questions INT DEFAULT 62,
+            attempted INT DEFAULT 0,
+            correct INT DEFAULT 0,
+            wrong INT DEFAULT 0,
+            unanswered INT DEFAULT 62,
+            total_marks REAL DEFAULT 0.00,
+            percentage REAL DEFAULT 0.00,
+            time_taken INT DEFAULT 0,
+            tab_switch_count INT DEFAULT 0,
+            fullscreen_exit_count INT DEFAULT 0,
+            copy_attempts INT DEFAULT 0,
+            suspicious_events TEXT DEFAULT '[]',
+            suspicion_score REAL DEFAULT 0.00,
+            ip_address TEXT DEFAULT '127.0.0.1',
+            browser TEXT DEFAULT 'Web Browser',
+            device TEXT DEFAULT 'Desktop',
+            questions TEXT DEFAULT '[]',
+            answers TEXT DEFAULT '{}',
+            coding_submissions TEXT DEFAULT '{}',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS question_responses (
+            response_id TEXT PRIMARY KEY,
+            session_id TEXT,
+            section TEXT NOT NULL,
+            question_id TEXT NOT NULL,
+            question_text TEXT,
+            option_a TEXT,
+            option_b TEXT,
+            option_c TEXT,
+            option_d TEXT,
+            selected_option TEXT,
+            correct_option TEXT,
+            is_correct INT DEFAULT 0,
+            marks_awarded REAL DEFAULT 0.00,
+            time_spent INT DEFAULT 0,
+            difficulty TEXT,
+            topic TEXT,
+            subtopic TEXT,
+            explanation TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS section_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            section_name TEXT NOT NULL,
+            questions INT DEFAULT 0,
+            attempted INT DEFAULT 0,
+            correct INT DEFAULT 0,
+            wrong INT DEFAULT 0,
+            unanswered INT DEFAULT 0,
+            marks REAL DEFAULT 0.00,
+            percentage REAL DEFAULT 0.00,
+            average_time REAL DEFAULT 0.00
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS violations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            attempt_id TEXT,
+            type TEXT,
+            details TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            roll_number TEXT,
+            questions TEXT
+        );
+    """)
+    conn.commit()
+    conn.close()
+
+class SQLiteCursorAdapter:
+    def __init__(self, conn):
+        self.conn = conn
+        self.cur = conn.cursor()
+        self.description = None
+        self._last_returning = None
+
+    def execute(self, query: str, params: tuple = None):
+        clean_q = query.strip()
+        # Strip Postgres type casts (::text, ::jsonb)
+        clean_q = re.sub(r'::[a-zA-Z0-9_]+', '', clean_q)
+        # Convert ILIKE to LIKE
+        clean_q = re.sub(r'\bILIKE\b', 'LIKE', clean_q, flags=re.IGNORECASE)
+        # Convert Postgres placeholders %s to SQLite ?
+        clean_q = clean_q.replace('%s', '?')
+
+        sqlite_params = []
+        if params is not None:
+            for p in params:
+                if isinstance(p, (dict, list)):
+                    sqlite_params.append(json.dumps(p))
+                elif hasattr(p, "adapted"):
+                    sqlite_params.append(json.dumps(p.adapted))
+                elif isinstance(p, Decimal):
+                    sqlite_params.append(float(p))
+                else:
+                    sqlite_params.append(p)
+
+        try:
+            self.cur.execute(clean_q, tuple(sqlite_params))
+            self.description = self.cur.description
+        except Exception as e:
+            if "gen_random_uuid()" in clean_q:
+                clean_q = clean_q.replace("gen_random_uuid()", f"'{str(uuid.uuid4())}'")
+                self.cur.execute(clean_q, tuple(sqlite_params))
+                self.description = self.cur.description
+            else:
+                raise e
+        return self
+
+    def fetchone(self):
+        row = self.cur.fetchone()
+        if row is None:
+            return None
+        d = dict(row)
+        for k, v in list(d.items()):
+            if isinstance(v, str) and (v.startswith('{') or v.startswith('[')):
+                try:
+                    d[k] = json.loads(v)
+                except Exception:
+                    pass
+            elif k == "start_time" and isinstance(v, str):
+                try:
+                    d[k] = datetime.fromisoformat(v.replace("Z", "+00:00"))
+                except Exception:
+                    pass
+        return d
+
+    def fetchall(self):
+        rows = self.cur.fetchall()
+        result = []
+        for row in rows:
+            d = dict(row)
+            for k, v in list(d.items()):
+                if isinstance(v, str) and (v.startswith('{') or v.startswith('[')):
+                    try:
+                        d[k] = json.loads(v)
+                    except Exception:
+                        pass
+                elif k == "start_time" and isinstance(v, str):
+                    try:
+                        d[k] = datetime.fromisoformat(v.replace("Z", "+00:00"))
+                    except Exception:
+                        pass
+            result.append(d)
+        return result
+
+    def close(self):
+        self.cur.close()
+
+
+def _safe_execute_values(db, sql: str, rows: list):
+    """Execute batch inserts for both PostgreSQL and SQLite."""
+    if not rows:
+        return
+    if isinstance(db, SQLiteCursorAdapter):
+        clean_sql = re.sub(r'::[a-zA-Z0-9_]+', '', sql).strip()
+        m = re.search(r'(INSERT\s+INTO\s+[a-zA-Z0-9_]+\s*\([^)]+\)\s*VALUES)', clean_sql, re.IGNORECASE)
+        if m:
+            prefix = m.group(1)
+            col_count = len(rows[0])
+            placeholders = "(" + ", ".join(["?"] * col_count) + ")"
+            sqlite_sql = f"{prefix} {placeholders};"
+            conv_rows = []
+            for r in rows:
+                conv_r = []
+                for val in r:
+                    if isinstance(val, (dict, list)):
+                        conv_r.append(json.dumps(val))
+                    elif hasattr(val, "adapted"):
+                        conv_r.append(json.dumps(val.adapted))
+                    elif isinstance(val, Decimal):
+                        conv_r.append(float(val))
+                    else:
+                        conv_r.append(val)
+                conv_rows.append(tuple(conv_r))
+            db.cur.executemany(sqlite_sql, conv_rows)
+    else:
+        try:
+            from psycopg2.extras import execute_values
+            execute_values(db, sql, rows)
+        except Exception as e:
+            print(f"[BATCH INSERT ERROR] {e}")
 
 
 def ensure_schema():
-    """
-    Helper to perform minimal safe schema changes. This should be invoked
-    only from maintenance scripts or during controlled startup, NOT from
-    within request handlers.
-    """
+    """Run DDL migrations at startup to establish tables and indexes."""
+    _init_sqlite_db()
     pool = _get_pool()
-    conn = pool.getconn()
+    if not pool:
+        return
+    conn = None
     try:
+        conn = _get_live_conn(pool)
+        if not conn:
+            return
         cur = conn.cursor()
-        cur.execute("ALTER TABLE attempts ADD COLUMN IF NOT EXISTS questions JSONB;")
-        cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS hint TEXT;")
+        cur.execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
+        
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS questions (
+                id VARCHAR(100) PRIMARY KEY,
+                category VARCHAR(50) NOT NULL,
+                question_type VARCHAR(50) DEFAULT 'mcq',
+                topic VARCHAR(100) NOT NULL,
+                subtopic VARCHAR(100),
+                difficulty VARCHAR(20) NOT NULL,
+                question TEXT NOT NULL,
+                options JSONB,
+                correct_option CHAR(1),
+                answer TEXT,
+                explanation TEXT,
+                marks INT DEFAULT 1,
+                negative_marks DECIMAL(3, 2) DEFAULT 0.25,
+                time_limit INT DEFAULT 120,
+                estimated_time INT DEFAULT 90,
+                blooms_level VARCHAR(50) DEFAULT 'Understand',
+                tags JSONB DEFAULT '[]'::jsonb,
+                generator_version VARCHAR(20) DEFAULT 'v2.0',
+                examples JSONB
+            );
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS test_sessions (
+                session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                test_id VARCHAR(100) DEFAULT 'placement_assessment_v1',
+                student_roll_number VARCHAR(50) NOT NULL,
+                student_name VARCHAR(100) DEFAULT 'Student',
+                branch VARCHAR(50) DEFAULT 'CSE',
+                year VARCHAR(20) DEFAULT '4th Year',
+                start_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                end_time TIMESTAMP WITH TIME ZONE,
+                status VARCHAR(20) DEFAULT 'started',
+                total_questions INT DEFAULT 62,
+                attempted INT DEFAULT 0,
+                correct INT DEFAULT 0,
+                wrong INT DEFAULT 0,
+                unanswered INT DEFAULT 62,
+                total_marks DECIMAL(7, 2) DEFAULT 0.00,
+                percentage DECIMAL(5, 2) DEFAULT 0.00,
+                time_taken INT DEFAULT 0,
+                tab_switch_count INT DEFAULT 0,
+                fullscreen_exit_count INT DEFAULT 0,
+                copy_attempts INT DEFAULT 0,
+                suspicious_events JSONB DEFAULT '[]'::jsonb,
+                suspicion_score DECIMAL(5, 2) DEFAULT 0.00,
+                ip_address VARCHAR(50) DEFAULT '127.0.0.1',
+                browser TEXT DEFAULT 'Web Browser',
+                device VARCHAR(100) DEFAULT 'Desktop',
+                questions JSONB DEFAULT '[]'::jsonb,
+                answers JSONB DEFAULT '{}'::jsonb,
+                coding_submissions JSONB DEFAULT '{}'::jsonb,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS question_responses (
+                response_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                session_id UUID REFERENCES test_sessions(session_id) ON DELETE CASCADE,
+                section VARCHAR(50) NOT NULL,
+                question_id VARCHAR(100) NOT NULL,
+                question_text TEXT,
+                option_a TEXT,
+                option_b TEXT,
+                option_c TEXT,
+                option_d TEXT,
+                selected_option VARCHAR(10),
+                correct_option VARCHAR(10),
+                is_correct BOOLEAN DEFAULT FALSE,
+                marks_awarded DECIMAL(5, 2) DEFAULT 0.00,
+                time_spent INT DEFAULT 0,
+                difficulty VARCHAR(20),
+                topic VARCHAR(100),
+                subtopic VARCHAR(100),
+                explanation TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS section_results (
+                id SERIAL PRIMARY KEY,
+                session_id UUID REFERENCES test_sessions(session_id) ON DELETE CASCADE,
+                section_name VARCHAR(50) NOT NULL,
+                questions INT DEFAULT 0,
+                attempted INT DEFAULT 0,
+                correct INT DEFAULT 0,
+                wrong INT DEFAULT 0,
+                unanswered INT DEFAULT 0,
+                marks DECIMAL(7, 2) DEFAULT 0.00,
+                percentage DECIMAL(5, 2) DEFAULT 0.00,
+                average_time DECIMAL(7, 2) DEFAULT 0.00
+            );
+        """)
+
+        cur.execute("CREATE TABLE IF NOT EXISTS violations (id SERIAL PRIMARY KEY, attempt_id VARCHAR(100), type VARCHAR(50), details TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);")
+        cur.execute("CREATE TABLE IF NOT EXISTS attempts (id SERIAL PRIMARY KEY, user_id VARCHAR(100), roll_number VARCHAR(50), questions JSONB);")
+
         conn.commit()
         cur.close()
     except Exception as e:
-        conn.rollback()
-        print(f"[MIGRATION ERROR] ensure_schema failed: {e}")
+        if conn and conn.closed == 0:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        print(f"[MIGRATION WARNING] PostgreSQL ensure_schema fallback: {e}")
     finally:
-        pool.putconn(conn)
+        if conn:
+            try:
+                pool.putconn(conn, close=(conn.closed != 0))
+            except Exception:
+                pass
+
 
 def get_db_cursor():
+    """Yields a database cursor: PostgreSQL pool if online, otherwise local SQLite."""
     pool = _get_pool()
-    conn = pool.getconn()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    conn = None
+    if pool:
+        try:
+            conn = _get_live_conn(pool)
+        except Exception:
+            conn = None
+
+    if conn:
+        from psycopg2.extras import RealDictCursor
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        is_broken = False
+        try:
+            yield cur
+            if conn.closed == 0:
+                conn.commit()
+        except Exception as e:
+            is_broken = True
+            if conn.closed == 0:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+            raise e
+        finally:
+            try:
+                cur.close()
+            except Exception:
+                pass
+            broken = is_broken or conn.closed != 0
+            try:
+                pool.putconn(conn, close=broken)
+            except Exception:
+                pass
+    else:
+        # Fallback to local SQLite database
+        _init_sqlite_db()
+        sqlite_conn = sqlite3.connect(SQLITE_DB_PATH)
+        sqlite_conn.row_factory = sqlite3.Row
+        adapter = SQLiteCursorAdapter(sqlite_conn)
+        try:
+            yield adapter
+            sqlite_conn.commit()
+        except Exception as e:
+            try:
+                sqlite_conn.rollback()
+            except Exception:
+                pass
+            raise e
+        finally:
+            try:
+                adapter.close()
+                sqlite_conn.close()
+            except Exception:
+                pass
+
+
+# ------------------------------------------------------------
+# IN-MEMORY QUESTION CACHE & DIFFICULTY SAMPLING ENGINE
+# ------------------------------------------------------------
+_IN_MEMORY_QUESTIONS = None
+
+def _load_local_json_fallback_questions() -> List[Dict]:
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "../../../questions.json"),
+        os.path.join(os.path.dirname(__file__), "../../questions.json"),
+        os.path.join(os.path.dirname(__file__), "../questions.json"),
+        "questions.json",
+        os.path.join(os.path.dirname(__file__), "../../placement_assessment_mongodb_dataset.json"),
+        "placement_assessment_mongodb_dataset.json"
+    ]
+    path = next((p for p in possible_paths if os.path.exists(p)), None)
+    if not path:
+        return []
     try:
-        yield cur
-        conn.commit()
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        flat_qs = []
+        if isinstance(data, list):
+            # questions.json format
+            cat_map = {
+                "Quantitative Aptitude (Numerical Ability)": "Aptitude",
+                "Logical Reasoning (Analytical Ability)": "Aptitude",
+                "Abstract Reasoning (Non-Verbal Reasoning)": "Aptitude",
+                "Data Interpretation and Analysis": "Aptitude",
+                "Verbal Ability (English Comprehension)": "Verbal",
+                "Technical Aptitude (Basic Programming and AIML Concepts)": "Computer_Fundamentals",
+            }
+            for item in data:
+                raw_cat = item.get("category_label") or item.get("category") or ""
+                target_cat = cat_map.get(raw_cat, "Aptitude")
+                q_dict = {
+                    "id": str(item.get("id")),
+                    "category": target_cat,
+                    "topic": item.get("topic") or "General",
+                    "subtopic": item.get("topic"),
+                    "difficulty": item.get("difficulty") or "Easy",
+                    "question": item.get("question", ""),
+                    "options": item.get("options") or [],
+                    "correct_option": item.get("correct_option") or "A",
+                    "answer": item.get("answer"),
+                    "explanation": item.get("solution") or item.get("explanation", ""),
+                    "marks": item.get("marks", 1),
+                    "negative_marks": item.get("negative_marks", 0.25)
+                }
+                flat_qs.append(q_dict)
+        elif isinstance(data, dict):
+            # legacy MongoDB format
+            cat_map = {
+                "aptitude_questions": "Aptitude",
+                "verbal_questions": "Verbal",
+                "computer_fundamentals_questions": "Computer_Fundamentals",
+                "coding_questions": "Coding"
+            }
+            for key, cat_name in cat_map.items():
+                for item in data.get(key, []):
+                    q_dict = {
+                        "id": str(item.get("_id") or item.get("id")),
+                        "category": cat_name,
+                        "topic": item.get("topic", "General"),
+                        "difficulty": item.get("difficulty", "Easy"),
+                        "question": item.get("question", ""),
+                        "options": item.get("options") or [],
+                        "correct_option": item.get("correctOption") or item.get("correct_option"),
+                        "answer": item.get("answer"),
+                        "explanation": item.get("explanation", ""),
+                        "marks": item.get("marks", 1),
+                        "negative_marks": item.get("negativeMarks", 0.25)
+                    }
+                    flat_qs.append(q_dict)
+
+        # Load Coding problems from data/topics
+        topics_dir = os.path.join(os.path.dirname(__file__), "../data/topics")
+        if os.path.exists(topics_dir):
+            for fname in os.listdir(topics_dir):
+                if fname.endswith(".json"):
+                    try:
+                        with open(os.path.join(topics_dir, fname), "r", encoding="utf-8") as tf:
+                            tdata = json.load(tf)
+                            for cp in tdata.get("coding_problems", []):
+                                flat_qs.append({
+                                    "id": str(cp.get("id")),
+                                    "category": "Coding",
+                                    "topic": cp.get("title") or tdata.get("topic", "Coding"),
+                                    "difficulty": cp.get("difficulty", "Easy"),
+                                    "question": cp.get("description", ""),
+                                    "options": [],
+                                    "correct_option": None,
+                                    "examples": cp.get("examples", []),
+                                    "answer": json.dumps({
+                                        "optimal_code": cp.get("solution_optimal", {}).get("python", ""),
+                                        "brute_code": cp.get("solution_regular", {}).get("python", ""),
+                                        "time_complexity": cp.get("solution_optimal", {}).get("time_complexity", "O(N)")
+                                    }),
+                                    "marks": 10,
+                                    "negative_marks": 0.0
+                                })
+                    except Exception:
+                        pass
+
+        return flat_qs
     except Exception as e:
-        conn.rollback()
-        raise e
-    finally:
-        cur.close()
-        pool.putconn(conn)
+        print(f"[OFFLINE FALLBACK] Error loading dataset: {e}")
+        return []
+
+def _get_all_questions_cached(cur=None) -> List[Dict]:
+    global _IN_MEMORY_QUESTIONS
+    if _IN_MEMORY_QUESTIONS is None:
+        if cur is not None:
+            try:
+                cur.execute("SELECT id, question, options, correct_option, category, topic, subtopic, difficulty, marks, negative_marks, examples, answer, explanation, generator_version FROM questions")
+                rows = cur.fetchall()
+                if rows:
+                    _IN_MEMORY_QUESTIONS = [_make_json_serializable(dict(r)) for r in rows]
+            except Exception as e:
+                print(f"[OFFLINE FALLBACK] DB query for questions: {e}")
+        
+        if not _IN_MEMORY_QUESTIONS:
+            _IN_MEMORY_QUESTIONS = _load_local_json_fallback_questions()
+    return _IN_MEMORY_QUESTIONS
+
+def reload_questions_cache(cur=None):
+    global _IN_MEMORY_QUESTIONS
+    _IN_MEMORY_QUESTIONS = None
+    return _get_all_questions_cached(cur)
 
 
-# Request schemas
+def _sample_questions_by_difficulty(questions_pool: List[Dict], category: str, count: int, easy_ratio: float = 0.65, exclude_ids: set = None) -> List[Dict]:
+    if exclude_ids is None:
+        exclude_ids = set()
+
+    cat_targets = {category, category.replace("_", " "), category.replace(" ", "_")}
+    cat_qs = [q for q in questions_pool if q.get("category") in cat_targets and q.get("id") not in exclude_ids]
+    if not cat_qs:
+        return []
+    
+    easy_qs = [q for q in cat_qs if str(q.get("difficulty", "")).lower() in ("easy", "beginner")]
+    easy_ids = {q.get("id") for q in easy_qs}
+    hard_qs = [q for q in cat_qs if q.get("id") not in easy_ids]
+    
+    target_easy = int(round(count * easy_ratio))
+    target_hard = count - target_easy
+    
+    selected_easy = []
+    if easy_qs:
+        sample_size = min(len(easy_qs), target_easy)
+        selected_easy = random.sample(easy_qs, sample_size)
+            
+    selected_hard = []
+    if hard_qs:
+        sample_size = min(len(hard_qs), target_hard)
+        selected_hard = random.sample(hard_qs, sample_size)
+            
+    result = selected_easy + selected_hard
+    selected_ids = {q.get("id") for q in result}
+
+    if len(result) < count:
+        remaining_needed = count - len(result)
+        available = [q for q in cat_qs if q.get("id") not in selected_ids]
+        if available:
+            sample_size = min(len(available), remaining_needed)
+            result.extend(random.sample(available, sample_size))
+            
+    for q in result:
+        exclude_ids.add(q.get("id"))
+
+    random.shuffle(result)
+    return result[:count]
+
+
+BANNED_FILLER_PATTERNS = [
+    r"none\s+of\s+these",
+    r"none\s+of\s+the\s+above",
+    r"data\s+inadequate",
+    r"cannot\s+be\s+determined",
+    r"can't\s+say",
+    r"insufficient\s+data",
+    r"all\s+of\s+the\s+above"
+]
+
+def _is_filler_option(opt_str: str) -> bool:
+    s = str(opt_str).strip().lower()
+    return any(re.search(pat, s) for pat in BANNED_FILLER_PATTERNS)
+
+def _clean_and_generate_tricky_distractors(q: Dict) -> Dict:
+    q = _make_json_serializable(dict(q))
+
+    cat = str(q.get("category", "")).lower()
+    if cat == "coding" or q.get("type") == "coding":
+        return q
+
+    stem = str(q.get("question", "")).strip()
+    if stem:
+        q["question"] = re.sub(r'\s*Placement variant\s+[A-Z\-_]+-\d+\.?', '', stem, flags=re.IGNORECASE).strip()
+
+    raw_options = q.get("options") or []
+    if not isinstance(raw_options, list) or not raw_options:
+        return q
+
+    options = [str(o).strip() for o in raw_options if o is not None]
+    correct_letter = str(q.get("correct_option", "A")).strip().upper()
+    correct_idx = ord(correct_letter) - ord('A') if len(correct_letter) == 1 and 'A' <= correct_letter <= 'Z' else 0
+
+    if 0 <= correct_idx < len(options):
+        correct_text = options[correct_idx]
+    else:
+        correct_text = str(q.get("answer", "")).strip() or (options[0] if options else "Standard Option")
+
+    if _is_filler_option(correct_text):
+        if "odd one out" in stem.lower():
+            items = re.findall(r'\b[A-Za-z0-9_]+\b', stem)
+            correct_text = items[-1] if items else "Circle"
+        else:
+            correct_text = "Standard Option"
+
+    valid_distractors = [opt for opt in options if opt != correct_text and not _is_filler_option(opt)]
+
+    if "odd one out" in stem.lower():
+        match = re.search(r'odd\s+one\s+out[:\s]+(.*)', stem, re.IGNORECASE)
+        items = []
+        if match:
+            raw_items = re.split(r'[,:]\s*|\s+and\s+', match.group(1).replace("?", ""))
+            items = [it.strip() for it in raw_items if it.strip()]
+        if len(items) >= 4:
+            valid_distractors = [it for it in items if it != correct_text]
+
+    num_match = re.search(r'^([\d,]+(?:\.\d+)?)\s*(.*)$', correct_text)
+    if num_match and len(valid_distractors) < 3:
+        num_str, unit = num_match.group(1).replace(",", ""), num_match.group(2).strip()
+        try:
+            val = float(num_str)
+            is_int = val.is_integer()
+            if is_int:
+                v_int = int(val)
+                diffs = [
+                    int(round(v_int * 0.9)),
+                    int(round(v_int * 1.1)),
+                    int(round(v_int * 1.25)),
+                    v_int - 2, v_int + 2
+                ]
+                synth_opts = [f"{d:,} {unit}".strip() if "," in correct_text else f"{d} {unit}".strip() for d in diffs if d != v_int and d > 0]
+            else:
+                diffs = [round(val * 0.9, 2), round(val * 1.1, 2), round(val * 1.15, 2), round(val - 1.5, 2)]
+                synth_opts = [f"{d} {unit}".strip() for d in diffs if d != val and d > 0]
+
+            for s_opt in synth_opts:
+                if s_opt not in valid_distractors and s_opt != correct_text:
+                    valid_distractors.append(s_opt)
+        except ValueError:
+            pass
+
+    if correct_text.isdigit() and len(valid_distractors) < 3:
+        val = int(correct_text)
+        candidates = [str(val + 1), str(max(0, val - 1)), str(val * 2), "0", "1", "Compilation Error"]
+        for c in candidates:
+            if c != correct_text and c not in valid_distractors:
+                valid_distractors.append(c)
+
+    fallback_words = ["Option A", "Option B", "Option C", "Option D"]
+    while len(valid_distractors) < 3:
+        for f in fallback_words:
+            if f != correct_text and f not in valid_distractors:
+                valid_distractors.append(f)
+                break
+
+    final_4 = [correct_text] + valid_distractors[:3]
+    random.shuffle(final_4)
+    q["options"] = final_4
+    try:
+        new_idx = final_4.index(correct_text)
+        q["correct_option"] = chr(ord('A') + new_idx)
+    except ValueError:
+        q["correct_option"] = "A"
+
+    return q
+
+
+def _prepare_candidate_question(q_raw: Dict) -> Dict:
+    """Option shuffling, filler distractor elimination, and stem normalization."""
+    return _clean_and_generate_tricky_distractors(q_raw)
+
+
+def _sanitize_questions_for_candidate(questions: List[Dict]) -> List[Dict]:
+    """Strips correct options, answers, and explanations from questions before delivering payload to frontend."""
+    sanitized = []
+    for q in questions:
+        q_copy = _make_json_serializable(dict(q))
+        q_copy.pop("correct_option", None)
+        q_copy.pop("answer", None)
+        q_copy.pop("explanation", None)
+        sanitized.append(q_copy)
+    return sanitized
+
+
+def _calculate_suspicion_score(events: List[Dict], violation_count: int) -> float:
+    """Compute a composite suspicion score (0-100) based on cheating event telemetry."""
+    score = 0.0
+    for e in events:
+        t = str(e.get("type", "")).lower()
+        if "tab" in t:
+            score += 15.0
+        elif "blur" in t:
+            score += 10.0
+        elif "fullscreen" in t:
+            score += 20.0
+        elif "devtools" in t or "shortcut" in t:
+            score += 30.0
+        elif "copy" in t or "paste" in t:
+            score += 15.0
+        elif "screen" in t:
+            score += 20.0
+        else:
+            score += 10.0
+    score += violation_count * 10.0
+    return min(100.0, round(score, 2))
+
+
+# Pydantic Schemas
 class StartAttemptRequest(BaseModel):
     user_id: Optional[str] = Field(None, max_length=100)
     roll_number: Optional[str] = Field(None, max_length=50)
@@ -130,7 +909,6 @@ class SubmitAttemptRequest(BaseModel):
     coding_submissions: Dict = Field(default_factory=dict)
 
 SubmitTestRequest = SubmitAttemptRequest
-
 
 
 @router.post("/reset")
@@ -176,6 +954,11 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
     if active_session:
         start_t = active_session.get("start_time")
         if start_t:
+            if isinstance(start_t, str):
+                try:
+                    start_t = datetime.fromisoformat(start_t.replace("Z", "+00:00"))
+                except Exception:
+                    start_t = datetime.now(timezone.utc)
             if start_t.tzinfo is None:
                 start_t = start_t.replace(tzinfo=timezone.utc)
             elapsed = datetime.now(timezone.utc) - start_t
@@ -200,7 +983,6 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
     # Sample questions (20 Aptitude, 20 Verbal, 20 CS Fundamentals, 2 Coding)
     pool = reload_questions_cache(db)
 
-
     used_ids = set()
     aptitude_raw = _sample_questions_by_difficulty(pool, 'Aptitude', 20, easy_ratio=0.65, exclude_ids=used_ids)
     verbal_raw = _sample_questions_by_difficulty(pool, 'Verbal', 20, easy_ratio=0.65, exclude_ids=used_ids)
@@ -224,17 +1006,18 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
     candidate_questions = [_prepare_candidate_question(q) for q in raw_questions]
     serializable_candidate_qs = _make_json_serializable(candidate_questions)
 
-    # Create new test session record
+    session_id = str(uuid.uuid4())
+
     db.execute(
         """
         INSERT INTO test_sessions (
-            test_id, student_roll_number, student_name, branch, year,
+            session_id, test_id, student_roll_number, student_name, branch, year,
             status, total_questions, unanswered, browser, questions
         )
-        VALUES ('placement_assessment_v1', %s, %s, %s, %s, 'started', %s, %s, %s, %s)
-        RETURNING session_id, start_time;
+        VALUES (%s, 'placement_assessment_v1', %s, %s, %s, %s, 'started', %s, %s, %s, %s);
         """,
         (
+            session_id,
             clean_roll,
             (req.student_name or "Student")[:100],
             (req.branch or "CSE")[:50],
@@ -242,41 +1025,22 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
             len(serializable_candidate_qs),
             len(serializable_candidate_qs),
             str(req.browser_info.get("user_agent", "Web Browser"))[:500],
-            Json(serializable_candidate_qs)
+            serializable_candidate_qs
         )
-
     )
-    new_sess = db.fetchone()
-
-    # Dual-write to attempts for legacy API compatibility
-    try:
-        db.execute(
-            """
-            INSERT INTO attempts (id, user_id, roll_number, status, browser_info, global_timer_remaining, questions)
-            VALUES (%s, %s, %s, 'started', %s, 7200, %s)
-            ON CONFLICT (id) DO UPDATE SET status = 'started', questions = EXCLUDED.questions;
-            """,
-            (
-                str(new_sess["session_id"]),
-                clean_roll,
-                clean_roll,
-                Json(_make_json_serializable(req.browser_info)),
-                Json(serializable_candidate_qs)
-            )
-        )
-    except Exception as e:
-        print(f"[LEGACY DUAL-WRITE WARNING] Skipping legacy attempts insert: {e}")
 
     sanitized_qs = _sanitize_questions_for_candidate(serializable_candidate_qs)
 
     return {
-        "attempt_id": str(new_sess["session_id"]),
-        "session_id": str(new_sess["session_id"]),
+        "attempt_id": session_id,
+        "session_id": session_id,
         "duration": 7200,
         "questions": sanitized_qs,
         "roll_number": clean_roll,
-        "student_name": req.student_name or "Student",
-        "branch": req.branch or "CSE"
+        "student_name": req.student_name,
+        "branch": req.branch,
+        "saved_answers": {},
+        "saved_coding_submissions": {}
     }
 
 
@@ -284,149 +1048,142 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
 def resume_attempt(req: ResumeAttemptRequest, db=Depends(get_db_cursor)):
     clean_roll = req.user_id.strip().upper()
     db.execute(
-        "SELECT session_id, start_time, questions, answers, coding_submissions FROM test_sessions WHERE student_roll_number = %s AND status = 'started'",
+        """
+        SELECT session_id, start_time, questions, answers, coding_submissions, student_name, branch, year
+        FROM test_sessions
+        WHERE student_roll_number = %s AND status = 'started'
+        ORDER BY start_time DESC LIMIT 1;
+        """,
         (clean_roll,)
     )
     active_session = db.fetchone()
     if not active_session:
-        raise HTTPException(status_code=404, detail="No active assessment attempt found.")
+        return {"has_active_session": False}
 
-    start_time = active_session["start_time"]
-    if start_time.tzinfo is None:
-        start_time = start_time.replace(tzinfo=timezone.utc)
-    remaining = 7200 - int((datetime.now(timezone.utc) - start_time).total_seconds())
+    start_t = active_session.get("start_time")
+    if start_t:
+        if isinstance(start_t, str):
+            try:
+                start_t = datetime.fromisoformat(start_t.replace("Z", "+00:00"))
+            except Exception:
+                start_t = datetime.now(timezone.utc)
+        if start_t.tzinfo is None:
+            start_t = start_t.replace(tzinfo=timezone.utc)
+        elapsed = datetime.now(timezone.utc) - start_t
+    else:
+        elapsed = timedelta(seconds=0)
+
+    remaining = 7200 - int(elapsed.total_seconds())
     if remaining <= 0:
-        raise HTTPException(status_code=410, detail="Assessment attempt has expired.")
+        db.execute("UPDATE test_sessions SET status = 'completed' WHERE session_id::text = %s", (str(active_session["session_id"]),))
+        return {"has_active_session": False, "reason": "Time limit expired."}
 
-    saved_questions = active_session.get("questions") or []
+    saved_questions = _make_json_serializable(active_session.get("questions") or [])
     sanitized_qs = _sanitize_questions_for_candidate(saved_questions)
 
     return {
+        "has_active_session": True,
         "attempt_id": str(active_session["session_id"]),
         "session_id": str(active_session["session_id"]),
         "duration": remaining,
         "questions": sanitized_qs,
+        "roll_number": clean_roll,
+        "student_name": active_session.get("student_name"),
+        "branch": active_session.get("branch"),
         "saved_answers": active_session.get("answers") or {},
         "saved_coding_submissions": active_session.get("coding_submissions") or {}
     }
 
 
-@router.post("/autosave")
-def autosave_attempt(req: AutoSaveRequest, db=Depends(get_db_cursor)):
-    attempt_id = req.attempt_id
-    answers = req.answers or {}
-    coding_subs = req.coding_submissions or {}
-    attempted_count = len(answers) + len(coding_subs)
-
-    db.execute(
-        """
-        UPDATE test_sessions
-        SET answers = %s,
-            coding_submissions = %s,
-            attempted = %s
-        WHERE session_id::text = %s AND status = 'started';
-        """,
-        (Json(answers), Json(coding_subs), attempted_count, attempt_id)
-    )
-    db.execute(
-        """
-        UPDATE attempts
-        SET answers = %s,
-            coding_submissions = %s
-        WHERE id::text = %s AND status = 'started';
-        """,
-        (Json(answers), Json(coding_subs), attempt_id)
-    )
-    return {"status": "success", "message": "Draft answers auto-saved successfully."}
-
-
 @router.post("/log-violation")
 def log_violation(req: LogViolationRequest, db=Depends(get_db_cursor)):
-    attempt_id = req.attempt_id
-    v_type = req.violation_type
-    details = req.details
-
-    event_item = {
-        "type": v_type,
-        "details": details,
-        "timestamp": datetime.now(timezone.utc).isoformat()
-    }
-
-    # Fetch current session
     db.execute(
-        "SELECT session_id, tab_switch_count, fullscreen_exit_count, copy_attempts, suspicious_events FROM test_sessions WHERE session_id::text = %s",
-        (attempt_id,)
+        "INSERT INTO violations (attempt_id, type, details) VALUES (%s, %s, %s)",
+        (req.attempt_id, req.violation_type, req.details)
     )
-    sess = db.fetchone()
-    if not sess:
-        # Fallback to attempts
-        db.execute("SELECT id, violation_count FROM attempts WHERE id::text = %s", (attempt_id,))
-        att = db.fetchone()
-        if not att:
-            raise HTTPException(status_code=404, detail="Attempt not found")
-        db.execute("INSERT INTO violations (attempt_id, type, details) VALUES (%s, %s, %s)", (attempt_id, v_type, details))
-        db.execute("UPDATE attempts SET violation_count = violation_count + 1 WHERE id::text = %s RETURNING violation_count", (attempt_id,))
-        res = db.fetchone()
-        disq = res["violation_count"] >= 3
-        if disq:
-            db.execute("UPDATE attempts SET status = 'disqualified', end_time = CURRENT_TIMESTAMP WHERE id::text = %s", (attempt_id,))
-        return {"violation_count": res["violation_count"], "suspicion_score": res["violation_count"] * 25.0, "auto_submit": disq}
 
-    events = sess.get("suspicious_events") or []
-    if not isinstance(events, list):
-        events = []
-    events.append(event_item)
-
-    tab_count = sess.get("tab_switch_count", 0) + (1 if "tab" in v_type.lower() or "blur" in v_type.lower() else 0)
-    fs_count = sess.get("fullscreen_exit_count", 0) + (1 if "fullscreen" in v_type.lower() else 0)
-    copy_count = sess.get("copy_attempts", 0) + (1 if "copy" in v_type.lower() or "paste" in v_type.lower() else 0)
-
-    suspicion_score = _calculate_suspicion_score(events, len(events))
-    should_disqualify = suspicion_score >= 80.0 or len(events) >= 5
-
-    status_update = "disqualified" if should_disqualify else "started"
+    db.execute("SELECT count(*) as count FROM violations WHERE attempt_id = %s", (req.attempt_id,))
+    v_count_row = db.fetchone()
+    v_count = v_count_row["count"] if v_count_row else 1
 
     db.execute(
         """
-        UPDATE test_sessions
-        SET tab_switch_count = %s,
-            fullscreen_exit_count = %s,
-            copy_attempts = %s,
-            suspicious_events = %s,
-            suspicion_score = %s,
-            status = CASE WHEN status = 'started' AND %s = 'disqualified' THEN 'disqualified' ELSE status END
-        WHERE session_id::text = %s;
+        SELECT tab_switch_count, fullscreen_exit_count, copy_attempts, suspicious_events
+        FROM test_sessions
+        WHERE session_id::text = %s
         """,
-        (tab_count, fs_count, copy_count, Json(events), suspicion_score, status_update, attempt_id)
+        (req.attempt_id,)
     )
+    session_row = db.fetchone()
+    if session_row:
+        events = session_row.get("suspicious_events") or []
+        events.append({
+            "type": req.violation_type,
+            "details": req.details,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+        suspicion_score = _calculate_suspicion_score(events, v_count)
 
-    db.execute("INSERT INTO violations (attempt_id, type, details) VALUES (%s, %s, %s)", (attempt_id, v_type, details))
-    db.execute("UPDATE attempts SET violation_count = violation_count + 1 WHERE id::text = %s", (attempt_id,))
+        tab_switches = session_row.get("tab_switch_count", 0) + (1 if "tab" in req.violation_type.lower() else 0)
+        fs_exits = session_row.get("fullscreen_exit_count", 0) + (1 if "fullscreen" in req.violation_type.lower() else 0)
+        copies = session_row.get("copy_attempts", 0) + (1 if "copy" in req.violation_type.lower() else 0)
+
+        db.execute(
+            """
+            UPDATE test_sessions
+            SET tab_switch_count = %s,
+                fullscreen_exit_count = %s,
+                copy_attempts = %s,
+                suspicion_score = %s,
+                suspicious_events = %s
+            WHERE session_id::text = %s
+            """,
+            (tab_switches, fs_exits, copies, suspicion_score, events, req.attempt_id)
+        )
+
+    disqualified = v_count >= 5
+    if disqualified:
+        db.execute(
+            "UPDATE test_sessions SET status = 'disqualified', end_time = CURRENT_TIMESTAMP WHERE session_id::text = %s",
+            (req.attempt_id,)
+        )
 
     return {
-        "violation_count": len(events),
-        "suspicion_score": suspicion_score,
-        "auto_submit": should_disqualify
+        "status": "logged",
+        "violation_count": v_count,
+        "disqualified": disqualified
     }
+
+
+@router.post("/autosave")
+def auto_save(req: AutoSaveRequest, db=Depends(get_db_cursor)):
+    db.execute(
+        """
+        UPDATE test_sessions
+        SET answers = %s,
+            coding_submissions = %s
+        WHERE session_id::text = %s;
+        """,
+        (
+            req.answers or {},
+            req.coding_submissions or {},
+            req.attempt_id
+        )
+    )
+    return {"status": "saved"}
 
 
 @router.post("/submit")
 def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
-    attempt_id = req.attempt_id
-
-    # Row-level lock (FOR UPDATE)
     db.execute(
-        "SELECT session_id, student_roll_number, status, start_time, questions FROM test_sessions WHERE session_id::text = %s FOR UPDATE;",
-        (attempt_id,)
+        """
+        SELECT session_id, student_roll_number, student_name, branch, year, start_time, status, questions
+        FROM test_sessions
+        WHERE session_id::text = %s;
+        """,
+        (req.attempt_id,)
     )
     session = db.fetchone()
-    
-    # Fallback to attempts table if not found in test_sessions
-    if not session:
-        db.execute("SELECT id, user_id as student_roll_number, status, start_time, questions FROM attempts WHERE id::text = %s FOR UPDATE;", (attempt_id,))
-        session = db.fetchone()
-        if session:
-            session["session_id"] = session["id"]
 
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -434,12 +1191,27 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
     if session["status"] == "completed":
         raise HTTPException(status_code=400, detail="Assessment has already been submitted.")
 
+    # Server-side assessment duration check (Max duration 7200s + 300s grace period)
+    start_t = session.get("start_time")
+    if start_t:
+        if isinstance(start_t, str):
+            try:
+                start_t = datetime.fromisoformat(start_t.replace("Z", "+00:00"))
+            except Exception:
+                start_t = datetime.now(timezone.utc)
+        if start_t.tzinfo is None:
+            start_t = start_t.replace(tzinfo=timezone.utc)
+        elapsed_seconds = (datetime.now(timezone.utc) - start_t).total_seconds()
+        if elapsed_seconds > (7200 + 300):
+            db.execute("UPDATE test_sessions SET status = 'completed' WHERE session_id::text = %s", (str(session["session_id"]),))
+            raise HTTPException(status_code=403, detail="Assessment deadline has expired. Submissions are no longer accepted.")
+
+
     final_status = "disqualified" if session.get("status") == "disqualified" else "completed"
 
     saved_questions = session.get("questions") or []
     report_questions = {q["id"]: q for q in saved_questions if isinstance(q, dict) and "id" in q}
 
-    detailed_report = []
     section_breakdown = {
         "Aptitude": {"questions": 0, "attempted": 0, "correct": 0, "wrong": 0, "marks": 0.0},
         "Verbal": {"questions": 0, "attempted": 0, "correct": 0, "wrong": 0, "marks": 0.0},
@@ -447,6 +1219,7 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         "Coding": {"questions": 0, "attempted": 0, "correct": 0, "wrong": 0, "marks": 0.0}
     }
 
+    detailed_report = []
     response_rows = []
 
     for q_id, q_meta in report_questions.items():
@@ -519,6 +1292,7 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         })
 
         response_rows.append((
+            str(uuid.uuid4()),
             str(session["session_id"]),
             sec,
             q_id,
@@ -529,7 +1303,7 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
             opts[3] if len(opts) > 3 else None,
             user_ans,
             q_meta.get("correct_option"),
-            is_correct,
+            1 if is_correct else 0,
             round(marks_awarded, 2),
             q_meta.get("difficulty", "Medium"),
             q_meta.get("topic", "General"),
@@ -563,8 +1337,8 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         """,
         (
             final_status,
-            Json(req.answers or {}),
-            Json(req.coding_submissions or {}),
+            req.answers or {},
+            req.coding_submissions or {},
             total_attempted,
             total_correct,
             total_wrong,
@@ -575,7 +1349,7 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         )
     )
 
-    # Save section_results (Table 3)
+    # Save section_results
     for sec_name, sec_info in section_breakdown.items():
         if sec_info["questions"] > 0:
             sec_pct = round((sec_info["marks"] / float(sec_info["questions"])) * 100.0, 2)
@@ -597,13 +1371,13 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
                 )
             )
 
-    # Save question_responses (Table 2)
+    # Save question_responses
     if response_rows:
-        execute_values(
+        _safe_execute_values(
             db,
             """
             INSERT INTO question_responses (
-                session_id, section, question_id, question_text,
+                response_id, session_id, section, question_id, question_text,
                 option_a, option_b, option_c, option_d,
                 selected_option, correct_option, is_correct, marks_awarded,
                 difficulty, topic, explanation
@@ -613,71 +1387,15 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
             response_rows
         )
 
-    total_questions = len(detailed_report) if detailed_report else 62
-    percentage = round((score_total / max(total_questions, 1)) * 100, 1)
-
-    # 1. Placement Readiness Classification
-    if percentage >= 85:
-        readiness_level = "Excellent"
-    elif percentage >= 70:
-        readiness_level = "Placement Ready"
-    elif percentage >= 50:
-        readiness_level = "Nearly Ready"
-    else:
-        readiness_level = "Needs Improvement"
-
-    # 2. Topic & Strengths / Weaknesses Analysis
-    category_totals = {}
-    category_corrects = {}
-    for item in detailed_report:
-        cat = item["category"]
-        category_totals[cat] = category_totals.get(cat, 0) + 1
-        if item["is_correct"]:
-            category_corrects[cat] = category_corrects.get(cat, 0) + 1
-
-    strengths = []
-    weaknesses = []
-    recommendations = []
-
-    for cat, total in category_totals.items():
-        correct = category_corrects.get(cat, 0)
-        cat_pct = (correct / max(total, 1)) * 100
-        cat_name = cat.replace("_", " ")
-        if cat_pct >= 70:
-            strengths.append(f"Strong accuracy in {cat_name} ({correct}/{total})")
-        else:
-            weaknesses.append(f"Needs improvement in {cat_name} ({correct}/{total})")
-
-    if score_coding == 0:
-        recommendations.append("Practice hands-on coding problems on Arrays, Strings, and Data Structures.")
-    if score_aptitude < (category_totals.get("Aptitude", 20) * 0.6):
-        recommendations.append("Focus on Quantitative Aptitude speed and logical reasoning questions.")
-    if score_comp_fundamentals < (category_totals.get("Computer_Fundamentals", 20) * 0.6):
-        recommendations.append("Review Operating Systems, DBMS, and Networking core fundamentals.")
-
-    if not recommendations:
-        recommendations.append("Maintain your strong pace by practicing advanced algorithm optimization.")
-
-    # 3. Proctoring Integrity Summary
-    proctoring_events = []
-    violation_count = 0
-    try:
-        db.execute("SELECT type, details FROM violations WHERE attempt_id = %s", (req.attempt_id,))
-        rows = db.fetchall()
-        violation_count = len(rows)
-        for r in rows:
-            proctoring_events.append({"type": r["type"], "details": r["details"]})
-    except Exception as e:
-        print("[WARNING] Failed to fetch violation logs for report:", e)
-
     return {
         "status": "success",
         "score": {
-            "aptitude": score_aptitude,
-            "verbal": score_verbal,
-            "comp_fundamentals": score_comp_fundamentals,
-            "coding": score_coding,
-            "total": score_total
+            "aptitude": round(section_breakdown.get("Aptitude", {}).get("marks", 0.0), 2),
+            "verbal": round(section_breakdown.get("Verbal", {}).get("marks", 0.0), 2),
+            "comp_fundamentals": round(section_breakdown.get("Computer_Fundamentals", {}).get("marks", 0.0), 2),
+            "coding": round(section_breakdown.get("Coding", {}).get("marks", 0.0), 2),
+            "total": round(score_total, 2),
+            "percentage": percentage
         },
         "report": detailed_report
     }
@@ -689,7 +1407,7 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
 
 @router.get("/analytics/{session_id}")
 def get_session_analytics(session_id: str, db=Depends(get_db_cursor)):
-    """[REQUIREMENT 16] Fetch comprehensive post-assessment analytics."""
+    """Fetch comprehensive post-assessment analytics."""
     db.execute(
         """
         SELECT session_id, test_id, student_roll_number, student_name, branch, year,
@@ -725,8 +1443,8 @@ def get_session_analytics(session_id: str, db=Depends(get_db_cursor)):
     )
     topic_stats = db.fetchall()
 
-    strong_topics = list({t["topic"] for t in topic_stats if t["is_correct"]})
-    weak_topics = list({t["topic"] for t in topic_stats if not t["is_correct"] and t["topic"] not in strong_topics})
+    strong_topics = list({t["topic"] for t in topic_stats if t.get("is_correct")})
+    weak_topics = list({t["topic"] for t in topic_stats if not t.get("is_correct") and t.get("topic") not in strong_topics})
 
     return {
         "session": session,
@@ -745,7 +1463,7 @@ def get_admin_sessions(
     branch: Optional[str] = None,
     db=Depends(get_db_cursor)
 ):
-    """[REQUIREMENT 17] Admin search & filter interface across test sessions."""
+    """Admin search & filter interface across test sessions."""
     query = """
         SELECT session_id, student_roll_number, student_name, branch, year,
                start_time, end_time, status, total_marks, percentage, suspicion_score
@@ -772,7 +1490,7 @@ def get_admin_sessions(
 
 @router.get("/admin/session/{session_id}")
 def get_admin_session_detail(session_id: str, db=Depends(get_db_cursor)):
-    """[REQUIREMENT 17] Timeline audit replay & detailed response breakdown for proctors."""
+    """Timeline audit replay & detailed response breakdown for proctors."""
     db.execute("SELECT * FROM test_sessions WHERE session_id::text = %s;", (session_id,))
     session = db.fetchone()
     if not session:
@@ -790,7 +1508,7 @@ def get_admin_session_detail(session_id: str, db=Depends(get_db_cursor)):
 
 @router.get("/admin/export")
 def export_admin_sessions_csv(db=Depends(get_db_cursor)):
-    """[REQUIREMENT 17] Export student assessment results to CSV."""
+    """Export student assessment results to CSV."""
     db.execute(
         """
         SELECT student_roll_number, student_name, branch, year, status,

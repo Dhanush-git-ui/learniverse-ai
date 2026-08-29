@@ -96,7 +96,8 @@ async def generate_answer(question: str, context: str) -> str:
         prompt = RAG_PROMPT_TEMPLATE.format(context=context, question=question)
         return await model.generate_content(prompt)
     except Exception as e:
-        return f"Error during generation: {str(e)}"
+        logger.error(f"Error during RAG generation: {e}")
+        return "I apologize, but I am currently unable to generate an answer. Please try again later."
 
 async def generate_teacher_answer(query, topic_questions, history=None, topic="General"):
     try:
@@ -105,7 +106,8 @@ async def generate_teacher_answer(query, topic_questions, history=None, topic="G
         prompt = TEACHER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
         return await model.generate_content(prompt)
     except Exception as e:
-        return f"Error during teacher generation: {str(e)}"
+        logger.error(f"Error during teacher generation: {e}")
+        return "Unable to connect to the teacher assistant at this time."
 
 async def generate_peer_answer(query, topic_questions, history=None, topic="General"):
     try:
@@ -114,4 +116,6 @@ async def generate_peer_answer(query, topic_questions, history=None, topic="Gene
         prompt = PEER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
         return await model.generate_content(prompt, generation_config={"temperature": 0.7})
     except Exception as e:
-        return f"Error during peer generation: {str(e)}"
+        logger.error(f"Error during peer generation: {e}")
+        return "Unable to connect to the peer study assistant at this time."
+

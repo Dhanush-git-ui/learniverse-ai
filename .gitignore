@@ -41,6 +41,11 @@ __pycache__/
 node_modules/
 dist/
 dist-ssr/
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
 
 # Python Virtual Environments
 venv/
