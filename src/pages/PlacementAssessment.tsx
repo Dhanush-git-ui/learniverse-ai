@@ -28,17 +28,7 @@ interface Question {
   question_type?: string;
 }
 
-// ─── Device / dual-screen detection helpers ───────────────────────────────────
-
-/** Returns true when running on a mobile/touch device */
-const isMobileDevice = (): boolean => {
-  if (typeof navigator === 'undefined') return false;
-  return (
-    navigator.maxTouchPoints > 0 ||
-    /Android|iPhone|iPad|iPod|Mobile|BlackBerry|Windows Phone/i.test(navigator.userAgent) ||
-    window.innerWidth <= 768
-  );
-};
+// ─── Dual-screen detection helpers ───────────────────────────────────────────
 
 /** Returns true when a secondary/extended display is likely in use.
  *  Heuristic: the physical screen width is substantially wider than the current
@@ -253,8 +243,6 @@ export default function PlacementAssessment() {
   const [submittingCode, setSubmittingCode] = useState<boolean>(false);
   // Per-question coding submission results (passed_cases / total_cases)
   const [codingSubmissions, setCodingSubmissions] = useState<Record<string, { passed_cases: number; total_cases: number; runtime?: string }>>({});
-  // Device detection warnings
-  const [mobileWarning, setMobileWarning] = useState<boolean>(false);
   const [dualScreenWarning, setDualScreenWarning] = useState<boolean>(false);
   
   // Hints state
@@ -264,7 +252,6 @@ export default function PlacementAssessment() {
   // Final Results
   const [resultsData, setResultsData] = useState<any>(null);
   const [model, setModel] = useState<any>(null);
-  const [cocoModel, setCocoModel] = useState<any>(null);
   const [reportData, setReportData] = useState<any[]>([]);
   const [proctorWarning, setProctorWarning] = useState<string | null>(null);
   const [reportTab, setReportTab] = useState<'wrong' | 'unattempted' | 'correct' | 'coding'>('wrong');
@@ -1253,7 +1240,7 @@ export default function PlacementAssessment() {
     };
   }, [step]);
 
-  // 5. AI Face Presence & Object/Phone Detector Loop
+  // 5. AI Face Presence Detector Loop
   useEffect(() => {
     if (step !== 'test' || !videoRef.current) return;
 
@@ -1264,7 +1251,6 @@ export default function PlacementAssessment() {
     const detectWebcamFrame = async () => {
       if (isSubmittingRef.current) return;
       const blazefaceGlobal = (window as any).blazeface;
-      const cocoGlobal = (window as any).cocoSsd;
 
       try {
         let activeFaceModel = model;
@@ -1273,14 +1259,8 @@ export default function PlacementAssessment() {
           if (isMounted) setModel(activeFaceModel);
         }
 
-        let activeCocoModel = cocoModel;
-        if (!activeCocoModel && cocoGlobal) {
-          activeCocoModel = await cocoGlobal.load();
-          if (isMounted) setCocoModel(activeCocoModel);
-        }
-
         if (videoRef.current && videoRef.current.readyState >= 2) {
-          // 1. Face detection
+          // Face presence check
           if (activeFaceModel) {
             const predictions = await activeFaceModel.estimateFaces(videoRef.current, false);
             if (predictions.length === 0) {
@@ -1295,28 +1275,6 @@ export default function PlacementAssessment() {
               if (isMounted) setProctorWarning(null);
             }
           }
-
-          // 2. Object & Mobile Phone detection (Coco-SSD)
-          if (activeCocoModel) {
-            const objPredictions = await activeCocoModel.detect(videoRef.current);
-            
-            // Check for cell phones / prohibited items
-            const prohibitedItem = objPredictions.find((p: any) => 
-              ['cell phone', 'phone', 'remote', 'book', 'laptop'].includes(p.class.toLowerCase()) && p.score > 0.4
-            );
-
-            if (prohibitedItem) {
-              if (isMounted) setProctorWarning(`⚠️ Prohibited Device (${prohibitedItem.class}) detected in camera!`);
-              recordViolation("prohibited_device", `Detected ${prohibitedItem.class} in webcam frame`);
-            }
-
-            // Check for multiple persons (Disabled for this run per configuration)
-            // const persons = objPredictions.filter((p: any) => p.class.toLowerCase() === 'person' && p.score > 0.4);
-            // if (persons.length > 1) {
-            //   if (isMounted) setProctorWarning("⚠️ Multiple people detected in camera frame!");
-            //   recordViolation("multiple_people", `Detected ${persons.length} persons in webcam frame`);
-            // }
-          }
         }
       } catch (err) {
         console.error("AI proctoring detector error:", err);
@@ -1328,15 +1286,10 @@ export default function PlacementAssessment() {
       isMounted = false;
       clearInterval(checkInterval);
     };
-  }, [step, model, cocoModel]);
+  }, [step, model]);
 
   // Enable WebRTC Camera stream
   const startCamera = async () => {
-    // Device detection: block mobile before camera step
-    if (isMobileDevice()) {
-      setMobileWarning(true);
-      return;
-    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       streamRef.current = stream;
@@ -2125,22 +2078,12 @@ export default function PlacementAssessment() {
             <p>✓ Display resolution: Compatible ({window.innerWidth}x{window.innerHeight}px)</p>
             <p>✓ Connection Latency: 24ms (Optimal)</p>
             <p>✓ Test Canvas: Preloaded</p>
-            <p className={isMobileDevice() ? "text-rose-600" : "text-emerald-700"}>
-              {isMobileDevice() ? "✗ Mobile device detected — use a desktop browser" : "✓ Device type: Desktop"}
-            </p>
+            <p>✓ System Status: Fully Ready</p>
           </div>
-
-          {mobileWarning && (
-            <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-700 text-xs font-mono text-left space-y-1">
-              <p className="font-bold text-rose-700 uppercase tracking-wide">⚠ Mobile Device Detected</p>
-              <p>This assessment requires a desktop or laptop computer. Mobile phones and tablets are not permitted. Please switch devices and reload.</p>
-            </div>
-          )}
 
           <Button
             onClick={startCamera}
-            disabled={mobileWarning}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99] disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
           >
             Activate Proctor Webcam
           </Button>
