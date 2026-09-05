@@ -268,6 +268,29 @@ def _init_sqlite_db():
             questions TEXT
         );
     """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS fixly_test_submissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            student_name TEXT NOT NULL,
+            roll_number TEXT NOT NULL,
+            role TEXT DEFAULT 'Mobile App Developer Intern',
+            branch TEXT DEFAULT 'CSE',
+            total_marks REAL DEFAULT 0.00,
+            max_marks REAL DEFAULT 20.00,
+            percentage REAL DEFAULT 0.00,
+            total_questions INT DEFAULT 20,
+            attempted INT DEFAULT 0,
+            correct_count INT DEFAULT 0,
+            wrong_count INT DEFAULT 0,
+            unanswered_count INT DEFAULT 0,
+            question_answers TEXT DEFAULT '[]',
+            violations_count INT DEFAULT 0,
+            violations_log TEXT DEFAULT '[]',
+            status TEXT DEFAULT 'completed',
+            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
     conn.commit()
     conn.close()
 
@@ -500,6 +523,29 @@ def ensure_schema():
 
         cur.execute("CREATE TABLE IF NOT EXISTS violations (id SERIAL PRIMARY KEY, attempt_id VARCHAR(100), type VARCHAR(50), details TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);")
         cur.execute("CREATE TABLE IF NOT EXISTS attempts (id SERIAL PRIMARY KEY, user_id VARCHAR(100), roll_number VARCHAR(50), questions JSONB);")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS fixly_test_submissions (
+                id SERIAL PRIMARY KEY,
+                session_id VARCHAR(100),
+                student_name VARCHAR(100) NOT NULL,
+                roll_number VARCHAR(50) NOT NULL,
+                role VARCHAR(100) DEFAULT 'Mobile App Developer Intern',
+                branch VARCHAR(50) DEFAULT 'CSE',
+                total_marks DECIMAL(7, 2) DEFAULT 0.00,
+                max_marks DECIMAL(7, 2) DEFAULT 20.00,
+                percentage DECIMAL(5, 2) DEFAULT 0.00,
+                total_questions INT DEFAULT 20,
+                attempted INT DEFAULT 0,
+                correct_count INT DEFAULT 0,
+                wrong_count INT DEFAULT 0,
+                unanswered_count INT DEFAULT 0,
+                question_answers JSONB DEFAULT '[]'::jsonb,
+                violations_count INT DEFAULT 0,
+                violations_log JSONB DEFAULT '[]'::jsonb,
+                status VARCHAR(30) DEFAULT 'completed',
+                submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
 
         conn.commit()
         cur.close()
@@ -935,6 +981,25 @@ class CandidateFeedbackRequest(BaseModel):
     rating: int = Field(5, ge=1, le=5)
     tags: List[str] = Field(default_factory=list)
     comments: Optional[str] = Field(None, max_length=2000)
+
+class DirectFixlySubmissionRequest(BaseModel):
+    student_name: str
+    roll_number: str
+    role: Optional[str] = "Mobile App Developer Intern"
+    branch: Optional[str] = "CSE"
+    total_marks: float
+    max_marks: Optional[float] = 20.0
+    percentage: float
+    total_questions: Optional[int] = 20
+    attempted: Optional[int] = 0
+    correct_count: Optional[int] = 0
+    wrong_count: Optional[int] = 0
+    unanswered_count: Optional[int] = 0
+    question_answers: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
+    violations_count: Optional[int] = 0
+    violations_log: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
+    session_id: Optional[str] = None
+    status: Optional[str] = "completed"
 
 SubmitTestRequest = SubmitAttemptRequest
 
@@ -1417,6 +1482,75 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
             response_rows
         )
 
+    # ── Record in dedicated fixly_test_submissions table ──
+    try:
+        # 1. Fetch violations logged for this session
+        db.execute(
+            "SELECT type, details, created_at FROM violations WHERE attempt_id = %s ORDER BY created_at ASC;",
+            (str(session["session_id"]),)
+        )
+        v_rows = db.fetchall() or []
+        v_list = [
+            {"type": v.get("type"), "details": v.get("details"), "time": str(v.get("created_at"))}
+            for v in v_rows
+        ] if v_rows else []
+        v_count = len(v_list)
+
+        # 2. Extract clean question answers breakdown
+        each_question_answer = [
+            {
+                "question_id": r.get("id"),
+                "category": r.get("category"),
+                "topic": r.get("topic"),
+                "question": r.get("question"),
+                "options": r.get("options"),
+                "student_answer": r.get("user_answer") or "(unattempted)",
+                "correct_option": r.get("correct_option"),
+                "is_correct": bool(r.get("is_correct")),
+                "marks_awarded": float(r.get("marks_awarded", 0.0)),
+                "explanation": r.get("explanation", "")
+            }
+            for r in detailed_report
+        ]
+
+        # 3. Determine candidate track / role
+        student_roll = session.get("student_roll_number") or ""
+        roster_match = next((s for s in _get_roster() if s.get("roll_number", "").upper() == student_roll.upper()), None)
+        candidate_role = roster_match.get("role") if roster_match else (session.get("role") or "Mobile App Developer Intern")
+
+        db.execute(
+            """
+            INSERT INTO fixly_test_submissions (
+                session_id, student_name, roll_number, role, branch,
+                total_marks, max_marks, percentage, total_questions, attempted,
+                correct_count, wrong_count, unanswered_count,
+                question_answers, violations_count, violations_log, status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """,
+            (
+                str(session["session_id"]),
+                session.get("student_name") or "Candidate",
+                student_roll,
+                candidate_role,
+                session.get("branch") or "CSE",
+                round(score_total, 2),
+                float(total_q_count),
+                percentage,
+                total_q_count,
+                total_attempted,
+                total_correct,
+                total_wrong,
+                unanswered_count,
+                _make_json_serializable(each_question_answer),
+                v_count,
+                _make_json_serializable(v_list),
+                final_status
+            )
+        )
+    except Exception as e:
+        print(f"[FIXLY DB WARNING] Could not insert into fixly_test_submissions: {e}")
+
     return {
         "status": "success",
         "score": {
@@ -1429,6 +1563,82 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         },
         "report": detailed_report
     }
+
+
+@router.get("/fixly/submissions")
+def get_fixly_submissions(role: Optional[str] = None, roll_number: Optional[str] = None, db=Depends(get_db_cursor)):
+    query = """
+        SELECT id, session_id, student_name, roll_number, role, branch,
+               total_marks, max_marks, percentage, total_questions, attempted,
+               correct_count, wrong_count, unanswered_count,
+               question_answers, violations_count, violations_log, status, submitted_at
+        FROM fixly_test_submissions
+        WHERE 1=1
+    """
+    params = []
+    if role:
+        query += " AND role ILIKE %s"
+        params.append(f"%{role}%")
+    if roll_number:
+        query += " AND roll_number ILIKE %s"
+        params.append(f"%{roll_number}%")
+    query += " ORDER BY submitted_at DESC;"
+    
+    db.execute(query, tuple(params) if params else None)
+    rows = db.fetchall() or []
+    return {"status": "success", "count": len(rows), "submissions": rows}
+
+
+@router.get("/fixly/submissions/{submission_id}")
+def get_fixly_submission_detail(submission_id: str, db=Depends(get_db_cursor)):
+    db.execute(
+        """
+        SELECT * FROM fixly_test_submissions 
+        WHERE id::text = %s OR session_id::text = %s 
+        LIMIT 1;
+        """,
+        (submission_id, submission_id)
+    )
+    row = db.fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return {"status": "success", "submission": row}
+
+
+@router.post("/fixly/submit-direct")
+def submit_fixly_direct(req: DirectFixlySubmissionRequest, db=Depends(get_db_cursor)):
+    sess_id = req.session_id or str(uuid.uuid4())
+    db.execute(
+        """
+        INSERT INTO fixly_test_submissions (
+            session_id, student_name, roll_number, role, branch,
+            total_marks, max_marks, percentage, total_questions, attempted,
+            correct_count, wrong_count, unanswered_count,
+            question_answers, violations_count, violations_log, status
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """,
+        (
+            sess_id,
+            req.student_name,
+            req.roll_number.strip().upper(),
+            req.role or "Mobile App Developer Intern",
+            req.branch or "CSE",
+            round(req.total_marks, 2),
+            round(req.max_marks or 20.0, 2),
+            round(req.percentage, 2),
+            req.total_questions or len(req.question_answers or []),
+            req.attempted,
+            req.correct_count,
+            req.wrong_count,
+            req.unanswered_count,
+            _make_json_serializable(req.question_answers or []),
+            req.violations_count,
+            _make_json_serializable(req.violations_log or []),
+            req.status or "completed"
+        )
+    )
+    return {"status": "success", "message": "Saved to fixly_test_submissions table"}
 
 
 @router.post("/feedback")

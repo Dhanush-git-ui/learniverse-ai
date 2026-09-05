@@ -1028,6 +1028,57 @@ export default function PlacementAssessment() {
     .catch(e => {
       console.error("Background submission failed", e);
     });
+
+    // ── Direct sync to fixly_test_submissions table ─────────────────────────
+    try {
+      const eachQAnswer = _questions.map(q => {
+        const userAns = _answers[q.id] || '';
+        const isCorr = Boolean(q.correct_option && userAns === q.correct_option);
+        return {
+          question_id: q.id,
+          category: q.category,
+          topic: q.topic,
+          question: q.question,
+          options: q.options,
+          student_answer: userAns || '(unattempted)',
+          correct_option: q.correct_option,
+          is_correct: isCorr,
+          marks_awarded: isCorr ? (q.marks || 1) : 0,
+          explanation: (q as any).explanation || ''
+        };
+      });
+
+      const attemptedCount = _questions.filter(q => Boolean(_answers[q.id])).length;
+      const correctCount = eachQAnswer.filter(q => q.is_correct).length;
+      const wrongCount = attemptedCount - correctCount;
+
+      fetch('/api/assessment/fixly/submit-direct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({
+          session_id: _attemptId,
+          student_name: studentName || 'Candidate',
+          roll_number: rollNumber || '',
+          role: assignedRole || 'Mobile App Developer Intern',
+          branch: branch || 'CSE',
+          total_marks: localScore.total || 0,
+          max_marks: _questions.length,
+          percentage: localScore.percentage || 0,
+          total_questions: _questions.length,
+          attempted: attemptedCount,
+          correct_count: correctCount,
+          wrong_count: wrongCount,
+          unanswered_count: _questions.length - attemptedCount,
+          question_answers: eachQAnswer,
+          violations_count: violations,
+          violations_log: [],
+          status: violations >= 3 ? 'disqualified' : 'completed'
+        })
+      }).catch(() => {});
+    } catch (_) {}
   };
 
   // 1. Log violations to backend
