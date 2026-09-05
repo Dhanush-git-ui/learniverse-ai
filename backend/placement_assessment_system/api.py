@@ -436,7 +436,8 @@ def _safe_execute_values(db, sql: str, rows: list):
     else:
         try:
             from psycopg2.extras import execute_values
-            execute_values(db, sql, rows)
+            target_cur = db.cur if hasattr(db, "cur") else db
+            execute_values(target_cur, sql, rows)
         except Exception as e:
             print(f"[BATCH INSERT ERROR] {e}")
 
@@ -596,6 +597,48 @@ def ensure_schema():
                 pass
 
 
+class PostgresCursorAdapter:
+    def __init__(self, cur, conn):
+        self.cur = cur
+        self.conn = conn
+        self.connection = conn
+
+    def execute(self, query: str, params: tuple = None):
+        if params is not None:
+            from psycopg2.extras import Json
+            adapted = []
+            for p in params:
+                if isinstance(p, (dict, list)):
+                    adapted.append(Json(_make_json_serializable(p)))
+                elif isinstance(p, Decimal):
+                    adapted.append(float(p))
+                else:
+                    adapted.append(p)
+            params = tuple(adapted)
+        try:
+            return self.cur.execute(query, params)
+        except Exception as e:
+            if self.conn and self.conn.closed == 0:
+                try:
+                    self.conn.rollback()
+                except Exception:
+                    pass
+            raise e
+
+    def fetchone(self):
+        return self.cur.fetchone()
+
+    def fetchall(self):
+        return self.cur.fetchall()
+
+    def close(self):
+        self.cur.close()
+
+    @property
+    def description(self):
+        return self.cur.description
+
+
 def get_db_cursor():
     """Yields a database cursor: PostgreSQL pool if online, otherwise local SQLite."""
     pool = _get_pool()
@@ -608,7 +651,8 @@ def get_db_cursor():
 
     if conn:
         from psycopg2.extras import RealDictCursor
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        raw_cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur = PostgresCursorAdapter(raw_cur, conn)
         is_broken = False
         try:
             yield cur
@@ -1481,81 +1525,95 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
     percentage = round((score_total / max_marks * 100.0), 2) if max_marks > 0 else 0.0
 
     # Save to test_sessions table
-    db.execute(
-        """
-        UPDATE test_sessions
-        SET status = %s,
-            end_time = CURRENT_TIMESTAMP,
-            answers = %s,
-            coding_submissions = %s,
-            attempted = %s,
-            correct = %s,
-            wrong = %s,
-            unanswered = %s,
-            total_marks = %s,
-            percentage = %s
-        WHERE session_id::text = %s;
-        """,
-        (
-            final_status,
-            req.answers or {},
-            req.coding_submissions or {},
-            total_attempted,
-            total_correct,
-            total_wrong,
-            unanswered_count,
-            round(score_total, 2),
-            percentage,
-            str(session["session_id"])
+    try:
+        db.execute(
+            """
+            UPDATE test_sessions
+            SET status = %s,
+                end_time = CURRENT_TIMESTAMP,
+                answers = %s,
+                coding_submissions = %s,
+                attempted = %s,
+                correct = %s,
+                wrong = %s,
+                unanswered = %s,
+                total_marks = %s,
+                percentage = %s
+            WHERE session_id::text = %s;
+            """,
+            (
+                final_status,
+                req.answers or {},
+                req.coding_submissions or {},
+                total_attempted,
+                total_correct,
+                total_wrong,
+                unanswered_count,
+                round(score_total, 2),
+                percentage,
+                str(session["session_id"])
+            )
         )
-    )
+    except Exception as e:
+        print(f"[TEST SESSIONS UPDATE WARNING] {e}")
 
     # Save section_results
-    for sec_name, sec_info in section_breakdown.items():
-        if sec_info["questions"] > 0:
-            sec_pct = round((sec_info["marks"] / float(sec_info["questions"])) * 100.0, 2)
-            db.execute(
-                """
-                INSERT INTO section_results (session_id, section_name, questions, attempted, correct, wrong, unanswered, marks, percentage)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """,
-                (
-                    str(session["session_id"]),
-                    sec_name,
-                    sec_info["questions"],
-                    sec_info["attempted"],
-                    sec_info["correct"],
-                    sec_info["wrong"],
-                    sec_info["questions"] - sec_info["attempted"],
-                    round(sec_info["marks"], 2),
-                    sec_pct
+    try:
+        for sec_name, sec_info in section_breakdown.items():
+            if sec_info["questions"] > 0:
+                sec_pct = round((sec_info["marks"] / float(sec_info["questions"])) * 100.0, 2)
+                db.execute(
+                    """
+                    INSERT INTO section_results (session_id, section_name, questions, attempted, correct, wrong, unanswered, marks, percentage)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    """,
+                    (
+                        str(session["session_id"]),
+                        sec_name,
+                        sec_info["questions"],
+                        sec_info["attempted"],
+                        sec_info["correct"],
+                        sec_info["wrong"],
+                        sec_info["questions"] - sec_info["attempted"],
+                        round(sec_info["marks"], 2),
+                        sec_pct
+                    )
                 )
-            )
+    except Exception as e:
+        print(f"[SECTION RESULTS WARNING] {e}")
 
     # Save question_responses
-    if response_rows:
-        _safe_execute_values(
-            db,
-            """
-            INSERT INTO question_responses (
-                response_id, session_id, section, question_id, question_text,
-                option_a, option_b, option_c, option_d,
-                selected_option, correct_option, is_correct, marks_awarded,
-                difficulty, topic, explanation
+    try:
+        if response_rows:
+            _safe_execute_values(
+                db,
+                """
+                INSERT INTO question_responses (
+                    response_id, session_id, section, question_id, question_text,
+                    option_a, option_b, option_c, option_d,
+                    selected_option, correct_option, is_correct, marks_awarded,
+                    difficulty, topic, explanation
+                )
+                VALUES %s;
+                """,
+                response_rows
             )
-            VALUES %s;
-            """,
-            response_rows
-        )
+    except Exception as e:
+        print(f"[QUESTION RESPONSES WARNING] {e}")
 
-    # ── Record in dedicated fixly_test_submissions table ──
+    # ── Record in dedicated fixly_test_submissions table & file backup ──
     try:
         # 1. Fetch violations logged for this session
-        db.execute(
-            "SELECT type, details, created_at FROM violations WHERE attempt_id = %s ORDER BY created_at ASC;",
-            (str(session["session_id"]),)
-        )
-        v_rows = db.fetchall() or []
+        v_rows = []
+        try:
+            db.execute(
+                "SELECT type, details, created_at FROM violations WHERE attempt_id = %s ORDER BY created_at ASC;",
+                (str(session["session_id"]),)
+            )
+            v_rows = db.fetchall() or []
+        except Exception:
+            pass
+
         v_list = [
             {"type": v.get("type"), "details": v.get("details"), "time": str(v.get("created_at"))}
             for v in v_rows
@@ -1584,6 +1642,27 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         roster_match = next((s for s in _get_roster() if s.get("roll_number", "").upper() == student_roll.upper()), None)
         candidate_role = roster_match.get("role") if roster_match else (session.get("role") or "Mobile App Developer Intern")
 
+        sub_record = {
+            "session_id": str(session["session_id"]),
+            "student_name": session.get("student_name") or "Candidate",
+            "roll_number": student_roll,
+            "role": candidate_role,
+            "branch": session.get("branch") or "CSE",
+            "total_marks": round(score_total, 2),
+            "max_marks": float(total_q_count),
+            "percentage": percentage,
+            "total_questions": total_q_count,
+            "attempted": total_attempted,
+            "correct_count": total_correct,
+            "wrong_count": total_wrong,
+            "unanswered_count": unanswered_count,
+            "question_answers": _make_json_serializable(each_question_answer),
+            "violations_count": v_count,
+            "violations_log": _make_json_serializable(v_list),
+            "status": final_status,
+            "submitted_at": datetime.now(timezone.utc).isoformat()
+        }
+
         db.execute(
             """
             INSERT INTO fixly_test_submissions (
@@ -1595,25 +1674,27 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """,
             (
-                str(session["session_id"]),
-                session.get("student_name") or "Candidate",
-                student_roll,
-                candidate_role,
-                session.get("branch") or "CSE",
-                round(score_total, 2),
-                float(total_q_count),
-                percentage,
-                total_q_count,
-                total_attempted,
-                total_correct,
-                total_wrong,
-                unanswered_count,
-                _make_json_serializable(each_question_answer),
-                v_count,
-                _make_json_serializable(v_list),
-                final_status
+                sub_record["session_id"],
+                sub_record["student_name"],
+                sub_record["roll_number"],
+                sub_record["role"],
+                sub_record["branch"],
+                sub_record["total_marks"],
+                sub_record["max_marks"],
+                sub_record["percentage"],
+                sub_record["total_questions"],
+                sub_record["attempted"],
+                sub_record["correct_count"],
+                sub_record["wrong_count"],
+                sub_record["unanswered_count"],
+                sub_record["question_answers"],
+                sub_record["violations_count"],
+                sub_record["violations_log"],
+                sub_record["status"]
             )
         )
+
+        _save_submission_file_backup(sub_record)
     except Exception as e:
         print(f"[FIXLY DB WARNING] Could not insert into fixly_test_submissions: {e}")
 
