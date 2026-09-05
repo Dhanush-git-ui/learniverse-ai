@@ -11,14 +11,16 @@ interface TopicSectionProps {
 
 const TopicSection = ({ title, category, topics }: TopicSectionProps) => {
   const Icon = BrainCircuit;
-  const textColor = 'text-purple-600';
+  const textColor = 'text-blue-600';
   
   return (
     <section className="py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-3 mb-8">
-          <Icon className={`h-8 w-8 ${textColor}`} />
-          <h2 className={`text-2xl font-bold ${textColor}`}>{title}</h2>
+          <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100">
+            <Icon className="h-7 w-7 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

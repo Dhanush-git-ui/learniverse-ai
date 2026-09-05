@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload } from 'lucide-react';
+import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, MessageSquare, ThumbsUp, Heart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -278,30 +278,62 @@ export default function PlacementAssessment() {
   }, [step]);
 
   // Candidate Registration State & Validation
-  const [studentName, setStudentName] = useState<string>(() => localStorage.getItem('learniverse_student_name') || '');
+  const [assignedRole, setAssignedRole] = useState<string | null>(null);
+
+  const [studentName, setStudentName] = useState<string>('');
   const [studentNameError, setStudentNameError] = useState<string | null>(null);
-  const [rollNumber, setRollNumber] = useState<string>(() => localStorage.getItem('learniverse_roll_number') || '');
+  const [rollNumber, setRollNumber] = useState<string>('');
   const [rollNumberError, setRollNumberError] = useState<string | null>(null);
-  const [branch, setBranch] = useState<string>(() => localStorage.getItem('learniverse_student_branch') || 'CSE');
+  const [branch, setBranch] = useState<string>('CSE');
 
+  // Candidate Assessment Feedback Form State
+  const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [feedbackRating, setFeedbackRating] = useState<number>(0);
+  const [feedbackHoverRating, setFeedbackHoverRating] = useState<number>(0);
+  const [feedbackComments, setFeedbackComments] = useState<string>('');
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
 
-  // Derived state for active questions & current question
-  const aptitudeQs = questions.filter(q => q.category === 'Aptitude');
-  const verbalQs = questions.filter(q => q.category === 'Verbal');
-  const compQs = questions.filter(q => q.category === 'Computer_Fundamentals');
-  const codingQs = questions.filter(q => q.category === 'Coding');
-
-  const getActiveQs = () => {
-    switch (activeSection) {
-      case 'Aptitude': return aptitudeQs;
-      case 'Verbal': return verbalQs;
-      case 'Computer_Fundamentals': return compQs;
-      case 'Coding': return codingQs;
-      default: return [];
+  const handleFeedbackSubmit = async () => {
+    if (feedbackRating === 0) return;
+    setIsSubmittingFeedback(true);
+    try {
+      await fetch('/api/assessment/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({
+          attempt_id: attemptId || 'session_local',
+          roll_number: rollNumber || 'CANDIDATE',
+          student_name: studentName || 'Candidate',
+          rating: feedbackRating,
+          comments: feedbackComments.trim()
+        })
+      });
+    } catch (_) {
+      // Graceful fallback
+    } finally {
+      setIsSubmittingFeedback(false);
+      setFeedbackSubmitted(true);
+      try {
+        localStorage.setItem(`assessment_feedback_${attemptId || rollNumber}`, JSON.stringify({
+          rating: feedbackRating,
+          comments: feedbackComments.trim(),
+          date: new Date().toISOString()
+        }));
+      } catch (_) {}
     }
   };
-  const activeQs = getActiveQs();
-  const currentQuestion = activeQs[currentIdx];
+
+
+    // Derived state: Extract unique categories dynamically from loaded questions
+  const availableCategories = Array.from(new Set(questions.map(q => q.category))).filter(Boolean);
+  const activeCat = availableCategories.includes(activeSection as any) ? activeSection : (availableCategories[0] || 'DevOps');
+  const activeQs = questions.filter(q => q.category === activeCat);
+  const currentQuestion = activeQs[currentIdx] || activeQs[0] || questions[0];
+
 
 
   // Extract company badges from question metadata
@@ -644,6 +676,9 @@ export default function PlacementAssessment() {
         if (data.attempt_id && data.questions) {
           setAttemptId(data.attempt_id);
           setQuestions(data.questions);
+          if (data.role) setAssignedRole(data.role);
+          if (data.student_name) setStudentName(data.student_name);
+
           
           // Restore server-saved answers or local draft answers
           if (data.saved_answers && Object.keys(data.saved_answers).length > 0) {
@@ -939,6 +974,7 @@ export default function PlacementAssessment() {
     setResultsData(localScore);
     setReportData(localReport);
     setStep('score');
+    setShowFeedbackModal(true);
     setIsSubmitting(false);
 
     // Exit Fullscreen after transition to score step
@@ -1585,82 +1621,60 @@ export default function PlacementAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 select-none font-sans"
+    <div className="min-h-screen bg-gradient-to-b from-blue-50/40 via-white to-white text-slate-800 flex flex-col items-center justify-center p-4 sm:p-6 select-none font-sans"
          onCopy={(e) => e.preventDefault()}
          onPaste={(e) => e.preventDefault()}
          onCut={(e) => e.preventDefault()}
          onContextMenu={(e) => e.preventDefault()}>
       
       {isOffline && (
-        <div className="bg-amber-600/90 backdrop-blur-md text-white font-bold py-2 text-center text-xs w-full z-50 fixed top-0 left-0 shadow-lg flex items-center justify-center gap-2">
+        <div className="bg-amber-500 text-white font-bold py-2 text-center text-xs w-full z-50 fixed top-0 left-0 shadow-md flex items-center justify-center gap-2">
           <AlertTriangle className="w-4 h-4" />
           <span>Network connection offline. Progress is safely preserved in local storage and will sync upon reconnection.</span>
         </div>
       )}
 
       {proctorWarning && (
-        <div className="bg-rose-600/90 backdrop-blur-md text-white font-bold py-2.5 text-center text-xs sm:text-sm w-full z-50 fixed top-0 left-0 shadow-lg animate-pulse flex items-center justify-center gap-2">
+        <div className="bg-rose-600 backdrop-blur-md text-white font-bold py-2.5 text-center text-xs sm:text-sm w-full z-50 fixed top-0 left-0 shadow-lg animate-pulse flex items-center justify-center gap-2">
           <AlertTriangle className="w-4 h-4" />
           <span>{proctorWarning}</span>
         </div>
       )}
       
       {step === 'landing' && (
-        <div className="max-w-4xl w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-6 sm:p-10 rounded-3xl shadow-2xl shadow-indigo-950/40 text-slate-100 transition-all duration-300 animate-fade-in my-8">
+        <div className="max-w-4xl w-full bg-white/95 backdrop-blur-xl border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-2xl shadow-blue-950/5 text-slate-800 transition-all duration-300 animate-fade-in my-8">
           
-          <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-800 pb-6 mb-6 gap-4">
+          <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-6 mb-6 gap-4">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm">
                 <ShieldAlert className="w-7 h-7" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
                   PLACEMENT TEST
                 </h1>
-                <p className="text-xs font-medium text-slate-400 mt-1">EVALUATION SYSTEM v2.0</p>
+                <p className="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wider">EVALUATION SYSTEM v2.0</p>
               </div>
             </div>
             
-            {/* Main Portal View Selector */}
-            <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
-              <button
-                onClick={() => setMainTab('student')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  mainTab === 'student' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                🎓 Candidate Portal
-              </button>
-              <button
-                onClick={() => {
-                  setMainTab('admin');
-                  fetchAdminSessions();
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  mainTab === 'admin' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                🛡 Proctor Admin Console
-              </button>
-            </div>
           </div>
 
           {mainTab === 'admin' ? (
             /* Proctor Admin Console View */
             <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <input
                     type="text"
                     value={adminSearch}
                     onChange={(e) => setAdminSearch(e.target.value)}
                     placeholder="Search by Roll Number or Name..."
-                    className="bg-slate-900 border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-white placeholder:text-slate-500 w-full sm:w-64 outline-none focus:border-indigo-500"
+                    className="bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 placeholder:text-slate-400 w-full sm:w-64 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                   <select
                     value={adminStatusFilter}
                     onChange={(e) => setAdminStatusFilter(e.target.value)}
-                    className="bg-slate-900 border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl text-slate-300 outline-none cursor-pointer"
+                    className="bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-700 outline-none cursor-pointer"
                   >
                     <option value="">All Statuses</option>
                     <option value="started">Active Exam</option>
@@ -1673,13 +1687,13 @@ export default function PlacementAssessment() {
                   <button
                     onClick={fetchAdminSessions}
                     disabled={adminLoading}
-                    className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition-all flex items-center gap-1.5"
+                    className="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-300 transition-all flex items-center gap-1.5 shadow-sm"
                   >
                     🔄 {adminLoading ? 'Loading...' : 'Refresh Sessions'}
                   </button>
                   <button
                     onClick={() => window.open('/api/assessment/admin/export', '_blank')}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-1.5"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
                   >
                     📥 Export CSV
                   </button>
@@ -1687,15 +1701,15 @@ export default function PlacementAssessment() {
               </div>
 
               {/* Sessions Table */}
-              <div className="bg-slate-950/90 border border-slate-800 rounded-2xl overflow-hidden shadow-inner">
+              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                 {adminLoading ? (
-                  <div className="p-12 text-center text-slate-400 text-xs font-mono">Loading active and past candidate sessions...</div>
+                  <div className="p-12 text-center text-slate-500 text-xs font-mono">Loading active and past candidate sessions...</div>
                 ) : adminSessions.length === 0 ? (
-                  <div className="p-12 text-center text-slate-400 text-xs font-mono">No candidate sessions match the filter criteria.</div>
+                  <div className="p-12 text-center text-slate-500 text-xs font-mono">No candidate sessions match the filter criteria.</div>
                 ) : (
                   <div className="overflow-x-auto max-h-[400px]">
                     <table className="w-full text-xs text-left border-collapse">
-                      <thead className="bg-slate-900 text-slate-400 uppercase font-mono font-bold text-[10px] tracking-wider border-b border-slate-800">
+                      <thead className="bg-slate-50 text-slate-600 uppercase font-mono font-bold text-[10px] tracking-wider border-b border-slate-200">
                         <tr>
                           <th className="p-3.5">Roll Number</th>
                           <th className="p-3.5">Candidate Name</th>
@@ -1706,27 +1720,27 @@ export default function PlacementAssessment() {
                           <th className="p-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60 font-mono">
+                      <tbody className="divide-y divide-slate-100 font-mono">
                         {adminSessions.map((session: any) => (
-                          <tr key={session.session_id} className="hover:bg-slate-900/50 transition-colors">
-                            <td className="p-3.5 font-bold text-indigo-400">{session.student_roll_number}</td>
-                            <td className="p-3.5 font-sans font-semibold text-slate-200">{session.student_name || 'Candidate'}</td>
-                            <td className="p-3.5 text-slate-400">{session.branch || 'CSE'}</td>
+                          <tr key={session.session_id} className="hover:bg-blue-50/40 transition-colors">
+                            <td className="p-3.5 font-bold text-blue-600">{session.student_roll_number}</td>
+                            <td className="p-3.5 font-sans font-semibold text-slate-800">{session.student_name || 'Candidate'}</td>
+                            <td className="p-3.5 text-slate-500">{session.branch || 'CSE'}</td>
                             <td className="p-3.5">
                               {session.status === 'completed' ? (
-                                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold text-[10px]">COMPLETED</span>
+                                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold text-[10px]">COMPLETED</span>
                               ) : session.status === 'disqualified' ? (
-                                <span className="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-full font-bold text-[10px]">DISQUALIFIED</span>
+                                <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-bold text-[10px]">DISQUALIFIED</span>
                               ) : (
-                                <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">IN PROGRESS</span>
+                                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">IN PROGRESS</span>
                               )}
                             </td>
-                            <td className="p-3.5 font-bold text-white">{session.total_marks || '0.00'}</td>
+                            <td className="p-3.5 font-bold text-slate-900">{session.total_marks || '0.00'}</td>
                             <td className="p-3.5">
                               <span className={`font-bold px-2 py-0.5 rounded-md text-[11px] ${
                                 Number(session.suspicion_score || 0) > 40
-                                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                                  : 'bg-emerald-500/10 text-emerald-400'
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-emerald-50 text-emerald-700'
                               }`}>
                                 {session.suspicion_score || '0.00'}
                               </span>
@@ -1734,7 +1748,7 @@ export default function PlacementAssessment() {
                             <td className="p-3.5 text-right">
                               <button
                                 onClick={() => setSelectedAdminSession(session)}
-                                className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-sans font-semibold px-3 py-1 rounded-lg text-[11px] transition-all"
+                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-semibold px-3 py-1 rounded-lg text-[11px] transition-all"
                               >
                                 View Timeline
                               </button>
@@ -1749,48 +1763,48 @@ export default function PlacementAssessment() {
 
               {/* Inspector Modal */}
               {selectedAdminSession && (
-                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
-                  <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 animate-fade-in text-slate-100 max-h-[85vh] overflow-y-auto">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
+                  <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 animate-fade-in text-slate-800 max-h-[85vh] overflow-y-auto">
+                    <div className="flex justify-between items-center border-b border-slate-200 pb-3">
                       <div>
-                        <h3 className="font-extrabold text-lg text-white">Candidate Proctor Audit Log</h3>
-                        <p className="text-xs text-indigo-400 font-mono font-bold mt-0.5">{selectedAdminSession.student_roll_number} • {selectedAdminSession.student_name}</p>
+                        <h3 className="font-extrabold text-lg text-slate-900">Candidate Proctor Audit Log</h3>
+                        <p className="text-xs text-blue-600 font-mono font-bold mt-0.5">{selectedAdminSession.student_roll_number} • {selectedAdminSession.student_name}</p>
                       </div>
                       <button
                         onClick={() => setSelectedAdminSession(null)}
-                        className="text-slate-400 hover:text-white text-sm font-bold bg-slate-800 hover:bg-slate-700 w-8 h-8 rounded-lg flex items-center justify-center"
+                        className="text-slate-400 hover:text-slate-700 text-sm font-bold bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center"
                       >
                         ✕
                       </button>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span className="text-[10px] text-slate-500 block uppercase">Tab Switches</span>
-                        <span className="font-bold text-white text-sm">{selectedAdminSession.tab_switch_count || 0}</span>
+                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.tab_switch_count || 0}</span>
                       </div>
-                      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span className="text-[10px] text-slate-500 block uppercase">Fullscreen Exits</span>
-                        <span className="font-bold text-white text-sm">{selectedAdminSession.fullscreen_exit_count || 0}</span>
+                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.fullscreen_exit_count || 0}</span>
                       </div>
-                      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span className="text-[10px] text-slate-500 block uppercase">Copy Attempts</span>
-                        <span className="font-bold text-white text-sm">{selectedAdminSession.copy_attempts || 0}</span>
+                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.copy_attempts || 0}</span>
                       </div>
-                      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span className="text-[10px] text-slate-500 block uppercase">Suspicion Score</span>
-                        <span className="font-bold text-rose-400 text-sm">{selectedAdminSession.suspicion_score || 0}</span>
+                        <span className="font-bold text-rose-600 text-sm">{selectedAdminSession.suspicion_score || 0}</span>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Recorded Integrity Events</h4>
-                      <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono max-h-48 overflow-y-auto space-y-1.5">
+                      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recorded Integrity Events</h4>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-mono max-h-48 overflow-y-auto space-y-1.5">
                         {Array.isArray(selectedAdminSession.suspicious_events) && selectedAdminSession.suspicious_events.length > 0 ? (
                           selectedAdminSession.suspicious_events.map((evt: any, idx: number) => (
-                            <div key={idx} className="flex items-start justify-between border-b border-slate-900 pb-1.5 text-slate-300">
-                              <span className="text-rose-400 font-bold">[{evt.event || 'violation'}]</span>
-                              <span className="text-slate-400 text-[10px]">{evt.details || 'Event triggered'}</span>
+                            <div key={idx} className="flex items-start justify-between border-b border-slate-200 pb-1.5 text-slate-700">
+                              <span className="text-rose-600 font-bold">[{evt.event || 'violation'}]</span>
+                              <span className="text-slate-500 text-[10px]">{evt.details || 'Event triggered'}</span>
                             </div>
                           ))
                         ) : (
@@ -1802,7 +1816,7 @@ export default function PlacementAssessment() {
                     <div className="pt-2 flex justify-end">
                       <button
                         onClick={() => setSelectedAdminSession(null)}
-                        className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all"
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-5 py-2.5 rounded-xl transition-all"
                       >
                         Close Inspector
                       </button>
@@ -1818,56 +1832,56 @@ export default function PlacementAssessment() {
             
             {/* Offerings list */}
             <div className="space-y-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">1. PLACEMENT OFFERINGS</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">1. PLACEMENT OFFERINGS</h2>
               
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-blue-400 block">CS & Coding Benchmark</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">62 questions covering Aptitude, Verbal Reasoning, Core CS fundamentals, and 2 live Coding challenges.</p>
+              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">Screening Benchmark</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">20 focused domain MCQs evaluating real-world technical competency and algorithmic foundation.</p>
               </div>
 
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-purple-400 block">AI Complexity Reports</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">Automated runtime performance review, time/space complexity limits verification, and optimal references.</p>
+              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">AI Evaluation & Analytics</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">Automated instant grading, topic strength analysis, and comprehensive performance metrics.</p>
               </div>
 
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-emerald-400 block">Verified PDF Reports</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">Download detailed, professional scorecards with incorrect response tracking and safety clearance.</p>
+              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">Verified PDF Scorecards</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">Download official assessment scorecards with integrity records and question explanations.</p>
               </div>
             </div>
 
             {/* Test mechanics list */}
             <div className="space-y-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">2. TEST ENVIRONMENT</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">2. TEST ENVIRONMENT</h2>
 
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-indigo-400 block">Automated Proctoring</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">AI presence loop tracks webcam frame. Face presence and focus is verified periodically throughout the exam.</p>
+              <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">Automated AI Proctoring</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">AI presence loop tracks webcam frame locally. Face presence and focus is verified periodically throughout the exam.</p>
               </div>
 
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-rose-400 block">Anti-Cheat Tab Lockdown</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">Exiting fullscreen mode or switching browser tabs registers safety violations. Exceeding 3 violations disqualifies you.</p>
+              <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">Anti-Cheat Tab Lockdown</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">Exiting fullscreen mode or switching browser tabs registers safety violations. Exceeding 3 violations disqualifies you.</p>
               </div>
 
-              <div className="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl hover:border-slate-700 transition-all">
-                <span className="font-bold text-xs text-cyan-400 block">Resume Support</span>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">If disconnected, you can log back in within the 120-minute window to resume your test from the same state.</p>
+              <div className="bg-slate-50/80 border border-slate-200 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+                <span className="font-bold text-xs text-blue-600 block">Auto-Save & Resume Support</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">If disconnected, you can log back in within the exam window to resume your test from the exact same state.</p>
               </div>
             </div>
 
           </div>
 
           {/* Candidate Profile Registration Form */}
-          <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-inner mb-6 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">3. CANDIDATE IDENTIFICATION</h3>
+          <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm mb-6 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">3. CANDIDATE IDENTIFICATION</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Candidate Full Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>👤 Full Name</span>
-                  <span className="text-rose-400 font-semibold text-[11px]">* Required</span>
+                  <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
                 </label>
                 <input 
                   type="text" 
@@ -1876,46 +1890,78 @@ export default function PlacementAssessment() {
                     setStudentName(e.target.value);
                     if (studentNameError) setStudentNameError(null);
                   }}
-                  placeholder="e.g. Alex Johnson"
-                  className="w-full bg-slate-950 border border-slate-800 p-3 font-semibold text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all"
+                  placeholder="Enter Full Name (e.g. Alex Johnson)"
+                  className="w-full bg-white border border-slate-300 p-3 font-semibold text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl transition-all shadow-sm"
                 />
                 {studentNameError && (
-                  <p className="text-[11px] font-medium text-rose-400 mt-1 font-mono">⚠️ {studentNameError}</p>
+                  <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {studentNameError}</p>
                 )}
               </div>
 
               {/* Roll Number Input */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>🎓 Roll Number</span>
-                  <span className="text-rose-400 font-semibold text-[11px]">* Required</span>
+                  <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
                 </label>
                 <input 
                   type="text" 
                   value={rollNumber}
-                  onChange={(e) => {
-                    setRollNumber(e.target.value);
+                  onChange={async (e) => {
+                    const clean = e.target.value.toUpperCase().trim();
+                    setRollNumber(clean);
                     if (rollNumberError) setRollNumberError(null);
+
+                    // Auto-lookup candidate details when roll number is typed
+                    if (clean.length >= 6) {
+                      try {
+                        const res = await fetch(`/api/assessment/student-lookup?roll_number=${encodeURIComponent(clean)}`, {
+                          headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+                        });
+                        const data = await res.json();
+                        if (data.found && data.student) {
+                          setStudentName(data.student.name);
+                          setBranch(data.student.branch || 'CSE');
+                          setAssignedRole(data.student.role);
+                        }
+                      } catch (_) {}
+                    }
                   }}
-                  placeholder="e.g. 23E51A0561"
+                  placeholder="Enter Roll Number (e.g. 24E51A66H5)"
                   maxLength={12}
-                  className="w-full bg-slate-950 border border-slate-800 p-3 font-mono font-bold text-sm tracking-wider text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl uppercase transition-all"
+                  className="w-full bg-white border border-slate-300 p-3 font-mono font-bold text-sm tracking-wider text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl uppercase transition-all shadow-sm"
                 />
                 {rollNumberError && (
-                  <p className="text-[11px] font-medium text-rose-400 mt-1 font-mono">⚠️ {rollNumberError}</p>
+                  <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {rollNumberError}</p>
                 )}
               </div>
             </div>
 
+            {/* Display Role Badge when Verified */}
+            {assignedRole && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-center justify-between animate-fade-in shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🎯</span>
+                  <span>Verified Candidate: <strong className="text-blue-950 font-bold">{studentName}</strong></span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-500 text-[11px]">Assigned Role:</span>
+                  <span className="bg-blue-600 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm">
+                    {assignedRole}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Branch / Department selector */}
             <div className="pt-2">
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 🏫 Department / Branch
               </label>
               <select
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 p-3 text-xs font-semibold text-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="w-full bg-white border border-slate-300 p-3 text-xs font-semibold text-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm"
               >
                 <option value="CSE">Computer Science & Engineering (CSE)</option>
                 <option value="AI_DS">Artificial Intelligence & Data Science (AI/DS)</option>
@@ -1929,7 +1975,7 @@ export default function PlacementAssessment() {
 
           {errorMsg && (
             <div className="space-y-4 mb-6">
-              <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-xl text-xs text-rose-300 text-left flex items-start space-x-2 font-mono">
+              <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-xs text-rose-700 text-left flex items-start space-x-2 font-mono">
                 <span className="text-base">⚠️</span>
                 <div>
                   <span className="uppercase block font-bold text-[10px] mb-0.5">Assessment Setup Error:</span>
@@ -1939,7 +1985,7 @@ export default function PlacementAssessment() {
               <Button 
                 onClick={handleResetAttempts}
                 disabled={loadingQuestions}
-                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm py-3 rounded-xl border border-slate-700 transition-all"
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm py-3 rounded-xl border border-slate-300 transition-all"
               >
                 {loadingQuestions ? 'Resetting...' : 'Reset Attempts & Start Fresh'}
               </Button>
@@ -1952,7 +1998,7 @@ export default function PlacementAssessment() {
               if (ok) setStep('instructions');
             }} 
             disabled={loadingQuestions}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/20 active:scale-[0.99] transition-all disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all disabled:opacity-50"
           >
             {loadingQuestions ? 'Preloading Questions...' : 'Begin Assessment Setup'}
           </Button>
@@ -1961,33 +2007,31 @@ export default function PlacementAssessment() {
         </div>
       )}
 
-
-
       {step === 'instructions' && (
-        <div className="max-w-lg w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl shadow-indigo-950/40 space-y-6 animate-fade-in text-slate-100">
-          <h2 className="text-2xl font-extrabold tracking-tight text-white">Assessment Guidelines</h2>
+        <div className="max-w-lg w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 space-y-6 animate-fade-in text-slate-800">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Assessment Guidelines</h2>
           
-          <div className="flex items-start gap-3 border-l-2 border-indigo-500 pl-4 py-3 bg-indigo-500/10 text-indigo-200 text-xs rounded-r-xl">
-            <ShieldAlert className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 border-l-4 border-blue-600 pl-4 py-3 bg-blue-50 text-blue-900 text-xs rounded-r-xl">
+            <ShieldAlert className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
             <p className="leading-relaxed">This system uses strict webcam and browser focus tracking. Any anomalous actions trigger warnings.</p>
           </div>
 
-          <div className="text-sm text-slate-300 space-y-3.5 leading-relaxed">
+          <div className="text-sm text-slate-600 space-y-3.5 leading-relaxed">
             <ul className="space-y-3">
               <li className="flex items-start gap-3.5">
-                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
-                <span>Fullscreen is <strong className="text-white font-bold">strictly mandatory</strong>. Exiting will pause the test.</span>
+                <span className="text-blue-600 mt-1 select-none font-bold">▪</span>
+                <span>Fullscreen is <strong className="text-slate-900 font-bold">strictly mandatory</strong>. Exiting will pause the test.</span>
               </li>
               <li className="flex items-start gap-3.5">
-                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
-                <span>Changing browser tabs or opening secondary apps records a <strong className="text-white font-bold">Violation</strong>.</span>
+                <span className="text-blue-600 mt-1 select-none font-bold">▪</span>
+                <span>Changing browser tabs or opening secondary apps records a <strong className="text-slate-900 font-bold">Violation</strong>.</span>
               </li>
               <li className="flex items-start gap-3.5">
-                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
-                <span><strong className="text-rose-400 font-bold">3 violations</strong> will result in immediate disqualification and auto-submission.</span>
+                <span className="text-blue-600 mt-1 select-none font-bold">▪</span>
+                <span><strong className="text-rose-600 font-bold">3 violations</strong> will result in immediate disqualification and auto-submission.</span>
               </li>
               <li className="flex items-start gap-3.5">
-                <span className="text-indigo-400 mt-1 select-none font-bold">▪</span>
+                <span className="text-blue-600 mt-1 select-none font-bold">▪</span>
                 <span>Right-click, text selection, copy/paste shortcuts are disabled.</span>
               </li>
             </ul>
@@ -1995,7 +2039,7 @@ export default function PlacementAssessment() {
 
           <Button 
             onClick={() => setStep('system_check')} 
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99]"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
           >
             I Agree, Run Compatibility Check
           </Button>
@@ -2003,24 +2047,24 @@ export default function PlacementAssessment() {
       )}
 
       {step === 'system_check' && (
-        <div className="max-w-md w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl shadow-indigo-950/40 text-center space-y-6 animate-fade-in text-slate-100">
-          <div className="w-16 h-16 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-            <Monitor className="w-8 h-8 text-indigo-400" />
+        <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-6 animate-fade-in text-slate-800">
+          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <Monitor className="w-8 h-8 text-blue-600" />
           </div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-white">System Checks</h2>
-          <div className="text-xs text-left bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-3 font-mono leading-relaxed text-emerald-400">
+          <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">System Checks</h2>
+          <div className="text-xs text-left bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 font-mono leading-relaxed text-emerald-700">
             <p>✓ Browser support: Verified (Chrome/Chromium V8)</p>
             <p>✓ Display resolution: Compatible ({window.innerWidth}x{window.innerHeight}px)</p>
             <p>✓ Connection Latency: 24ms (Optimal)</p>
-            <p>✓ Monaco IDE Canvas: Preloaded</p>
-            <p className={isMobileDevice() ? "text-rose-400" : "text-emerald-400"}>
+            <p>✓ Test Canvas: Preloaded</p>
+            <p className={isMobileDevice() ? "text-rose-600" : "text-emerald-700"}>
               {isMobileDevice() ? "✗ Mobile device detected — use a desktop browser" : "✓ Device type: Desktop"}
             </p>
           </div>
 
           {mobileWarning && (
-            <div className="bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl text-rose-300 text-xs font-mono text-left space-y-1">
-              <p className="font-bold text-rose-400 uppercase tracking-wide">⚠ Mobile Device Detected</p>
+            <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-rose-700 text-xs font-mono text-left space-y-1">
+              <p className="font-bold text-rose-700 uppercase tracking-wide">⚠ Mobile Device Detected</p>
               <p>This assessment requires a desktop or laptop computer. Mobile phones and tablets are not permitted. Please switch devices and reload.</p>
             </div>
           )}
@@ -2028,7 +2072,7 @@ export default function PlacementAssessment() {
           <Button
             onClick={startCamera}
             disabled={mobileWarning}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99] disabled:opacity-50"
           >
             Activate Proctor Webcam
           </Button>
@@ -2036,18 +2080,18 @@ export default function PlacementAssessment() {
       )}
 
       {step === 'camera_check' && (
-        <div className="max-w-md w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl shadow-indigo-950/40 text-center space-y-5 animate-fade-in text-slate-100">
-          <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-            <Video className="w-8 h-8 text-blue-400" />
+        <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-5 animate-fade-in text-slate-800">
+          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <Video className="w-8 h-8 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white">Camera Calibration</h2>
-            <p className="text-xs text-slate-400 mt-2 leading-relaxed">Adjust your lighting and ensure your face is fully visible inside the frame.</p>
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Camera Calibration</h2>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">Adjust your lighting and ensure your face is fully visible inside the frame.</p>
           </div>
-          <video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-slate-950 rounded-2xl border border-slate-800 object-cover scale-x-[-1]" />
+          <video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-slate-900 rounded-2xl border border-slate-200 object-cover scale-x-[-1]" />
           <Button 
             onClick={() => setStep('fullscreen_gate')} 
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99]"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
           >
             Verify Camera & Proceed
           </Button>
@@ -2055,17 +2099,17 @@ export default function PlacementAssessment() {
       )}
 
       {step === 'fullscreen_gate' && (
-        <div className="max-w-md w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl shadow-indigo-950/40 text-center space-y-6 animate-fade-in text-slate-100">
-          <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto shadow-inner animate-bounce">
-            <Maximize2 className="w-8 h-8 text-emerald-400" />
+        <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-6 animate-fade-in text-slate-800">
+          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm animate-bounce">
+            <Maximize2 className="w-8 h-8 text-blue-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white">Secure Test Environment</h2>
-            <p className="text-slate-400 text-xs mt-2 leading-relaxed">Clicking the button will lock this assessment into fullscreen and start the timer.</p>
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Secure Test Environment</h2>
+            <p className="text-slate-500 text-xs mt-2 leading-relaxed">Clicking the button will lock this assessment into fullscreen and start the timer.</p>
           </div>
           <Button 
             onClick={enterFullScreen} 
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99]"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
           >
             Lock Screen & Start Exam
           </Button>
@@ -2074,19 +2118,19 @@ export default function PlacementAssessment() {
 
       {step === 'test' && currentQuestion && (
         <>
-        <div className="w-full h-screen flex flex-col md:flex-row gap-6 p-4 box-border bg-slate-950 text-slate-100 relative">
+        <div className="w-full h-screen flex flex-col md:flex-row gap-6 p-4 box-border bg-slate-50 text-slate-900 relative">
           {/* Immediate Submitting Screen */}
           {isSubmitting && (
-            <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center z-50 p-6 text-center space-y-4 animate-fade-in">
-              <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <h2 className="text-2xl font-extrabold text-white">Submitting Assessment...</h2>
-              <p className="text-slate-400 text-sm max-w-sm">Finalizing answers, please wait...</p>
+            <div className="fixed inset-0 bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center z-50 p-6 text-center space-y-4 animate-fade-in">
+              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <h2 className="text-2xl font-extrabold text-slate-900">Submitting Assessment...</h2>
+              <p className="text-slate-500 text-sm max-w-sm">Finalizing answers, please wait...</p>
             </div>
           )}
 
           {/* Dual-screen warning banner */}
           {dualScreenWarning && (
-            <div className="fixed top-0 left-0 w-full z-40 bg-amber-500/90 text-slate-900 text-xs font-bold py-2 text-center flex items-center justify-center gap-2">
+            <div className="fixed top-0 left-0 w-full z-40 bg-amber-500 text-slate-900 text-xs font-bold py-2 text-center flex items-center justify-center gap-2 shadow-md">
               <AlertTriangle className="w-4 h-4" />
               Dual-monitor setup detected. Please use a single screen during this assessment. A violation has been recorded.
               <button onClick={() => setDualScreenWarning(false)} className="ml-3 underline">Dismiss</button>
@@ -2095,7 +2139,7 @@ export default function PlacementAssessment() {
 
           {/* Pause Lockdown screen */}
           {isPaused && !isSubmitting && (
-            <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center z-50 p-6 text-center">
+            <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl flex flex-col items-center justify-center z-50 p-6 text-center">
               <div className="w-20 h-20 bg-rose-500/10 border border-rose-500/30 rounded-3xl flex items-center justify-center mb-6 shadow-2xl animate-pulse">
                 <AlertTriangle className="w-10 h-10 text-rose-500" />
               </div>
@@ -2103,50 +2147,49 @@ export default function PlacementAssessment() {
               <p className="text-slate-300 text-sm max-w-md text-center mb-6 leading-relaxed">
                 You exited fullscreen mode. An anomaly report has been recorded. Re-enter immediately to avoid test termination.
               </p>
-              <Button onClick={enterFullScreen} className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-emerald-500/20">
+              <Button onClick={enterFullScreen} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-blue-500/25">
                 Re-enter Fullscreen
               </Button>
             </div>
           )}
 
           {/* Left panel: Question & Editor */}
-          <div className="flex-1 flex flex-col bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 min-h-0 shadow-2xl shadow-indigo-950/20">
-            {/* Section tabs */}
-            <div className="flex border-b border-slate-800 mb-6 space-x-4 overflow-x-auto">
-              {[
-                { id: 'Aptitude', label: 'Aptitude', length: aptitudeQs.length },
-                { id: 'Verbal', label: 'Verbal', length: verbalQs.length },
-                { id: 'Computer_Fundamentals', label: 'Computer Fundamentals', length: compQs.length },
-                { id: 'Coding', label: 'Coding', length: codingQs.length }
-              ].map((sec) => (
-                <button
-                  key={sec.id}
-                  onClick={() => {
-                    setActiveSection(sec.id as any);
-                    setCurrentIdx(0);
-                  }}
-                  className={`pb-3 px-2 border-b-2 text-sm font-semibold transition-all whitespace-nowrap ${
-                    activeSection === sec.id
-                      ? 'border-blue-500 text-blue-400 font-bold'
-                      : 'border-transparent text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {sec.label} ({sec.length})
-                </button>
-              ))}
+          <div className="flex-1 flex flex-col bg-white border border-slate-200 rounded-3xl p-6 min-h-0 shadow-xl shadow-blue-900/5">
+            {/* Dynamic Section Tabs */}
+            <div className="flex border-b border-slate-200 mb-6 space-x-4 overflow-x-auto">
+              {availableCategories.map((cat) => {
+                const count = questions.filter(q => q.category === cat).length;
+                const isSelected = (activeCat === cat);
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setActiveSection(cat as any);
+                      setCurrentIdx(0);
+                    }}
+                    className={`pb-3 px-3 border-b-2 text-sm font-semibold transition-all whitespace-nowrap ${
+                      isSelected
+                        ? 'border-blue-600 text-blue-600 font-bold'
+                        : 'border-transparent text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    {cat.replace(/_/g, ' ')} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {/* Header info with live Violation Counter & Company Badges */}
-            <div className="flex justify-between items-center pb-4 border-b border-slate-800 mb-4 flex-wrap gap-2">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-200 mb-4 flex-wrap gap-2">
               <div className="flex items-center space-x-3 flex-wrap gap-y-2">
-                <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full text-xs font-semibold">
+                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold">
                   {currentQuestion.category} ➜ {currentQuestion.topic}
                 </span>
 
                 {/* Company Badges */}
                 <div className="flex items-center gap-1.5">
                   {getQuestionCompanyTags(currentQuestion).map((comp) => (
-                    <span key={comp} className="bg-gradient-to-r from-amber-500/15 to-orange-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm flex items-center gap-1">
+                    <span key={comp} className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm flex items-center gap-1">
                       🏢 {comp}
                     </span>
                   ))}
@@ -2155,17 +2198,17 @@ export default function PlacementAssessment() {
                 {/* Live Violation Badge */}
                 <div className={`px-3 py-1 rounded-full border flex items-center gap-1.5 text-xs font-mono font-bold transition-all ${
                   violations === 0 
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
                     : violations < 3 
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 animate-pulse' 
-                    : 'bg-rose-500/20 border-rose-500/50 text-rose-400 animate-bounce'
+                    ? 'bg-amber-50 border-amber-200 text-amber-700 animate-pulse' 
+                    : 'bg-rose-50 border-rose-200 text-rose-700 animate-bounce'
                 }`}>
                   <ShieldAlert className="w-3.5 h-3.5" />
                   <span>Violations: {violations} / 3</span>
                 </div>
               </div>
-              <span className="text-slate-400 font-mono text-xs">
-                Question {currentIdx + 1} of {activeQs.length} ({currentQuestion.marks} Marks • <strong className="text-emerald-400 font-semibold">No Negative Marking</strong>)
+              <span className="text-slate-500 font-mono text-xs">
+                Question {currentIdx + 1} of {activeQs.length} ({currentQuestion.marks} Marks • <strong className="text-emerald-600 font-semibold">No Negative Marking</strong>)
               </span>
             </div>
             
@@ -2180,25 +2223,25 @@ export default function PlacementAssessment() {
                       
                       {currentQuestion.examples && currentQuestion.examples.length > 0 && (
                         <div className="space-y-4 mt-6">
-                          <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 font-mono">Examples</h4>
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500 font-mono">Examples</h4>
                           {currentQuestion.examples.map((ex: any, idx: number) => (
                             <div 
                               key={idx} 
-                              className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs space-y-2.5 shadow-sm"
+                              className="bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-xs space-y-2.5 shadow-sm"
                             >
-                              <p className="text-blue-400 font-bold">Example {idx + 1}:</p>
-                              <div className="space-y-1.5 pl-2 border-l border-slate-800">
+                              <p className="text-blue-600 font-bold">Example {idx + 1}:</p>
+                              <div className="space-y-1.5 pl-2 border-l border-slate-200">
                                 <p>
-                                  <strong className="text-slate-400">Input:</strong>{' '}
-                                  <span className="text-slate-200">{ex.input}</span>
+                                  <strong className="text-slate-600">Input:</strong>{' '}
+                                  <span className="text-slate-800">{ex.input}</span>
                                 </p>
                                 <p>
-                                  <strong className="text-slate-400">Output:</strong>{' '}
-                                  <span className="text-emerald-400 font-bold">{ex.expected || ex.output}</span>
+                                  <strong className="text-slate-600">Output:</strong>{' '}
+                                  <span className="text-emerald-600 font-bold">{ex.expected || ex.output}</span>
                                 </p>
                                 {ex.explanation && (
-                                  <p className="text-slate-400 leading-relaxed mt-1">
-                                    <strong className="text-slate-400">Explanation:</strong> {ex.explanation}
+                                  <p className="text-slate-500 leading-relaxed mt-1">
+                                    <strong className="text-slate-600">Explanation:</strong> {ex.explanation}
                                   </p>
                                 )}
                               </div>
@@ -2208,15 +2251,15 @@ export default function PlacementAssessment() {
                       )}
 
                       {/* AI Conceptual Hints section */}
-                      <div className="border-t border-slate-800 pt-6 mt-6 space-y-3">
+                      <div className="border-t border-slate-200 pt-6 mt-6 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 font-mono">Stuck? Need a Hint?</h4>
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500 font-mono">Stuck? Need a Hint?</h4>
                           {!hints[currentQuestion.id] && (
                             <Button 
                               onClick={() => handleRequestHint(currentQuestion.id)}
                               disabled={loadingHint[currentQuestion.id]}
                               size="sm"
-                              className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs px-3 py-1 h-7 rounded-lg"
+                              className="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs px-3 py-1 h-7 rounded-lg"
                             >
                               {loadingHint[currentQuestion.id] ? "Generating..." : "Reveal Hint"}
                             </Button>
@@ -2224,8 +2267,8 @@ export default function PlacementAssessment() {
                         </div>
 
                         {hints[currentQuestion.id] && (
-                          <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4 text-xs text-indigo-200/90 leading-relaxed space-y-1.5 animate-fade-in shadow-sm select-text">
-                            <span className="font-bold text-indigo-400 block uppercase tracking-widest text-[9px] font-mono">Conceptual Coach Hint:</span>
+                          <div className="bg-blue-50/60 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed space-y-1.5 animate-fade-in shadow-sm select-text">
+                            <span className="font-bold text-blue-600 block uppercase tracking-widest text-[9px] font-mono">Conceptual Coach Hint:</span>
                             <p>{hints[currentQuestion.id]}</p>
                           </div>
                         )}
@@ -2233,19 +2276,19 @@ export default function PlacementAssessment() {
                     </div>
                   </Panel>
 
-                  <PanelResizeHandle className="w-1.5 bg-slate-800/40 hover:bg-blue-500/40 transition-all cursor-col-resize mx-2 rounded" />
+                  <PanelResizeHandle className="w-1.5 bg-slate-200 hover:bg-blue-500 transition-all cursor-col-resize mx-2 rounded" />
 
                   {/* Right: Monaco Editor + Console */}
                   <Panel defaultSize={62} minSize={40}>
                     <PanelGroup direction="vertical">
                       {/* Editor Panel */}
                       <Panel defaultSize={65} minSize={40}>
-                        <div className="h-full flex flex-col border border-slate-800 rounded-2xl overflow-hidden bg-slate-950">
-                          <div className="flex justify-between items-center px-4 py-2 bg-slate-900 border-b border-slate-800 flex-none">
+                        <div className="h-full flex flex-col border border-slate-200 rounded-2xl overflow-hidden bg-slate-900">
+                          <div className="flex justify-between items-center px-4 py-2 bg-slate-800 border-b border-slate-700 flex-none">
                             <select
                               value={selectedLang}
                               onChange={(e) => setSelectedLang(e.target.value)}
-                              className="border border-slate-800 bg-slate-950 text-slate-300 rounded-lg px-2.5 py-1 text-xs outline-none cursor-pointer"
+                              className="border border-slate-700 bg-slate-900 text-slate-200 rounded-lg px-2.5 py-1 text-xs outline-none cursor-pointer"
                             >
                               <option value="python">Python 3</option>
                               <option value="javascript">JavaScript</option>
@@ -2253,11 +2296,11 @@ export default function PlacementAssessment() {
                               <option value="java">Java 17</option>
                             </select>
                             <div className="flex items-center gap-2">
-                              <Button onClick={handleRunCode} disabled={runningCode || submittingCode} size="sm" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs py-1 h-8 rounded-lg transition-all active:scale-[0.98] flex items-center gap-1">
+                              <Button onClick={handleRunCode} disabled={runningCode || submittingCode} size="sm" className="bg-slate-700 hover:bg-slate-600 text-white text-xs py-1 h-8 rounded-lg transition-all active:scale-[0.98] flex items-center gap-1">
                                 <Play className="w-3 h-3" />
                                 {runningCode ? 'Running...' : 'Run Code'}
                               </Button>
-                              <Button onClick={handleSubmitCode} disabled={runningCode || submittingCode} size="sm" className="bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 text-white text-xs py-1 h-8 rounded-lg transition-all active:scale-[0.98] flex items-center gap-1">
+                              <Button onClick={handleSubmitCode} disabled={runningCode || submittingCode} size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs py-1 h-8 rounded-lg transition-all active:scale-[0.98] flex items-center gap-1">
                                 <Upload className="w-3 h-3" />
                                 {submittingCode ? 'Submitting...' : 'Submit Code'}
                               </Button>
@@ -2283,13 +2326,13 @@ export default function PlacementAssessment() {
                         </div>
                       </Panel>
 
-                      <PanelResizeHandle className="h-1.5 bg-slate-800/40 hover:bg-blue-500/40 transition-all cursor-row-resize my-2 rounded" />
+                      <PanelResizeHandle className="h-1.5 bg-slate-200 hover:bg-blue-500 transition-all cursor-row-resize my-2 rounded" />
 
                       {/* Console Output Panel */}
                       <Panel defaultSize={35} minSize={20}>
-                        <div className="h-full bg-slate-950 border border-slate-800 p-4 rounded-2xl overflow-y-auto font-mono text-xs flex flex-col">
+                        <div className="h-full bg-slate-900 border border-slate-700 p-4 rounded-2xl overflow-y-auto font-mono text-xs flex flex-col text-slate-200">
                           <div className="flex items-center justify-between mb-2 flex-none">
-                            <span className="font-bold text-slate-500 uppercase tracking-widest text-[9px]">Execution Output</span>
+                            <span className="font-bold text-slate-400 uppercase tracking-widest text-[9px]">Execution Output</span>
                             {compilationResult && currentQuestion && codingSubmissions[currentQuestion.id] && (
                               <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${codingSubmissions[currentQuestion.id].passed_cases === codingSubmissions[currentQuestion.id].total_cases ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20'}`}>
                                 {codingSubmissions[currentQuestion.id].passed_cases}/{codingSubmissions[currentQuestion.id].total_cases} Passed
@@ -2328,7 +2371,6 @@ export default function PlacementAssessment() {
               <div className="flex-1 overflow-y-auto mb-6 text-base leading-relaxed pr-2 space-y-4 select-text">
                 {renderQuestionStem(currentQuestion.question)}
 
-                
                 {/* Pictorial / case-based image */}
                 <QuestionImage question={currentQuestion} />
 
@@ -2346,16 +2388,16 @@ export default function PlacementAssessment() {
                         <button
                           key={optKey}
                           onClick={() => setAnswers(prev => ({ ...prev, [currentQuestion.id]: optKey }))}
-                          className={`p-4 rounded-2xl text-left border text-sm md:text-base transition-all flex items-center space-x-3.5 ${
+                          className={`p-4 rounded-2xl text-left border text-sm md:text-base transition-all flex items-center space-x-3.5 shadow-sm ${
                             isSelected 
-                              ? 'bg-blue-500/15 border-blue-500 text-blue-400 font-semibold shadow-sm' 
-                              : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:bg-slate-900 hover:border-slate-700'
+                              ? 'bg-blue-50 border-blue-600 text-blue-900 ring-2 ring-blue-500/20 font-semibold' 
+                              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
                           }`}
                         >
-                          <span className={`w-7 h-7 rounded-full border flex items-center justify-center font-bold text-xs ${
-                            isSelected ? 'bg-blue-600 border-transparent text-white' : 'border-slate-700 bg-slate-900 text-slate-400'
+                          <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs transition-all ${
+                            isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 border border-slate-200'
                           }`}>{optKey}</span>
-                          <span>{optText}</span>
+                          <span className="flex-1 leading-relaxed">{optText}</span>
                         </button>
                       );
                     })}
@@ -2365,12 +2407,12 @@ export default function PlacementAssessment() {
             )}
 
             {/* Navigation buttons */}
-            <div className="flex justify-between items-center pt-4 border-t border-slate-800 mt-auto">
+            <div className="flex justify-between items-center pt-4 border-t border-slate-200 mt-auto">
               <Button
                 variant="outline"
-                disabled={currentIdx === 0 && activeSection === 'Aptitude'}
+                disabled={currentIdx === 0 && activeCat === availableCategories[0]}
                 onClick={handlePrev}
-                className="border-slate-800 text-slate-300 hover:bg-slate-800 rounded-xl"
+                className="border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Previous
               </Button>
@@ -2379,7 +2421,7 @@ export default function PlacementAssessment() {
                 <Button
                   variant="ghost"
                   onClick={() => setMarkedForReview(prev => ({ ...prev, [currentQuestion.id]: !prev[currentQuestion.id] }))}
-                  className={`text-xs rounded-xl ${markedForReview[currentQuestion.id] ? 'text-purple-400 font-semibold bg-purple-500/10' : 'text-slate-400 hover:text-white'}`}
+                  className={`text-xs rounded-xl ${markedForReview[currentQuestion.id] ? 'text-purple-700 font-semibold bg-purple-50 border border-purple-200' : 'text-slate-600 hover:bg-slate-100'}`}
                 >
                   <Bookmark className="w-4 h-4 mr-1" /> Mark Review
                 </Button>
@@ -2390,16 +2432,16 @@ export default function PlacementAssessment() {
                     delete next[currentQuestion.id];
                     return next;
                   })}
-                  className="text-xs text-slate-400 hover:text-rose-400 rounded-xl"
+                  className="text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
                 >
                   <RotateCcw className="w-4 h-4 mr-1" /> Clear Answer
                 </Button>
               </div>
 
               <Button
-                disabled={currentIdx === activeQs.length - 1 && activeSection === 'Coding'}
+                disabled={currentIdx === activeQs.length - 1 && activeCat === availableCategories[availableCategories.length - 1]}
                 onClick={handleNext}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20"
               >
                 Save & Next <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -2410,42 +2452,42 @@ export default function PlacementAssessment() {
           <div className="w-full md:w-80 flex flex-col space-y-6">
             
             {/* Live Timer details */}
-            <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-5 rounded-3xl text-center shadow-xl shadow-indigo-950/20">
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Time Remaining</span>
-              <p className="text-3xl font-mono font-bold text-blue-400 mt-1">{formatTime(timeLeft)}</p>
+            <div className="bg-white border border-slate-200 p-5 rounded-3xl text-center shadow-lg shadow-blue-900/5">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono font-bold">Time Remaining</span>
+              <p className="text-3xl font-mono font-black text-blue-600 mt-1">{formatTime(timeLeft)}</p>
             </div>
 
             {/* Float proctored Webcam */}
-            <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl overflow-hidden p-3 relative shadow-xl shadow-indigo-950/20">
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden p-3 relative shadow-lg shadow-blue-900/5">
               <div className="absolute top-4 left-4 bg-emerald-500 w-2.5 h-2.5 rounded-full animate-ping" />
-              <video ref={videoRef} autoPlay playsInline muted className="w-full h-36 bg-slate-950 rounded-2xl object-cover scale-x-[-1] border border-slate-800" />
-              <p className="text-[9px] text-center text-slate-400 mt-2 font-mono uppercase tracking-wider">AI Proctor Monitoring Active</p>
+              <video ref={videoRef} autoPlay playsInline muted className="w-full h-36 bg-slate-900 rounded-2xl object-cover scale-x-[-1] border border-slate-200" />
+              <p className="text-[9px] text-center text-slate-500 mt-2 font-mono uppercase tracking-wider font-bold">AI Proctor Monitoring Active</p>
             </div>
 
             {/* Question Palette grid */}
-            <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-5 rounded-3xl flex-1 flex flex-col min-h-[340px] shadow-xl shadow-indigo-950/20">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                <span className="text-xs font-extrabold text-white tracking-wide">Question Palette</span>
-                <span className="text-[10px] font-mono text-slate-400 font-bold">{currentIdx + 1} / {activeQs.length}</span>
+            <div className="bg-white border border-slate-200 p-5 rounded-3xl flex-1 flex flex-col min-h-[340px] shadow-lg shadow-blue-900/5">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2 mb-3">
+                <span className="text-xs font-extrabold text-slate-900 tracking-wide">Question Palette</span>
+                <span className="text-[10px] font-mono text-slate-500 font-bold">{currentIdx + 1} / {activeQs.length}</span>
               </div>
               
               {/* Palette Legend */}
-              <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono mb-3 p-2 bg-slate-950/90 rounded-xl border border-slate-800/80">
+              <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono mb-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
-                  <span className="text-emerald-400 font-bold">Answered</span>
+                  <span className="text-emerald-700 font-bold">Answered</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm" />
-                  <span className="text-purple-300 font-bold">Marked</span>
+                  <span className="text-purple-700 font-bold">Marked</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" />
-                  <span className="text-rose-400 font-bold">Unanswered</span>
+                  <span className="text-rose-700 font-bold">Unanswered</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-700 shadow-sm" />
-                  <span className="text-slate-400 font-bold">Not Visited</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shadow-sm" />
+                  <span className="text-slate-600 font-bold">Not Visited</span>
                 </div>
               </div>
 
@@ -2456,17 +2498,17 @@ export default function PlacementAssessment() {
                   const hasVisited = Boolean(visited[q.id]);
                   const isCurrent = currentIdx === idx;
 
-                  let itemStyle = 'border-slate-800 bg-slate-950 text-slate-400';
+                  let itemStyle = 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100';
                   if (isCurrent) {
-                    itemStyle = 'border-blue-400 bg-blue-600/35 text-white font-extrabold ring-2 ring-blue-500 shadow-lg shadow-blue-500/30';
+                    itemStyle = 'border-blue-600 bg-blue-600 text-white font-black shadow-md ring-2 ring-blue-200';
                   } else if (isFlagged && hasAnswered) {
-                    itemStyle = 'border-purple-400 bg-purple-600/30 text-purple-200 font-bold ring-1 ring-purple-500/50';
+                    itemStyle = 'border-purple-300 bg-purple-50 text-purple-800 font-bold';
                   } else if (isFlagged) {
-                    itemStyle = 'border-amber-400 bg-amber-500/20 text-amber-300 font-bold ring-1 ring-amber-500/40';
+                    itemStyle = 'border-amber-300 bg-amber-50 text-amber-800 font-bold';
                   } else if (hasAnswered) {
-                    itemStyle = 'border-emerald-500/80 bg-emerald-500/20 text-emerald-300 font-bold shadow-sm';
+                    itemStyle = 'border-emerald-300 bg-emerald-50 text-emerald-800 font-bold';
                   } else if (hasVisited) {
-                    itemStyle = 'border-rose-800/80 bg-rose-950/20 text-rose-300 font-semibold';
+                    itemStyle = 'border-rose-200 bg-rose-50 text-rose-700 font-semibold';
                   }
 
                   return (
@@ -2480,7 +2522,7 @@ export default function PlacementAssessment() {
                         <span className="absolute -top-1 -right-1 text-[9px]">🔖</span>
                       )}
                       {hasAnswered && !isFlagged && (
-                        <span className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       )}
                     </button>
                   );
@@ -2490,7 +2532,7 @@ export default function PlacementAssessment() {
               <Button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-3 rounded-xl mt-4 shadow-lg shadow-rose-500/20 transition-all"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl mt-4 shadow-lg shadow-blue-500/25 transition-all"
               >
                 <Send className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Submitting Assessment...' : 'Submit Assessment'}
@@ -2501,21 +2543,21 @@ export default function PlacementAssessment() {
 
         {/* ── Custom Submit Confirmation Modal ───────────────────────────── */}
         {showSubmitModal && (
-          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 w-full max-w-md p-7 space-y-5 animate-fade-in">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-md p-7 space-y-5 animate-fade-in text-slate-800">
               {/* Header */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
-                  <Send className="w-5 h-5 text-rose-400" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
+                  <Send className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-extrabold text-white leading-tight">Submit Assessment?</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">This action cannot be undone</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 leading-tight">Submit Assessment?</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">This action cannot be undone</p>
                 </div>
               </div>
 
               {/* Stats summary */}
-              <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2 text-sm">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-sm">
                 {(() => {
                   const attempted = Object.values(answers).filter(val => val.trim() !== '').length;
                   const total = questions.length;
@@ -2523,20 +2565,20 @@ export default function PlacementAssessment() {
                   return (
                     <>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Total Questions</span>
-                        <span className="font-bold text-white">{total}</span>
+                        <span className="text-slate-600">Total Questions</span>
+                        <span className="font-bold text-slate-900">{total}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-emerald-400">Answered</span>
-                        <span className="font-bold text-emerald-400">{attempted}</span>
+                        <span className="text-emerald-700">Answered</span>
+                        <span className="font-bold text-emerald-700">{attempted}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-amber-400">Not Answered</span>
-                        <span className="font-bold text-amber-400">{unattempted}</span>
+                        <span className="text-amber-700">Not Answered</span>
+                        <span className="font-bold text-amber-700">{unattempted}</span>
                       </div>
-                      <div className="flex justify-between items-center border-t border-slate-800 pt-2 mt-1">
-                        <span className="text-slate-400">Violations Recorded</span>
-                        <span className={`font-bold ${violations > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>{violations} / 3</span>
+                      <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
+                        <span className="text-slate-600">Violations Recorded</span>
+                        <span className={`font-bold ${violations > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>{violations} / 3</span>
                       </div>
                     </>
                   );
@@ -2545,7 +2587,7 @@ export default function PlacementAssessment() {
 
               {/* Warning if unattempted */}
               {Object.values(answers).filter(val => val.trim() !== '').length < questions.length && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 flex items-start gap-2">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>You have unattempted questions. Once submitted, you cannot go back to answer them.</span>
                 </div>
@@ -2559,7 +2601,7 @@ export default function PlacementAssessment() {
                     setIsPaused(false);
                     await enterFullScreen();
                   }}
-                  className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98]"
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98]"
                 >
                   ← Go Back to Exam
                 </button>
@@ -2569,7 +2611,7 @@ export default function PlacementAssessment() {
                     submitAssessment();
                   }}
                   disabled={isSubmitting}
-                  className="flex-1 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98] shadow-lg shadow-rose-500/20"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98] shadow-lg shadow-blue-500/25"
                 >
                   {isSubmitting ? 'Submitting...' : 'Yes, Submit Final'}
                 </button>
@@ -2581,62 +2623,278 @@ export default function PlacementAssessment() {
       )}
 
       {step === 'score' && resultsData && (
-        <div className="max-w-4xl w-full bg-slate-900/70 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl shadow-indigo-950/40 space-y-8 animate-fade-in text-slate-100 my-8">
+        <div className="max-w-4xl w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 space-y-8 animate-fade-in text-slate-800 my-8">
           {violations >= 3 ? (
-            <div className="bg-rose-950/30 border border-rose-800/50 p-6 rounded-2xl text-center space-y-2">
-              <XCircle className="w-16 h-16 text-rose-500 mx-auto animate-pulse" />
-              <h2 className="text-2xl font-extrabold tracking-tight text-rose-400">ASSESSMENT DISQUALIFIED</h2>
-              <p className="text-sm text-slate-300">The exam was automatically terminated after exceeding the policy threshold (3 violations).</p>
+            <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl text-center space-y-2">
+              <XCircle className="w-16 h-16 text-rose-600 mx-auto animate-pulse" />
+              <h2 className="text-2xl font-extrabold tracking-tight text-rose-700">ASSESSMENT DISQUALIFIED</h2>
+              <p className="text-sm text-slate-600">The exam was automatically terminated after exceeding the policy threshold (3 violations).</p>
             </div>
           ) : (
             <div className="text-center space-y-3">
-              <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-                <CheckCircle2 className="w-9 h-9 text-emerald-400" />
+              <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 className="w-9 h-9 text-emerald-600" />
               </div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-white">Assessment Completed</h2>
-              <p className="text-sm text-slate-400 max-w-md mx-auto">Attempt graded successfully. Your metrics are outlined below.</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Assessment Completed</h2>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">Attempt graded successfully. Your metrics are outlined below.</p>
             </div>
           )}
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-left font-mono">
-            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Aptitude</span>
-              <span className="text-lg font-extrabold text-white">{resultsData.aptitude} <span className="text-xs text-slate-400 font-normal">Marks</span></span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Domain Marks</span>
+              <span className="text-lg font-extrabold text-slate-900">{resultsData.total || 0} <span className="text-xs text-slate-500 font-normal">Marks</span></span>
             </div>
-            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Verbal</span>
-              <span className="text-lg font-extrabold text-white">{resultsData.verbal} <span className="text-xs text-slate-400 font-normal">Marks</span></span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Percentage</span>
+              <span className="text-lg font-extrabold text-slate-900">{resultsData.percentage || 0}%</span>
             </div>
-            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Fundamentals</span>
-              <span className="text-lg font-extrabold text-white">{resultsData.comp_fundamentals || 0} <span className="text-xs text-slate-400 font-normal">Marks</span></span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Questions</span>
+              <span className="text-lg font-extrabold text-slate-900">{questions.length} <span className="text-xs text-slate-500 font-normal">Total</span></span>
             </div>
-            <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Coding</span>
-              <span className="text-lg font-extrabold text-white">{resultsData.coding} <span className="text-xs text-slate-400 font-normal">Marks</span></span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Assigned Role</span>
+              <span className="text-xs font-extrabold text-blue-600 block truncate">{assignedRole || 'Candidate'}</span>
             </div>
-            <div className="bg-indigo-950/40 p-4 rounded-2xl border border-indigo-500/30 col-span-2 md:col-span-1 text-center shadow-lg shadow-indigo-950/20">
-              <span className="text-[10px] text-indigo-400 block uppercase font-bold tracking-wider mb-1">Total Score</span>
-              <span className="text-lg font-black text-indigo-400">{resultsData.total} <span className="text-xs text-indigo-300 font-normal">Marks</span></span>
+            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-200 col-span-2 md:col-span-1 text-center shadow-sm">
+              <span className="text-[10px] text-blue-600 block uppercase font-bold tracking-wider mb-1">Total Score</span>
+              <span className="text-lg font-black text-blue-700">{resultsData.total} <span className="text-xs text-blue-600 font-normal">/ {questions.length}</span></span>
             </div>
           </div>
 
-          <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 text-xs text-left space-y-2 text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-left space-y-2 text-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="space-y-1">
-              <p className="flex items-center gap-2">📋 <span className="font-semibold text-slate-200">Violations Count</span>: <span className="font-mono text-slate-300 font-bold">{violations} violations recorded.</span></p>
-              <p className="flex items-center gap-2">🛡 <span className="font-semibold text-slate-200">Safety Clearance</span>: {violations >= 3 ? <span className="text-rose-400 font-bold bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">Declined</span> : <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Approved</span>}</p>
+              <p className="flex items-center gap-2">📋 <span className="font-semibold text-slate-900">Violations Count</span>: <span className="font-mono text-slate-700 font-bold">{violations} violations recorded.</span></p>
+              <p className="flex items-center gap-2">🛡 <span className="font-semibold text-slate-900">Safety Clearance</span>: {violations >= 3 ? <span className="text-rose-700 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Declined</span> : <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Approved</span>}</p>
             </div>
-            <Button onClick={downloadPDFReport} className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20">
+            <Button onClick={downloadPDFReport} className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md">
               Download Detailed Report (PDF)
             </Button>
           </div>
 
+          {/* ── Candidate Feedback Status / Action Banner (White & Blue Theme) ───────────────────────────── */}
+          {feedbackSubmitted ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between text-xs text-emerald-900 shadow-sm animate-fade-in my-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 flex-shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block text-sm">Feedback Recorded ({feedbackRating} / 5 Stars)</span>
+                  <span className="text-slate-600">Thank you! Your assessment feedback was submitted successfully.</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="text-emerald-700 hover:text-emerald-900 font-bold px-3 py-1.5 rounded-lg bg-white border border-emerald-200 hover:bg-emerald-50 transition-all shadow-sm cursor-pointer"
+              >
+                View Feedback
+              </button>
+            </div>
+          ) : (
+            <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-blue-900 shadow-sm animate-fade-in my-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0">
+                  <Star className="w-5 h-5 fill-blue-600 text-blue-600" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-slate-900 block text-sm">How was your assessment experience?</span>
+                  <span className="text-slate-500">Rate your test flow (1 to 5 stars) and share your comments with the team.</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 flex-shrink-0 cursor-pointer text-xs"
+              >
+                <span>Rate Experience</span>
+                <Sparkles className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* ── Candidate Feedback Pop-Up Modal (White & Blue Theme) ───────────────────────────── */}
+          {showFeedbackModal && (
+            <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
+              <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-scale-in text-slate-800 relative text-left">
+                {/* Close 'X' button */}
+                <button
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all cursor-pointer"
+                  aria-label="Close Feedback Popup"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                {feedbackSubmitted ? (
+                  /* Success confirmation state */
+                  <div className="py-6 text-center space-y-4 animate-scale-in">
+                    <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
+                      <CheckCircle2 className="w-9 h-9" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center justify-center gap-2">
+                        <span>Thank You for Your Feedback!</span>
+                        <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
+                      </h3>
+                      <p className="text-sm text-slate-600 max-w-sm mx-auto leading-relaxed">
+                        Your rating and thoughts have been recorded. We appreciate your valuable input!
+                      </p>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl text-xs font-semibold text-blue-900">
+                      <span className="text-slate-600">Your Rating:</span>
+                      <div className="flex text-amber-400">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-4 h-4 ${s <= feedbackRating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-bold text-blue-950">({feedbackRating} / 5 Stars)</span>
+                    </div>
+
+                    <div className="pt-3">
+                      <Button
+                        onClick={() => setShowFeedbackModal(false)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md shadow-blue-500/20 text-sm transition-all cursor-pointer"
+                      >
+                        View My Assessment Results →
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Feedback interactive form in White & Blue */
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center gap-3.5 pr-8">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0">
+                        <Sparkles className="w-6 h-6 animate-pulse" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block">
+                          Candidate Feedback
+                        </span>
+                        <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                          Rate Your Assessment Experience
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* 1 to 5 Star Rating Widget (Initially Empty) */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center space-y-3">
+                      <div className="flex items-center justify-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => {
+                          const isHighlighted = (feedbackHoverRating || feedbackRating) >= star;
+                          return (
+                            <button
+                              key={star}
+                              type="button"
+                              onMouseEnter={() => setFeedbackHoverRating(star)}
+                              onMouseLeave={() => setFeedbackHoverRating(0)}
+                              onClick={() => setFeedbackRating(star)}
+                              className="p-1.5 rounded-xl focus:outline-none transition-all duration-200 transform hover:scale-125 active:scale-95 cursor-pointer"
+                              aria-label={`Rate ${star} star`}
+                            >
+                              <Star
+                                className={`w-10 h-10 transition-all duration-200 ${
+                                  isHighlighted
+                                    ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] animate-star-pop'
+                                    : 'text-slate-300 hover:text-amber-300'
+                                }`}
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div>
+                        {feedbackRating === 0 && feedbackHoverRating === 0 ? (
+                          <p className="text-xs font-semibold text-slate-500">
+                            Tap a star to rate from 1 to 5 stars
+                          </p>
+                        ) : (
+                          <div className="animate-fade-in space-y-0.5">
+                            <span className="font-extrabold text-sm text-blue-900 block">
+                              {(feedbackHoverRating || feedbackRating) === 5 && '🌟 Outstanding Experience (5/5)'}
+                              {(feedbackHoverRating || feedbackRating) === 4 && '😊 Very Good Experience (4/5)'}
+                              {(feedbackHoverRating || feedbackRating) === 3 && '🙂 Good Experience (3/5)'}
+                              {(feedbackHoverRating || feedbackRating) === 2 && '😐 Fair Experience (2/5)'}
+                              {(feedbackHoverRating || feedbackRating) === 1 && '🙁 Needs Improvement (1/5)'}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              {(feedbackHoverRating || feedbackRating) === 5 && 'Seamless platform, clear questions, and smooth exam flow'}
+                              {(feedbackHoverRating || feedbackRating) === 4 && 'Solid test structure, clear interface, and responsive assessment'}
+                              {(feedbackHoverRating || feedbackRating) === 3 && 'Standard assessment process with expected test quality'}
+                              {(feedbackHoverRating || feedbackRating) === 2 && 'Found some areas challenging or encountered slight friction'}
+                              {(feedbackHoverRating || feedbackRating) === 1 && 'Faced technical hurdles or unclear assessment experience'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Optional Comments Box */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Comments & Suggestions <span className="text-slate-400 font-normal">(Optional)</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {feedbackComments.length} / 500
+                        </span>
+                      </div>
+                      <textarea
+                        value={feedbackComments}
+                        onChange={(e) => setFeedbackComments(e.target.value.slice(0, 500))}
+                        placeholder="Share any thoughts on question difficulty, platform smoothness, or suggestions for the recruitment team... (Optional)"
+                        rows={3}
+                        className="w-full bg-slate-50 border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-2xl p-3.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all resize-none shadow-sm"
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-3 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setShowFeedbackModal(false)}
+                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl text-sm transition-all cursor-pointer border border-slate-200"
+                      >
+                        Skip
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleFeedbackSubmit}
+                        disabled={isSubmittingFeedback || feedbackRating === 0}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        {isSubmittingFeedback ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Submitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Feedback</span>
+                            <Sparkles className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Interactive Report Viewer */}
           <div className="space-y-4 text-left">
-            <h3 className="text-lg font-bold border-b border-slate-800 pb-3 text-white">Post-Exam Analysis Report</h3>
+            <h3 className="text-lg font-bold border-b border-slate-200 pb-3 text-slate-900">Post-Exam Analysis Report</h3>
             
             {/* Filter Tabs */}
-            <div className="flex border-b border-slate-800 space-x-6 text-sm font-semibold">
+            <div className="flex border-b border-slate-200 space-x-6 text-sm font-semibold">
               {[
                 { id: 'wrong', label: 'What Went Wrong' },
                 { id: 'unattempted', label: 'Did Not Attempt' },
@@ -2646,7 +2904,7 @@ export default function PlacementAssessment() {
                 <button
                   key={tab.id}
                   onClick={() => setReportTab(tab.id as any)}
-                  className={`pb-3 border-b-2 transition-all ${reportTab === tab.id ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'}`}
+                  className={`pb-3 border-b-2 transition-all ${reportTab === tab.id ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
                 >
                   {tab.label}
                 </button>
@@ -2657,17 +2915,17 @@ export default function PlacementAssessment() {
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
               {reportTab === 'wrong' && (
                 reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm py-4 text-center">No incorrect attempts! Excellent work.</p>
+                  <p className="text-slate-500 text-sm py-4 text-center">No incorrect attempts! Excellent work.</p>
                 ) : (
                   reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition-all">
-                      <span className="text-[10px] text-blue-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-100 text-base leading-snug">{q.question}</h4>
-                      <div className="grid grid-cols-2 gap-4 text-xs mt-2 pt-2 border-t border-slate-900">
-                        <p className="text-rose-400 font-medium"><span className="font-semibold text-slate-400">Your Answer:</span> {q.user_answer}</p>
-                        <p className="text-emerald-400 font-medium"><span className="font-semibold text-slate-400">Correct Option:</span> {q.correct_option}</p>
+                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
+                      <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
+                      <div className="grid grid-cols-2 gap-4 text-xs mt-2 pt-2 border-t border-slate-100">
+                        <p className="text-rose-600 font-medium"><span className="font-semibold text-slate-500">Your Answer:</span> {q.user_answer}</p>
+                        <p className="text-emerald-600 font-medium"><span className="font-semibold text-slate-500">Correct Option:</span> {q.correct_option}</p>
                       </div>
-                      <p className="text-xs text-slate-300 bg-slate-900/90 p-3 rounded-xl border border-slate-800 mt-2 leading-relaxed"><span className="font-bold text-slate-200">Explanation:</span> {q.explanation}</p>
+                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -2675,14 +2933,14 @@ export default function PlacementAssessment() {
 
               {reportTab === 'unattempted' && (
                 reportData.filter(r => r.user_answer === "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm py-4 text-center">No questions left unattempted!</p>
+                  <p className="text-slate-500 text-sm py-4 text-center">No questions left unattempted!</p>
                 ) : (
                   reportData.filter(r => r.user_answer === "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition-all">
-                      <span className="text-[10px] text-amber-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-100 text-base leading-snug">{q.question}</h4>
-                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-slate-400">Correct Option:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-300 bg-slate-900/90 p-3 rounded-xl border border-slate-800 mt-1 leading-relaxed"><span className="font-bold text-slate-200">Explanation:</span> {q.explanation}</p>
+                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
+                      <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
+                      <p className="text-xs text-emerald-600 mt-2 font-semibold"><span className="font-semibold text-slate-500">Correct Option:</span> {q.correct_option}</p>
+                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-1 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -2690,14 +2948,14 @@ export default function PlacementAssessment() {
 
               {reportTab === 'correct' && (
                 reportData.filter(r => r.is_correct && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm py-4 text-center">No correct answers found.</p>
+                  <p className="text-slate-500 text-sm py-4 text-center">No correct answers found.</p>
                 ) : (
                   reportData.filter(r => r.is_correct && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-slate-700 transition-all">
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-100 text-base leading-snug">{q.question}</h4>
-                      <p className="text-xs text-emerald-400 mt-2 font-semibold"><span className="font-semibold text-slate-400">Your Correct Answer:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-300 bg-slate-900/90 p-3 rounded-xl border border-slate-800 mt-1 leading-relaxed"><span className="font-bold text-slate-200">Explanation:</span> {q.explanation}</p>
+                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
+                      <span className="text-[10px] text-emerald-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
+                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
+                      <p className="text-xs text-emerald-600 mt-2 font-semibold"><span className="font-semibold text-slate-500">Your Correct Answer:</span> {q.correct_option}</p>
+                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-1 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
                     </div>
                   ))
                 )
@@ -2705,35 +2963,35 @@ export default function PlacementAssessment() {
 
               {reportTab === 'coding' && (
                 reportData.filter(r => r.category === "Coding").length === 0 ? (
-                  <p className="text-slate-400 text-sm py-4 text-center">No coding submissions found.</p>
+                  <p className="text-slate-500 text-sm py-4 text-center">No coding submissions found.</p>
                 ) : (
                   reportData.filter(r => r.category === "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-4 hover:border-slate-700 transition-all">
-                      <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                        <span className="text-[10px] text-indigo-400 font-mono font-bold uppercase tracking-wider">Coding Challenge ➜ {q.topic}</span>
-                        <span className="text-xs text-slate-300 font-mono bg-slate-900 border border-slate-800 px-2.5 py-0.5 rounded-lg">Passed: {q.coding_details.passed_cases}/{q.coding_details.total_cases} test cases</span>
+                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4 hover:border-slate-300 transition-all shadow-sm">
+                      <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">Coding Challenge ➜ {q.topic}</span>
+                        <span className="text-xs text-slate-700 font-mono bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg">Passed: {q.coding_details.passed_cases}/{q.coding_details.total_cases} test cases</span>
                       </div>
-                      <h4 className="font-semibold text-slate-100 text-base leading-snug">{q.question}</h4>
+                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
                       
                       {/* Code comparison panel */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
                         <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">Your Solution Code:</span>
-                          <pre className="p-3 bg-slate-950 border border-slate-800 rounded-xl overflow-x-auto text-rose-300 max-h-[200px]">{q.coding_details.user_code || '// No code submitted'}</pre>
+                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Your Solution Code:</span>
+                          <pre className="p-3 bg-slate-900 border border-slate-700 rounded-xl overflow-x-auto text-rose-300 max-h-[200px]">{q.coding_details.user_code || '// No code submitted'}</pre>
                         </div>
                         <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">Optimal Reference Solution:</span>
-                          <pre className="p-3 bg-slate-950 border border-slate-800 rounded-xl overflow-x-auto text-emerald-300 max-h-[200px]">{q.coding_details.optimal_code || '// Optimal solution template'}</pre>
+                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Optimal Reference Solution:</span>
+                          <pre className="p-3 bg-slate-900 border border-slate-700 rounded-xl overflow-x-auto text-emerald-300 max-h-[200px]">{q.coding_details.optimal_code || '// Optimal solution template'}</pre>
                         </div>
                       </div>
 
                       {/* Complexity details */}
-                      <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2">
-                        <div className="flex space-x-6 font-mono text-[10px] uppercase text-indigo-400">
-                          <span>Time Complexity limit: <strong className="text-slate-200">{q.coding_details.time_complexity}</strong></span>
-                          <span>Space Complexity limit: <strong className="text-slate-200">{q.coding_details.space_complexity}</strong></span>
+                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-2">
+                        <div className="flex space-x-6 font-mono text-[10px] uppercase text-blue-600 font-bold">
+                          <span>Time Complexity limit: <strong className="text-slate-800">{q.coding_details.time_complexity}</strong></span>
+                          <span>Space Complexity limit: <strong className="text-slate-800">{q.coding_details.space_complexity}</strong></span>
                         </div>
-                        <p className="text-slate-300 border-t border-slate-800 pt-2 leading-relaxed"><span className="font-bold text-slate-200">Optimal Explanation:</span> {q.explanation}</p>
+                        <p className="text-slate-600 border-t border-slate-200 pt-2 leading-relaxed"><span className="font-bold text-slate-800">Optimal Explanation:</span> {q.explanation}</p>
                       </div>
                     </div>
                   ))
@@ -2758,12 +3016,12 @@ export default function PlacementAssessment() {
                   setStep('landing');
                 }
               }} 
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99]"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
             >
               🔄 Retake Assessment (Unlimited Attempts)
             </Button>
 
-            <Button onClick={() => setStep('landing')} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-xl border border-slate-700 text-sm transition-all">
+            <Button onClick={() => setStep('landing')} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3.5 px-6 rounded-xl border border-slate-300 text-sm transition-all">
               Return to Landing Portal
             </Button>
           </div>

@@ -15,11 +15,11 @@ const PopularTopicsSection = () => {
   };
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-800">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Popular Topics</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Popular Topics</h2>
+          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
             Start learning with these frequently accessed topics in Data Structures & Algorithms.
           </p>
         </div>
@@ -29,26 +29,26 @@ const PopularTopicsSection = () => {
             <Link
               key={topic.title}
               to={`/topics/${topic.slug}`}
-              className="glass-card rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-md animate-fade-in-up purple-glass"
+              className="bg-white rounded-2xl p-6 border border-slate-200/80 transition-all duration-300 transform hover:scale-105 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 animate-fade-in-up group"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex justify-between items-start">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
                   {renderIcon(topic.icon)}
                 </div>
-                <div className="text-xs font-medium px-2 py-1 rounded-full bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
+                <div className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
                   {topic.category}
                 </div>
               </div>
               
-              <h3 className="mt-4 text-xl font-bold text-gray-900 dark:text-white">{topic.title}</h3>
+              <h3 className="mt-4 text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{topic.title}</h3>
               
               <div className="mt-4 flex items-center justify-between">
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-sm font-medium text-slate-500">
                   {topic.questions.length} questions
                 </div>
                 
-                <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-400">
+                <div className="flex items-center text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
                   <span>Start learning</span>
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </div>
@@ -60,7 +60,7 @@ const PopularTopicsSection = () => {
         <div className="text-center mt-12">
           <Button
             variant="outline"
-            className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 dark:text-gray-200 px-6 py-2 rounded-lg text-lg transition-all duration-300"
+            className="border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 text-slate-700 px-6 py-2 rounded-xl text-lg font-semibold transition-all duration-300"
             asChild
           >
             <Link to="/topics">

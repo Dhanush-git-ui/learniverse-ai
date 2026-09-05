@@ -64,30 +64,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for LearnIverse
+				// Official Crisp White & Royal Blue Palette for LearnIverse
 				blue: {
-					50: "#fff5f0",
-					100: "#ffe6d6",
-					200: "#fccca3",
-					300: "#f7b172",
-					400: "#E08852", // Muted orange tone
-					500: "#E26212", // Bold orange accent
-					600: "#c7530c",
-					700: "#9e4007",
-					800: "#7d3408",
-					900: "#662c0a",
-				},
-				purple: {
-					50: "#F8FAFC", // Off-white canvas
-					100: "#D9E9F2", // Light blue tint
-					200: "#b5d4e6",
-					300: "#8cbada",
-					400: "#62a1cd",
-					500: "#386bb1", // Softer secondary blue
-					600: "#0977bb", // Vibrant primary blue
-					700: "#075e96",
-					800: "#0F172A", // Slate blue body text
-					900: "#0a0a0a", // Subtle blacks
+					50: "#eff6ff",
+					100: "#dbeafe",
+					200: "#bfdbfe",
+					300: "#93c5fd",
+					400: "#60a5fa",
+					500: "#3b82f6",
+					600: "#2563eb",
+					700: "#1d4ed8",
+					800: "#1e40af",
+					900: "#1e3a8a",
+					950: "#172554",
 				},
 			},
 			borderRadius: {

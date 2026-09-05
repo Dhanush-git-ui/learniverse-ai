@@ -34,51 +34,51 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link
               to="/"
-              className={`flex items-center space-x-2 text-blue-500 transition-transform hover:scale-105 ${
+              className={`flex items-center space-x-2 text-blue-600 transition-transform hover:scale-105 ${
                 isActive('/top-100-codes') ? '-ml-4' : ''
               }`}
             >
-              <Lightbulb className="w-8 h-8" />
-              <span className="text-xl font-bold">LearnIverse</span>
+              <Lightbulb className="w-8 h-8 text-blue-600" />
+              <span className="text-xl font-bold text-slate-900 tracking-tight">Learn<span className="text-blue-600">Iverse</span></span>
             </Link>
           </div>
           
           <nav className="hidden md:flex items-center space-x-1">
-            <Link to="/" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               Home
             </Link>
-            <Link to="/topics" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/topics" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               Topics
             </Link>
-            <Link to="/how-it-works" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/how-it-works') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/how-it-works" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/how-it-works') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               How It Works
             </Link>
-            <Link to="/about" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/about') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/about" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/about') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               About
             </Link>
-            <Link to="/top-100-codes" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/top-100-codes') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/top-100-codes" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/top-100-codes') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               Top 100 Codes
             </Link>
-            <Link to="/assessment" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-            } dark:text-gray-200 dark:hover:text-white`}>
+            <Link to="/assessment" className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+            }`}>
               Placement Test
             </Link>
           </nav>
           
           <div className="hidden md:block">
             <Button
-              className="bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300 transform hover:scale-105"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md shadow-blue-500/20"
               asChild
             >
               <Link to="/topics">Get Started</Link>

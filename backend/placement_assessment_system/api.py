@@ -1,4 +1,4 @@
-﻿# placement_assessment_system/api.py
+# placement_assessment_system/api.py
 # ============================================================
 # HIGH-SCALE & PRODUCTION-GRADE PLACEMENT ASSESSMENT ENGINE
 # Supports PostgreSQL (production) & SQLite (local fallback)
@@ -19,7 +19,6 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional
 from decimal import Decimal
-
 def _make_json_serializable(obj):
     """Recursively convert Decimal objects to float/int for psycopg2 Json, sqlite3 and json.dumps compatibility."""
     if isinstance(obj, Decimal):
@@ -57,6 +56,23 @@ _RETRYABLE_PG_FRAGMENTS = (
 
 def _is_retryable_pg_error(exc: Exception) -> bool:
     return any(f in str(exc).lower() for f in _RETRYABLE_PG_FRAGMENTS)
+
+ROSTER_PATH = os.path.join(os.path.dirname(__file__), "../data/students_roster.json")
+
+def _get_roster():
+    if os.path.exists(ROSTER_PATH):
+        with open(ROSTER_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return []
+
+@router.get("/student-lookup")
+def lookup_student(roll_number: str):
+    clean_roll = roll_number.strip().upper().replace(" ", "")
+    roster = _get_roster()
+    student = next((s for s in roster if s.get("roll_number", "").upper() == clean_roll), None)
+    if student:
+        return {"found": True, "student": student}
+    return {"found": False}
 
 def _ping_conn(conn) -> bool:
     if conn.closed != 0:
@@ -137,6 +153,10 @@ def _get_live_conn(pool, max_retries: int = 3):
 def _init_sqlite_db():
     conn = sqlite3.connect(SQLITE_DB_PATH)
     cur = conn.cursor()
+    cur.execute("PRAGMA journal_mode=WAL;")
+    cur.execute("PRAGMA busy_timeout=5000;")
+    cur.execute("PRAGMA synchronous=NORMAL;")
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS questions (
             id TEXT PRIMARY KEY,
@@ -908,6 +928,14 @@ class SubmitAttemptRequest(BaseModel):
     answers: Dict = Field(default_factory=dict)
     coding_submissions: Dict = Field(default_factory=dict)
 
+class CandidateFeedbackRequest(BaseModel):
+    attempt_id: Optional[str] = Field(None, max_length=100)
+    roll_number: Optional[str] = Field(None, max_length=50)
+    student_name: Optional[str] = Field(None, max_length=100)
+    rating: int = Field(5, ge=1, le=5)
+    tags: List[str] = Field(default_factory=list)
+    comments: Optional[str] = Field(None, max_length=2000)
+
 SubmitTestRequest = SubmitAttemptRequest
 
 
@@ -980,34 +1008,33 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
                 "saved_coding_submissions": active_session.get("coding_submissions") or {}
             }
 
-    # Sample questions (20 Aptitude, 20 Verbal, 20 CS Fundamentals, 2 Coding)
-    pool = reload_questions_cache(db)
+       # 1. Look up student in roster to find their registered role and details
+    roster = _get_roster()
+    registered = next((s for s in roster if s.get("roll_number", "").upper() == clean_roll), None)
 
-    used_ids = set()
-    aptitude_raw = _sample_questions_by_difficulty(pool, 'Aptitude', 20, easy_ratio=0.65, exclude_ids=used_ids)
-    verbal_raw = _sample_questions_by_difficulty(pool, 'Verbal', 20, easy_ratio=0.65, exclude_ids=used_ids)
-    comp_raw = _sample_questions_by_difficulty(pool, 'Computer_Fundamentals', 20, easy_ratio=0.65, exclude_ids=used_ids)
-    
-    coding_pool = [q for q in pool if q.get("category") == "Coding" and q.get("id") not in used_ids]
-    easy_coding = [q for q in coding_pool if str(q.get("difficulty", "")).lower() == "easy"]
-    medium_coding = [q for q in coding_pool if str(q.get("difficulty", "")).lower() in ("medium", "hard")]
+    assigned_role = registered.get("role", "DevOps Intern") if registered else "DevOps Intern"
+    student_name = registered.get("name", req.student_name or "Candidate") if registered else (req.student_name or "Candidate")
+    branch = registered.get("branch", req.branch or "CSE") if registered else (req.branch or "CSE")
 
-    selected_easy_coding = random.sample(easy_coding, 1) if easy_coding else []
-    selected_med_coding = random.sample(medium_coding, 1) if medium_coding else []
+    # 2. Select the specific question file for the student's role
+    if "devops" in assigned_role.lower():
+        q_file = os.path.join(os.path.dirname(__file__), "../data/devops_questions.json")
+    else:
+        q_file = os.path.join(os.path.dirname(__file__), "../data/react_native_questions.json")
 
-    coding_selected = selected_easy_coding + selected_med_coding
-    if len(coding_selected) < 2 and coding_pool:
-        remaining_needed = 2 - len(coding_selected)
-        avail = [q for q in coding_pool if q.get("id") not in {cq.get("id") for cq in coding_selected}]
-        if avail:
-            coding_selected.extend(random.sample(avail, min(len(avail), remaining_needed)))
-    
-    raw_questions = aptitude_raw + verbal_raw + comp_raw + coding_selected
-    candidate_questions = [_prepare_candidate_question(q) for q in raw_questions]
+    with open(q_file, "r", encoding="utf-8") as f:
+        pool = json.load(f)
+
+    # 3. Option Randomization (A, B, C, D order shuffled per candidate & correct_option recalculated)
+    candidate_questions = [_prepare_candidate_question(dict(q)) for q in pool]
+
+    # 4. Question Order Randomization (Shuffles the 1..20 question sequence)
+    random.shuffle(candidate_questions)
+
     serializable_candidate_qs = _make_json_serializable(candidate_questions)
-
     session_id = str(uuid.uuid4())
 
+    # 5. Save the candidate's randomized sequence to the database
     db.execute(
         """
         INSERT INTO test_sessions (
@@ -1019,9 +1046,9 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
         (
             session_id,
             clean_roll,
-            (req.student_name or "Student")[:100],
-            (req.branch or "CSE")[:50],
-            (req.year or "4th Year")[:20],
+            student_name[:100],
+            branch[:50],
+            (req.year or "3rd/4th Year")[:20],
             len(serializable_candidate_qs),
             len(serializable_candidate_qs),
             str(req.browser_info.get("user_agent", "Web Browser"))[:500],
@@ -1031,17 +1058,20 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
 
     sanitized_qs = _sanitize_questions_for_candidate(serializable_candidate_qs)
 
+    # 6. Return sanitized test payload (3600 seconds = 60 minutes)
     return {
         "attempt_id": session_id,
         "session_id": session_id,
-        "duration": 7200,
+        "duration": 3600,
+        "role": assigned_role,
         "questions": sanitized_qs,
         "roll_number": clean_roll,
-        "student_name": req.student_name,
-        "branch": req.branch,
+        "student_name": student_name,
+        "branch": branch,
         "saved_answers": {},
         "saved_coding_submissions": {}
     }
+
 
 
 @router.post("/resume")
@@ -1399,6 +1429,41 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         },
         "report": detailed_report
     }
+
+
+@router.post("/feedback")
+def submit_candidate_feedback(req: CandidateFeedbackRequest, db=Depends(get_db_cursor)):
+    data_dir = os.path.join(os.path.dirname(__file__), "../data")
+    os.makedirs(data_dir, exist_ok=True)
+    fb_file = os.path.join(data_dir, "candidate_feedback.json")
+    
+    feedbacks = []
+    if os.path.exists(fb_file):
+        try:
+            with open(fb_file, "r", encoding="utf-8") as f:
+                feedbacks = json.load(f)
+        except Exception:
+            feedbacks = []
+            
+    feedback_entry = {
+        "id": str(uuid.uuid4()),
+        "attempt_id": req.attempt_id,
+        "roll_number": req.roll_number,
+        "student_name": req.student_name,
+        "rating": req.rating,
+        "tags": req.tags,
+        "comments": req.comments,
+        "submitted_at": datetime.now(timezone.utc).isoformat()
+    }
+    feedbacks.append(feedback_entry)
+    
+    try:
+        with open(fb_file, "w", encoding="utf-8") as f:
+            json.dump(feedbacks, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"[FEEDBACK] Error saving feedback file: {e}")
+        
+    return {"status": "success", "message": "Feedback submitted successfully."}
 
 
 # ------------------------------------------------------------

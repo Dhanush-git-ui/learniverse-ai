@@ -131,15 +131,16 @@ app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 def get_rate_limit_key(request: Request) -> str:
-    # Rate limit by the authenticated client API key first to protect shared NAT environments
-    api_key = request.headers.get("x-api-key")
-    if api_key:
-        return api_key
-    # Fall back to X-Forwarded-For if behind a proxy
+    # 1. Unique bucket per student roll number
+    roll = request.headers.get("x-roll-number")
+    if roll:
+        return f"student_{roll.strip().upper()}"
+    # 2. Fall back to client IP
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "127.0.0.1"
+
 
 limiter = Limiter(key_func=get_rate_limit_key)
 app.state.limiter = limiter

@@ -96,55 +96,51 @@ const HowItWorksPage = () => {
                   onClick={() => setSelectedConcept(concept.id)}
                   className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-center justify-between ${
                     selectedConcept === concept.id
-                      ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm font-semibold'
-                      : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                      ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm font-semibold'
+                      : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      concept.category === 'DSA' 
-                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300' 
-                        : 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
-                    }`}>
+                    <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700">
                       {concept.category}
                     </span>
                     <span>{concept.name}</span>
                   </div>
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
                 </button>
               ))}
             </div>
 
             {/* Persona Switcher & Visual Display */}
-            <div className="lg:col-span-8 bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
-              <div className="flex border-b border-gray-200 dark:border-gray-800 pb-4">
+            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+              <div className="flex border-b border-slate-200 pb-4">
                 <button
                   onClick={() => setActiveTab('teacher')}
-                  className={`flex-1 pb-3 text-center font-medium transition-all relative ${
+                  className={`flex-1 pb-3 text-center font-semibold transition-all relative ${
                     activeTab === 'teacher'
-                      ? 'text-blue-600 dark:text-blue-400 font-semibold'
-                      : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? 'text-blue-600 font-bold'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
                     <GraduationCap className="w-5 h-5" />
                     <span>Teacher AI</span>
                   </div>
-                  {activeTab === 'teacher' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></span>}
+                  {activeTab === 'teacher' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></span>}
                 </button>
                 <button
                   onClick={() => setActiveTab('peer')}
-                  className={`flex-1 pb-3 text-center font-medium transition-all relative ${
+                  className={`flex-1 pb-3 text-center font-semibold transition-all relative ${
                     activeTab === 'peer'
-                      ? 'text-purple-600 dark:text-purple-400 font-semibold'
-                      : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      ? 'text-sky-600 font-bold'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
                     <Sparkles className="w-5 h-5" />
                     <span>Peer AI</span>
                   </div>
-                  {activeTab === 'peer' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500 rounded-full"></span>}
+                  {activeTab === 'peer' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500 rounded-full"></span>}
                 </button>
               </div>
 
@@ -183,65 +179,65 @@ const HowItWorksPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
             {/* Step 1 */}
-            <div className="glass-card rounded-2xl p-6 relative border border-gray-100 dark:border-gray-800 flex flex-col justify-between space-y-6">
+            <div className="bg-white rounded-2xl p-6 relative border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
                   1
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">User Submits Query</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <h3 className="text-xl font-bold text-slate-900">User Submits Query</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   You ask a question about DSA inside the dashboard.
                 </p>
               </div>
-              <div className="text-xs font-mono text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-2 rounded">
+              <div className="text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200/60 p-2 rounded-lg">
                 POST /api/chat
               </div>
             </div>
 
             {/* Step 2 */}
-            <div className="glass-card rounded-2xl p-6 relative border border-gray-100 dark:border-gray-800 flex flex-col justify-between space-y-6">
+            <div className="bg-white rounded-2xl p-6 relative border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-lg">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">
                   2
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Textbook Retrieval</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <h3 className="text-xl font-bold text-slate-900">Textbook Retrieval</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   SentenceTransformers embeds the query, searching ChromaDB for matching textbook passages.
                 </p>
               </div>
-              <div className="text-xs font-mono text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-2 rounded">
+              <div className="text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200/60 p-2 rounded-lg">
                 ChromaDB Vector Match
               </div>
             </div>
 
             {/* Step 3 */}
-            <div className="glass-card rounded-2xl p-6 relative border border-gray-100 dark:border-gray-800 flex flex-col justify-between space-y-6">
+            <div className="bg-white rounded-2xl p-6 relative border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-lg">
+                <div className="w-12 h-12 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 font-bold text-lg">
                   3
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Dual Prompt Injection</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <h3 className="text-xl font-bold text-slate-900">Dual Prompt Injection</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   Textbook context and history are injected into custom prompt templates for the two roles.
                 </p>
               </div>
-              <div className="text-xs font-mono text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-2 rounded">
+              <div className="text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200/60 p-2 rounded-lg">
                 Gemini 3.5 Flash LLM
               </div>
             </div>
 
             {/* Step 4 */}
-            <div className="glass-card rounded-2xl p-6 relative border border-gray-100 dark:border-gray-800 flex flex-col justify-between space-y-6">
+            <div className="bg-white rounded-2xl p-6 relative border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-lg">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
                   4
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Grounded Explanation</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                <h3 className="text-xl font-bold text-slate-900">Grounded Explanation</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
                   The frontend displays both replies along with the textbook chapters referenced as citations.
                 </p>
               </div>
-              <div className="text-xs font-mono text-gray-400 bg-gray-50 dark:bg-gray-800/40 p-2 rounded">
+              <div className="text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200/60 p-2 rounded-lg">
                 Citations & Sources
               </div>
             </div>
@@ -249,41 +245,41 @@ const HowItWorksPage = () => {
         </section>
 
         {/* Tech Stack Section */}
-        <section className="bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-3xl p-8 sm:p-12 space-y-8">
+        <section className="bg-slate-50/70 border border-slate-200/80 rounded-3xl p-8 sm:p-12 space-y-8">
           <div className="text-center space-y-3">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Under the Hood</h2>
-            <p className="text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+            <h2 className="text-3xl font-bold text-slate-900">Under the Hood</h2>
+            <p className="text-slate-600 max-w-xl mx-auto">
               LearnIverse is powered by modern tools, ensuring speed, security, and accuracy.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center text-center p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm">
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl mb-4">
-                <Cpu className="w-8 h-8 text-blue-500" />
+            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+              <div className="p-3.5 bg-blue-50 border border-blue-100 rounded-2xl mb-4">
+                <Cpu className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Google Gemini API</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Google Gemini API</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
                 Generates natural, context-grounded student-teacher dialogues via the Gemini 3.5 Flash model.
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm">
-              <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl mb-4">
-                <Database className="w-8 h-8 text-purple-500" />
+            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+              <div className="p-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl mb-4">
+                <Database className="w-8 h-8 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Chroma Vector DB</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Chroma Vector DB</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
                 A persistent local vector database indexing high-fidelity textbook passages for DSA.
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-150 dark:border-gray-700 shadow-sm">
-              <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl mb-4">
-                <Code className="w-8 h-8 text-green-500" />
+            <div className="flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+              <div className="p-3.5 bg-sky-50 border border-sky-100 rounded-2xl mb-4">
+                <Code className="w-8 h-8 text-sky-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">FastAPI & Python</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">FastAPI & Python</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
                 Powers the core RAG orchestration pipeline, tokenization, embeddings, and query services.
               </p>
             </div>

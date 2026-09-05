@@ -3,14 +3,14 @@
   /* Light theme palette */
   --bg: #ffffff;
   --surface: #f8fafc;
-  --editor-bg: #0F1724;
+  --editor-bg: #0F172A;
   --surface-soft: #f1f5f9;
-  --accent-emerald: #10B981;
-  --accent-teal: #06B6D4;
-  --accent-indigo: #6366F1;
-  --accent-violet: #8B5CF6;
+  --accent-blue: #2563EB;
+  --accent-royal: #1D4ED8;
+  --accent-sky: #0EA5E9;
+  --accent-indigo: #4F46E5;
   --muted-slate: #64748b;
-  --text-light: #0B2338;
+  --text-light: #0F172A;
   --success: #10B981;
   --error: #EF4444;
 
@@ -30,5 +30,5 @@
 .theme-bg { background: var(--bg); color: var(--text-light); }
 .surface { background: var(--surface); }
 .editor { background: var(--editor-bg); font-family: var(--font-code); }
-.btn-primary { background: linear-gradient(90deg, var(--accent-1, #0366FF), var(--accent-2, #8B5CF6)); color: #041018; }
+.btn-primary { background: linear-gradient(90deg, #2563EB, #1D4ED8); color: #ffffff; }
 .muted { color: var(--muted-slate); }
