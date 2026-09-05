@@ -634,106 +634,66 @@ export default function PlacementAssessment() {
     localStorage.setItem('learniverse_student_branch', branch);
     localStorage.setItem('learniverse_assessment_user_id', cleanRoll);
 
-    let maxAttempts = 3;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        if (attempt > 1) {
-          setErrorMsg("Waking up assessment database server (attempt " + attempt + " of " + maxAttempts + ")...");
-          await new Promise(r => setTimeout(r, 2000));
-          setErrorMsg(null);
-        }
+    // 1. Instantly prepare local candidate role and question pool
+    const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
+    const localQs = getLocalQuestionsForRole(roleToUse);
+    const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
 
-        const response = await fetch('/api/assessment/start', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey',
-            'X-Roll-Number': cleanRoll
-          },
-          body: JSON.stringify({
-            roll_number: cleanRoll,
-            user_id: cleanRoll,
-            student_name: cleanName,
-            branch: branch,
-            year: "4th Year",
-            browser_info: {
-              user_agent: navigator.userAgent,
-              screen_resolution: `${window.screen.width}x${window.screen.height}`,
-              platform: navigator.platform
-            }
-          })
-        });
+    setAttemptId(localAttemptId);
+    setQuestions(localQs);
+    setAssignedRole(roleToUse);
+    setStudentName(cleanName);
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          const msg = errData.detail || `Server returned status code ${response.status}`;
-          if (response.status === 503 && attempt < maxAttempts) {
-            continue; // retry automatically
+    // 2. Fast server sync with 2000ms max timeout (prevents cold-start freezing)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      const response = await fetch('/api/assessment/start', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey',
+          'X-Roll-Number': cleanRoll
+        },
+        body: JSON.stringify({
+          roll_number: cleanRoll,
+          user_id: cleanRoll,
+          student_name: cleanName,
+          branch: branch,
+          year: "4th Year",
+          browser_info: {
+            user_agent: navigator.userAgent,
+            screen_resolution: `${window.screen.width}x${window.screen.height}`,
+            platform: navigator.platform
           }
-          // If server failed, fall back to offline client question bank
-          console.warn("Backend returned error, falling back to local question pool:", msg);
-          const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
-          const localQs = getLocalQuestionsForRole(roleToUse);
-          const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
-          setAttemptId(localAttemptId);
-          setQuestions(localQs);
-          setAssignedRole(roleToUse);
-          setStudentName(cleanName);
-          setLoadingQuestions(false);
-          setErrorMsg(null);
-          return true;
-        }
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
 
+      if (response.ok) {
         const data = await response.json();
-        if (data.attempt_id && data.questions) {
+        if (data.attempt_id && data.questions && data.questions.length > 0) {
           setAttemptId(data.attempt_id);
           setQuestions(data.questions);
           if (data.role) setAssignedRole(data.role);
           if (data.student_name) setStudentName(data.student_name);
-
-          
-          // Restore server-saved answers or local draft answers
           if (data.saved_answers && Object.keys(data.saved_answers).length > 0) {
             setAnswers(data.saved_answers);
-          } else {
-            const savedDraft = localStorage.getItem(`draft_answers_${data.attempt_id}`);
-            if (savedDraft) {
-              try {
-                setAnswers(JSON.parse(savedDraft));
-              } catch (e) {
-                console.error("Failed to parse saved draft answers", e);
-              }
-            }
           }
-          if (data.duration < 7200) {
+          if (data.duration && data.duration < 7200) {
             setTimeLeft(data.duration);
           }
-          setLoadingQuestions(false);
-          return true;
         }
-        setLoadingQuestions(false);
-        return false;
-      } catch (e: any) {
-        if (attempt < maxAttempts) {
-          continue;
-        }
-        console.warn("Backend connection failed, starting assessment with local questions pool:", e);
-        const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
-        const localQs = getLocalQuestionsForRole(roleToUse);
-        const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
-        setAttemptId(localAttemptId);
-        setQuestions(localQs);
-        setAssignedRole(roleToUse);
-        setStudentName(cleanName);
-        setLoadingQuestions(false);
-        setErrorMsg(null);
-        return true;
-      } finally {
-        setLoadingQuestions(false);
       }
+    } catch (e) {
+      console.warn("Server start skipped or timed out; proceeding instantly with local test pool", e);
+    } finally {
+      setLoadingQuestions(false);
     }
-    setLoadingQuestions(false);
-    return false;
+
+    return true;
   };
 
 
@@ -2106,9 +2066,9 @@ export default function PlacementAssessment() {
               if (ok) setStep('instructions');
             }} 
             disabled={loadingQuestions}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
           >
-            {loadingQuestions ? 'Preloading Questions...' : 'Begin Assessment Setup'}
+            {loadingQuestions ? 'Preparing Assessment...' : 'Begin Assessment Setup →'}
           </Button>
             </>
           )}
