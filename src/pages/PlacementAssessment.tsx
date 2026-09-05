@@ -5,6 +5,8 @@ import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { lookupStudentLocally } from '@/data/studentsRoster';
+import { getLocalQuestionsForRole } from '@/data/assessmentQuestions';
 
 interface Question {
   id: string;
@@ -668,8 +670,18 @@ export default function PlacementAssessment() {
           if (response.status === 503 && attempt < maxAttempts) {
             continue; // retry automatically
           }
-          setErrorMsg(msg);
-          return false;
+          // If server failed, fall back to offline client question bank
+          console.warn("Backend returned error, falling back to local question pool:", msg);
+          const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
+          const localQs = getLocalQuestionsForRole(roleToUse);
+          const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
+          setAttemptId(localAttemptId);
+          setQuestions(localQs);
+          setAssignedRole(roleToUse);
+          setStudentName(cleanName);
+          setLoadingQuestions(false);
+          setErrorMsg(null);
+          return true;
         }
 
         const data = await response.json();
@@ -705,10 +717,17 @@ export default function PlacementAssessment() {
         if (attempt < maxAttempts) {
           continue;
         }
-        console.error("Failed to start assessment", e);
-        setErrorMsg("Failed to connect to the assessment server. Check if your backend is running.");
+        console.warn("Backend connection failed, starting assessment with local questions pool:", e);
+        const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
+        const localQs = getLocalQuestionsForRole(roleToUse);
+        const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
+        setAttemptId(localAttemptId);
+        setQuestions(localQs);
+        setAssignedRole(roleToUse);
+        setStudentName(cleanName);
         setLoadingQuestions(false);
-        return false;
+        setErrorMsg(null);
+        return true;
       } finally {
         setLoadingQuestions(false);
       }
@@ -1912,8 +1931,22 @@ export default function PlacementAssessment() {
                     setRollNumber(clean);
                     if (rollNumberError) setRollNumberError(null);
 
-                    // Auto-lookup candidate details when roll number is typed
-                    if (clean.length >= 6) {
+                    // 1. Instant local lookup from embedded roster (works 100% on Vercel & offline)
+                    const localMatch = lookupStudentLocally(clean);
+                    if (localMatch) {
+                      setStudentName(localMatch.name);
+                      setAssignedRole(localMatch.role);
+                      if (localMatch.branch) {
+                        const b = localMatch.branch.toLowerCase();
+                        if (b.includes('aiml') || b.includes('ai') || b.includes('ds') || b.includes('csd')) setBranch('AI_DS');
+                        else if (b.includes('it')) setBranch('IT');
+                        else if (b.includes('ece')) setBranch('ECE');
+                        else if (b.includes('eee')) setBranch('EEE');
+                        else if (b.includes('mech')) setBranch('MECH');
+                        else setBranch('CSE');
+                      }
+                    } else if (clean.length >= 6) {
+                      // 2. Fallback to API if not in local bundle
                       try {
                         const res = await fetch(`/api/assessment/student-lookup?roll_number=${encodeURIComponent(clean)}`, {
                           headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
@@ -1937,19 +1970,43 @@ export default function PlacementAssessment() {
               </div>
             </div>
 
-            {/* Display Role Badge when Verified */}
-            {assignedRole && (
+            {/* Display Role Badge when Verified / Fallback Selector */}
+            {assignedRole ? (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-center justify-between animate-fade-in shadow-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🎯</span>
-                  <span>Verified Candidate: <strong className="text-blue-950 font-bold">{studentName}</strong></span>
+                  <span>Verified Candidate: <strong className="text-blue-950 font-bold">{studentName || 'Candidate'}</strong></span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-500 text-[11px]">Assigned Role:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 text-[11px] font-medium">Assigned Role:</span>
                   <span className="bg-blue-600 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm">
                     {assignedRole}
                   </span>
+                  <select
+                    value={assignedRole}
+                    onChange={(e) => setAssignedRole(e.target.value)}
+                    className="bg-white border border-blue-300 text-blue-700 text-[11px] font-bold rounded-lg px-2 py-0.5 outline-none cursor-pointer hover:bg-blue-50 shadow-xs"
+                    title="Change track if needed"
+                  >
+                    <option value="Mobile App Developer Intern">📱 Mobile App</option>
+                    <option value="DevOps Intern">🚀 DevOps</option>
+                  </select>
                 </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🎯</span>
+                  <span className="font-semibold text-slate-800">Assessment Track / Role:</span>
+                </div>
+                <select
+                  value={assignedRole || 'Mobile App Developer Intern'}
+                  onChange={(e) => setAssignedRole(e.target.value)}
+                  className="bg-white border border-slate-300 text-slate-800 font-bold text-xs rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm"
+                >
+                  <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
+                  <option value="DevOps Intern">🚀 DevOps Intern</option>
+                </select>
               </div>
             )}
 
