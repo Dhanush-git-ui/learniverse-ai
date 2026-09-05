@@ -544,12 +544,12 @@ export default function PlacementAssessment() {
                 </div>
               );
             }
-            return part.trim() ? <p key={idx} className="font-semibold text-lg text-slate-100 whitespace-pre-wrap leading-relaxed">{part.trim()}</p> : null;
+            return part.trim() ? <p key={idx} className="font-extrabold text-lg md:text-xl text-slate-900 whitespace-pre-wrap leading-relaxed">{part.trim()}</p> : null;
           })}
         </div>
       );
     }
-    return <p className="font-semibold text-lg md:text-xl text-slate-100 whitespace-pre-wrap leading-relaxed">{stemText}</p>;
+    return <p className="font-extrabold text-lg md:text-xl text-slate-900 whitespace-pre-wrap leading-relaxed">{stemText}</p>;
   };
 
 
@@ -2730,55 +2730,54 @@ export default function PlacementAssessment() {
         </>
       )}
 
-      {step === 'score' && resultsData && (
-        <div className="max-w-4xl w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 space-y-8 animate-fade-in text-slate-800 my-8">
+      {step === 'score' && (
+        <div className="max-w-3xl w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-2xl shadow-blue-950/5 space-y-7 animate-fade-in text-slate-800 my-8 text-center">
           {violations >= 3 ? (
             <div className="bg-rose-50 border border-rose-200 p-6 rounded-2xl text-center space-y-2">
               <XCircle className="w-16 h-16 text-rose-600 mx-auto animate-pulse" />
-              <h2 className="text-2xl font-extrabold tracking-tight text-rose-700">ASSESSMENT DISQUALIFIED</h2>
-              <p className="text-sm text-slate-600">The exam was automatically terminated after exceeding the policy threshold (3 violations).</p>
+              <h2 className="text-2xl font-extrabold tracking-tight text-rose-700">ASSESSMENT FLAGGED</h2>
+              <p className="text-sm text-slate-600">The assessment session was submitted with security flags for committee review.</p>
             </div>
           ) : (
             <div className="text-center space-y-3">
               <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                 <CheckCircle2 className="w-9 h-9 text-emerald-600" />
               </div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Assessment Completed</h2>
-              <p className="text-sm text-slate-500 max-w-md mx-auto">Attempt graded successfully. Your metrics are outlined below.</p>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900">Assessment Submitted Successfully</h2>
+              <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+                Thank you for completing the Fixly Technical Assessment. Your responses and security telemetry have been recorded securely.
+              </p>
             </div>
           )}
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-left font-mono">
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Domain Marks</span>
-              <span className="text-lg font-extrabold text-slate-900">{resultsData.total || 0} <span className="text-xs text-slate-500 font-normal">Marks</span></span>
+          {/* Candidate Submission Confirmation Cards (No Marks / Scores Shown) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-left font-mono">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Candidate</span>
+              <span className="text-sm font-extrabold text-slate-900 block truncate">{studentName || 'Candidate'}</span>
             </div>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Percentage</span>
-              <span className="text-lg font-extrabold text-slate-900">{resultsData.percentage || 0}%</span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Roll Number</span>
+              <span className="text-sm font-extrabold text-blue-600 block">{rollNumber || '-'}</span>
             </div>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Questions</span>
-              <span className="text-lg font-extrabold text-slate-900">{questions.length} <span className="text-xs text-slate-500 font-normal">Total</span></span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Assigned Track</span>
+              <span className="text-xs font-extrabold text-slate-900 block truncate">{assignedRole || 'Mobile App Developer Intern'}</span>
             </div>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all">
-              <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Assigned Role</span>
-              <span className="text-xs font-extrabold text-blue-600 block truncate">{assignedRole || 'Candidate'}</span>
-            </div>
-            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-200 col-span-2 md:col-span-1 text-center shadow-sm">
-              <span className="text-[10px] text-blue-600 block uppercase font-bold tracking-wider mb-1">Total Score</span>
-              <span className="text-lg font-black text-blue-700">{resultsData.total} <span className="text-xs text-blue-600 font-normal">/ {questions.length}</span></span>
+            <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+              <span className="text-[10px] text-emerald-700 block uppercase font-bold tracking-wider mb-1">Attempted</span>
+              <span className="text-sm font-extrabold text-emerald-800">{Object.values(answers).filter(Boolean).length} <span className="text-xs text-emerald-600 font-normal">/ {questions.length}</span></span>
             </div>
           </div>
 
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-left space-y-2 text-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1">
-              <p className="flex items-center gap-2">📋 <span className="font-semibold text-slate-900">Violations Count</span>: <span className="font-mono text-slate-700 font-bold">{violations} violations recorded.</span></p>
-              <p className="flex items-center gap-2">🛡 <span className="font-semibold text-slate-900">Safety Clearance</span>: {violations >= 3 ? <span className="text-rose-700 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Declined</span> : <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Approved</span>}</p>
+          <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-5 text-xs text-left space-y-2 text-slate-700">
+            <div className="flex items-center gap-2 text-blue-950 font-bold text-sm">
+              <span>📋</span>
+              <span>Next Steps & Evaluation</span>
             </div>
-            <Button onClick={downloadPDFReport} className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md">
-              Download Detailed Report (PDF)
-            </Button>
+            <p className="text-slate-600 leading-relaxed">
+              Your test responses and code submissions are securely stored in the evaluation database. The Fixly recruitment team and college placement coordinators will assess results and contact shortlisted candidates directly.
+            </p>
           </div>
 
           {/* ── Candidate Feedback Status / Action Banner (White & Blue Theme) ───────────────────────────── */}
@@ -2806,7 +2805,7 @@ export default function PlacementAssessment() {
                 <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0">
                   <Star className="w-5 h-5 fill-blue-600 text-blue-600" />
                 </div>
-                <div>
+                <div className="text-left">
                   <span className="font-extrabold text-slate-900 block text-sm">How was your assessment experience?</span>
                   <span className="text-slate-500">Rate your test flow (1 to 5 stars) and share your comments with the team.</span>
                 </div>
@@ -2868,7 +2867,7 @@ export default function PlacementAssessment() {
                         onClick={() => setShowFeedbackModal(false)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md shadow-blue-500/20 text-sm transition-all cursor-pointer"
                       >
-                        View My Assessment Results →
+                        Close Feedback
                       </Button>
                     </div>
                   </div>
@@ -2997,139 +2996,8 @@ export default function PlacementAssessment() {
             </div>
           )}
 
-          {/* Interactive Report Viewer */}
-          <div className="space-y-4 text-left">
-            <h3 className="text-lg font-bold border-b border-slate-200 pb-3 text-slate-900">Post-Exam Analysis Report</h3>
-            
-            {/* Filter Tabs */}
-            <div className="flex border-b border-slate-200 space-x-6 text-sm font-semibold">
-              {[
-                { id: 'wrong', label: 'What Went Wrong' },
-                { id: 'unattempted', label: 'Did Not Attempt' },
-                { id: 'correct', label: 'Correct Answers' },
-                { id: 'coding', label: 'Coding Reviews' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setReportTab(tab.id as any)}
-                  className={`pb-3 border-b-2 transition-all ${reportTab === tab.id ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* List Viewer */}
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {reportTab === 'wrong' && (
-                reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-500 text-sm py-4 text-center">No incorrect attempts! Excellent work.</p>
-                ) : (
-                  reportData.filter(r => !r.is_correct && r.user_answer !== "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
-                      <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
-                      <div className="grid grid-cols-2 gap-4 text-xs mt-2 pt-2 border-t border-slate-100">
-                        <p className="text-rose-600 font-medium"><span className="font-semibold text-slate-500">Your Answer:</span> {q.user_answer}</p>
-                        <p className="text-emerald-600 font-medium"><span className="font-semibold text-slate-500">Correct Option:</span> {q.correct_option}</p>
-                      </div>
-                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
-                    </div>
-                  ))
-                )
-              )}
-
-              {reportTab === 'unattempted' && (
-                reportData.filter(r => r.user_answer === "" && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-500 text-sm py-4 text-center">No questions left unattempted!</p>
-                ) : (
-                  reportData.filter(r => r.user_answer === "" && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
-                      <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
-                      <p className="text-xs text-emerald-600 mt-2 font-semibold"><span className="font-semibold text-slate-500">Correct Option:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-1 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
-                    </div>
-                  ))
-                )
-              )}
-
-              {reportTab === 'correct' && (
-                reportData.filter(r => r.is_correct && r.category !== "Coding").length === 0 ? (
-                  <p className="text-slate-500 text-sm py-4 text-center">No correct answers found.</p>
-                ) : (
-                  reportData.filter(r => r.is_correct && r.category !== "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:border-slate-300 transition-all shadow-sm">
-                      <span className="text-[10px] text-emerald-600 font-mono font-bold uppercase tracking-wider">{q.category} ➜ {q.topic}</span>
-                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
-                      <p className="text-xs text-emerald-600 mt-2 font-semibold"><span className="font-semibold text-slate-500">Your Correct Answer:</span> {q.correct_option}</p>
-                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-1 leading-relaxed"><span className="font-bold text-slate-700">Explanation:</span> {q.explanation}</p>
-                    </div>
-                  ))
-                )
-              )}
-
-              {reportTab === 'coding' && (
-                reportData.filter(r => r.category === "Coding").length === 0 ? (
-                  <p className="text-slate-500 text-sm py-4 text-center">No coding submissions found.</p>
-                ) : (
-                  reportData.filter(r => r.category === "Coding").map((q, idx) => (
-                    <div key={q.id || idx} className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4 hover:border-slate-300 transition-all shadow-sm">
-                      <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                        <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider">Coding Challenge ➜ {q.topic}</span>
-                        <span className="text-xs text-slate-700 font-mono bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg">Passed: {q.coding_details.passed_cases}/{q.coding_details.total_cases} test cases</span>
-                      </div>
-                      <h4 className="font-semibold text-slate-900 text-base leading-snug">{q.question}</h4>
-                      
-                      {/* Code comparison panel */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-                        <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Your Solution Code:</span>
-                          <pre className="p-3 bg-slate-900 border border-slate-700 rounded-xl overflow-x-auto text-rose-300 max-h-[200px]">{q.coding_details.user_code || '// No code submitted'}</pre>
-                        </div>
-                        <div className="space-y-1.5">
-                          <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold block">Optimal Reference Solution:</span>
-                          <pre className="p-3 bg-slate-900 border border-slate-700 rounded-xl overflow-x-auto text-emerald-300 max-h-[200px]">{q.coding_details.optimal_code || '// Optimal solution template'}</pre>
-                        </div>
-                      </div>
-
-                      {/* Complexity details */}
-                      <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-2">
-                        <div className="flex space-x-6 font-mono text-[10px] uppercase text-blue-600 font-bold">
-                          <span>Time Complexity limit: <strong className="text-slate-800">{q.coding_details.time_complexity}</strong></span>
-                          <span>Space Complexity limit: <strong className="text-slate-800">{q.coding_details.space_complexity}</strong></span>
-                        </div>
-                        <p className="text-slate-600 border-t border-slate-200 pt-2 leading-relaxed"><span className="font-bold text-slate-800">Optimal Explanation:</span> {q.explanation}</p>
-                      </div>
-                    </div>
-                  ))
-                )
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <Button 
-              onClick={async () => {
-                setAnswers({});
-                setViolations(0);
-                setResultsData(null);
-                setReportData([]);
-                setAttemptId(null);
-                setErrorMsg(null);
-                if (rollNumber && validateRollNumber(rollNumber)) {
-                  const ok = await startAssessmentSession(rollNumber);
-                  if (ok) setStep('instructions');
-                } else {
-                  setStep('landing');
-                }
-              }} 
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
-            >
-              🔄 Retake Assessment (Unlimited Attempts)
-            </Button>
-
-            <Button onClick={() => setStep('landing')} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3.5 px-6 rounded-xl border border-slate-300 text-sm transition-all">
+          <div className="pt-2">
+            <Button onClick={() => setStep('landing')} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3.5 px-6 rounded-xl border border-slate-300 text-sm transition-all">
               Return to Landing Portal
             </Button>
           </div>
