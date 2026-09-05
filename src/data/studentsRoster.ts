@@ -695,6 +695,22 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "branch": "Cse in aiml",
     "email": "vanaparthigyanaprakash@gmail.com",
     "phone": "6302626685"
+  },
+  {
+    "roll_number": "25E51A66F1",
+    "name": "Sai Shankar Sinha",
+    "role": "Mobile App Developer Intern",
+    "branch": "Cse in aiml",
+    "email": "",
+    "phone": ""
+  },
+  {
+    "roll_number": "23E51A05G0",
+    "name": "Sravani Gugulothu",
+    "role": "Mobile App Developer Intern",
+    "branch": "CSE",
+    "email": "",
+    "phone": ""
   }
 ];
 
