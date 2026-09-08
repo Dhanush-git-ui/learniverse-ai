@@ -1,0 +1,25 @@
+id,session_id,student_name,roll_number,role,branch,total_marks,max_marks,percentage,total_questions,attempted,correct_count,wrong_count,unanswered_count,violations_count,status,submitted_at
+,session_23E51A6622_1788588400922,B.Ravali,23E51A6622,Mobile App Developer Intern,AI_DS,0.0,20.0,0.0,20,20,15,5,0,0,completed,2026-09-05T06:21:37.324165+00:00
+,session_23E51A05G0_1741154999,Sravani Gugulothu,23E51A05G0,Mobile App Developer Intern,CSE,0.0,20.0,0.0,20,0,0,0,20,0,completed,2026-09-05T05:52:55.236979+00:00
+,session_25E51A05V0_1788588240415,Abhinav,25E51A05V0,DevOps Intern,CSE,0.0,20.0,0.0,20,20,20,0,0,0,completed,2026-09-05T06:08:21.015976+00:00
+,session_24E51A0524_1788588216605,Anvitha,24E51A0524,DevOps Intern,CSE,0.0,20.0,0.0,20,20,19,1,0,0,completed,2026-09-05T06:10:34.209778+00:00
+,session_23E51A67G1_1788588217145,Sohail,23E51A67G1,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,19,1,0,0,completed,2026-09-05T06:12:34.844852+00:00
+,session_24E51A66H5_1788588220491,Yavanika Tallapaka,24E51A66H5,Mobile App Developer Intern,CSE,0.0,20.0,0.0,20,20,14,6,0,0,completed,2026-09-05T06:13:13.171177+00:00
+,session_23E51A67B5_1788588176130,Naragudam Abhinav Reddy,23E51A67B5,Mobile App Developer Intern,AI_DS,0.0,20.0,0.0,20,20,19,1,0,0,completed,2026-09-05T06:14:26.207333+00:00
+,session_23E51A6674_1788588212095,Meghana Suddu,23E51A6674,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:14:34.417740+00:00
+,session_23E51A66C7_1788588173886,YALANATI UMA,23E51A66C7,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,17,3,0,0,completed,2026-09-05T06:14:47.290974+00:00
+,session_24E51A05E4_1788588245039,Manobi barman,24E51A05E4,Mobile App Developer Intern,CSE,0.0,20.0,0.0,20,20,15,5,0,0,completed,2026-09-05T06:15:41.056980+00:00
+,session_23E51A6667_1788588241144,Malloju Harshitha,23E51A6667,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,11,9,0,0,completed,2026-09-05T06:15:58.910226+00:00
+,session_23E51A6780_1788675756656,Kommunuri Sampath Kumar,23E51A6780,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:31:00.807740+00:00
+,session_24E51A05L5_1788588230930,Salla Manasvi,24E51A05L5,DevOps Intern,CSE,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:16:12.418683+00:00
+,session_23E51A6698_1788588273957,Repaka Archita Reddy,23E51A6698,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:16:53.873412+00:00
+,session_23E51A66A2_1788588301465,Sanjana Tella,23E51A66A2,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:17:11.711957+00:00
+,session_24E51A05A3_1788588219883,JELLA PRAVEEN,24E51A05A3,DevOps Intern,CSE,0.0,20.0,0.0,20,20,17,3,0,0,completed,2026-09-05T06:17:14.332147+00:00
+,session_24E51A0224_1788588461215,Nikhil Kumar Gupta,24E51A0224,Mobile App Developer Intern,EEE,0.0,20.0,0.0,20,20,19,1,0,0,completed,2026-09-05T06:19:41.367389+00:00
+,session_24E51A0505_1788588489400,Akash kumar,24E51A0505,Mobile App Developer Intern,CSE,0.0,20.0,0.0,20,20,16,4,0,0,completed,2026-09-05T06:20:44.388359+00:00
+,session_24E51A66C7_1788588216297,N.Raksha Singh,24E51A66C7,Mobile App Developer Intern,AI_DS,0.0,20.0,0.0,20,20,19,1,0,0,completed,2026-09-05T06:22:10.942588+00:00
+,session_24E51A05C1_1788588918423,Abhish,24E51A05C1,Mobile App Developer Intern,CSE,0.0,20.0,0.0,20,20,16,4,0,0,completed,2026-09-05T06:24:48.250834+00:00
+,session_24E51A66G7_1788588512544,Sneha,24E51A66G7,DevOps Intern,AI_DS,0.0,20.0,0.0,20,20,18,2,0,0,completed,2026-09-05T06:25:07.579851+00:00
+,test_sess_cdc_999,CDC Test Candidate,22341A05TEST,Cloud / DevOps Engineer Intern,CSE,19.0,20.0,95.0,20,20,19,1,0,0,completed,2026-09-07T17:48:50.779635+00:00
+,test_sess_cdc_mastery_101,Praveen Kumar,22341A05TIER1,Cloud / DevOps Engineer Intern,CSE,18.0,20.0,90.0,5,5,4,1,0,0,completed,2026-09-07T18:04:51.371787+00:00
+,sess_single_bulk_test_001,Ananya Reddy,22341A05BULK1,Full Stack Developer Intern,CSE,17.5,20.0,87.5,5,5,4,1,0,0,completed,2026-09-07T18:16:47.220691+00:00

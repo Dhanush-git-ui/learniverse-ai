@@ -16,7 +16,7 @@
 
     /* Linting - FIXED: Enabled Strict Mode (M-1) */
     "strict": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": false,

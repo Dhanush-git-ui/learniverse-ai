@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, MessageSquare, ThumbsUp, Heart, X } from 'lucide-react';
+import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -157,7 +157,7 @@ const computeLocalScore = (
   qs: Question[],
   answersMap: Record<string, string>,
   codingSubmissionsMap: Record<string, { passed_cases: number; total_cases: number }>,
-): { aptitude: number; verbal: number; comp_fundamentals: number; coding: number; total: number } => {
+): { aptitude: number; verbal: number; comp_fundamentals: number; coding: number; total: number; percentage: number } => {
   let aptitude = 0, verbal = 0, comp_fundamentals = 0, coding = 0;
   qs.forEach(q => {
     if (q.category === 'Coding') {
@@ -173,7 +173,9 @@ const computeLocalScore = (
       }
     }
   });
-  return { aptitude, verbal, comp_fundamentals, coding, total: aptitude + verbal + comp_fundamentals + coding };
+  const total = aptitude + verbal + comp_fundamentals + coding;
+  const percentage = qs.length > 0 ? Math.round((total / qs.length) * 100) : 0;
+  return { aptitude, verbal, comp_fundamentals, coding, total, percentage };
 };
 
 // ─── Coding submit state per question ─────────────────────────────────────────
@@ -235,6 +237,7 @@ export default function PlacementAssessment() {
   const [timeLeft, setTimeLeft] = useState<number>(7200); // 2 hours
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
+  const [timeSpent, setTimeSpent] = useState<Record<string, number>>({});
   
   // Coding Editor state
   const [selectedLang, setSelectedLang] = useState<string>('python');
@@ -242,7 +245,7 @@ export default function PlacementAssessment() {
   const [runningCode, setRunningCode] = useState<boolean>(false);
   const [submittingCode, setSubmittingCode] = useState<boolean>(false);
   // Per-question coding submission results (passed_cases / total_cases)
-  const [codingSubmissions, setCodingSubmissions] = useState<Record<string, { passed_cases: number; total_cases: number; runtime?: string }>>({});
+  const [codingSubmissions, setCodingSubmissions] = useState<Record<string, { passed_cases: number; total_cases: number; runtime?: string; code?: string }>>({});
   const [dualScreenWarning, setDualScreenWarning] = useState<boolean>(false);
   
   // Hints state
@@ -254,7 +257,6 @@ export default function PlacementAssessment() {
   const [model, setModel] = useState<any>(null);
   const [reportData, setReportData] = useState<any[]>([]);
   const [proctorWarning, setProctorWarning] = useState<string | null>(null);
-  const [reportTab, setReportTab] = useState<'wrong' | 'unattempted' | 'correct' | 'coding'>('wrong');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -322,6 +324,9 @@ export default function PlacementAssessment() {
   const activeCat = availableCategories.includes(activeSection as any) ? activeSection : (availableCategories[0] || 'DevOps');
   const activeQs = questions.filter(q => q.category === activeCat);
   const currentQuestion = activeQs[currentIdx] || activeQs[0] || questions[0];
+  const aptitudeQs = questions.filter(q => q.category === 'Aptitude');
+  const verbalQs = questions.filter(q => q.category === 'Verbal');
+  const compQs = questions.filter(q => q.category === 'Computer_Fundamentals');
 
 
 
@@ -815,6 +820,28 @@ export default function PlacementAssessment() {
     }
   }, [currentQuestion, step]);
 
+  // Track time spent per question telemetry (seconds)
+  const questionStartTimeRef = useRef<number>(Date.now());
+  const activeQuestionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (step !== 'test' || isPaused) return;
+
+    // Record elapsed time for the question the candidate just left
+    const prevQId = activeQuestionIdRef.current;
+    if (prevQId) {
+      const elapsedSec = Math.max(1, Math.round((Date.now() - questionStartTimeRef.current) / 1000));
+      setTimeSpent(prev => ({
+        ...prev,
+        [prevQId]: (prev[prevQId] || 0) + elapsedSec
+      }));
+    }
+
+    // Reset timestamp for current active question
+    questionStartTimeRef.current = Date.now();
+    activeQuestionIdRef.current = currentQuestion?.id || null;
+  }, [currentQuestion?.id, step, isPaused]);
+
   // Sync editor template on question or language change
   useEffect(() => {
     if (step === 'test' && currentQuestion && currentQuestion.category === 'Coding') {
@@ -858,13 +885,13 @@ export default function PlacementAssessment() {
       // Transition to previous section
       if (activeSection === 'Coding') {
         setActiveSection('Computer_Fundamentals');
-        setCurrentIdx(compQs.length - 1);
+        setCurrentIdx(Math.max(0, compQs.length - 1));
       } else if (activeSection === 'Computer_Fundamentals') {
         setActiveSection('Verbal');
-        setCurrentIdx(verbalQs.length - 1);
+        setCurrentIdx(Math.max(0, verbalQs.length - 1));
       } else if (activeSection === 'Verbal') {
         setActiveSection('Aptitude');
-        setCurrentIdx(aptitudeQs.length - 1);
+        setCurrentIdx(Math.max(0, aptitudeQs.length - 1));
       }
     }
   }
@@ -950,6 +977,11 @@ export default function PlacementAssessment() {
       } catch (err) {}
     }
 
+    // ── Calculate final question elapsed time ──────────────────────────────
+    const finalQId = activeQuestionIdRef.current;
+    const finalElapsed = finalQId ? Math.max(1, Math.round((Date.now() - questionStartTimeRef.current) / 1000)) : 0;
+    const updatedTimeSpent = finalQId ? { ...timeSpent, [finalQId]: (timeSpent[finalQId] || 0) + finalElapsed } : timeSpent;
+
     // ── Background: send to server and reconcile once response arrives ───────
     fetch('/api/assessment/submit', {
       method: 'POST',
@@ -960,7 +992,8 @@ export default function PlacementAssessment() {
       body: JSON.stringify({
         attempt_id: _attemptId,
         answers: mcqAnswers,
-        coding_submissions: codingSubmissionsPayload
+        coding_submissions: codingSubmissionsPayload,
+        time_spent: updatedTimeSpent
       })
     })
     .then(r => r.json())
@@ -985,12 +1018,14 @@ export default function PlacementAssessment() {
           question_id: q.id,
           category: q.category,
           topic: q.topic,
+          difficulty: q.difficulty,
           question: q.question,
           options: q.options,
           student_answer: userAns || '(unattempted)',
           correct_option: q.correct_option,
           is_correct: isCorr,
           marks_awarded: isCorr ? (q.marks || 1) : 0,
+          time_spent: updatedTimeSpent[q.id] || 0,
           explanation: (q as any).explanation || ''
         };
       });
@@ -1372,7 +1407,7 @@ export default function PlacementAssessment() {
       const total  = result.total_cases  ?? (result.results?.length ?? 1);
       setCodingSubmissions(prev => ({
         ...prev,
-        [currentQuestion.id]: { passed_cases: passed, total_cases: total, runtime: result.runtime }
+        [currentQuestion.id]: { passed_cases: passed, total_cases: total, runtime: result.runtime, code: userCode }
       }));
     } catch (e: any) {
       setCompilationResult({ results: [{ actual: e.message || "Submission failed.", expected: '', input: 'Error', passed: false }] });
@@ -1639,7 +1674,22 @@ export default function PlacementAssessment() {
                 <p className="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wider">EVALUATION SYSTEM v2.0</p>
               </div>
             </div>
-            
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setMainTab('student')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${mainTab === 'student' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Candidate Portal
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMainTab('admin'); fetchAdminSessions(); }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${mainTab === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Admin Portal
+              </button>
+            </div>
           </div>
 
           {mainTab === 'admin' ? (
@@ -2681,6 +2731,16 @@ export default function PlacementAssessment() {
             <p className="text-slate-600 leading-relaxed">
               Your test responses and code submissions are securely stored in the evaluation database. The Fixly recruitment team and college placement coordinators will assess results and contact shortlisted candidates directly.
             </p>
+          </div>
+
+          <div className="flex justify-center pt-1">
+            <button
+              onClick={downloadPDFReport}
+              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+            >
+              <Upload className="w-4 h-4 rotate-180" />
+              Download Assessment Summary (PDF)
+            </button>
           </div>
 
           {/* ── Candidate Feedback Status / Action Banner (White & Blue Theme) ───────────────────────────── */}

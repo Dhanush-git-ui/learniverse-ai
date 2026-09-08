@@ -8,6 +8,7 @@ import ConversationBox from '@/components/ConversationBox';
 import { getTopicBySlug } from '@/services/TopicService';
 import { useToast } from "@/hooks/use-toast";
 import CodingWorkspace from '@/components/coding/CodingWork';
+import GenealogyCard from '@/components/GenealogyCard';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 
 export const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
@@ -241,6 +242,8 @@ const TopicDetailPage = () => {
     const accuracy = solutionKeywords.length > 0 ? matchCount / solutionKeywords.length : 0;
     return accuracy > 0.4;
   };
+
+  const [genealogyResult, setGenealogyResult] = useState<any>(null);
 
   const _handleSubmitAnswer = (answer: string) => {
     const endTime = new Date();
@@ -589,8 +592,19 @@ const TopicDetailPage = () => {
                               <>
                                 <Button
                                   onClick={() => {
+                                    const isCorrect = normalize(selectedAnswers[q.id]) === normalize(q.answer);
                                     setSubmittedMCQs(prev => ({ ...prev, [q.id]: true }));
-                                    if (normalize(selectedAnswers[q.id]) === normalize(q.answer)) setMcqScore(s => s + 1);
+                                    if (isCorrect) {
+                                      setMcqScore(s => s + 1);
+                                      setGenealogyResult(null);
+                                    } else {
+                                      // Fire Wrong-Answer Genealogy
+                                      fetch('/api/genealogy', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' },
+                                        body: JSON.stringify({ topic: q.topic || topic.title, expected: q.answer, actual: selectedAnswers[q.id], student_id: 'anonymous' })
+                                      }).then(r => r.ok ? r.json() : null).then(d => { if (d) setGenealogyResult(d); }).catch(() => {});
+                                    }
                                   }}
                                   disabled={!selectedAnswers[q.id]}
                                   className="bg-blue-600 text-white"
@@ -614,6 +628,11 @@ const TopicDetailPage = () => {
                             </div>
                           )}
 
+                          {isSubmitted && genealogyResult && (
+                            <div className="mb-3">
+                              <GenealogyCard data={genealogyResult} />
+                            </div>
+                          )}
                           {isSubmitted && (
                             <div className="p-4 bg-slate-50 dark:bg-slate-900 border rounded-lg text-xs space-y-2">
                               <span className={`font-bold block ${normalize(selectedAnswers[q.id]) === normalize(q.answer) ? 'text-green-600' : 'text-red-650'}`}>

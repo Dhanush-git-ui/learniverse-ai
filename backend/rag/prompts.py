@@ -72,3 +72,26 @@ CONVERSATION HISTORY:
 
 PEER ANSWER:
 """
+
+GENEALOGY_PROMPT = """
+The student failed a question about: {topic}.
+Expected solution: {expected}
+Student answer: {actual}
+Based on the DSA prerequisite graph (e.g., Big-O → Amortized Analysis), identify:
+1. The core concept being tested.
+2. The earliest prerequisite they likely miss (be specific: one concept name).
+3. A brief explanation linking that gap to the wrong answer.
+4. A 2-sentence micro-lesson recommendation.
+Return ONLY JSON: {"core_concept":"...","missing_prereq":"...","link":"...","micro_lesson":"..."}
+"""
+
+DISAGREEMENT_PROMPT = """
+You are a learning-analytics AI analyzing two tutoring responses.
+Teacher: "{teacher_answer}"
+Peer: "{peer_answer}"
+Given the student's query: "{query}" on topic "{topic}", identify:
+1. Where do they disagree conceptually (1-2 sentences max)?
+2. What is the textbook-grounded canonical answer (short)?
+3. Which persona's explanation is more intuitive for a beginner?
+Return ONLY a JSON block: {"disagree_points":"...","canonical":"...","better_for_beginner":"teacher|peer","reason":"..."}
+"""

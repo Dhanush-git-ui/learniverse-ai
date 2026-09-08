@@ -4,6 +4,7 @@ import { Topic, Question } from '@/models/Topic';
 import ConversationHeader from './conversation/ConversationHeader';
 import ConversationMessages from './conversation/ConversationMessages';
 import MessageInput from './conversation/MessageInput';
+import DisagreementCard, { DisagreementData } from './DisagreementCard';
 
 interface Source {
   book: string;
@@ -40,6 +41,8 @@ const ConversationBox = ({
   const [isLoading, setIsLoading] = useState(false);
   const [clearedBackendHistory, setClearedBackendHistory] = useState(false);
   const [tutorMode, setTutorMode] = useState<'teacher' | 'peer' | 'both'>('teacher');
+  const [disagreementData, setDisagreementData] = useState<DisagreementData | null>(null);
+  const [showDisagreement, setShowDisagreement] = useState(false);
 
   const handleSendMessage = async (message: string) => {
     // Add user message
@@ -87,6 +90,22 @@ const ConversationBox = ({
       
       // Get responses and structured sources from the server
       const { teacher_answer, peer_answer, sources } = data;
+
+      // If showing both, optionally fetch disagreement
+      if (tutorMode === 'both') {
+        try {
+          const debateRes = await fetch('/api/debate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' },
+            body: JSON.stringify({ teacher_answer, peer_answer, query: message, topic: topicName })
+          });
+          if (debateRes.ok) {
+            const d = await debateRes.json();
+            setDisagreementData(d);
+            setShowDisagreement(true);
+          }
+        } catch (e) { /* non-blocking */ }
+      }
       
       // Create teacher message containing structured sources
       const teacherMessage: Message = {
@@ -147,9 +166,14 @@ const ConversationBox = ({
         isLoading={isLoading} 
       />
       
-      <MessageInput 
-        onSendMessage={handleSendMessage} 
-        isLoading={isLoading} 
+      {showDisagreement && disagreementData && (
+        <div className="mx-4 mb-3">
+          <DisagreementCard data={disagreementData} onVote={(p) => console.log('Voted:', p)} />
+        </div>
+      )}
+      <MessageInput
+        onSendMessage={handleSendMessage}
+        isLoading={isLoading}
       />
     </div>
   );

@@ -9,7 +9,7 @@ import sqlite3
 import time as _time
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
@@ -1345,7 +1345,7 @@ def auto_save(req: AutoSaveRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/submit")
-def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
+def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=Depends(get_db_cursor)):
     db.execute(
         """
         SELECT session_id, student_roll_number, student_name, branch, year, start_time, status, questions
@@ -1695,6 +1695,16 @@ def submit_test(req: SubmitTestRequest, db=Depends(get_db_cursor)):
         )
 
         _save_submission_file_backup(sub_record)
+        try:
+            from cdc_integration import save_to_bulk_test_table
+            save_to_bulk_test_table(sub_record)
+        except Exception as _bte:
+            print(f"[BULK TEST TABLE WARNING] {_bte}")
+        try:
+            from cdc_integration import dispatch_to_cdc_hitam_sync
+            background_tasks.add_task(dispatch_to_cdc_hitam_sync, sub_record)
+        except Exception as _cdce:
+            print(f"[CDC DISPATCH WARNING] {_cdce}")
     except Exception as e:
         print(f"[FIXLY DB WARNING] Could not insert into fixly_test_submissions: {e}")
 
@@ -1753,7 +1763,7 @@ def get_fixly_submission_detail(submission_id: str, db=Depends(get_db_cursor)):
 
 
 @router.post("/fixly/submit-direct")
-def submit_fixly_direct(req: DirectFixlySubmissionRequest, db=Depends(get_db_cursor)):
+def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: BackgroundTasks, db=Depends(get_db_cursor)):
     sess_id = req.session_id or str(uuid.uuid4())
     total_q = req.total_questions or len(req.question_answers or []) or 20
     
@@ -1815,6 +1825,20 @@ def submit_fixly_direct(req: DirectFixlySubmissionRequest, db=Depends(get_db_cur
 
     # 2. Save fail-proof disk backup
     _save_submission_file_backup(sub_record)
+
+    # 3. Save to dedicated bulk_test_submissions table with date
+    try:
+        from cdc_integration import save_to_bulk_test_table
+        save_to_bulk_test_table(sub_record)
+    except Exception as _bte:
+        print(f"[BULK TEST TABLE WARNING] {_bte}")
+
+    # 4. Non-blocking real-time sync to CDC HITAM
+    try:
+        from cdc_integration import dispatch_to_cdc_hitam_sync
+        background_tasks.add_task(dispatch_to_cdc_hitam_sync, sub_record)
+    except Exception as _cdce:
+        print(f"[CDC DISPATCH WARNING] {_cdce}")
 
     return {
         "status": "success", 

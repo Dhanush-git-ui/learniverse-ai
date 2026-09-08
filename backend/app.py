@@ -33,7 +33,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 from typing import List
@@ -326,6 +326,9 @@ async def request_timing_middleware(request: Request, call_next):
 from placement_assessment_system.api import router as assessment_router
 app.include_router(assessment_router)
 
+from cdc_integration import cdc_router
+app.include_router(cdc_router)
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -393,6 +396,239 @@ async def chat(request: Request, chat_req: ChatRequest):
         )
 
     
+class DebateRequest(BaseModel):
+    teacher_answer: str = Field(..., max_length=3000)
+    peer_answer: str = Field(..., max_length=3000)
+    query: str = Field(..., max_length=2000)
+    topic: str = "General"
+
+class DebateResponse(BaseModel):
+    disagree_points: str
+    canonical: str
+    better_for_beginner: str
+    reason: str
+
+@app.post("/api/debate", response_model=DebateResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("15/minute")
+async def debate(request: Request, debate_req: DebateRequest):
+    try:
+        from rag.generator import generate_disagreement
+        result = await generate_disagreement(
+            debate_req.teacher_answer,
+            debate_req.peer_answer,
+            debate_req.query,
+            debate_req.topic
+        )
+        return DebateResponse(
+            disagree_points=result.get("disagree_points", ""),
+            canonical=result.get("canonical", ""),
+            better_for_beginner=result.get("better_for_beginner", "teacher"),
+            reason=result.get("reason", "")
+        )
+    except Exception as e:
+        logger.error("[DEBATE] %s", e)
+        raise HTTPException(status_code=500, detail="Disagreement analysis failed.")
+
+def stats_text(data: dict) -> str:
+    if data.get("assessment_score") is not None:
+        return f"{data.get('student_name', 'Candidate')} scored {data.get('assessment_score')}/{data.get('max_marks', 20)} ({data.get('percentage')}%) on the {data.get('role', 'Placement Track')} Assessment."
+    return f"{data.get('problems_solved', 0)} problems solved across {data.get('topics_attempted', 0)} topics."
+
+@app.get("/api/portfolio/{roll_number}")
+def get_portfolio(roll_number: str):
+    """Public, read-only portfolio endpoint. Designed to be embedded into external sites
+    (e.g., cdc-hitam.onrender.com) to display a student's verified assessment & DSA progress."""
+    roll = roll_number.strip().upper()
+    stats = {
+        "roll_number": roll,
+        "student_name": "Candidate",
+        "branch": "CSE",
+        "role": "Mobile App Developer Intern",
+        "assessment_score": None,
+        "max_marks": None,
+        "percentage": None,
+        "assessment_status": None,
+        "topics_attempted": 0,
+        "problems_solved": 0,
+        "total_submissions": 0,
+        "persona_preference": "teacher",
+        "strongest_topic": None,
+        "weakest_topic": None,
+        "verified_at": None,
+        "external_link": "https://cdc-hitam.onrender.com"
+    }
+    try:
+        from cdc_integration import _fetch_submission_from_sources, determine_placement_tier, calculate_topic_mastery
+        sub = _fetch_submission_from_sources(roll)
+        if sub:
+            stats["student_name"] = sub.get("student_name") or stats["student_name"]
+            stats["branch"] = sub.get("branch") or stats["branch"]
+            stats["role"] = sub.get("role") or stats["role"]
+            stats["assessment_score"] = float(sub.get("total_marks", 0.0))
+            stats["max_marks"] = float(sub.get("max_marks", 20.0))
+            stats["percentage"] = float(sub.get("percentage", 0.0))
+            stats["assessment_status"] = sub.get("status", "completed")
+            stats["problems_solved"] = int(sub.get("correct_count", 0))
+            stats["total_submissions"] = int(sub.get("attempted", 0))
+            stats["verified_at"] = str(sub.get("submitted_at"))
+            
+            # Compute Placement Tier and Mastery
+            tier_info = determine_placement_tier(stats["percentage"], int(sub.get("violations_count", 0)), stats["assessment_status"])
+            stats["placement_tier"] = tier_info["tier"]
+            stats["tier_band"] = tier_info["band"]
+            mastery = calculate_topic_mastery(sub)
+            if mastery.get("strongest_topics"):
+                stats["strongest_topic"] = mastery["strongest_topics"][0]
+            if mastery.get("weakest_topics"):
+                stats["weakest_topic"] = mastery["weakest_topics"][0]
+    except Exception as e:
+        logger.warning("[PORTFOLIO SUBMISSION LOOKUP] %s", e)
+
+    try:
+        conn = get_db_conn()
+        if conn:
+            cur = conn.cursor()
+            try:
+                cur.execute("SELECT COUNT(*) FROM coding_submissions WHERE roll_number=%s", (roll,))
+                row = cur.fetchone()
+                if row and row[0]:
+                    stats["total_submissions"] = max(stats["total_submissions"], row[0])
+                cur.execute("SELECT COUNT(*) FROM coding_submissions WHERE roll_number=%s AND status='passed'", (roll,))
+                row = cur.fetchone()
+                if row and row[0]:
+                    stats["problems_solved"] = max(stats["problems_solved"], row[0])
+                cur.execute("SELECT COUNT(DISTINCT topic) FROM coding_submissions WHERE roll_number=%s", (roll,))
+                row = cur.fetchone()
+                stats["topics_attempted"] = row[0] if row else stats["topics_attempted"]
+            except Exception:
+                pass
+            release_db_conn(conn)
+        if not stats["verified_at"]:
+            stats["verified_at"] = datetime.now(timezone.utc).isoformat()
+    except Exception as e:
+        logger.warning("[PORTFOLIO] %s", e)
+    return stats
+
+
+@app.get("/u/{roll_number}")
+def public_portfolio_page(roll_number: str):
+    """Public HTML page rendering the student's portfolio — designed to be link-shared on
+    LinkedIn, resume, or the external CDC portal."""
+    roll = roll_number.strip().upper()
+    data = get_portfolio(roll)
+    name = data.get("student_name") or roll
+    jsonld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": name,
+        "identifier": roll,
+        "url": f"/u/{roll}",
+        "sameAs": ["https://cdc-hitam.onrender.com"],
+        "knowsAbout": ["Data Structures", "Algorithms", "Computer Science", data.get("role", "Placement Assessment")]
+    })
+    
+    marks_display = f"{data['assessment_score']} / {data['max_marks']}" if data["assessment_score"] is not None else str(data["problems_solved"])
+    marks_label = "Assessment Score" if data["assessment_score"] is not None else "Problems Solved"
+    pct_display = f"{data['percentage']}%" if data["percentage"] is not None else str(data["topics_attempted"])
+    pct_label = "Assessment Score %" if data["percentage"] is not None else "Topics Attempted"
+    status_display = str(data["assessment_status"] or "Verified").upper()
+    
+    tier_badge = f"<div class='badge' style='background:#059669;margin-left:6px;'>{data['placement_tier']} ({data.get('tier_band', '')})</div>" if data.get("placement_tier") else ""
+    
+    return HTMLResponse(
+        f"""<!doctype html><html><head>
+<meta charset='utf-8'>
+<title>{name} | Learniverse Portfolio</title>
+<meta property='og:title' content='{name} — Assessment Portfolio' />
+<meta property='og:description' content='Verified mastery profile. {stats_text(data)}' />
+<meta property='og:type' content='profile' />
+<script type='application/ld+json'>{jsonld}</script>
+<style>
+body{{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:2rem;}}
+.card{{max-width:680px;margin:auto;background:#1e293b;border:1px solid #334155;border-radius:14px;padding:2rem;}}
+h1{{color:#60a5fa;margin:0 0 .25rem}}
+.badge{{display:inline-block;background:#2563eb;color:#fff;padding:4px 10px;border-radius:999px;font-size:.75rem;margin-top:.5rem}}
+.stats{{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}}
+.stat{{background:#0f172a;padding:1rem;border-radius:10px;text-align:center}}
+.stat .n{{font-size:1.75rem;font-weight:800;color:#38bdf8}}
+.stat .l{{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;margin-top:.25rem}}
+a.cta{{display:block;margin-top:1.5rem;background:#2563eb;color:#fff;text-align:center;padding:.75rem;border-radius:10px;text-decoration:none;font-weight:600}}
+</style></head><body>
+<div class='card'>
+<h1>{name} ({roll})</h1>
+<div class='badge'>Verified via Learniverse AI • {data.get("role", "Placement Candidate")}</div>
+{tier_badge}
+<div class='stats'>
+<div class='stat'><div class='n'>{marks_display}</div><div class='l'>{marks_label}</div></div>
+<div class='stat'><div class='n'>{pct_display}</div><div class='l'>{pct_label}</div></div>
+<div class='stat'><div class='n'>{data["total_submissions"]}</div><div class='l'>Total Attempted</div></div>
+<div class='stat'><div class='n'>{status_display}</div><div class='l'>Evaluation Status</div></div>
+</div>
+<a class='cta' href='{data["external_link"]}' target='_blank'>View on CDC HITAM Track Portal →</a>
+</div></body></html>""",
+        media_type="text/html"
+    )
+
+
+@app.get("/badge/{roll_number}.svg")
+def portfolio_badge_svg(roll_number: str):
+    """Embeddable SVG badge. Use as: <img src='https://your-api/badge/ROLL.svg' />"""
+    data = get_portfolio(roll_number)
+    return Response(
+        content=f"""<svg xmlns='http://www.w3.org/2000/svg' width='220' height='36'>
+<rect width='220' height='36' rx='6' fill='#1e293b' stroke='#334155'/>
+<circle cx='18' cy='18' r='7' fill='#38bdf8'/>
+<text x='32' y='22' font-family='system-ui' font-size='12' fill='#e2e8f0' font-weight='600'>Learniverse · {data["problems_solved"]} solved</text>
+<text x='32' y='32' font-family='system-ui' font-size='9' fill='#94a3b8'>{data["topics_attempted"]} topics · verified</text>
+</svg>""",
+        media_type="image/svg+xml"
+    )
+
+
+class GenealogyRequest(BaseModel):
+    topic: str = Field(..., max_length=200)
+    expected: str = Field(..., max_length=2000)
+    actual: str = Field(..., max_length=2000)
+    student_id: str = "anonymous"
+
+class GenealogyResponse(BaseModel):
+    core_concept: str
+    missing_prereq: str
+    link: str
+    micro_lesson: str
+
+@app.post("/api/genealogy", response_model=GenealogyResponse, dependencies=[Depends(verify_api_key)])
+@limiter.limit("10/minute")
+async def genealogy(request: Request, req: GenealogyRequest):
+    try:
+        from rag.generator import generate_genealogy
+        from rag.prereq_dag import PREREQ_DAG
+        from rag.weakness_tracker import record_failure, get_weakest_concept
+        result = await generate_genealogy(req.topic, req.expected, req.actual)
+        # Record failure
+        concept = result.get("core_concept") or req.topic
+        record_failure(req.student_id, concept)
+        # Try prereq graph fallback for missing_prereq
+        prereq = result.get("missing_prereq", "")
+        if not prereq and concept in PREREQ_DAG:
+            prereq = PREREQ_DAG[concept][0] if PREREQ_DAG[concept] else ""
+        # If still empty, use tracked weakest concept
+        if not prereq:
+            weakest = get_weakest_concept(req.student_id)
+            if weakest:
+                prereq = weakest
+        result["missing_prereq"] = prereq or concept
+        return GenealogyResponse(
+            core_concept=result.get("core_concept", req.topic),
+            missing_prereq=result.get("missing_prereq", ""),
+            link=result.get("link", f"Your answer missed the connection to '{prereq or concept}'. Review that concept before retrying."),
+            micro_lesson=result.get("micro_lesson", "Review the prerequisite concept and try a simpler version of this problem.")
+        )
+    except Exception as e:
+        logger.error("[GENEALOGY] %s", e)
+        raise HTTPException(status_code=500, detail="Genealogy analysis failed.")
+
+
 @app.get("/")
 def home():
     return {"message": "Learniverse Backend Running"}

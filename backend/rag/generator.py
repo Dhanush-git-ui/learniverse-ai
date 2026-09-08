@@ -1,6 +1,10 @@
 import os
 import re
-from rag.prompts import TEACHER_PROMPT, PEER_PROMPT
+import json
+import logging
+from rag.prompts import TEACHER_PROMPT, PEER_PROMPT, DISAGREEMENT_PROMPT, GENEALOGY_PROMPT
+
+logger = logging.getLogger("rag.generator")
 from config import settings
 from utils.http_client import http_client
 
@@ -108,6 +112,39 @@ async def generate_teacher_answer(query, topic_questions, history=None, topic="G
     except Exception as e:
         logger.error(f"Error during teacher generation: {e}")
         return "Unable to connect to the teacher assistant at this time."
+
+async def generate_disagreement(teacher_ans: str, peer_ans: str, query: str, topic: str = "General") -> dict:
+    try:
+        model = get_model()
+        prompt = DISAGREEMENT_PROMPT.format(
+            teacher_answer=teacher_ans[:1500],
+            peer_answer=peer_ans[:1500],
+            query=query,
+            topic=topic
+        )
+        resp = await model.generate_content(prompt, generation_config={"temperature": 0.3})
+        # Extract JSON
+        m = re.search(r"\{[\s\S]*?\}", resp)
+        if m:
+            return json.loads(m.group(0))
+        return {"disagree_points":"","canonical":"","better_for_beginner":"teacher","reason":""}
+    except Exception as e:
+        logger.error(f"Disagreement analysis failed: {e}")
+        return {"disagree_points":"Could not analyze disagreement.","canonical":"","better_for_beginner":"teacher","reason":""}
+
+async def generate_genealogy(topic: str, expected: str, actual: str) -> dict:
+    """Analyze a wrong answer to trace back to missing prerequisites."""
+    try:
+        model = get_model()
+        prompt = GENEALOGY_PROMPT.format(topic=topic, expected=expected, actual=actual)
+        resp = await model.generate_content(prompt, generation_config={"temperature": 0.3})
+        m = re.search(r"\{[\s\S]*?\}", resp)
+        if m:
+            return json.loads(m.group(0))
+        return {"core_concept": topic, "missing_prereq": "", "link": "", "micro_lesson": ""}
+    except Exception as e:
+        logger.error(f"Genealogy analysis failed: {e}")
+        return {"core_concept": topic, "missing_prereq": "", "link": "", "micro_lesson": ""}
 
 async def generate_peer_answer(query, topic_questions, history=None, topic="General"):
     try:

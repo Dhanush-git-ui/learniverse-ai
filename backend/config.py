@@ -46,6 +46,12 @@ class Settings:
         self.ASSESSMENT_MAX_DURATION_SECONDS = int(os.environ.get("ASSESSMENT_MAX_DURATION_SECONDS", "7200"))
         self.ASSESSMENT_GRACE_PERIOD_SECONDS = int(os.environ.get("ASSESSMENT_GRACE_PERIOD_SECONDS", "300"))
 
+        # CDC HITAM Integration Settings
+        self.CDC_HITAM_URL = os.environ.get("CDC_HITAM_URL", "https://cdc-hitam.onrender.com").strip()
+        self.CDC_TRACKS_BACKEND_URL = os.environ.get("CDC_TRACKS_BACKEND_URL", "https://cdc-tracks-backend.onrender.com").strip()
+        self.CDC_HITAM_WEBHOOK_URL = os.environ.get("CDC_HITAM_WEBHOOK_URL", "").strip()
+        self.CDC_API_SECRET_KEY = os.environ.get("CDC_API_SECRET_KEY", "").strip()
+
         # Redis
         self.REDIS_URL = os.environ.get("REDIS_URL", "")
 
@@ -60,6 +66,8 @@ class Settings:
             "http://127.0.0.1:3000",
             "http://localhost:5173",
             "http://127.0.0.1:5173",
+            "https://cdc-hitam.onrender.com",
+            "https://cdc-tracks-backend.onrender.com",
             frontend_url,
         ]
 
