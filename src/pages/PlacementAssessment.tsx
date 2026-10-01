@@ -622,7 +622,9 @@ export default function PlacementAssessment() {
 
 
   // Admin Portal State
-  const [mainTab, setMainTab] = useState<'student' | 'admin'>('student');
+  const [mainTab, setMainTab] = useState<'student' | 'admin'>(
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === 'true' ? 'admin' : 'student'
+  );
   const [adminSessions, setAdminSessions] = useState<any[]>([]);
   const [adminLoading, setAdminLoading] = useState<boolean>(false);
   const [adminSearch, setAdminSearch] = useState<string>('');
@@ -1761,23 +1763,6 @@ export default function PlacementAssessment() {
                 </h1>
                 <p className="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wider">EVALUATION SYSTEM v2.0</p>
               </div>
-            </div>
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-              <button
-                type="button"
-                onClick={() => setMainTab('student')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${mainTab === 'student' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-              >
-                Candidate Portal
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMainTab('admin'); fetchAdminSessions(); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${mainTab === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-              >
-                Admin Portal
-              </button>
-            </div>
           </div>
 
           {mainTab === 'admin' ? (
