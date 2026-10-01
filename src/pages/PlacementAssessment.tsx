@@ -2086,6 +2086,7 @@ export default function PlacementAssessment() {
                     <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
                     <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
                     <option value="DevOps Intern">🚀 DevOps Intern</option>
+                    <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
                   </select>
                 </div>
               </div>
@@ -2104,6 +2105,7 @@ export default function PlacementAssessment() {
                   <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
                   <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
                   <option value="DevOps Intern">🚀 DevOps Intern</option>
+                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
                 </select>
               </div>
             )}

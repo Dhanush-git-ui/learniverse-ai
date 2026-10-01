@@ -1353,6 +1353,238 @@ export const BACKEND_FULLSTACK_QUESTIONS = [
   }
 ];
 
+export const GROWTH_INTERN_QUESTIONS = [
+  {
+    "id": "growth_001",
+    "category": "Growth & Outreach",
+    "role": "Technology & Growth Intern",
+    "topic": "User Problem & Outreach",
+    "difficulty": "Easy",
+    "question": "Outreach: What is the most important thing to understand before reaching out to a potential user for a technology product?",
+    "options": [
+      "The company's logo design",
+      "The user's problem and how the product solves it",
+      "The number of employees in the company",
+      "The number of social media followers"
+    ],
+    "correct_option": "B",
+    "explanation": "Effective outreach requires understanding the specific pain point the user faces and clearly communicating how your technology product solves it.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_002",
+    "category": "Growth & Analytics",
+    "role": "Technology & Growth Intern",
+    "topic": "Funnel Analytics & Usage",
+    "difficulty": "Medium",
+    "question": "Analytics: A product receives 500 website visitors, 100 sign-ups and 20 active users. If the goal is to improve actual product usage, which metric should you focus on?",
+    "options": [
+      "Website visitors",
+      "Sign-ups only",
+      "Active users and conversion from sign-up to usage",
+      "Number of social media posts"
+    ],
+    "correct_option": "C",
+    "explanation": "Improving actual product usage requires analyzing the activation bottleneck: converting sign-ups into active, engaged users rather than focusing solely on top-of-funnel vanity traffic.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_003",
+    "category": "Growth & Automation",
+    "role": "Technology & Growth Intern",
+    "topic": "Technology-Driven Growth",
+    "difficulty": "Easy",
+    "question": "Technology: Which of these is the best example of technology-driven growth?",
+    "options": [
+      "Manually calling every potential customer",
+      "Using automated email or WhatsApp workflows for follow-ups",
+      "Printing more posters",
+      "Holding more team meetings"
+    ],
+    "correct_option": "B",
+    "explanation": "Technology-driven growth leverages automation tools and software pipelines (such as automated email and messaging workflows) to scale outreach efficiently.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_004",
+    "category": "Product & Growth",
+    "role": "Technology & Growth Intern",
+    "topic": "User Feedback & Iteration",
+    "difficulty": "Easy",
+    "question": "Product: What is the main purpose of collecting user feedback?",
+    "options": [
+      "To convince users the product is right",
+      "To understand user problems and improve the product",
+      "To run more advertisements",
+      "To reduce development work"
+    ],
+    "correct_option": "B",
+    "explanation": "User feedback provides direct qualitative and quantitative insights into user friction, usability issues, and missing features needed to iterate and improve the product.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_005",
+    "category": "Growth & Communication",
+    "role": "Technology & Growth Intern",
+    "topic": "Cold Outreach Strategy",
+    "difficulty": "Medium",
+    "question": "Communication: Which is the best first message when approaching a potential professional user?",
+    "options": [
+      "Buy our product immediately.",
+      "We are the best platform in the market.",
+      "We're building a platform to solve [specific problem]. We'd value your feedback and would be happy to show you a short demo.",
+      "Please register using this link."
+    ],
+    "correct_option": "C",
+    "explanation": "A consultative, problem-centric approach that seeks user feedback and offers a low-friction demo builds trust and achieves significantly higher response rates than aggressive selling.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_006",
+    "category": "Growth & Analytics",
+    "role": "Technology & Growth Intern",
+    "topic": "Conversion Rate Metrics",
+    "difficulty": "Easy",
+    "question": "Analytics: What does a conversion rate generally represent?",
+    "options": [
+      "The number of employees in a company",
+      "The percentage of users who complete a desired action",
+      "The total number of advertisements created",
+      "The speed of a website"
+    ],
+    "correct_option": "B",
+    "explanation": "Conversion rate is calculated as the ratio of users who complete a target objective (such as signing up, booking a demo, or upgrading) divided by the total number of visitors or participants.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_007",
+    "category": "Retention & UX",
+    "role": "Technology & Growth Intern",
+    "topic": "User Retention & Churn",
+    "difficulty": "Medium",
+    "question": "Retention: Many users register for a product but don't return after the first use. What should you investigate first?",
+    "options": [
+      "Office location",
+      "User experience, onboarding and product value",
+      "Logo colour",
+      "Employee attendance"
+    ],
+    "correct_option": "B",
+    "explanation": "Day-1 churn is almost always caused by friction during onboarding, complicated user interface, or failure of the user to experience the core product value quickly ('time to first value').",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_008",
+    "category": "Growth Tools & CRM",
+    "role": "Technology & Growth Intern",
+    "topic": "Outreach Tracking & CRM",
+    "difficulty": "Easy",
+    "question": "Tools: Which approach is most useful for tracking outreach performance?",
+    "options": [
+      "A spreadsheet or CRM recording responses, follow-ups and conversions",
+      "Sending messages without recording any data",
+      "Only checking social media likes",
+      "Calling users at random"
+    ],
+    "correct_option": "A",
+    "explanation": "Systematic pipeline management via a CRM or structured spreadsheet enables funnel visibility, scheduled follow-ups, and data-backed conversion optimization.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_009",
+    "category": "Product Communication",
+    "role": "Technology & Growth Intern",
+    "topic": "Technical Product Positioning",
+    "difficulty": "Medium",
+    "question": "Communication: What's the best way to explain technical product features to a non-technical user?",
+    "options": [
+      "Use as many technical terms as possible",
+      "Explain the feature through the user's problem and the benefit",
+      "Share the source code",
+      "Avoid explaining the product"
+    ],
+    "correct_option": "B",
+    "explanation": "Non-technical users care about outcomes, benefits, and problem resolution rather than implementation details or jargon.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "growth_010",
+    "category": "Growth Strategy",
+    "role": "Technology & Growth Intern",
+    "topic": "Role Scope & Execution",
+    "difficulty": "Easy",
+    "question": "Role: Which best describes the Technology & Growth Intern role?",
+    "options": [
+      "Only software development",
+      "Only social media marketing",
+      "A mix of product understanding, technology, outreach, analytics and user growth",
+      "Only event management"
+    ],
+    "correct_option": "C",
+    "explanation": "A Technology & Growth Intern bridges engineering, product analytics, user outreach, and tech-driven growth experiments to acquire, activate, and retain users.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  // Real-World Scenarios
+  {
+    "id": "growth_scenario_01",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "Technology & Growth Intern",
+    "topic": "Outreach Strategy & Low Response Diagnostics",
+    "difficulty": "Hard",
+    "marks": 10,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 1: Low Response to Outreach  [10 Marks]\n\nYour team has launched a new technology product for professionals. You contacted 100 potential users through LinkedIn and email. Only 8 responded, and only 2 agreed to a product demo. Explain what you would do next.\n\nStructure your answer to address:\n1. What data you would analyse (channels, segments, message versions).\n2. What changes you would make to the outreach message (personalisation, specific problem, low-effort ask).\n3. Whether you would change the target audience.\n4. How you would improve follow-ups (value-adding, automated tracking).\n5. What metrics you would track (response rate, demo booking rate, conversions).\n\n(Write a structured engineering and growth answer covering all 5 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Data & Channel Analysis", "marks": 2, "criteria": "Analyzes open rates, click-through rates, LinkedIn vs email response divergence, and audience segmentation." },
+      { "dimension": "Copy & Value Proposition", "marks": 2, "criteria": "Refines message to be concise, problem-focused, highly personalized, and provides a low-friction call-to-action." },
+      { "dimension": "Target Audience Calibration", "marks": 2, "criteria": "Evaluates Ideal Customer Profile (ICP), role relevance, seniority, and industry fit." },
+      { "dimension": "Follow-Up & Automation Strategy", "marks": 2, "criteria": "Implements structured, non-spammy multi-touch follow-up cadence offering insights, case studies, or demo recordings." },
+      { "dimension": "Growth Metrics & Measurement", "marks": 2, "criteria": "Defines quantitative KPIs: reply rate, positive sentiment rate, demo booking rate, and show-up rate." }
+    ]
+  },
+  {
+    "id": "growth_scenario_02",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "Technology & Growth Intern",
+    "topic": "Activation Funnel & User Drop-off Optimization",
+    "difficulty": "Hard",
+    "marks": 10,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 2: High Sign-ups, Low Usage  [10 Marks]\n\nA new product gets 200 registrations in one month, but only 30 users actively use it after registering. As a Technology & Growth Intern, how would you identify the problem and improve user adoption?\n\nStructure your answer to address:\n1. User onboarding and funnel drop-off analysis.\n2. Product usability and friction points.\n3. User feedback collection (talking to both active and inactive users).\n4. Communication and behavioral follow-ups/nudges.\n5. Value proposition alignment.\n6. Metrics to monitor (activation rate, time to first value, retention).\n7. Coordination with product and technical teams.\n\n(Write a structured engineering and growth answer covering all 7 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Funnel & Drop-off Diagnostics", "marks": 2, "criteria": "Maps the end-to-end user onboarding flow using product analytics (Mixpanel/PostHog) to pinpoint where drop-offs happen." },
+      { "dimension": "Usability & Time-to-Value", "marks": 2, "criteria": "Identifies activation barriers (mandatory setup steps, bugs, UI confusion) and accelerates time to 'Aha!' moment." },
+      { "dimension": "User Discovery & Feedback", "marks": 2, "criteria": "Conducts short 1-on-1 interviews with churned users to understand why they abandoned and active users to understand what worked." },
+      { "dimension": "Lifecycle Nudges & Re-engagement", "marks": 2, "criteria": "Deploys targeted triggered emails, in-app guides, or WhatsApp walkthroughs based on user milestone triggers." },
+      { "dimension": "Cross-Functional Collaboration", "marks": 2, "criteria": "Partners with engineering/product to fix onboarding blockers and tracks Day 1, Day 7, Day 30 retention and activation rate." }
+    ]
+  }
+];
+
 export function getLocalQuestionsForRole(role: string) {
   const r = (role || '').toLowerCase();
   let pool = REACT_NATIVE_QUESTIONS;
@@ -1360,8 +1592,10 @@ export function getLocalQuestionsForRole(role: string) {
     pool = AI_ENGINEER_QUESTIONS;
   } else if (r.includes('backend') || r.includes('full stack') || r.includes('fullstack') || r.includes('front-end') || r.includes('frontend')) {
     pool = BACKEND_FULLSTACK_QUESTIONS;
-  } else if (r.includes('devops')) {
+  } else if (r.includes('devops') || r.includes('cloud')) {
     pool = DEVOPS_QUESTIONS;
+  } else if (r.includes('growth') || r.includes('technology & growth') || r.includes('marketing') || r.includes('business')) {
+    pool = GROWTH_INTERN_QUESTIONS;
   }
   
   const mcqs = pool.filter(q => q.category !== 'Real-World Scenarios');
@@ -1371,4 +1605,5 @@ export function getLocalQuestionsForRole(role: string) {
   const shuffledMcqs = JSON.parse(JSON.stringify(mcqs)).sort(() => Math.random() - 0.5);
   return [...shuffledMcqs, ...JSON.parse(JSON.stringify(scenarios))];
 }
+
 
