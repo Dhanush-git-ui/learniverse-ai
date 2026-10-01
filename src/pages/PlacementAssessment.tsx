@@ -1763,6 +1763,7 @@ export default function PlacementAssessment() {
                 </h1>
                 <p className="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wider">EVALUATION SYSTEM v2.0</p>
               </div>
+            </div>
           </div>
 
           {mainTab === 'admin' ? (
