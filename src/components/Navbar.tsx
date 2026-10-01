@@ -254,6 +254,16 @@ const Navbar = () => {
                 >
                   Topics
                 </Link>
+
+                <Link 
+                  to="/assessment" 
+                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                    isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50/70'
+                  }`}
+                >
+                  <Award className="w-4 h-4 text-blue-600" />
+                  <span>Placement Test</span>
+                </Link>
               </>
             )}
           </nav>
@@ -306,7 +316,7 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              // BEFORE LOGIN: HITAM Login Button + Get Started CTA
+              // BEFORE LOGIN: HITAM Login Button + Take Placement Test CTA
               <>
                 <Button
                   onClick={() => setIsLoginModalOpen(true)}
@@ -318,10 +328,13 @@ const Navbar = () => {
                 </Button>
 
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md shadow-blue-500/20 text-xs lg:text-sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md shadow-blue-500/20 text-xs lg:text-sm flex items-center gap-1.5"
                   asChild
                 >
-                  <Link to="/topics">Get Started</Link>
+                  <Link to="/assessment">
+                    <Award className="w-4 h-4" />
+                    <span>Take Placement Test</span>
+                  </Link>
                 </Button>
               </>
             )}
@@ -507,10 +520,31 @@ const Navbar = () => {
                   <BookOpen className="w-5 h-5 text-slate-500" />
                   <span>Topics</span>
                 </Link>
+
+                <Link
+                  to="/assessment"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold text-blue-600 ${
+                    isActive('/assessment') ? 'bg-blue-50' : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <Award className="w-5 h-5 text-blue-600" />
+                  <span>Placement Test</span>
+                </Link>
               </div>
 
               {/* Action Buttons for Guest */}
               <div className="pt-3 space-y-2 border-t border-slate-100 dark:border-slate-800">
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-300 shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
+                  asChild
+                >
+                  <Link to="/assessment" onClick={() => setMobileMenuOpen(false)}>
+                    <Award className="w-4 h-4" />
+                    <span>Take Placement Test</span>
+                  </Link>
+                </Button>
+
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -521,13 +555,6 @@ const Navbar = () => {
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
                   <span>HITAM Student Login</span>
-                </Button>
-
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-300 shadow-md shadow-blue-500/20"
-                  asChild
-                >
-                  <Link to="/topics" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
                 </Button>
               </div>
             </>
