@@ -149,7 +149,7 @@ const ConversationBox = ({
   };
 
   return (
-    <div className="glass-card rounded-xl overflow-hidden flex flex-col h-full animate-fade-in">
+    <div className="glass-card rounded-xl overflow-hidden flex flex-col h-full min-h-0 animate-fade-in">
       <ConversationHeader 
         sessionTitle={sessionTitle} 
         onResetConversation={handleResetConversation} 
@@ -174,6 +174,7 @@ const ConversationBox = ({
       <MessageInput
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
+        hasMessages={messages.length > 0}
       />
     </div>
   );

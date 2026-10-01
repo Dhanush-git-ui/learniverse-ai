@@ -27,7 +27,7 @@ def _make_json_serializable(obj):
     return obj
 
 def _save_submission_file_backup(record: dict):
-    """Fail-proof disk backup for candidate submissions (JSON + CSV)."""
+    """Fail-proof disk backup for candidate submissions (JSON + CSV + Excel)."""
     try:
         data_dir = os.path.join(os.path.dirname(__file__), "../data")
         os.makedirs(data_dir, exist_ok=True)
@@ -60,6 +60,17 @@ def _save_submission_file_backup(record: dict):
             writer.writeheader()
             for s in submissions:
                 writer.writerow(s)
+
+        # Trigger automatic Excel & candidate TXT report generation
+        try:
+            import sys
+            backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+            if backend_dir not in sys.path:
+                sys.path.insert(0, backend_dir)
+            import export_results
+            export_results.export_to_excel()
+        except Exception as _ex:
+            print(f"[EXCEL AUTO-EXPORT WARNING] {_ex}")
     except Exception as e:
         print(f"[FILE BACKUP WARNING] {e}")
 
@@ -99,11 +110,47 @@ def _get_roster():
 
 @router.get("/student-lookup")
 def lookup_student(roll_number: str):
-    clean_roll = roll_number.strip().upper().replace(" ", "")
+    import re
+    raw = (roll_number or "").strip().upper()
+    clean = re.sub(r'[^A-Z0-9]', '', raw)
+    if not clean:
+        return {"found": False}
+        
     roster = _get_roster()
-    student = next((s for s in roster if s.get("roll_number", "").upper() == clean_roll), None)
+    # 1. Exact or clean match
+    student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == clean), None)
     if student:
         return {"found": True, "student": student}
+
+    # 2. Match with missing 'E' (e.g. 2451A6766 -> 24E51A6766)
+    m_missing_e = re.match(r'^(\d{2})([0-9])([0-9A-Z]{5,8})$', clean)
+    if m_missing_e:
+        cand_with_e = f"{m_missing_e.group(1)}E{m_missing_e.group(2)}{m_missing_e.group(3)}"
+        student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_with_e), None)
+        if student:
+            return {"found": True, "student": student}
+
+    # 3. Match with extra 'E' (e.g. 24E51A... -> 2451A...)
+    m_with_e = re.match(r'^(\d{2})E([0-9A-Z]{6,9})$', clean)
+    if m_with_e:
+        cand_without_e = f"{m_with_e.group(1)}{m_with_e.group(2)}"
+        student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_without_e), None)
+        if student:
+            return {"found": True, "student": student}
+
+    # 4. Typo in 2E55A0515 -> 25E55A0515
+    if clean.startswith("2E55"):
+        cand_fixed = "25" + clean[1:]
+        student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_fixed), None)
+        if student:
+            return {"found": True, "student": student}
+
+    # 5. Prefix or substring matching if at least 6 characters
+    if len(clean) >= 6:
+        student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()).startswith(clean) or clean in re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper())), None)
+        if student:
+            return {"found": True, "student": student}
+
     return {"found": False}
 
 def _ping_conn(conn) -> bool:
@@ -1151,26 +1198,49 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
 
        # 1. Look up student in roster to find their registered role and details
     roster = _get_roster()
-    registered = next((s for s in roster if s.get("roll_number", "").upper() == clean_roll), None)
+    clean_alphanumeric = re.sub(r'[^A-Z0-9]', '', clean_roll)
+    registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == clean_alphanumeric), None)
+    if not registered and re.match(r'^(\d{2})([0-9])([0-9A-Z]{5,8})$', clean_alphanumeric):
+        cand_with_e = f"{clean_alphanumeric[:2]}E{clean_alphanumeric[2:]}"
+        registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_with_e), None)
+    if not registered and re.match(r'^(\d{2})E([0-9A-Z]{6,9})$', clean_alphanumeric):
+        cand_without_e = f"{clean_alphanumeric[:2]}{clean_alphanumeric[3:]}"
+        registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_without_e), None)
+    if not registered and clean_alphanumeric.startswith("2E55"):
+        cand_fixed = "25" + clean_alphanumeric[1:]
+        registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_fixed), None)
 
-    assigned_role = registered.get("role", "DevOps Intern") if registered else "DevOps Intern"
+    assigned_role = registered.get("role", "AI Engineer Intern") if registered else "AI Engineer Intern"
     student_name = registered.get("name", req.student_name or "Candidate") if registered else (req.student_name or "Candidate")
     branch = registered.get("branch", req.branch or "CSE") if registered else (req.branch or "CSE")
 
     # 2. Select the specific question file for the student's role
-    if "devops" in assigned_role.lower():
+    role_lower = assigned_role.lower()
+    if "ai" in role_lower or "artificial" in role_lower:
+        q_file = os.path.join(os.path.dirname(__file__), "../data/ai_engineer_questions.json")
+    elif "backend" in role_lower or "full stack" in role_lower or "fullstack" in role_lower or "frontend" in role_lower or "front-end" in role_lower:
+        q_file = os.path.join(os.path.dirname(__file__), "../data/backend_fullstack_questions.json")
+    elif "devops" in role_lower:
         q_file = os.path.join(os.path.dirname(__file__), "../data/devops_questions.json")
     else:
         q_file = os.path.join(os.path.dirname(__file__), "../data/react_native_questions.json")
 
-    with open(q_file, "r", encoding="utf-8") as f:
-        pool = json.load(f)
+    if os.path.exists(q_file):
+        with open(q_file, "r", encoding="utf-8") as f:
+            pool = json.load(f)
+    else:
+        q_fallback = os.path.join(os.path.dirname(__file__), "../data/ai_engineer_questions.json")
+        with open(q_fallback, "r", encoding="utf-8") as f:
+            pool = json.load(f)
 
-    # 3. Option Randomization (A, B, C, D order shuffled per candidate & correct_option recalculated)
-    candidate_questions = [_prepare_candidate_question(dict(q)) for q in pool]
+    # 3. Separate MCQs and Scenarios: Randomize MCQs, keep Scenarios in order at the end
+    mcqs = [q for q in pool if q.get("category") != "Real-World Scenarios" and q.get("question_type") != "scenario"]
+    scenarios = [q for q in pool if q.get("category") == "Real-World Scenarios" or q.get("question_type") == "scenario"]
 
-    # 4. Question Order Randomization (Shuffles the 1..20 question sequence)
-    random.shuffle(candidate_questions)
+    candidate_mcqs = [_prepare_candidate_question(dict(q)) for q in mcqs]
+    random.shuffle(candidate_mcqs)
+
+    candidate_questions = candidate_mcqs + scenarios
 
     serializable_candidate_qs = _make_json_serializable(candidate_questions)
     session_id = str(uuid.uuid4())
@@ -1360,12 +1430,22 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
         # Gracefully handle client-side or offline-initiated attempt IDs
         roll_match = re.search(r'session_([A-Z0-9]+)_', req.attempt_id, re.IGNORECASE)
         student_roll = roll_match.group(1).upper() if roll_match else "CANDIDATE"
-        roster_match = next((s for s in _get_roster() if s.get("roll_number", "").upper() == student_roll), None)
+        clean_sr = re.sub(r'[^A-Z0-9]', '', student_roll)
+        roster_match = next((s for s in _get_roster() if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == clean_sr), None)
         student_name = roster_match.get("name", "Candidate") if roster_match else "Candidate"
         branch = roster_match.get("branch", "CSE") if roster_match else "CSE"
-        assigned_role = roster_match.get("role", "Mobile App Developer Intern") if roster_match else "Mobile App Developer Intern"
+        assigned_role = roster_match.get("role", "AI Engineer Intern") if roster_match else "AI Engineer Intern"
         
-        q_file = os.path.join(os.path.dirname(__file__), "../data/react_native_questions.json" if "mobile" in assigned_role.lower() else "../data/devops_questions.json")
+        role_lower = assigned_role.lower()
+        if "ai" in role_lower or "artificial" in role_lower:
+            q_file = os.path.join(os.path.dirname(__file__), "../data/ai_engineer_questions.json")
+        elif "backend" in role_lower or "full stack" in role_lower or "fullstack" in role_lower or "frontend" in role_lower or "front-end" in role_lower:
+            q_file = os.path.join(os.path.dirname(__file__), "../data/backend_fullstack_questions.json")
+        elif "devops" in role_lower:
+            q_file = os.path.join(os.path.dirname(__file__), "../data/devops_questions.json")
+        else:
+            q_file = os.path.join(os.path.dirname(__file__), "../data/react_native_questions.json")
+
         try:
             with open(q_file, "r", encoding="utf-8") as f:
                 saved_questions = json.load(f)
@@ -1433,19 +1513,18 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
             section_breakdown[sec] = {"questions": 0, "attempted": 0, "correct": 0, "wrong": 0, "marks": 0.0}
         section_breakdown[sec]["questions"] += 1
 
-        is_coding = (sec == "Coding")
+        is_coding = (sec == "Coding" or q_meta.get("question_type") == "coding")
+        is_scenario = (sec == "Real-World Scenarios" or q_meta.get("question_type") == "scenario" or "scenario" in q_id.lower())
         user_ans = req.answers.get(q_id, "")
         sub_coding = req.coding_submissions.get(q_id, {})
 
-        is_attempted = bool(user_ans or sub_coding.get("code"))
-        if is_attempted:
-            section_breakdown[sec]["attempted"] += 1
-
+        is_attempted = False
         is_correct = False
         marks_awarded = 0.0
         coding_meta = {}
 
         if is_coding:
+            is_attempted = bool(sub_coding.get("code") and sub_coding.get("code").strip())
             passed = sub_coding.get("passed_cases", 0)
             total = sub_coding.get("total_cases", 1)
             is_correct = (passed == total and total > 0)
@@ -1464,7 +1543,25 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                 "passed_cases": passed,
                 "total_cases": total
             }
+        elif is_scenario:
+            ans_str = str(user_ans or "").strip()
+            word_count = len(ans_str.split())
+            is_attempted = (word_count > 0)
+            scenario_max = float(q_meta.get("marks", 25))
+            if word_count >= 50:
+                marks_awarded = scenario_max
+                is_correct = True
+            elif word_count >= 15:
+                marks_awarded = round(scenario_max * 0.75, 2)
+                is_correct = True
+            elif word_count > 0:
+                marks_awarded = round(scenario_max * 0.4, 2)
+                is_correct = True
+            else:
+                marks_awarded = 0.0
+                is_correct = False
         else:
+            is_attempted = (user_ans is not None and str(user_ans).strip() != "")
             correct_opt = q_meta.get("correct_option", "A")
             is_correct = (user_ans == correct_opt)
             if is_attempted:
@@ -1472,6 +1569,9 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                     marks_awarded = float(q_meta.get("marks", 1))
                 else:
                     marks_awarded = 0.0
+
+        if is_attempted:
+            section_breakdown[sec]["attempted"] += 1
 
         if is_correct:
             section_breakdown[sec]["correct"] += 1
@@ -1488,12 +1588,13 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
             "difficulty": q_meta.get("difficulty"),
             "question": q_meta.get("question"),
             "options": opts,
-            "correct_option": q_meta.get("correct_option") if not is_coding else None,
+            "correct_option": "Evaluated by Engineering Rubrics" if is_scenario else (q_meta.get("correct_option") if not is_coding else None),
             "explanation": q_meta.get("explanation", ""),
             "user_answer": user_ans,
             "is_correct": is_correct,
             "marks_awarded": round(marks_awarded, 2),
-            "coding_details": coding_meta if is_coding else None
+            "coding_details": coding_meta if is_coding else None,
+            "question_type": "scenario" if is_scenario else ("coding" if is_coding else "mcq")
         })
 
         response_rows.append((
@@ -1507,7 +1608,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
             opts[2] if len(opts) > 2 else None,
             opts[3] if len(opts) > 3 else None,
             user_ans,
-            q_meta.get("correct_option"),
+            "Evaluated by Rubrics" if is_scenario else q_meta.get("correct_option"),
             1 if is_correct else 0,
             round(marks_awarded, 2),
             q_meta.get("difficulty", "Medium"),
@@ -1521,8 +1622,11 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
     total_correct = sum(sec_data["correct"] for sec_data in section_breakdown.values())
     total_wrong = sum(sec_data["wrong"] for sec_data in section_breakdown.values())
     unanswered_count = total_q_count - total_attempted
-    max_marks = float(total_q_count)
+    max_marks = sum(float(q.get("marks", 1)) for q in report_questions.values())
+    if max_marks <= 0:
+        max_marks = float(total_q_count)
     percentage = round((score_total / max_marks * 100.0), 2) if max_marks > 0 else 0.0
+    percentage = min(100.0, percentage)
 
     # Save to test_sessions table
     try:

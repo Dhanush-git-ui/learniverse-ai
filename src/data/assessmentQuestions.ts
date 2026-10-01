@@ -704,9 +704,671 @@ export const DEVOPS_QUESTIONS = [
   }
 ];
 
+
+export const AI_ENGINEER_QUESTIONS = [
+  {
+    "id": "ai_p_01",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "You are given a dataset containing customer information and a label indicating whether each customer cancelled their subscription. You want to train a model to predict cancellation for new customers. Which type of learning is this?",
+    "options": [
+      "Unsupervised learning",
+      "Supervised learning",
+      "Reinforcement learning",
+      "Self-supervised learning"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Supervised learning.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_02",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "You are integrating an LLM API into a web application. Where should the API key normally be stored?",
+    "options": [
+      "Inside the frontend JavaScript code",
+      "Inside the HTML source",
+      "On the backend using environment variables or a secure secret store",
+      "Inside localStorage in the browser"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: On the backend using environment variables or a secure secret store.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_03",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "A Speech-to-Text API works correctly with uploaded audio files, but your application needs to display the transcript while the user is speaking. Which approach is most appropriate?",
+    "options": [
+      "Record the entire audio and send it only after the user stops speaking",
+      "Use streaming audio/transcription if supported by the API",
+      "Convert the audio to an image before sending it",
+      "Send the audio through an LLM first"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Use streaming audio/transcription if supported by the API.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_04",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "You ask an LLM: 'Extract the person's name, age, and city.' Sometimes the model returns a paragraph, sometimes a list, and sometimes JSON. Which approach would most directly improve consistency?",
+    "options": [
+      "Increase the temperature",
+      "Give a clear output format or schema in the prompt",
+      "Increase the font size of the prompt",
+      "Increase the number of tokens generated"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Give a clear output format or schema in the prompt.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_05",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "An AI chatbot is designed to answer questions from a company's internal documents. The chatbot frequently gives incorrect answers because the wrong documents are being retrieved before the LLM generates its response. What should you investigate first?",
+    "options": [
+      "Retrieval and ranking",
+      "GPU temperature",
+      "Frontend styling",
+      "Number of database tables"
+    ],
+    "correct_option": "A",
+    "explanation": "Correct answer is A: Retrieval and ranking.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_06",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "You want to build a system that finds documents that are semantically similar to a user's question, even when they don't contain exactly the same words. Which approach is most appropriate?",
+    "options": [
+      "Keyword matching only",
+      "Convert text into embeddings and compare vector similarity",
+      "Sort documents alphabetically",
+      "Use image classification"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Convert text into embeddings and compare vector similarity.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_07",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "An AI application worked correctly during development but suddenly starts producing poor results in production. The model and code have not changed. What should you investigate first?",
+    "options": [
+      "Immediately replace the model",
+      "Check whether the production input/data differs from what was used during testing",
+      "Increase the model size",
+      "Increase the temperature"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Check whether the production input/data differs from what was used during testing.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_08",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "An LLM generates text token by token, and a TTS system converts text into speech. You want the user to hear the response as quickly as possible. Which approach is most suitable?",
+    "options": [
+      "Wait for the complete LLM response before starting TTS",
+      "Send every individual token directly to TTS",
+      "Buffer the streamed text into small sentence/clause chunks and send them to a streaming TTS system",
+      "Generate the entire response twice"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: Buffer the streamed text into small sentence/clause chunks and send them to a streaming TTS system.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_09",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "You change your prompt and the AI response looks better in a few examples. What is the most reliable next step before claiming the new prompt is better?",
+    "options": [
+      "Deploy it immediately",
+      "Test it on a representative evaluation dataset and compare measurable results",
+      "Ask the model whether the new prompt is better",
+      "Increase the temperature"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Test it on a representative evaluation dataset and compare measurable results.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_p_10",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Practical AI & LLM Systems",
+    "difficulty": "Medium",
+    "question": "An LLM-powered application needs to retrieve information from a database. Which statement best describes how tool calling normally works?",
+    "options": [
+      "The LLM directly executes the database query inside its neural network",
+      "The LLM generates a structured tool request, and the application executes the tool and sends the result back to the LLM",
+      "The browser automatically executes whatever SQL the model generates",
+      "The LLM changes the database itself through its weights"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: The LLM generates a structured tool request, and the application executes the tool and sends the result back to the LLM.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_01",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "A model performs extremely well on training data but poorly on unseen data. Which change is most likely to help?",
+    "options": [
+      "Increase model complexity",
+      "Train for more epochs without changing anything",
+      "Use regularization or early stopping",
+      "Remove the validation dataset"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: Use regularization or early stopping.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_02",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "Which of the following is an example of supervised learning?",
+    "options": [
+      "Grouping customers based on purchasing behavior without predefined labels",
+      "Predicting house prices using a dataset containing previous house prices",
+      "Finding frequently occurring words in a collection of documents",
+      "Reducing the dimensions of a dataset using PCA"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Predicting house prices using a dataset containing previous house prices.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_03",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "A model is trained to detect a rare disease. Out of 10,000 patients, only 100 actually have the disease. The model predicts all 10,000 patients as healthy. What is the model's accuracy?",
+    "options": [
+      "0%",
+      "1%",
+      "90%",
+      "99%"
+    ],
+    "correct_option": "D",
+    "explanation": "Correct answer is D: 99%.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_04",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "What does temperature generally control in an LLM?",
+    "options": [
+      "The physical temperature of the GPU",
+      "The randomness of the model's generated output",
+      "The maximum context length",
+      "The number of training samples"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: The randomness of the model's generated output.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_05",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "You have a dataset containing Age, Income, Previous Purchases, and Future Purchase Amount. You want to predict a customer's future purchase amount. Which statement is correct?",
+    "options": [
+      "Future Purchase Amount is a useful feature because it strongly correlates with the target",
+      "Future Purchase Amount should be removed because it causes data leakage",
+      "Future Purchase Amount should be converted into a categorical feature",
+      "Future Purchase Amount should be duplicated to improve training"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Future Purchase Amount should be removed because it causes data leakage.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_06",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "An AI chatbot uses RAG. The user asks a question, but the system retrieves irrelevant documents. The LLM then produces an incorrect answer based on those documents. Where should you investigate first?",
+    "options": [
+      "Retrieval and ranking",
+      "LLM temperature only",
+      "GPU memory",
+      "Frontend CSS"
+    ],
+    "correct_option": "A",
+    "explanation": "Correct answer is A: Retrieval and ranking.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_07",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "A classification model has True Positives = 90, False Positives = 10, and False Negatives = 30. What is the model's precision?",
+    "options": [
+      "75%",
+      "80%",
+      "90%",
+      "93%"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: 90%.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_08",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "An image-classification model has 96% training accuracy and 94% validation accuracy. After deployment, accuracy drops to 62%. The model itself has not changed. Which is the most likely first thing to investigate?",
+    "options": [
+      "Immediately train a larger model",
+      "Increase the learning rate",
+      "Check whether production data differs from the training/validation distribution",
+      "Increase the number of model parameters"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: Check whether production data differs from the training/validation distribution.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_09",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "What is the main purpose of a validation dataset during model development?",
+    "options": [
+      "To train the model's parameters",
+      "To evaluate the model on completely unseen production data",
+      "To help tune model choices and hyperparameters",
+      "To increase the size of the training dataset"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: To help tune model choices and hyperparameters.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_m_10",
+    "category": "AI Engineering",
+    "role": "AI Engineer Intern",
+    "topic": "Machine Learning & Applied AI",
+    "difficulty": "Medium",
+    "question": "An LLM has a context window of 8,000 tokens. Your request contains 1,000 tokens of system instructions, 5,500 tokens of retrieved documents, 1,200 tokens of user conversation, and 1,000 tokens of expected output. What is the main issue?",
+    "options": [
+      "Nothing, because the input is below 8,000 tokens",
+      "The request may exceed the available context because input and output tokens both consume the context budget",
+      "The model will automatically remove the system instructions",
+      "The model will automatically increase its context window"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: The request may exceed the available context because input and output tokens both consume the context budget.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "ai_scenario_01",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "AI Engineer Intern",
+    "topic": "Live Audio & Speech-to-Text Pipeline",
+    "difficulty": "Hard",
+    "marks": 25,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 1: Integrating Live Speech-to-Text  [25 Marks]\n\nYou are given an existing web application and access to AI developer tools such as Claude and a cloud Speech-to-Text (STT) API. You need to implement a feature that captures a user's live speech, transcribes it in real time, and dynamically displays the continuous transcript on the frontend.\n\nExplain your complete end-to-end approach step-by-step:\n1. Frontend audio capture (Web Audio API / MediaRecorder, streaming vs chunking, user permissions).\n2. Transport & Backend API integration (WebSockets vs HTTP REST, handling API keys securely, buffering audio chunks).\n3. UI/UX transcript updates (latency optimization, interim vs final transcripts, error/silence handling).\n4. Production reliability, rate limits, and fallback strategies.\n\n(Write a structured engineering answer covering all 4 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Audio Capture & Frontend", "marks": 6, "criteria": "Web Audio API / MediaRecorder API usage; handles microphone permissions gracefully; audio chunking vs real-time streaming; explains interim vs final transcript latency." },
+      { "dimension": "Transport & API Security", "marks": 7, "criteria": "Uses WebSockets / bidirectional streaming; secures API keys on backend proxy (never exposes secret keys on frontend client); audio buffering & sample rate matching." },
+      { "dimension": "UI/UX & Latency Optimization", "marks": 6, "criteria": "Low-latency dynamic DOM updates; manages silence detection; smooth user feedback; clean speech pause handling." },
+      { "dimension": "Reliability & Edge Cases", "marks": 6, "criteria": "Connection dropped handling; automatic reconnect with exponential backoff; fallback mechanism for unsupported browsers; network throttling behavior." }
+    ]
+  },
+  {
+    "id": "ai_scenario_02",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "AI Engineer Intern",
+    "topic": "Context-Aware LLM Architecture & CI/CD",
+    "difficulty": "Hard",
+    "marks": 25,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 2: Building an End-to-End AI Feature From Scratch  [25 Marks]\n\nYou are tasked with building a context-aware AI chatbot assistant for an existing company web application using Claude / LLM API and GitHub. The assistant must answer user queries grounded in company documentation.\n\nDetail your technical architecture and implementation workflow:\n1. Architecture & communication flow between frontend, backend server, and the LLM API.\n2. Conversation state management, session memory, and context window budget handling.\n3. Security safeguards (protecting API credentials, backend validation, prompt injection defense).\n4. CI/CD, version control workflow on GitHub, and production evaluation / monitoring.\n\n(Write a structured engineering answer covering all 4 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Architecture & Data Flow", "marks": 7, "criteria": "Clear client -> backend server -> LLM API pipeline; separates presentation layer from business logic; enforces backend authentication & rate limiting." },
+      { "dimension": "State & Context Window Budget", "marks": 6, "criteria": "Persistent chat session storage; manages conversation history; token budgeting (pruning/summarization to avoid context window overflow); system prompt engineering." },
+      { "dimension": "Security & Guardrails", "marks": 6, "criteria": "Backend environment variable secret management; user input sanitization; prompt injection mitigation; structured JSON validation (e.g. Pydantic / Zod)." },
+      { "dimension": "CI/CD & Observability", "marks": 6, "criteria": "GitHub version control workflow; pull request reviews; automated unit/eval tests; tracking LLM latency, token costs, and response quality monitoring." }
+    ]
+  }
+];
+
+export const BACKEND_FULLSTACK_QUESTIONS = [
+  {
+    "id": "bfs_01",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "HTTP Semantics",
+    "difficulty": "Medium",
+    "question": "HTTP semantics  A client sends an operation that replaces the complete resource at /api/users/42. The same request may be safely retried because sending it again should leave the resource in the same intended state. Which HTTP method best matches this behavior?",
+    "options": [
+      "POST",
+      "PUT",
+      "PATCH",
+      "CONNECT"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: PUT.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_02",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Composite Index",
+    "difficulty": "Medium",
+    "question": "Composite indexes  A table has a composite index on (user_id, created_at). Which query is most likely to benefit directly from that index?",
+    "options": [
+      "SELECT * FROM events WHERE created_at > '2026-01-01';",
+      "SELECT * FROM events WHERE user_id = 42 ORDER BY created_at DESC;",
+      "SELECT * FROM events WHERE LOWER(user_id) = '42';",
+      "SELECT COUNT(*) FROM events;"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: SELECT * FROM events WHERE user_id = 42 ORDER BY created_at DESC;.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_03",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Database Access Patterns",
+    "difficulty": "Medium",
+    "question": "Database access patterns  An endpoint loads 80 orders and then executes one additional customer query for each order. The endpoint therefore performs 81 database queries for a single request. What backend problem is this?",
+    "options": [
+      "Deadlock",
+      "N+1 query problem",
+      "Dirty read",
+      "Connection leak"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: N+1 query problem.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_04",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Transaction Isolation",
+    "difficulty": "Medium",
+    "question": "Transaction isolation  Two concurrent transactions are reading and updating account balances. You need to prevent a transaction from reading data written by another transaction that has not committed yet. Which isolation level is the lowest standard level that prevents dirty reads?",
+    "options": [
+      "Read Uncommitted",
+      "Read Committed",
+      "Repeatable Read",
+      "Serializable"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Read Committed.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_05",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Distributed Systems / CAP",
+    "difficulty": "Medium",
+    "question": "Distributed systems  A service is replicated across multiple nodes and network communication between nodes can fail. According to the CAP theorem, during a network partition a distributed system must trade off which pair?",
+    "options": [
+      "Caching and indexing",
+      "Consistency and availability",
+      "Security and throughput",
+      "Latency and storage"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Consistency and availability.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_06",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Rate Limiting",
+    "difficulty": "Medium",
+    "question": "Rate limiting  An API should allow short bursts of traffic while enforcing an average request rate over time. Which mechanism is designed for this behavior?",
+    "options": [
+      "Token bucket",
+      "Round-robin scheduling",
+      "Least-connections load balancing",
+      "Consistent hashing"
+    ],
+    "correct_option": "A",
+    "explanation": "Correct answer is A: Token bucket.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_07",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Caching / Cache-Aside",
+    "difficulty": "Medium",
+    "question": "Caching  Your application uses the cache-aside pattern. A requested product is not present in the cache. What should normally happen next?",
+    "options": [
+      "Return an error because the cache is authoritative",
+      "Read from the database, store the result in the cache, then return it",
+      "Wait for the cache service to populate itself",
+      "Write an empty value to the cache and return it"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Read from the database, store the result in the cache, then return it.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_08",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Container Orchestration",
+    "difficulty": "Medium",
+    "question": "Container orchestration  A Kubernetes service should only receive traffic after a newly started application instance has finished initializing and is ready to serve requests. Which feature is intended for this?",
+    "options": [
+      "Liveness probe",
+      "Readiness probe",
+      "Horizontal Pod Autoscaler",
+      "ConfigMap"
+    ],
+    "correct_option": "B",
+    "explanation": "Correct answer is B: Readiness probe.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_09",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Authentication & Security",
+    "difficulty": "Medium",
+    "question": "Authentication and security  A user password must be stored so that an attacker who obtains the database cannot directly recover the original password. Which approach is most appropriate?",
+    "options": [
+      "AES encryption with a key stored in the application environment",
+      "Plain SHA-256 hashing",
+      "A slow, salted password hash such as Argon2id or bcrypt",
+      "Base64 encoding"
+    ],
+    "correct_option": "C",
+    "explanation": "Correct answer is C: A slow, salted password hash such as Argon2id or bcrypt.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_10",
+    "category": "Backend & Full Stack",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Node.js Runtime Performance",
+    "difficulty": "Medium",
+    "question": "Node.js runtime  A Node.js API becomes very slow whenever a request triggers a large CPU-intensive image transformation. Database latency remains normal. What is the most likely explanation?",
+    "options": [
+      "The Node.js event loop is being blocked by CPU-bound work",
+      "The database has too many indexes",
+      "HTTP/1.1 cannot handle JSON responses",
+      "DNS caching is disabled"
+    ],
+    "correct_option": "A",
+    "explanation": "Correct answer is A: The Node.js event loop is being blocked by CPU-bound work.",
+    "tags": "DOMAIN",
+    "marks": 1,
+    "negative_marks": 0.0
+  },
+  {
+    "id": "bfs_scenario_01",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Asynchronous Distributed Queues & Rate Limiting",
+    "difficulty": "Hard",
+    "marks": 25,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 1: High-Volume AI Document Processing Pipeline  [25 Marks]\n\nTechHash is building an enterprise document processing service. Users upload batches of invoices and reports (up to 5,000 files per batch). The backend runs OCR followed by structured LLM extraction. The OCR service is fast, but the LLM provider imposes a strict rate limit of 60 requests per minute. Each file takes 10–30 seconds. The client cannot hold an HTTP connection open and needs live, persistent progress tracking.\n\nDesign the backend architecture step-by-step:\n1. Job creation, storage, and asynchronous queueing (batch vs individual task model, durable message queues).\n2. Worker concurrency control and strict rate-limiting (throttling outbound calls to 60 req/min).\n3. Fault tolerance, idempotency, exponential backoff retries, and dead-letter queues (DLQ).\n4. Frontend communication mechanism (SSE, WebSockets, or polling) and production observability metrics.\n\n(Write a structured engineering answer covering all 4 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Asynchronous Job Architecture", "marks": 7, "criteria": "Separates HTTP upload from processing; creates parent batch & child file jobs in DB (states: queued, processing, completed, failed, retrying); durable message queue (RabbitMQ/SQS/Redis Bull)." },
+      { "dimension": "Concurrency & Rate Throttling", "marks": 6, "criteria": "Worker pool with bounded concurrency; strict outbound rate limiter ensuring <= 60 req/min to LLM provider (Token Bucket / Leaky Bucket); isolates fast OCR from slow LLM." },
+      { "dimension": "Fault Tolerance & Idempotency", "marks": 6, "criteria": "Durable state persistence; idempotency keys to prevent duplicate execution; controlled exponential backoff with jitter for HTTP 429; Dead-Letter Queue (DLQ) for poisoned files." },
+      { "dimension": "Client Updates & Observability", "marks": 6, "criteria": "Exposes progress via Server-Sent Events (SSE) / WebSockets / polling; monitors queue depth, age of oldest message, worker throughput, 429 counts, and error rates." }
+    ]
+  },
+  {
+    "id": "bfs_scenario_02",
+    "category": "Real-World Scenarios",
+    "question_type": "scenario",
+    "role": "Backend & Full Stack Intern",
+    "topic": "Database Performance & Incident Diagnostics",
+    "difficulty": "Hard",
+    "marks": 25,
+    "negative_marks": 0.0,
+    "tags": "SCENARIO",
+    "question": "Scenario 2: Diagnosing a Post-Deployment Latency Regression  [25 Marks]\n\nImmediately following a backend deployment, API p99 latency escalates from 200 ms to 3.0 seconds. Server CPU and RAM usage remain normal, but database connection pool utilization approaches 100%. The regression is most severe on endpoints retrieving dashboard statistics and related entity collections. Incoming request volume has not noticeably changed.\n\nDescribe your systematic, evidence-driven incident investigation:\n1. Observability data: APM traces, connection pool metrics, slow query logs, transaction durations.\n2. Database diagnosis: Root cause analysis focusing on query amplification (N+1 query regressions, missing indexes, unindexed joins, uncommitted locks).\n3. Immediate mitigation strategies to protect service availability (rollback, connection pool adjustments, circuit breakers, rate shaping).\n4. Permanent architectural remedies (eager loading, batching, caching, connection pooling policies, automated regression tests).\n\n(Write a structured engineering answer covering all 4 points. 150–400 words recommended.)",
+    "rubrics": [
+      { "dimension": "Evidence-Based Investigation", "marks": 7, "criteria": "Avoids blind guessing; correlates deployment timestamp with APM traces, latency percentiles (p50/p95/p99), DB connection pool wait time, and query counts." },
+      { "dimension": "Database & N+1 Diagnosis", "marks": 7, "criteria": "Pinpoints query multiplication (N+1 query problem introduced on dashboard endpoints); inspects active connections, slow query logs, transaction durations, and unindexed foreign keys." },
+      { "dimension": "Short-Term Safe Mitigation", "marks": 5, "criteria": "Targeted rollback or canary drain; disables offending dashboard feature flag; temporarily tunes safe connection timeouts without blowing up DB memory." },
+      { "dimension": "Permanent Architectural Fix", "marks": 6, "criteria": "Replaces per-record loops with batch queries / eager loading / JOINs; caches dashboard aggregations (Redis); adds query-budget regression tests in CI/CD pipeline." }
+    ]
+  }
+];
+
 export function getLocalQuestionsForRole(role: string) {
-  const isDevOps = role.toLowerCase().includes('devops');
-  const pool = isDevOps ? DEVOPS_QUESTIONS : REACT_NATIVE_QUESTIONS;
-  // Deep clone and shuffle
-  return JSON.parse(JSON.stringify(pool)).sort(() => Math.random() - 0.5);
+  const r = (role || '').toLowerCase();
+  let pool = REACT_NATIVE_QUESTIONS;
+  if (r.includes('ai') || r.includes('artificial')) {
+    pool = AI_ENGINEER_QUESTIONS;
+  } else if (r.includes('backend') || r.includes('full stack') || r.includes('fullstack') || r.includes('front-end') || r.includes('frontend')) {
+    pool = BACKEND_FULLSTACK_QUESTIONS;
+  } else if (r.includes('devops')) {
+    pool = DEVOPS_QUESTIONS;
+  }
+  
+  const mcqs = pool.filter(q => q.category !== 'Real-World Scenarios');
+  const scenarios = pool.filter(q => q.category === 'Real-World Scenarios');
+  
+  // Return shuffled MCQs followed by the real-world scenarios
+  const shuffledMcqs = JSON.parse(JSON.stringify(mcqs)).sort(() => Math.random() - 0.5);
+  return [...shuffledMcqs, ...JSON.parse(JSON.stringify(scenarios))];
 }
+

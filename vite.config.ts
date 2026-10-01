@@ -9,9 +9,6 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     allowedHosts: true,
-    hmr: {
-      clientPort: 443,
-    },
     proxy: {
       "/api": {
         target: "http://localhost:8000",
@@ -28,5 +25,6 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ["react", "react-dom"],
   },
 }));

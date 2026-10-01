@@ -18,11 +18,11 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
   },
   {
     "roll_number": "24E51A66J1",
-    "name": "vennam sharanya",
-    "role": "DevOps Intern",
-    "branch": "Cse in aiml",
+    "name": "Vennam sharanya",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
     "email": "24e51a66j1@hitam.org",
-    "phone": "9032120207"
+    "phone": "9032120207.0"
   },
   {
     "roll_number": "23E51A6662",
@@ -57,12 +57,12 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "6302572920"
   },
   {
-    "roll_number": "24E51A6652",
-    "name": "Eega Rushitha",
-    "role": "DevOps Intern",
-    "branch": "Cse in aiml",
-    "email": "rushithaeega@gmail.com",
-    "phone": "8184985781"
+    "roll_number": "24e51a6652",
+    "name": "EEGA RUSHITHA",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6652@hitam.org",
+    "phone": "8184985781.0"
   },
   {
     "roll_number": "23E51A6635",
@@ -195,14 +195,6 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
   {
     "roll_number": "23E51A6780",
     "name": "Kommunuri Sampath Kumar",
-    "role": "Mobile App Developer Intern",
-    "branch": "CSD",
-    "email": "kommunurisampath18@gmail.com",
-    "phone": "7780556245"
-  },
-  {
-    "roll_number": "23E51A6780",
-    "name": "Kommunuri Sampath Kumar",
     "role": "DevOps Intern",
     "branch": "CSD",
     "email": "kommunurisampath18@gmail.com",
@@ -249,14 +241,6 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "9676139267"
   },
   {
-    "roll_number": "25E55A0504",
-    "name": "BANDARU MAHESH",
-    "role": "DevOps Intern",
-    "branch": "CSE",
-    "email": "25e55a0504@hitam.org",
-    "phone": "9059835281"
-  },
-  {
     "roll_number": "23E51A6756",
     "name": "Gola Pavan",
     "role": "Mobile App Developer Intern",
@@ -281,12 +265,12 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "8247626900"
   },
   {
-    "roll_number": "24E51A0505",
-    "name": "Akash kumar",
-    "role": "Mobile App Developer Intern",
-    "branch": "CSE",
+    "roll_number": "24e51a0505",
+    "name": "AKASH KUMAR",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
     "email": "24e51a0505@hitam.org",
-    "phone": "8919343635"
+    "phone": "8919343635.0"
   },
   {
     "roll_number": "23E55A0505",
@@ -465,14 +449,6 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "8008416944"
   },
   {
-    "roll_number": "23E51A6698",
-    "name": "Repaka Archita Reddy",
-    "role": "DevOps Intern",
-    "branch": "Cse in aiml",
-    "email": "rarchitareddy838@gmail.com",
-    "phone": "8008416944"
-  },
-  {
     "roll_number": "23E51A67F2",
     "name": "Ritika Shinde",
     "role": "Mobile App Developer Intern",
@@ -563,10 +539,10 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
   {
     "roll_number": "24E51A66C7",
     "name": "N.Raksha Singh",
-    "role": "Mobile App Developer Intern",
-    "branch": "Cse in aiml",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
     "email": "24e51a66c7@hitam.org",
-    "phone": "6302028094"
+    "phone": "6302028094.0"
   },
   {
     "roll_number": "24E51A0553",
@@ -587,18 +563,18 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
   {
     "roll_number": "24E51A0585",
     "name": "GUDIPATI SRINADH",
-    "role": "Mobile App Developer Intern",
-    "branch": "CSE",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
     "email": "24e51a0585@hitam.org",
-    "phone": "9154290849"
+    "phone": "9154290849.0"
   },
   {
     "roll_number": "24E51A05A3",
-    "name": "JELLA PRAVEEN",
-    "role": "DevOps Intern",
-    "branch": "CSE",
-    "email": "praveenjella2025@gmail.com",
-    "phone": "9502348708"
+    "name": "PRAVEEN JELLA",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05a3@hitam.org",
+    "phone": "9502348708.0"
   },
   {
     "roll_number": "23E51A6701",
@@ -613,7 +589,7 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "name": "Godalla Abhishek",
     "role": "DevOps Intern",
     "branch": "ECE",
-    "email": "abhiabhishek2850@gmail.com",
+    "email": "gnu25et104l08@gnuindia.org",
     "phone": "9848763371"
   },
   {
@@ -625,14 +601,6 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "9398573190"
   },
   {
-    "roll_number": "25ET104L08",
-    "name": "Godalla Abhishek",
-    "role": "DevOps Intern",
-    "branch": "ECE",
-    "email": "gnu25et104l08@gnuindia.org",
-    "phone": "9848763371"
-  },
-  {
     "roll_number": "23E51A05I7",
     "name": "Varre Keerthi",
     "role": "DevOps Intern",
@@ -641,20 +609,12 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "8328253463"
   },
   {
-    "roll_number": "24E51A0224",
-    "name": "Nikhil Kumar Gupta",
-    "role": "Mobile App Developer Intern",
-    "branch": "EEE",
-    "email": "24e51a0224@hitam.org",
-    "phone": "8074856233"
-  },
-  {
     "roll_number": "24E51A66H5",
     "name": "Yavanika Tallapaka",
-    "role": "Mobile App Developer Intern",
-    "branch": "Cse in aiml",
-    "email": "tallapakayavanika@gmail.com",
-    "phone": "9110311795"
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24E51A66H5@hitam.org",
+    "phone": "9110311795.0"
   },
   {
     "roll_number": "25E51M0524",
@@ -689,12 +649,12 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "phone": "9032125068"
   },
   {
-    "roll_number": "24E51A66I6",
-    "name": "Gyana Prakash",
-    "role": "Mobile App Developer Intern",
-    "branch": "Cse in aiml",
-    "email": "vanaparthigyanaprakash@gmail.com",
-    "phone": "6302626685"
+    "roll_number": "24e51a66i6",
+    "name": "Vanaparthi Gyana Prakash",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a66i6@hitam.org",
+    "phone": "6302626685.0"
   },
   {
     "roll_number": "25E51A66F1",
@@ -711,11 +671,543 @@ export const STUDENTS_ROSTER: StudentRecord[] = [
     "branch": "CSE",
     "email": "",
     "phone": ""
+  },
+  {
+    "roll_number": "24E51a66a5",
+    "name": "Mahitha Kalapatapu",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24E51A66A5@hitam.org",
+    "phone": "whats app-9985830142"
+  },
+  {
+    "roll_number": "24E51A66F4",
+    "name": "Rupineni Omkareswar",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a66f4@hitam.org",
+    "phone": "9000038318.0"
+  },
+  {
+    "roll_number": "24E51A05H6",
+    "name": "NARRA LAHARI",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05h6@hitam.org",
+    "phone": "6303964295.0"
+  },
+  {
+    "roll_number": "24E51A66C4",
+    "name": "M. Akshaya Rani",
+    "role": "Technology & Growth Intern",
+    "branch": "CSM",
+    "email": "24e51a66c4@hitam.org",
+    "phone": "7780502355.0"
+  },
+  {
+    "roll_number": "25e55a6710",
+    "name": "Peddaboina Hemanth Kumar",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSD",
+    "email": "25e55a6710@hitam.org",
+    "phone": "9177319695.0"
+  },
+  {
+    "roll_number": "24E51A6672",
+    "name": "Jajala Pravallika",
+    "role": "Technology & Growth Intern",
+    "branch": "CSM",
+    "email": "24e51a6672@hitam.org",
+    "phone": "7671933893.0"
+  },
+  {
+    "roll_number": "25E55A0513",
+    "name": "Kokku Sri Madhavi",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "25e55a0513@hitam.org",
+    "phone": "9491619977.0"
+  },
+  {
+    "roll_number": "24E51A05B5",
+    "name": "K.manivenkat",
+    "role": "AI Engineer Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05b5@hitam.org",
+    "phone": "8008819830.0"
+  },
+  {
+    "roll_number": "24E51A67B8",
+    "name": "Moluguri Sai Santosh Goud",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSD",
+    "email": "24e51a67b8@hitam.org",
+    "phone": "9390606803.0"
+  },
+  {
+    "roll_number": "24E51A6605",
+    "name": "ADARSH MISHRA",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6605@hitam.org",
+    "phone": "9696149588.0"
+  },
+  {
+    "roll_number": "24E51A6616",
+    "name": "Arakala Ashwitha",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24e51a6616@hitam.org",
+    "phone": "8790916847.0"
+  },
+  {
+    "roll_number": "24E51A66D6",
+    "name": "Palukuri Manasa",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24E51A66D6@hitam.org",
+    "phone": "7396172910.0"
+  },
+  {
+    "roll_number": "24e51a6655",
+    "name": "Gadadasu Teja Sathya",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6655@hitam.org",
+    "phone": "8179622062.0"
+  },
+  {
+    "roll_number": "24UP1A0581",
+    "name": "D. Grace Genelia",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24up1a0581@hitam.org",
+    "phone": "7032252387.0"
+  },
+  {
+    "roll_number": "24E51A66C8",
+    "name": "Nadimetla Sai Thanishka",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "saithanishkanadimetla@gmail.com",
+    "phone": "9959715748.0"
+  },
+  {
+    "roll_number": "24E51A6774",
+    "name": "NIKHIL KATKURI",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSD",
+    "email": "24e51a6774@hitam.org",
+    "phone": "9398982942.0"
+  },
+  {
+    "roll_number": "24E51A66I9",
+    "name": "V.Jashmitha",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24e51a66i9@hitam.org",
+    "phone": "8309381707.0"
+  },
+  {
+    "roll_number": "25E51A66E7",
+    "name": "Rajavarapu Manikanta",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "25e51a66e7@hitam.org",
+    "phone": "8106470213.0"
+  },
+  {
+    "roll_number": "25e51a66e8",
+    "name": "Rohith ratna",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "25e51a66e8@hitam.org",
+    "phone": "9182288643.0"
+  },
+  {
+    "roll_number": "24E51A6710",
+    "name": "HARINI BOMIDALA",
+    "role": "AI Engineer Intern",
+    "branch": "CSD",
+    "email": "24e51a6710@hitam.org",
+    "phone": "9063297515.0"
+  },
+  {
+    "roll_number": "24E51A66F9",
+    "name": "Sameer Vaidya",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a66f9@hitam.org",
+    "phone": "7355628707.0"
+  },
+  {
+    "roll_number": "25E51A6656",
+    "name": "G.siri",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "25E51A6656@hitam.org",
+    "phone": "6300945420.0"
+  },
+  {
+    "roll_number": "24E51A0546",
+    "name": "MADHU LASYA BUSHIREDDY",
+    "role": "AI Engineer Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a0546@hitam.org",
+    "phone": "9866135513.0"
+  },
+  {
+    "roll_number": "24E51A0581",
+    "name": "Gollapelli Snehitha",
+    "role": "AI Engineer Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a0581@hitam.org",
+    "phone": "9182609678.0"
+  },
+  {
+    "roll_number": "25E55A6613",
+    "name": "P.Anil kumar",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "25e55a6618@hitam.org",
+    "phone": "8074394355.0"
+  },
+  {
+    "roll_number": "24E51A6665",
+    "name": "Inderjeet",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6665@hitam.org",
+    "phone": "7997853110.0"
+  },
+  {
+    "roll_number": "24E51A05P2",
+    "name": "Yalamarty Naga Venkata Sri Harsha",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05p2@hitam.org",
+    "phone": "9347211671.0"
+  },
+  {
+    "roll_number": "24e51a6645",
+    "name": "Danda Rajashekar Reddy",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6645@hitam.org",
+    "phone": "8688265735.0"
+  },
+  {
+    "roll_number": "24E51A05G2",
+    "name": "Muktul Nandhini",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "reddynandhini055@gmail.com",
+    "phone": "7093950733.0"
+  },
+  {
+    "roll_number": "24E51A05H9",
+    "name": "Neha Deepak",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24E51A05H9@hitam.org",
+    "phone": "8500761489.0"
+  },
+  {
+    "roll_number": "24E51A05K5",
+    "name": "Ravula Charvitha",
+    "role": "AI Engineer Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05k5@hitam.org",
+    "phone": "7675041666.0"
+  },
+  {
+    "roll_number": "24E51A0596",
+    "name": "Hasini sai Jakkam",
+    "role": "Technology & Growth Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24E51A0596@hitam.org",
+    "phone": "8297173655.0"
+  },
+  {
+    "roll_number": "24E51A05N0",
+    "name": "Sushant Kumar",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05n0@hitam.org",
+    "phone": "9068880257.0"
+  },
+  {
+    "roll_number": "24e51a6633",
+    "name": "Pallavi Bisadi",
+    "role": "UI/UX Design Intern",
+    "branch": "CSM",
+    "email": "24e51a6633",
+    "phone": "9550171106.0"
+  },
+  {
+    "roll_number": "24E51A66H3",
+    "name": "Surineni Pranav Rao",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24e51a66h3@hitam.org",
+    "phone": "7569516936.0"
+  },
+  {
+    "roll_number": "24e51a6735",
+    "name": "Dasari Rekha",
+    "role": "AI Engineer Intern",
+    "branch": "CSD",
+    "email": "24e51a6735@hitam.org",
+    "phone": "8096754468.0"
+  },
+  {
+    "roll_number": "24E51A05G6",
+    "name": "Sahasrika",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05g6@hitam.org",
+    "phone": "9059555334.0"
+  },
+  {
+    "roll_number": "24e51a6650",
+    "name": "Sowmya Dorishettti",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6650@hitam.org",
+    "phone": "7386392417.0"
+  },
+  {
+    "roll_number": "25E55A0519",
+    "name": "Myala Venkatesh",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "25E55A0519@hitam.org",
+    "phone": "9346381823.0"
+  },
+  {
+    "roll_number": "24E51A6766",
+    "name": "K.Girish",
+    "role": "AI Engineer Intern",
+    "branch": "CSD",
+    "email": "24E51A6766@hitam.org",
+    "phone": "9347073364.0"
+  },
+  {
+    "roll_number": "22E51A6608",
+    "name": "Yogesh",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "22E51A6608@hitam.org",
+    "phone": "9493586065.0"
+  },
+  {
+    "roll_number": "24E51A6644",
+    "name": "D HARINI",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6644@hitam.org",
+    "phone": "9014262119.0"
+  },
+  {
+    "roll_number": "24E51A6606",
+    "name": "Rohith Adigoppula",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6606@hitam.org",
+    "phone": "8919372433.0"
+  },
+  {
+    "roll_number": "24e51a6618",
+    "name": "Akshaya Ayyannagari",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6628@hitam.org",
+    "phone": "8919958864.0"
+  },
+  {
+    "roll_number": "25E51A05R5",
+    "name": "S.Parnitha Mani",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "25e51a05r5@hitam.org",
+    "phone": "7396376605.0"
+  },
+  {
+    "roll_number": "24E51A05F2",
+    "name": "Mattaparthi Satya Hansika",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05f2@hitam.org",
+    "phone": "9177687084.0"
+  },
+  {
+    "roll_number": "24E51A67H6",
+    "name": "Kowshik Upparpally",
+    "role": "AI Engineer Intern",
+    "branch": "CSD",
+    "email": "24e51a67h6@hitam.org",
+    "phone": "9182951606.0"
+  },
+  {
+    "roll_number": "24E51A05B8",
+    "name": "Khaja ShareefUddin",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "shareefkhaja974@gmail.com",
+    "phone": "8096896620.0"
+  },
+  {
+    "roll_number": "24E51A6666",
+    "name": "Isha Maurya",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6666@hitam.org",
+    "phone": "8005916023.0"
+  },
+  {
+    "roll_number": "24e51a6620",
+    "name": "B. Mahithi",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24e51a6620@hitam.org",
+    "phone": "9182622752.0"
+  },
+  {
+    "roll_number": "24e51a6625",
+    "name": "Bandi.Harshitha",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6625@hitam.org",
+    "phone": "8328610475.0"
+  },
+  {
+    "roll_number": "2E55A0515",
+    "name": "Koppisetti Rohini",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "25e55a0515@gmail.com",
+    "phone": "9381179886.0"
+  },
+  {
+    "roll_number": "24E51A6681",
+    "name": "Kanchan Kumari",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6681@hitam.org",
+    "phone": "8341194223.0"
+  },
+  {
+    "roll_number": "25E51A05S3",
+    "name": "Suhani Tiwari",
+    "role": "Technology & Growth Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "25e51a05s3@hitam.org",
+    "phone": "6301310021.0"
+  },
+  {
+    "roll_number": "24e51a6695",
+    "name": "Kotagiri Saiteja",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6695@hitam.org",
+    "phone": "9014225058.0"
+  },
+  {
+    "roll_number": "24E51A6628",
+    "name": "Alankrusha Bathini",
+    "role": "Backend & Full Stack Intern",
+    "branch": "CSM",
+    "email": "24e51a6628@hitam.org",
+    "phone": "9063412373.0"
+  },
+  {
+    "roll_number": "24E51A6699",
+    "name": "K.Harsha Vardhan",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "24e51a6699@hitam.org",
+    "phone": "8919396180.0"
+  },
+  {
+    "roll_number": "24E51A05G8",
+    "name": "Mylavarapu Sruthi",
+    "role": "Backend & Full Stack Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05g8@gmail.com",
+    "phone": "8639490502.0"
+  },
+  {
+    "roll_number": "24e51a05a6",
+    "name": "K Sreyas Rahul",
+    "role": "Technology & Growth Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05a6",
+    "phone": "7794064615.0"
+  },
+  {
+    "roll_number": "24E51A05H8",
+    "name": "N.Chandana",
+    "role": "AI Engineer Intern",
+    "branch": "Computer Science and Engineering",
+    "email": "24e51a05h8@hitam.org",
+    "phone": "7842619112.0"
+  },
+  {
+    "roll_number": "25E51A6627",
+    "name": "BUTOOL SOHA FIRDOUS",
+    "role": "AI Engineer Intern",
+    "branch": "CSM",
+    "email": "25e51a6627@hitam.org",
+    "phone": "7569381395.0"
   }
 ];
 
 export function lookupStudentLocally(rollNumber: string): StudentRecord | undefined {
-  const clean = (rollNumber || '').trim().toUpperCase().replace(/\s+/g, '');
-  if (!clean) return undefined;
-  return STUDENTS_ROSTER.find(s => s.roll_number.toUpperCase().replace(/\s+/g, '') === clean);
+  if (!rollNumber) return undefined;
+  const raw = String(rollNumber).trim().toUpperCase();
+  const clean = raw.replace(/[^A-Z0-9]/g, '');
+  if (clean.length < 3) return undefined;
+
+  // 1. Direct exact clean match
+  let hit = STUDENTS_ROSTER.find(s => s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '') === clean);
+  if (hit) return hit;
+
+  // 2. Missing 'E' variation: 2451A6766 -> 24E51A6766 or 2555A... -> 25E55A...
+  if (/^\d{2}[0-9]/.test(clean)) {
+    const withE = clean.slice(0, 2) + 'E' + clean.slice(2);
+    hit = STUDENTS_ROSTER.find(s => s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '') === withE);
+    if (hit) return hit;
+  }
+
+  // 3. Extra 'E' variation: 24E51A... -> 2451A...
+  if (/^\d{2}E/.test(clean)) {
+    const withoutE = clean.slice(0, 2) + clean.slice(3);
+    hit = STUDENTS_ROSTER.find(s => s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '') === withoutE);
+    if (hit) return hit;
+  }
+
+  // 4. Typo in 2E55A0515 -> 25E55A0515
+  if (/^2E55/.test(clean)) {
+    const fixed = '25' + clean.slice(1);
+    hit = STUDENTS_ROSTER.find(s => s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '') === fixed);
+    if (hit) return hit;
+  }
+
+  // 5. Full 8-12 char prefix or substring match
+  if (clean.length >= 8) {
+    hit = STUDENTS_ROSTER.find(s => {
+      const sRoll = s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      return sRoll === clean || sRoll.endsWith(clean) || clean.endsWith(sRoll) || sRoll.includes(clean);
+    });
+    if (hit) return hit;
+  }
+
+  // 6. Name match fallback (if raw is a student name with at least 3 letters)
+  if (raw.length >= 3 && !/^\d+$/.test(raw)) {
+    hit = STUDENTS_ROSTER.find(s => s.name.toUpperCase().includes(raw) || raw.includes(s.name.toUpperCase()));
+    if (hit) return hit;
+  }
+
+  return undefined;
 }
+

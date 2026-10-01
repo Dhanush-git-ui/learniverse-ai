@@ -159,10 +159,27 @@ const computeLocalScore = (
   codingSubmissionsMap: Record<string, { passed_cases: number; total_cases: number }>,
 ): { aptitude: number; verbal: number; comp_fundamentals: number; coding: number; total: number; percentage: number } => {
   let aptitude = 0, verbal = 0, comp_fundamentals = 0, coding = 0;
+  let totalMarks = 0;
+  let maxPossibleMarks = 0;
+
   qs.forEach(q => {
+    const qMarks = q.marks || 1;
+    maxPossibleMarks += qMarks;
+
     if (q.category === 'Coding') {
       const sub = codingSubmissionsMap[q.id];
-      if (sub && sub.passed_cases === sub.total_cases && sub.total_cases > 0) coding++;
+      if (sub && sub.passed_cases === sub.total_cases && sub.total_cases > 0) {
+        coding += qMarks;
+        totalMarks += qMarks;
+      }
+    } else if (q.category === 'Real-World Scenarios' || q.question_type === 'scenario') {
+      const userAns = (answersMap[q.id] || '').trim();
+      const wordCount = userAns.split(/\s+/).filter(Boolean).length;
+      if (wordCount >= 25) {
+        totalMarks += qMarks;
+      } else if (wordCount > 0) {
+        totalMarks += Math.round(qMarks * 0.5);
+      }
     } else {
       const userAns = answersMap[q.id] || '';
       const correctOpt = (q as any).correct_option || '';
@@ -170,12 +187,13 @@ const computeLocalScore = (
         if (q.category === 'Aptitude') aptitude++;
         else if (q.category === 'Verbal') verbal++;
         else if (q.category === 'Computer_Fundamentals') comp_fundamentals++;
+        totalMarks += qMarks;
       }
     }
   });
-  const total = aptitude + verbal + comp_fundamentals + coding;
-  const percentage = qs.length > 0 ? Math.round((total / qs.length) * 100) : 0;
-  return { aptitude, verbal, comp_fundamentals, coding, total, percentage };
+
+  const percentage = maxPossibleMarks > 0 ? Math.min(100, Math.round((totalMarks / maxPossibleMarks) * 100)) : 0;
+  return { aptitude, verbal, comp_fundamentals, coding, total: totalMarks, percentage };
 };
 
 // ─── Coding submit state per question ─────────────────────────────────────────
@@ -276,6 +294,64 @@ export default function PlacementAssessment() {
   const [rollNumber, setRollNumber] = useState<string>('');
   const [rollNumberError, setRollNumberError] = useState<string | null>(null);
   const [branch, setBranch] = useState<string>('CSE');
+  const [isCandidateVerified, setIsCandidateVerified] = useState<boolean>(false);
+
+  // Reactive auto-fill: When rollNumber changes, lookup from roster & backend
+  useEffect(() => {
+    const raw = (rollNumber || '').trim();
+    if (!raw || raw.length < 4) {
+      setStudentName('');
+      setAssignedRole(null);
+      setIsCandidateVerified(false);
+      return;
+    }
+
+    const match = lookupStudentLocally(raw);
+    if (match) {
+      setStudentName(match.name);
+      setAssignedRole(match.role);
+      setIsCandidateVerified(true);
+      if (studentNameError) setStudentNameError(null);
+      if (rollNumberError) setRollNumberError(null);
+      if (match.branch) {
+        const b = match.branch.toLowerCase();
+        if (b.includes('aiml') || b.includes('ai') || b.includes('ds') || b.includes('csd') || b.includes('csm')) setBranch('AI_DS');
+        else if (b.includes('it')) setBranch('IT');
+        else if (b.includes('ece')) setBranch('ECE');
+        else if (b.includes('eee')) setBranch('EEE');
+        else if (b.includes('mech')) setBranch('MECH');
+        else setBranch('CSE');
+      }
+    } else if (raw.length >= 6) {
+      // Fallback to backend API
+      const controller = new AbortController();
+      fetch(`/api/assessment/student-lookup?roll_number=${encodeURIComponent(raw)}`, {
+        signal: controller.signal,
+        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.found && data.student) {
+            setStudentName(data.student.name);
+            setAssignedRole(data.student.role);
+            setIsCandidateVerified(true);
+            if (studentNameError) setStudentNameError(null);
+            if (rollNumberError) setRollNumberError(null);
+            if (data.student.branch) {
+              const b = data.student.branch.toLowerCase();
+              if (b.includes('aiml') || b.includes('ai') || b.includes('ds') || b.includes('csd') || b.includes('csm')) setBranch('AI_DS');
+              else if (b.includes('it')) setBranch('IT');
+              else if (b.includes('ece')) setBranch('ECE');
+              else if (b.includes('eee')) setBranch('EEE');
+              else if (b.includes('mech')) setBranch('MECH');
+              else setBranch('CSE');
+            }
+          }
+        })
+        .catch(() => {});
+      return () => controller.abort();
+    }
+  }, [rollNumber]);
 
   // Candidate Assessment Feedback Form State
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
@@ -595,17 +671,11 @@ export default function PlacementAssessment() {
   const startAssessmentSession = async (rollToUse?: string, nameToUse?: string): Promise<boolean> => {
     const rawRoll = rollToUse !== undefined ? rollToUse : rollNumber;
     const cleanRoll = rawRoll.trim().toUpperCase();
-    const rawName = nameToUse !== undefined ? nameToUse : studentName;
+    const localMatch = lookupStudentLocally(cleanRoll);
+    const rawName = nameToUse !== undefined ? nameToUse : (studentName || localMatch?.name || 'Candidate');
     const cleanName = rawName.trim();
     
     let hasErr = false;
-    if (!cleanName || cleanName.length < 2) {
-      setStudentNameError("Please enter your Full Name before starting.");
-      hasErr = true;
-    } else {
-      setStudentNameError(null);
-    }
-
     if (!cleanRoll) {
       setRollNumberError("Please enter your Roll Number before starting.");
       hasErr = true;
@@ -627,7 +697,7 @@ export default function PlacementAssessment() {
     localStorage.setItem('learniverse_assessment_user_id', cleanRoll);
 
     // 1. Instantly prepare local candidate role and question pool
-    const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'Mobile App Developer Intern';
+    const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'AI Engineer Intern';
     const localQs = getLocalQuestionsForRole(roleToUse);
     const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
 
@@ -860,19 +930,28 @@ export default function PlacementAssessment() {
     }
   }, [currentQuestion?.id, selectedLang, step]);
 
+  // Auto-upgrade session questions if scenarios are missing from a legacy session
+  useEffect(() => {
+    if (step === 'test' && questions.length > 0) {
+      const hasScenarios = questions.some(q => q.category === 'Real-World Scenarios' || q.question_type === 'scenario');
+      if (!hasScenarios) {
+        const fresh = getLocalQuestionsForRole(assignedRole || 'AI Engineer Intern');
+        if (fresh && fresh.length > 0) {
+          setQuestions(fresh);
+        }
+      }
+    }
+  }, [step, questions.length, assignedRole]);
+
   function handleNext() {
     if (currentIdx < activeQs.length - 1) {
       setCurrentIdx(currentIdx + 1);
     } else {
-      // Transition to next section
-      if (activeSection === 'Aptitude') {
-        setActiveSection('Verbal');
-        setCurrentIdx(0);
-      } else if (activeSection === 'Verbal') {
-        setActiveSection('Computer_Fundamentals');
-        setCurrentIdx(0);
-      } else if (activeSection === 'Computer_Fundamentals') {
-        setActiveSection('Coding');
+      // Transition to next category in availableCategories
+      const currentCatIdx = availableCategories.indexOf(activeCat);
+      if (currentCatIdx !== -1 && currentCatIdx < availableCategories.length - 1) {
+        const nextCat = availableCategories[currentCatIdx + 1];
+        setActiveSection(nextCat as any);
         setCurrentIdx(0);
       }
     }
@@ -882,16 +961,13 @@ export default function PlacementAssessment() {
     if (currentIdx > 0) {
       setCurrentIdx(currentIdx - 1);
     } else {
-      // Transition to previous section
-      if (activeSection === 'Coding') {
-        setActiveSection('Computer_Fundamentals');
-        setCurrentIdx(Math.max(0, compQs.length - 1));
-      } else if (activeSection === 'Computer_Fundamentals') {
-        setActiveSection('Verbal');
-        setCurrentIdx(Math.max(0, verbalQs.length - 1));
-      } else if (activeSection === 'Verbal') {
-        setActiveSection('Aptitude');
-        setCurrentIdx(Math.max(0, aptitudeQs.length - 1));
+      // Transition to previous category in availableCategories
+      const currentCatIdx = availableCategories.indexOf(activeCat);
+      if (currentCatIdx > 0) {
+        const prevCat = availableCategories[currentCatIdx - 1];
+        const prevCatQs = questions.filter(q => q.category === prevCat);
+        setActiveSection(prevCat as any);
+        setCurrentIdx(Math.max(0, prevCatQs.length - 1));
       }
     }
   }
@@ -950,19 +1026,27 @@ export default function PlacementAssessment() {
     // Build a minimal report from local data (full report comes from server)
     const localReport = _questions
       .filter(q => q.category !== 'Coding')
-      .map(q => ({
-        id: q.id,
-        category: q.category,
-        topic: q.topic,
-        difficulty: q.difficulty,
-        question: q.question,
-        options: q.options,
-        correct_option: q.correct_option ?? '',
-        explanation: (q as any).explanation ?? '',
-        user_answer: _answers[q.id] || '',
-        is_correct: (_answers[q.id] || '') === (q.correct_option ?? ''),
-        coding_details: null
-      }));
+      .map(q => {
+        const isScenario = q.category === 'Real-World Scenarios' || q.question_type === 'scenario';
+        const userAns = _answers[q.id] || '';
+        const isCorr = isScenario
+          ? Boolean(userAns && userAns.trim().length >= 20)
+          : (userAns === (q.correct_option ?? ''));
+        return {
+          id: q.id,
+          category: q.category,
+          topic: q.topic,
+          difficulty: q.difficulty,
+          question: q.question,
+          options: q.options,
+          correct_option: isScenario ? 'Evaluated by Engineering Rubrics' : (q.correct_option ?? ''),
+          explanation: (q as any).explanation ?? '',
+          user_answer: userAns,
+          is_correct: isCorr,
+          marks_awarded: isCorr ? (q.marks || 1) : 0,
+          coding_details: null
+        };
+      });
 
     setResultsData(localScore);
     setReportData(localReport);
@@ -1013,7 +1097,10 @@ export default function PlacementAssessment() {
     try {
       const eachQAnswer = _questions.map(q => {
         const userAns = _answers[q.id] || '';
-        const isCorr = Boolean(q.correct_option && userAns === q.correct_option);
+        const isScenario = q.category === 'Real-World Scenarios' || q.question_type === 'scenario';
+        const isCorr = isScenario
+          ? Boolean(userAns && userAns.trim().length >= 20)
+          : Boolean(q.correct_option && userAns === q.correct_option);
         return {
           question_id: q.id,
           category: q.category,
@@ -1022,7 +1109,7 @@ export default function PlacementAssessment() {
           question: q.question,
           options: q.options,
           student_answer: userAns || '(unattempted)',
-          correct_option: q.correct_option,
+          correct_option: isScenario ? 'Evaluated by Engineering Rubrics' : q.correct_option,
           is_correct: isCorr,
           marks_awarded: isCorr ? (q.marks || 1) : 0,
           time_spent: updatedTimeSpent[q.id] || 0,
@@ -1030,6 +1117,7 @@ export default function PlacementAssessment() {
         };
       });
 
+      const totalPossibleMarks = _questions.reduce((acc, q) => acc + (q.marks || 1), 0);
       const attemptedCount = _questions.filter(q => Boolean(_answers[q.id])).length;
       const correctCount = eachQAnswer.filter(q => q.is_correct).length;
       const wrongCount = attemptedCount - correctCount;
@@ -1047,7 +1135,7 @@ export default function PlacementAssessment() {
           role: assignedRole || 'Mobile App Developer Intern',
           branch: branch || 'CSE',
           total_marks: localScore.total || 0,
-          max_marks: _questions.length,
+          max_marks: totalPossibleMarks,
           percentage: localScore.percentage || 0,
           total_questions: _questions.length,
           attempted: attemptedCount,
@@ -1907,85 +1995,91 @@ export default function PlacementAssessment() {
 
           {/* Candidate Profile Registration Form */}
           <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm mb-6 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">3. CANDIDATE IDENTIFICATION</h3>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">3. CANDIDATE IDENTIFICATION</h3>
+              <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                ✨ Entering Roll Number auto-fills Name & Track
+              </span>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Candidate Full Name */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span>👤 Full Name</span>
-                  <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
-                </label>
-                <input 
-                  type="text" 
-                  value={studentName}
-                  onChange={(e) => {
-                    setStudentName(e.target.value);
-                    if (studentNameError) setStudentNameError(null);
-                  }}
-                  placeholder="Enter Full Name (e.g. Alex Johnson)"
-                  className="w-full bg-white border border-slate-300 p-3 font-semibold text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl transition-all shadow-sm"
-                />
-                {studentNameError && (
-                  <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {studentNameError}</p>
-                )}
-              </div>
-
-              {/* Roll Number Input */}
+              {/* Roll Number Input (First) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>🎓 Roll Number</span>
                   <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
                 </label>
-                <input 
-                  type="text" 
-                  value={rollNumber}
-                  onChange={async (e) => {
-                    const clean = e.target.value.toUpperCase().trim();
-                    setRollNumber(clean);
-                    if (rollNumberError) setRollNumberError(null);
-
-                    // 1. Instant local lookup from embedded roster (works 100% on Vercel & offline)
-                    const localMatch = lookupStudentLocally(clean);
-                    if (localMatch) {
-                      setStudentName(localMatch.name);
-                      setAssignedRole(localMatch.role);
-                      if (localMatch.branch) {
-                        const b = localMatch.branch.toLowerCase();
-                        if (b.includes('aiml') || b.includes('ai') || b.includes('ds') || b.includes('csd')) setBranch('AI_DS');
-                        else if (b.includes('it')) setBranch('IT');
-                        else if (b.includes('ece')) setBranch('ECE');
-                        else if (b.includes('eee')) setBranch('EEE');
-                        else if (b.includes('mech')) setBranch('MECH');
-                        else setBranch('CSE');
-                      }
-                    } else if (clean.length >= 6) {
-                      // 2. Fallback to API if not in local bundle
-                      try {
-                        const res = await fetch(`/api/assessment/student-lookup?roll_number=${encodeURIComponent(clean)}`, {
-                          headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
-                        });
-                        const data = await res.json();
-                        if (data.found && data.student) {
-                          setStudentName(data.student.name);
-                          setBranch(data.student.branch || 'CSE');
-                          setAssignedRole(data.student.role);
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={rollNumber}
+                    onChange={(e) => {
+                      const clean = e.target.value.toUpperCase().trim();
+                      setRollNumber(clean);
+                      if (rollNumberError) setRollNumberError(null);
+                    }}
+                    onBlur={() => {
+                      if (rollNumber) {
+                        const match = lookupStudentLocally(rollNumber);
+                        if (match) {
+                          setStudentName(match.name);
+                          setAssignedRole(match.role);
+                          setIsCandidateVerified(true);
                         }
-                      } catch (_) {}
-                    }
-                  }}
-                  placeholder="Enter Roll Number (e.g. 24E51A66H5)"
-                  maxLength={12}
-                  className="w-full bg-white border border-slate-300 p-3 font-mono font-bold text-sm tracking-wider text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl uppercase transition-all shadow-sm"
-                />
+                      }
+                    }}
+                    placeholder="Enter Roll Number (e.g. 24E51A6766)"
+                    maxLength={12}
+                    className="w-full bg-white border border-slate-300 p-3 font-mono font-bold text-sm tracking-wider text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl uppercase transition-all shadow-sm"
+                  />
+                  {isCandidateVerified && (
+                    <span className="absolute right-3 top-3.5 text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
                 {rollNumberError && (
                   <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {rollNumberError}</p>
+                )}
+              </div>
+
+              {/* Candidate Full Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>👤 Candidate Full Name</span>
+                  {studentName ? (
+                    <span className="text-emerald-600 font-semibold text-[11px] flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Auto-Identified from Roster
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 font-medium text-[11px]">Auto-fills from Roll Number</span>
+                  )}
+                </label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={studentName}
+                    onChange={(e) => {
+                      setStudentName(e.target.value);
+                      if (studentNameError) setStudentNameError(null);
+                    }}
+                    placeholder="Candidate Full Name (auto-fills when roll number is entered)"
+                    className="w-full bg-white border border-slate-300 p-3 font-semibold text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl transition-all shadow-sm"
+                  />
+                  {studentName && (
+                    <span className="absolute right-3 top-3.5 text-xs text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
+                      ✓ Confirmed
+                    </span>
+                  )}
+                </div>
+                {studentNameError && (
+                  <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {studentNameError}</p>
                 )}
               </div>
             </div>
 
             {/* Display Role Badge when Verified / Fallback Selector */}
-            {assignedRole ? (
+            {assignedRole && rollNumber ? (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-center justify-between animate-fade-in shadow-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🎯</span>
@@ -2002,8 +2096,10 @@ export default function PlacementAssessment() {
                     className="bg-white border border-blue-300 text-blue-700 text-[11px] font-bold rounded-lg px-2 py-0.5 outline-none cursor-pointer hover:bg-blue-50 shadow-xs"
                     title="Change track if needed"
                   >
-                    <option value="Mobile App Developer Intern">📱 Mobile App</option>
-                    <option value="DevOps Intern">🚀 DevOps</option>
+                    <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
+                    <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
+                    <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
+                    <option value="DevOps Intern">🚀 DevOps Intern</option>
                   </select>
                 </div>
               </div>
@@ -2014,10 +2110,12 @@ export default function PlacementAssessment() {
                   <span className="font-semibold text-slate-800">Assessment Track / Role:</span>
                 </div>
                 <select
-                  value={assignedRole || 'Mobile App Developer Intern'}
+                  value={assignedRole || 'AI Engineer Intern'}
                   onChange={(e) => setAssignedRole(e.target.value)}
                   className="bg-white border border-slate-300 text-slate-800 font-bold text-xs rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm"
                 >
+                  <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
+                  <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
                   <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
                   <option value="DevOps Intern">🚀 DevOps Intern</option>
                 </select>
@@ -2428,6 +2526,83 @@ export default function PlacementAssessment() {
                   </Panel>
                 </PanelGroup>
               </div>
+            ) : (currentQuestion.question_type === 'scenario' || currentQuestion.category === 'Real-World Scenarios' || (!currentQuestion.options && currentQuestion.marks >= 10)) ? (
+              <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-5 select-text">
+                {/* Scenario Header Banner */}
+                <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-2xl p-5 shadow-md border border-blue-900/50">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-amber-400" /> Real-World Engineering Scenario
+                    </span>
+                    <span className="bg-amber-400/20 text-amber-200 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full font-mono">
+                      {currentQuestion.marks} Marks • Step-by-Step Architecture
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white tracking-tight">
+                    {currentQuestion.topic || 'Engineering Architecture Challenge'}
+                  </h3>
+                  <p className="text-blue-200/90 text-xs mt-1 leading-relaxed">
+                    Provide a structured, step-by-step engineering answer (150–400 words recommended). Evaluators score for architecture clarity, edge cases, security, and production observability.
+                  </p>
+                </div>
+
+                {/* Scenario Problem Statement */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                  <div className="text-sm md:text-base text-slate-800 leading-relaxed whitespace-pre-line font-medium">
+                    {currentQuestion.question}
+                  </div>
+
+                </div>
+
+                {/* Candidate Solution Workspace */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <span>✍️ Candidate Architecture & Technical Solution:</span>
+                    </label>
+                    <div className="flex items-center gap-3 text-xs font-mono">
+                      <span className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold ${
+                        (answers[currentQuestion.id] || '').trim().split(/\s+/).filter(Boolean).length >= 150
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-50 text-slate-600 border-slate-200'
+                      }`}>
+                        📝 Words: {(answers[currentQuestion.id] || '').trim().split(/\s+/).filter(Boolean).length} / 150 min
+                      </span>
+                      {answers[currentQuestion.id] && (
+                        <span className="text-emerald-600 text-[11px] font-semibold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Auto-saved
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={answers[currentQuestion.id] || ''}
+                    onChange={(e) => setAnswers(prev => ({ ...prev, [currentQuestion.id]: e.target.value }))}
+                    rows={16}
+                    placeholder="Write your complete engineering solution here (150–400 words recommended). Explain your step-by-step approach, architecture flow, implementation details, edge cases, and production reliability..."
+                    className="w-full bg-slate-50/70 border border-slate-300 p-4 font-mono text-xs md:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white rounded-xl transition-all shadow-inner leading-relaxed resize-y"
+                  />
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-500">
+                    <span>💡 Tip: Write a structured, production-ready solution covering all scenario requirements.</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!answers[currentQuestion.id]) {
+                          setAnswers(prev => ({
+                            ...prev,
+                            [currentQuestion.id]: `### 1. Architecture Flow & Component Design\n\n\n### 2. Transport & Backend Integration\n\n\n### 3. Edge Cases & Fault Tolerance\n\n\n### 4. Production Reliability & Observability\n`
+                          }));
+                        }
+                      }}
+                      className="text-blue-600 hover:text-blue-800 font-semibold underline cursor-pointer"
+                    >
+                      Insert Structured Template
+                    </button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex-1 overflow-y-auto mb-6 text-base leading-relaxed pr-2 space-y-4 select-text">
                 {renderQuestionStem(currentQuestion.question)}
@@ -2532,25 +2707,46 @@ export default function PlacementAssessment() {
                 <span className="text-[10px] font-mono text-slate-500 font-bold">{currentIdx + 1} / {activeQs.length}</span>
               </div>
               
-              {/* Palette Legend */}
-              <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono mb-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" />
-                  <span className="text-emerald-700 font-bold">Answered</span>
+              {/* Section quick switcher */}
+              {availableCategories.length > 1 && (
+                <div className="flex flex-col gap-1.5 mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">Test Sections:</span>
+                  <div className="grid grid-cols-1 gap-1">
+                    {availableCategories.map((cat) => {
+                      const catQs = questions.filter(q => q.category === cat);
+                      const isSelected = activeCat === cat;
+                      const isScenario = cat.toLowerCase().includes('scenario');
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            setActiveSection(cat as any);
+                            setCurrentIdx(0);
+                          }}
+                          className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border text-xs transition-all font-semibold ${
+                            isSelected
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              : isScenario
+                              ? 'bg-amber-50/90 hover:bg-amber-100 text-amber-900 border-amber-300 font-bold'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          <span className="flex items-center gap-1.5 truncate">
+                            <span>{isScenario ? '⚡' : '📝'}</span>
+                            <span className="truncate">{cat.replace(/_/g, ' ')}</span>
+                          </span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                            isSelected ? 'bg-blue-700 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                          }`}>
+                            {catQs.length} Qs
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm" />
-                  <span className="text-purple-700 font-bold">Marked</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" />
-                  <span className="text-rose-700 font-bold">Unanswered</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shadow-sm" />
-                  <span className="text-slate-600 font-bold">Not Visited</span>
-                </div>
-              </div>
+              )}
 
               <div className="grid grid-cols-5 gap-2 overflow-y-auto max-h-[220px] pr-1.5 min-h-0 flex-1">
                 {activeQs.map((q, idx) => {
@@ -2731,16 +2927,6 @@ export default function PlacementAssessment() {
             <p className="text-slate-600 leading-relaxed">
               Your test responses and code submissions are securely stored in the evaluation database. The Fixly recruitment team and college placement coordinators will assess results and contact shortlisted candidates directly.
             </p>
-          </div>
-
-          <div className="flex justify-center pt-1">
-            <button
-              onClick={downloadPDFReport}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-            >
-              <Upload className="w-4 h-4 rotate-180" />
-              Download Assessment Summary (PDF)
-            </button>
           </div>
 
           {/* ── Candidate Feedback Status / Action Banner (White & Blue Theme) ───────────────────────────── */}

@@ -87,6 +87,7 @@ const TopicDetailPage = () => {
     totalAttempted: 0,
     averageTime: 0
   });
+  const [mcqSummary, setMcqSummary] = useState<{ strong: string[]; improve: string[] } | null>(null);
 
   const topic = getTopicBySlug(slug || '');
 
@@ -191,6 +192,39 @@ const TopicDetailPage = () => {
       });
     }
   }, [userAnswers]);
+
+  useEffect(() => {
+    if (!mcqs.length) return;
+
+    const allSubmitted = mcqs.every((q) => typeof submittedMCQs[q.id] === 'boolean');
+    if (!allSubmitted) {
+      setMcqSummary(null);
+      return;
+    }
+
+    const strong: string[] = [];
+    const improve: string[] = [];
+
+    mcqs.forEach((q) => {
+      const selected = selectedAnswers[q.id];
+      const isCorrect = normalize(selected) === normalize(q.answer);
+      const concept = q.topic || q.concept || q.category || topic?.title || 'General';
+
+      if (isCorrect) {
+        strong.push(concept);
+      } else if (selected) {
+        improve.push(concept);
+      }
+    });
+
+    const uniqueStrong = [...new Set(strong)].slice(0, 3);
+    const uniqueImprove = [...new Set(improve)].slice(0, 3);
+
+    setMcqSummary({
+      strong: uniqueStrong.length ? uniqueStrong : ['You are building strong consistency across this topic.'],
+      improve: uniqueImprove.length ? uniqueImprove : ['Keep practicing with a few more examples to build confidence.']
+    });
+  }, [mcqs, selectedAnswers, submittedMCQs]);
 
   if (!topic) {
     return (
@@ -396,7 +430,7 @@ const TopicDetailPage = () => {
                   }`}
               >
                 <Award className="w-4 h-4" />
-                <span>3. MCQ Challenge</span>
+                <span>3. Socratic Practice</span>
               </button>
               <button
                 onClick={() => setActiveTab('coding')}
@@ -508,7 +542,7 @@ const TopicDetailPage = () => {
 
               {/* Tab 2: Socratic Chat */}
               {activeTab === 'socratic' && (
-                <div className="w-full h-[650px] border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
+                <div className="w-full border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
                   <ConversationBox
                     key={topic.id || topic.title}
                     sessionTitle={`${topic.title} - Socratic AI Tutors`}
@@ -523,7 +557,7 @@ const TopicDetailPage = () => {
                   <div className="bg-blue-50 dark:bg-blue-950/40 p-5 rounded-xl border flex justify-between items-center shadow-sm">
                     <div className="flex items-center space-x-2">
                       <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <span className="font-semibold text-blue-800 dark:text-blue-300">Socratic MCQ Challenge (15 Questions)</span>
+                      <span className="font-semibold text-blue-800 dark:text-blue-300">Socratic Practice Quiz ({mcqs.length} Questions)</span>
                     </div>
                     <span className="font-bold text-blue-600">Score: {mcqScore} / {mcqs.length}</span>
                   </div>
@@ -531,29 +565,14 @@ const TopicDetailPage = () => {
                   {mcqs.length === 0 ? (
                     <div className="text-center py-12 text-slate-500">Failed to load MCQs. Try again.</div>
                   ) : (
-                    mcqs.map((q, idx) => {
-                      const isSubmitted = submittedMCQs[q.id];
-                      const mode = mcqHintMode[q.id] || 'teacher';
+                    <>
+                      {mcqs.map((q, idx) => {
+                        const isSubmitted = submittedMCQs[q.id];
+                        const mode = mcqHintMode[q.id] || 'teacher';
 
-                      return (
-                        <div key={q.id || idx} className="bg-white dark:bg-slate-900 p-6 rounded-xl border shadow-sm space-y-4">
-                          <h4 className="font-bold text-slate-900 dark:text-white text-base">{idx + 1}. {q.question}</h4>
-
-                          <div className="flex items-center space-x-2 text-xs">
-                            <span>Socratic Mode:</span>
-                            <button
-                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'teacher' }))}
-                              className={`px-3 py-1 rounded-full border ${mode === 'teacher' ? 'bg-blue-600 text-white' : 'bg-slate-100'}`}
-                            >
-                              Teacher Mode
-                            </button>
-                            <button
-                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'peer' }))}
-                              className={`px-3 py-1 rounded-full border ${mode === 'peer' ? 'bg-purple-600 text-white' : 'bg-slate-100'}`}
-                            >
-                              Peer Mode
-                            </button>
-                          </div>
+                        return (
+                          <div key={q.id || idx} className="bg-white dark:bg-slate-900 p-6 rounded-xl border shadow-sm space-y-4">
+                            <h4 className="font-bold text-slate-900 dark:text-white text-base">{idx + 1}. {q.question}</h4>
 
                           <div className="grid grid-cols-1 gap-3">
                             {q.options.map((option: string) => {
@@ -585,6 +604,22 @@ const TopicDetailPage = () => {
                                 </button>
                               );
                             })}
+                          </div>
+
+                          <div className="flex items-center space-x-2 text-xs pt-2">
+                            <span className="text-slate-600 dark:text-slate-300">Socratic Mode:</span>
+                            <button
+                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'teacher' }))}
+                              className={`px-3 py-1 rounded-full border ${mode === 'teacher' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                            >
+                              Teacher Mode
+                            </button>
+                            <button
+                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'peer' }))}
+                              className={`px-3 py-1 rounded-full border ${mode === 'peer' ? 'bg-purple-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                            >
+                              Peer Mode
+                            </button>
                           </div>
 
                           <div className="flex space-x-3">
@@ -643,8 +678,32 @@ const TopicDetailPage = () => {
                             </div>
                           )}
                         </div>
-                      )
-                    })
+                        )
+                      })}
+
+                      {mcqSummary && (
+                        <div className="bg-slate-900 text-white p-4 rounded-xl shadow-sm">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-sm font-bold text-white">Quiz Summary</h3>
+                            <span className="text-xs text-slate-300">{mcqScore}/{mcqs.length}</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3">
+                              <div className="font-semibold text-emerald-300 mb-1">Strong</div>
+                              <ul className="list-disc pl-4 text-emerald-50 space-y-0.5">
+                                {mcqSummary.strong.map((item) => <li key={item}>{item}</li>)}
+                              </ul>
+                            </div>
+                            <div className="bg-amber-500/10 border border-amber-400/30 rounded-lg p-3">
+                              <div className="font-semibold text-amber-300 mb-1">Improve</div>
+                              <ul className="list-disc pl-4 text-amber-50 space-y-0.5">
+                                {mcqSummary.improve.map((item) => <li key={item}>{item}</li>)}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}

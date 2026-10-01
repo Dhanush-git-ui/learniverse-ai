@@ -14,6 +14,8 @@ import HowItWorksPage from "./pages/HowItWorksPage";
 const PlacementAssessment = React.lazy(() => import("./pages/PlacementAssessment"));
 const TopicDetailPage = React.lazy(() => import("./pages/TopicDetailPage"));
 const Top100Codes = React.lazy(() => import("./pages/Top100Codes"));
+const StudentDashboard = React.lazy(() => import("./pages/StudentDashboard"));
+
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,11 @@ const App = () => (
           <Route path="/topics" element={<TopicsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="/dashboard" element={<Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">Loading Dashboard...</div>}>
+                                             <StudentDashboard />
+                                             </Suspense>
+                                            } />
+
           
           <Route path="/top-100-codes" element={
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">Loading Top 100 Codes...</div>}>
