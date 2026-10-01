@@ -1,5 +1,5 @@
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -30,22 +30,23 @@ const Hero = () => {
             
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/25"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/25 flex items-center gap-2"
                 asChild
               >
-                <Link to="/topics">
-                  Explore Topics
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Link to="/assessment">
+                  <Award className="h-5 w-5 text-amber-300" />
+                  <span>Take Placement Test</span>
                 </Link>
               </Button>
-              
+
               <Button
                 variant="outline"
                 className="border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 text-slate-700 px-8 py-6 rounded-xl text-lg font-semibold transition-all duration-300"
                 asChild
               >
-                <Link to="/how-it-works">
-                  How It Works
+                <Link to="/topics">
+                  Explore Topics
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             </div>

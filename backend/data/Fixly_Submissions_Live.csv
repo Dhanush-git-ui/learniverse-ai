@@ -1,4 +1,4 @@
 id,session_id,student_name,roll_number,role,branch,total_marks,max_marks,percentage,total_questions,attempted,correct_count,wrong_count,unanswered_count,violations_count,status,submitted_at
 ,e0656123-bd13-42b6-9390-83e99f779613,K.Girish,2451A6766,AI Engineer Intern,AI_DS,0.0,22.0,0.0,22,0,0,0,22,2,completed,2026-10-01T05:31:57.428122+00:00
-,8267a0f2-4a3e-41f3-b469-207bbd1f32c0,D HARINI,24E51A6644,AI Engineer Intern,AI_DS,13.0,70.0,19.0,22,7,1,6,15,0,completed,2026-10-01T06:02:23.350636+00:00
+,a3bab800-370d-4d9a-8d03-35596760f233,D HARINI,24E51A6644,AI Engineer Intern,AI_DS,0.0,70.0,0.0,22,3,0,3,19,0,completed,2026-10-01T07:45:24.755118+00:00
 ,9b3d8be8-78b1-471c-b142-896c2012c1dc,Khaja ShareefUddin,24E51A05B8,Backend & Full Stack Intern,Computer Science and Engineering,10.0,12.0,16.67,12,4,1,3,8,0,completed,2026-10-01T06:05:13.723590+00:00
