@@ -16,7 +16,8 @@ import {
   Code2,
   Award,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { HitamLoginModal } from './auth/HitamLoginModal';
@@ -126,6 +127,7 @@ const Navbar = () => {
     if (isAdmin || s.is_admin || s.role === 'admin') {
       return {
         roll: 'ADMIN',
+        name: 'Admin',
         branch: 'Super Admin',
         fullBranch: 'Startup Hub Administrator',
         year: 'Admin Console',
@@ -135,6 +137,7 @@ const Navbar = () => {
     }
 
     const roll = s.rollNumber || s.roll_number || "Student";
+    const name = s.name || s.student_name || s.fullName || (roll !== "Student" ? roll : "Dhanush");
     const branchName = s.branchName || s.branch_name || "";
     const branchCode = s.branchCode || s.branch_code || "";
     const currentYear = s.currentStudyYear || s.current_study_year || "";
@@ -155,10 +158,11 @@ const Navbar = () => {
 
     return {
       roll,
+      name,
       branch: displayBranch || "HITAM",
       fullBranch: branchName || "HITAM Student",
       year: currentYear,
-      initial: (roll.charAt(0) || "S").toUpperCase(),
+      initial: (name.charAt(0) || "D").toUpperCase(),
       isAdmin: false
     };
   };
@@ -168,7 +172,7 @@ const Navbar = () => {
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || mobileMenuOpen ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-blue-100/50' : 'bg-transparent'
+        scrolled || mobileMenuOpen ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-100' : 'bg-transparent'
       } dark:bg-gray-900/90 dark:backdrop-blur-md`}
     >
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-10 lg:px-12 xl:px-16">
@@ -182,9 +186,9 @@ const Navbar = () => {
                 isActive('/top-100-codes') ? '-ml-4' : ''
               }`}
             >
-              <Lightbulb className="w-8 h-8 text-blue-600" />
-              <span className="text-xl font-bold text-slate-900 tracking-tight">
-                Learn<span className="text-blue-600">Iverse</span>
+              <Lightbulb className="w-7 h-7 text-blue-600" />
+              <span className="text-xl font-black text-slate-900 tracking-tight">
+                Learniverse
               </span>
             </Link>
           </div>
@@ -200,23 +204,23 @@ const Navbar = () => {
               <>
                 <Link 
                   to="/dashboard" 
-                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-all ${
                     isActive('/dashboard') 
                       ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' 
                       : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4 text-blue-600" />
                   <span>Dashboard</span>
                 </Link>
 
                 <Link 
                   to="/topics" 
-                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
+                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors flex items-center gap-1 ${
                     isActive('/topics') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
-                  Topics
+                  <span>Learn</span>
+                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
                 </Link>
 
                 <Link 
@@ -225,7 +229,7 @@ const Navbar = () => {
                     isActive('/top-100-codes') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
-                  Top 100 Codes
+                  Practice
                 </Link>
 
                 <Link 
@@ -234,7 +238,14 @@ const Navbar = () => {
                     isActive('/assessment') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
-                  Placement Test
+                  Placement
+                </Link>
+
+                <Link 
+                  to="/dashboard" 
+                  className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:text-black hover:bg-slate-50"
+                >
+                  Progress
                 </Link>
 
                 {isAdmin && (
@@ -336,23 +347,21 @@ const Navbar = () => {
                 </Link>
 
                 {/* Student / Admin Profile Pill */}
-                <div className="flex items-center gap-2 border border-slate-200 bg-white rounded-2xl px-3 py-1.5 shadow-xs">
+                <div className="flex items-center gap-2 border border-slate-200 bg-white rounded-full pl-1.5 pr-3 py-1 shadow-xs">
                   <Link
                     to={isAdmin ? "/assessment?admin=true" : "/dashboard"}
-                    className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
-                    title={isAdmin ? "Startup Assessment Admin Console" : `Student Dashboard: ${studentInfo.roll}`}
+                    className="flex items-center gap-2 hover:opacity-85 transition-opacity"
+                    title={isAdmin ? "Startup Assessment Admin Console" : `Student Dashboard: ${studentInfo.name || studentInfo.roll}`}
                   >
-                    <div className="w-7 h-7 rounded-xl text-white bg-black flex items-center justify-center font-bold text-xs shadow-xs">
+                    <div className="w-7 h-7 rounded-full text-white bg-blue-600 flex items-center justify-center font-bold text-xs shadow-xs">
                       {isAdmin ? <ShieldCheck className="w-4 h-4 text-white" /> : studentInfo.initial}
                     </div>
-                    <div className="text-left leading-tight">
-                      <div className="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                        <span>{studentInfo.roll}</span>
-                        {isAdmin && <span className="bg-black text-white text-[9px] px-1 py-0.2 rounded font-sans border border-slate-700">ADMIN</span>}
-                      </div>
-                      <div className="text-[10px] font-semibold text-blue-600">
-                        {studentInfo.branch} {studentInfo.year ? `• ${studentInfo.year}` : ""}
-                      </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-slate-900">
+                        {studentInfo.name || studentInfo.roll}
+                      </span>
+                      {isAdmin && <span className="bg-black text-white text-[9px] px-1 py-0.2 rounded font-sans border border-slate-700">ADMIN</span>}
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                   </Link>
 
