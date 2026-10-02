@@ -8,17 +8,17 @@ const features = [
     description: "Engage with AI teachers that adapt explanations to your understanding level"
   },
   {
-    icon: <BrainCircuit className="h-6 w-6 text-indigo-600" />,
+    icon: <BrainCircuit className="h-6 w-6 text-blue-600" />,
     title: "Dual AI Perspective",
     description: "Get explanations from both teacher and peer AI for comprehensive understanding"
   },
   {
-    icon: <BarChart3 className="h-6 w-6 text-sky-600" />,
+    icon: <BarChart3 className="h-6 w-6 text-blue-600" />,
     title: "Progressive Difficulty",
     description: "Master concepts through 5 questions of increasing complexity"
   },
   {
-    icon: <Lightbulb className="h-6 w-6 text-blue-500" />,
+    icon: <Lightbulb className="h-6 w-6 text-blue-600" />,
     title: "Smart Hints",
     description: "Receive targeted hints without full solutions to guide your learning"
   }
@@ -26,11 +26,11 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="py-16 bg-slate-50/70 border-y border-slate-200/60">
+    <section className="py-16 bg-white border-y border-slate-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">How LearnIverse Works</h2>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">How Learniverse Works</h2>
+          <p className="text-base text-slate-500 max-w-2xl mx-auto">
             Our platform combines AI-driven conversations with structured learning to make complex concepts easier to understand.
           </p>
         </div>

@@ -39,54 +39,54 @@ const initialMessages = [
 
 const DemoSection = () => {
   return (
-    <section className="py-16">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Experience Coding Through Conversation</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Experience Coding Through Conversation</h2>
+            <p className="text-base text-slate-500 leading-relaxed">
               Engage with our AI teachers and get personalized explanations on algorithms, data structures, and programming concepts that adapt to your level of understanding.
             </p>
             
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full mr-3">
-                  <Check className="h-5 w-5 text-blue-600" />
+                <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100 p-2 rounded-xl mr-3 text-emerald-600">
+                  <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Technical precision</h4>
-                  <p className="text-gray-600 dark:text-gray-300">Accurate explanations of algorithm complexity and code logic</p>
+                  <h4 className="font-bold text-slate-900">Technical precision</h4>
+                  <p className="text-slate-500 text-sm">Accurate explanations of algorithm complexity and code logic</p>
                 </div>
               </div>
               
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full mr-3">
-                  <Check className="h-5 w-5 text-blue-600" />
+                <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100 p-2 rounded-xl mr-3 text-emerald-600">
+                  <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Code review</h4>
-                  <p className="text-gray-600 dark:text-gray-300">Get feedback on your code and suggestions for improvement</p>
+                  <h4 className="font-bold text-slate-900">Code review</h4>
+                  <p className="text-slate-500 text-sm">Get feedback on your code and suggestions for improvement</p>
                 </div>
               </div>
               
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full mr-3">
-                  <Check className="h-5 w-5 text-blue-600" />
+                <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100 p-2 rounded-xl mr-3 text-emerald-600">
+                  <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">Simplified explanations</h4>
-                  <p className="text-gray-600 dark:text-gray-300">Complex concepts broken down by your Code Buddy</p>
+                  <h4 className="font-bold text-slate-900">Simplified explanations</h4>
+                  <p className="text-slate-500 text-sm">Complex concepts broken down by your Code Buddy</p>
                 </div>
               </div>
             </div>
             
             <Button 
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-lg transition-all duration-300 transform hover:scale-105"
+              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-all shadow-md shadow-blue-500/20"
               asChild
             >
               <Link to="/topics">
-                Start Coding Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <span>Start Coding Now</span>
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
