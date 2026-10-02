@@ -14,7 +14,9 @@ import {
   HelpCircle,
   BookOpen,
   Code2,
-  Award
+  Award,
+  Building2,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { HitamLoginModal } from './auth/HitamLoginModal';
@@ -24,22 +26,38 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginModalInitialTab, setLoginModalInitialTab] = useState<"google" | "manual" | "admin">("google");
   const [student, setStudent] = useState<HitamStudentDemographics | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [streakCount, setStreakCount] = useState<number | null>(null);
   const location = useLocation();
 
-  // Synchronize student session and streak from localStorage
+  // Synchronize student and admin session and streak from localStorage
   const syncStudentState = () => {
+    let currentAdmin = localStorage.getItem('learniverse_admin_authed') === 'true';
+
+    try {
+      const savedUser = localStorage.getItem('learniverse_user');
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        if (u.role === 'admin' || u.is_admin) currentAdmin = true;
+      }
+    } catch {}
+
     try {
       const saved = localStorage.getItem('learniverse_student');
       if (saved) {
-        setStudent(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setStudent(parsed);
+        if (parsed.is_admin || parsed.role === 'admin') currentAdmin = true;
       } else {
         setStudent(null);
       }
     } catch {
       setStudent(null);
     }
+
+    setIsAdmin(currentAdmin);
 
     try {
       const rawStreak = localStorage.getItem('learniverse_streak');
@@ -70,9 +88,12 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('learniverse_token');
     localStorage.removeItem('learniverse_student');
+    localStorage.removeItem('learniverse_user');
     localStorage.removeItem('learniverse_roll_number');
     localStorage.removeItem('learniverse_streak');
+    localStorage.removeItem('learniverse_admin_authed');
     setStudent(null);
+    setIsAdmin(false);
     window.dispatchEvent(new Event('learniverse_auth_change'));
     window.location.href = "/";
   };
@@ -97,10 +118,22 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
-  // Safe helper to extract student demographics
+  // Safe helper to extract student or admin demographics
   const getStudentInfo = () => {
-    if (!student) return null;
-    const s = student as any;
+    if (!student && !isAdmin) return null;
+    const s = (student || {}) as any;
+
+    if (isAdmin || s.is_admin || s.role === 'admin') {
+      return {
+        roll: 'ADMIN',
+        branch: 'Super Admin',
+        fullBranch: 'Startup Hub Administrator',
+        year: 'Admin Console',
+        initial: 'A',
+        isAdmin: true
+      };
+    }
+
     const roll = s.rollNumber || s.roll_number || "Student";
     const branchName = s.branchName || s.branch_name || "";
     const branchCode = s.branchCode || s.branch_code || "";
@@ -125,7 +158,8 @@ const Navbar = () => {
       branch: displayBranch || "HITAM",
       fullBranch: branchName || "HITAM Student",
       year: currentYear,
-      initial: (roll.charAt(0) || "S").toUpperCase()
+      initial: (roll.charAt(0) || "S").toUpperCase(),
+      isAdmin: false
     };
   };
 
@@ -202,6 +236,21 @@ const Navbar = () => {
                 >
                   Placement Test
                 </Link>
+
+                {isAdmin && (
+                  <Link 
+                    to="/assessment?admin=true" 
+                    className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                      location.search.includes('admin=true')
+                        ? 'text-emerald-700 bg-emerald-100/90 shadow-xs border border-emerald-300' 
+                        : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/80 border border-emerald-200/80'
+                    }`}
+                  >
+                    <Building2 className="w-4 h-4 text-emerald-600" />
+                    <span>Startup Admin Hub</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </Link>
+                )}
 
                 <a
                   href="https://cdc-hitam.onrender.com/dashboard"
@@ -286,21 +335,28 @@ const Navbar = () => {
                   <span>{streakCount || 1}d</span>
                 </Link>
 
-                {/* Student Profile Pill */}
-                <div className="flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-2xl px-3 py-1.5 shadow-xs">
+                {/* Student / Admin Profile Pill */}
+                <div className={`flex items-center gap-2 border rounded-2xl px-3 py-1.5 shadow-xs ${
+                  isAdmin 
+                    ? "bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800" 
+                    : "bg-blue-50/90 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60"
+                }`}>
                   <Link
-                    to="/dashboard"
+                    to={isAdmin ? "/assessment?admin=true" : "/dashboard"}
                     className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
-                    title={`Student Dashboard: ${studentInfo.roll}`}
+                    title={isAdmin ? "Startup Assessment Admin Console" : `Student Dashboard: ${studentInfo.roll}`}
                   >
-                    <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                      {studentInfo.initial}
+                    <div className={`w-7 h-7 rounded-xl text-white flex items-center justify-center font-bold text-xs shadow-xs ${
+                      isAdmin ? "bg-emerald-600" : "bg-blue-600"
+                    }`}>
+                      {isAdmin ? <ShieldCheck className="w-4 h-4 text-white" /> : studentInfo.initial}
                     </div>
                     <div className="text-left leading-tight">
-                      <div className="text-xs font-bold font-mono text-slate-800 dark:text-slate-200">
-                        {studentInfo.roll}
+                      <div className="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                        <span>{studentInfo.roll}</span>
+                        {isAdmin && <span className="bg-emerald-600 text-white text-[9px] px-1 py-0.2 rounded font-sans">ADMIN</span>}
                       </div>
-                      <div className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
+                      <div className={`text-[10px] font-semibold ${isAdmin ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
                         {studentInfo.branch} {studentInfo.year ? `• ${studentInfo.year}` : ""}
                       </div>
                     </div>
@@ -316,15 +372,31 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              // BEFORE LOGIN: HITAM Login Button + Take Placement Test CTA
+              // BEFORE LOGIN: Login Button + Admin Login Button + Take Placement Test CTA
               <>
                 <Button
-                  onClick={() => setIsLoginModalOpen(true)}
+                  onClick={() => {
+                    setLoginModalInitialTab("google");
+                    setIsLoginModalOpen(true);
+                  }}
                   variant="outline"
                   className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 font-semibold px-3.5 py-2 rounded-xl text-xs lg:text-sm flex items-center gap-1.5 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
-                  <span>HITAM Login</span>
+                  <span>Login</span>
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setLoginModalInitialTab("admin");
+                    setIsLoginModalOpen(true);
+                  }}
+                  variant="ghost"
+                  className="border border-emerald-300/80 hover:bg-emerald-50 text-emerald-700 dark:text-emerald-300 dark:border-emerald-700 dark:hover:bg-emerald-950/40 font-semibold px-2.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-xs"
+                  title="Direct Administrator Login (admin@2026 / password@123)"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Admin Login</span>
                 </Button>
 
                 <Button
@@ -444,6 +516,20 @@ const Navbar = () => {
                   <span>Placement Test</span>
                 </Link>
 
+                {isAdmin && (
+                  <Link
+                    to="/assessment?admin=true"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold transition-all ${
+                      location.search.includes('admin=true') ? 'text-emerald-700 bg-emerald-50 shadow-xs' : 'text-emerald-600 hover:bg-emerald-50/60'
+                    }`}
+                  >
+                    <Building2 className="w-5 h-5 text-emerald-600" />
+                    <span>Startup Admin Hub</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-auto" />
+                  </Link>
+                )}
+
                 <a
                   href="https://cdc-hitam.onrender.com/dashboard"
                   target="_blank"
@@ -549,12 +635,26 @@ const Navbar = () => {
                   variant="outline"
                   onClick={() => {
                     setMobileMenuOpen(false);
+                    setLoginModalInitialTab("google");
                     setIsLoginModalOpen(true);
                   }}
                   className="w-full border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
-                  <span>HITAM Student Login</span>
+                  <span>Student Login</span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setLoginModalInitialTab("admin");
+                    setIsLoginModalOpen(true);
+                  }}
+                  className="w-full border border-emerald-300/80 text-emerald-700 dark:text-emerald-300 font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Admin Login (admin@2026)</span>
                 </Button>
               </div>
             </>
@@ -562,14 +662,19 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* HITAM Roll Number Login Modal */}
+      {/* HITAM / Admin Login Modal */}
       <HitamLoginModal
         isOpen={isLoginModalOpen}
+        initialTab={loginModalInitialTab}
         onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={(st) => {
+        onLoginSuccess={(st: any) => {
           setStudent(st);
           window.dispatchEvent(new Event('learniverse_auth_change'));
-          window.location.href = "/dashboard";
+          if (st?.is_admin || st?.role === 'admin' || localStorage.getItem('learniverse_admin_authed') === 'true') {
+            window.location.href = "/assessment?admin=true";
+          } else {
+            window.location.href = "/dashboard";
+          }
         }}
       />
 

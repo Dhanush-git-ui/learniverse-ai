@@ -2069,7 +2069,8 @@ export default function PlacementAssessment() {
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        if (adminPasscode === 'admin2026' || adminPasscode.toLowerCase().includes('dhanush')) {
+                        const trimmed = adminPasscode.trim().toLowerCase();
+                        if (trimmed === 'admin2026' || trimmed === 'admin@2026' || trimmed === 'password@123' || trimmed.includes('dhanush')) {
                           setIsAdminAuthenticated(true);
                           localStorage.setItem('learniverse_admin_authed', 'true');
                         } else {
@@ -2077,7 +2078,7 @@ export default function PlacementAssessment() {
                         }
                       }
                     }}
-                    placeholder="Enter Passcode (default: admin2026)"
+                    placeholder="Enter Admin Passcode (password@123 or admin@2026)"
                     className="w-full bg-white border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-center shadow-sm"
                   />
                   {adminAuthError && (
@@ -2085,7 +2086,8 @@ export default function PlacementAssessment() {
                   )}
                   <button
                     onClick={() => {
-                      if (adminPasscode === 'admin2026' || adminPasscode.toLowerCase().includes('dhanush')) {
+                      const trimmed = adminPasscode.trim().toLowerCase();
+                      if (trimmed === 'admin2026' || trimmed === 'admin@2026' || trimmed === 'password@123' || trimmed.includes('dhanush')) {
                         setIsAdminAuthenticated(true);
                         localStorage.setItem('learniverse_admin_authed', 'true');
                       } else {

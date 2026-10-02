@@ -22,6 +22,8 @@ GOOGLE_CLIENT_IDS = [cid for cid in GOOGLE_CLIENT_IDS if cid]
 
 ADMIN_WHITELIST = {
     "dhanush",
+    "admin@2026",
+    "admin2026",
     "admin@hitam.org",
     "placement@hitam.org",
     "principal@hitam.org",
@@ -150,6 +152,58 @@ class GoogleLoginRequest(BaseModel):
 
 class ManualLoginRequest(BaseModel):
     identifier: str
+    password: Optional[str] = None
+
+class AdminLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@auth_router.post("/admin-login")
+def admin_login_endpoint(payload: AdminLoginRequest):
+    """
+    Dedicated Admin Login endpoint.
+    Credentials: username: admin@2026, password: password@123
+    """
+    username = payload.username.strip()
+    password = payload.password.strip()
+
+    valid_usernames = ["admin@2026", "admin2026", "admin@hitam.org", "dhanush", "admin"]
+    valid_passwords = ["password@123", "password123", "admin2026", "admin@2026"]
+
+    if username.lower() not in valid_usernames or password not in valid_passwords:
+        raise HTTPException(
+            status_code=401, 
+            detail="Invalid admin credentials. Use username: admin@2026 and password: password@123"
+        )
+
+    jwt_token = create_access_token(user_id="admin_2026", email=username.lower(), role="admin", expires_hours=72)
+
+    admin_profile = {
+        "roll_number": "ADMIN",
+        "rollNumber": "ADMIN",
+        "name": "Super Administrator",
+        "email": username.lower(),
+        "branch": "Startup Assessment Hub & Placement Admin",
+        "currentStudyYear": "Super Administrator",
+        "collegeName": "HITAM & Startup Assessment Hub",
+        "is_admin": True,
+        "role": "admin"
+    }
+
+    return {
+        "status": "success",
+        "token": jwt_token,
+        "student": admin_profile,
+        "user": {
+            "id": "admin_2026",
+            "email": username.lower(),
+            "name": "Super Administrator",
+            "role": "admin",
+            "is_admin": True
+        },
+        "redirect_url": "/assessment?admin=true"
+    }
 
 
 @auth_router.post("/google-hitam-login")
@@ -205,6 +259,37 @@ def manual_hitam_login_endpoint(payload: ManualLoginRequest):
     if not identifier:
         raise HTTPException(status_code=400, detail="Identifier is required.")
 
+    # Check if this is an admin attempting login via the general identifier field
+    if identifier.lower() in ["admin@2026", "admin2026", "admin@hitam.org", "dhanush"]:
+        # If password supplied, verify it
+        if payload.password and payload.password.strip() not in ["password@123", "password123", "admin2026", "admin@2026"]:
+            raise HTTPException(status_code=401, detail="Invalid admin password.")
+
+        jwt_token = create_access_token(user_id="admin_2026", email=identifier.lower(), role="admin", expires_hours=72)
+        admin_profile = {
+            "roll_number": "ADMIN",
+            "rollNumber": "ADMIN",
+            "name": "Super Administrator",
+            "email": identifier.lower(),
+            "branch": "Startup Assessment Hub & Placement Admin",
+            "currentStudyYear": "Super Administrator",
+            "collegeName": "HITAM & Startup Assessment Hub",
+            "is_admin": True,
+            "role": "admin"
+        }
+        return {
+            "token": jwt_token,
+            "student": admin_profile,
+            "user": {
+                "id": "admin_2026",
+                "email": identifier.lower(),
+                "name": "Super Administrator",
+                "role": "admin",
+                "is_admin": True
+            },
+            "redirect_url": "/assessment?admin=true"
+        }
+
     demographics = parse_student_credentials(identifier)
     roll = demographics.get("rollNumber") or identifier.upper()
     email = demographics.get("email") or f"{roll.lower()}@hitam.org"
@@ -235,3 +320,4 @@ def manual_hitam_login_endpoint(payload: ManualLoginRequest):
             "role": role
         }
     }
+
