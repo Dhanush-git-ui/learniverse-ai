@@ -284,7 +284,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
         {/* Header */}
         <div className="space-y-1 text-center">
-          <div className="inline-flex p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-1">
+          <div className="inline-flex p-3 rounded-2xl bg-black border border-slate-800 text-blue-500 mb-1">
             <GraduationCap className="w-7 h-7" />
           </div>
           <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-blue-200 bg-clip-text text-transparent">
@@ -296,7 +296,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
         </div>
 
         {/* Restriction Banner */}
-        <div className="flex items-center gap-2 text-left text-xs p-2.5 rounded-xl border text-blue-300/90 bg-blue-950/40 border-blue-800/40">
+        <div className="flex items-center gap-2 text-left text-xs p-2.5 rounded-xl border text-slate-300 bg-slate-900 border-slate-800">
           <ShieldAlert className="w-4 h-4 flex-shrink-0 text-blue-400" />
           <span>Restricted to registered <strong>@hitam.org</strong> accounts or authorized credentials.</span>
         </div>
@@ -308,7 +308,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
             onClick={() => { setActiveTab("google"); setErrorMsg(""); }}
             className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === "google" 
-                ? "bg-blue-600 text-white shadow-sm" 
+                ? "bg-white text-black font-bold shadow-sm" 
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -319,7 +319,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
             onClick={() => { setActiveTab("manual"); setErrorMsg(""); }}
             className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === "manual" 
-                ? "bg-blue-600 text-white shadow-sm" 
+                ? "bg-white text-black font-bold shadow-sm" 
                 : "text-slate-400 hover:text-white"
             }`}
           >
@@ -415,11 +415,11 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
               <Button
                 type="submit"
                 disabled={isLoading || !credUsername.trim() || !credPassword.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-500/20"
+                className="w-full bg-white hover:bg-slate-200 text-black font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
               >
                 {isLoading ? (
                   <>
-                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" />
                     <span>Signing in...</span>
                   </>
                 ) : (
@@ -458,25 +458,25 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
             {/* LIVE DECODING PREVIEW CARD */}
             {decoded ? (
-              <div className="p-3 rounded-xl bg-blue-950/30 border border-blue-700/50 space-y-2 animate-fade-in text-left">
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 animate-fade-in text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-400 flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                     Verified Identity
                   </span>
-                  <Badge variant="outline" className="bg-blue-500/20 text-blue-300 border-blue-500/40 font-mono text-[11px] px-2 py-0.5">
+                  <Badge variant="outline" className="bg-transparent text-blue-400 border border-blue-500/60 font-mono text-[11px] px-2 py-0.5">
                     {decoded.rollNumber}
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                  <div className="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+                  <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
                     <span className="text-slate-400 block text-[9px] uppercase">Department</span>
                     <span className="font-semibold text-slate-200 truncate block" title={decoded.branchName}>
                       {decoded.branchName}
                     </span>
                   </div>
-                  <div className="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+                  <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
                     <span className="text-slate-400 block text-[9px] uppercase">Batch</span>
                     <span className="font-semibold text-slate-200">
                       {decoded.joiningYear} – {decoded.graduationYear}
@@ -489,7 +489,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
             <Button
               onClick={handleManualLogin}
               disabled={!decoded || isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-500/20"
+              className="w-full bg-white hover:bg-slate-200 text-black font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
             >
               {isLoading ? "Signing in..." : "Access My Dashboard"}
               <ArrowRight className="w-3.5 h-3.5" />

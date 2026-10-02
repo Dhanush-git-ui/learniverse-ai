@@ -1989,15 +1989,15 @@ export default function PlacementAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50/40 via-white to-white text-slate-800 flex flex-col items-center justify-center p-4 sm:p-6 select-none font-sans"
+    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-4 sm:p-6 select-none font-sans"
          onCopy={(e) => e.preventDefault()}
          onPaste={(e) => e.preventDefault()}
          onCut={(e) => e.preventDefault()}
          onContextMenu={(e) => e.preventDefault()}>
       
       {isOffline && (
-        <div className="bg-amber-500 text-white font-bold py-2 text-center text-xs w-full z-50 fixed top-0 left-0 shadow-md flex items-center justify-center gap-2">
-          <AlertTriangle className="w-4 h-4" />
+        <div className="bg-black text-white font-bold py-2 text-center text-xs w-full z-50 fixed top-0 left-0 shadow-md flex items-center justify-center gap-2 border-b border-slate-800">
+          <AlertTriangle className="w-4 h-4 text-amber-400" />
           <span>Network connection offline. Progress is safely preserved in local storage and will sync upon reconnection.</span>
         </div>
       )}
@@ -2010,61 +2010,51 @@ export default function PlacementAssessment() {
       )}
       
       {step === 'landing' && (
-        <div className="max-w-4xl w-full bg-white/95 backdrop-blur-xl border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-2xl shadow-blue-950/5 text-slate-800 transition-all duration-300 animate-fade-in my-8">
+        <div className="max-w-4xl w-full bg-white border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-xl text-black transition-all duration-300 animate-fade-in my-8">
           
           <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-5 mb-6 gap-4">
             <div className="flex items-center space-x-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-                <ShieldAlert className="w-6 h-6" />
+              <div className="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm">
+                <Building2 className="w-6 h-6 text-blue-500" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-center gap-2">
-                  PLACEMENT & HIRING PORTAL
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black flex items-center gap-2">
+                  {mainTab === 'admin' ? "STARTUP ASSESSMENT HUB" : "PLACEMENT & HIRING PORTAL"}
                 </h1>
                 <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
-                  <span>MULTI-TENANT SCREENING ENGINE v3.0</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span>{mainTab === 'admin' ? "MULTI-TENANT SCREENING & LIVE DRIVE MONITOR" : "ONLINE TECHNICAL ASSESSMENT ENGINE"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
                 </p>
               </div>
             </div>
 
-            {/* Portal Switcher Tabs */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/80 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setMainTab('student')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  mainTab === 'student'
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <span>🎓 Candidate Test Entry</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMainTab('admin')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  mainTab === 'admin'
-                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <span>🏢 Startup Assessment Hub</span>
-                {!isAdminAuthenticated ? (
-                  <Lock className="w-3.5 h-3.5 opacity-70" />
-                ) : (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                )}
-              </button>
-            </div>
+            {/* In Admin Section: NO candidate test entry tab! Only clean admin status and exit action */}
+            {mainTab === 'admin' ? (
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-black font-mono">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                  ADMIN CONSOLE
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem('learniverse_admin_authed');
+                    setIsAdminAuthenticated(false);
+                    window.location.href = "/";
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-black hover:bg-black hover:text-white transition-all shadow-xs"
+                >
+                  Exit Console
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {mainTab === 'admin' ? (
             /* Multi-Tenant Startup Admin Hub */
             !isAdminAuthenticated ? (
               <div className="max-w-md mx-auto py-10 px-6 text-center space-y-5 animate-fade-in">
-                <div className="w-14 h-14 mx-auto rounded-3xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shadow-md">
+                <div className="w-14 h-14 mx-auto rounded-3xl bg-slate-100 border border-slate-200 text-blue-600 flex items-center justify-center shadow-xs">
                   <Lock className="w-7 h-7" />
                 </div>
                 <div>
@@ -2107,7 +2097,7 @@ export default function PlacementAssessment() {
                         setAdminAuthError('Invalid administrator passcode.');
                       }
                     }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-blue-500/20"
+                    className="w-full bg-black hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all border border-black shadow-sm"
                   >
                     Unlock Startup Console →
                   </button>
@@ -2117,46 +2107,46 @@ export default function PlacementAssessment() {
               <div className="space-y-6 animate-fade-in">
                 {/* Metric Summary Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Companies</span>
                     <span className="text-xl font-black text-slate-900">{catalogData?.counts?.companies || 2}</span>
                   </div>
-                  <div className="bg-blue-50/60 border border-blue-200/80 p-3.5 rounded-2xl">
+                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">Ongoing Drives</span>
-                    <span className="text-xl font-black text-blue-700 flex items-center gap-1.5">
+                    <span className="text-xl font-black text-slate-900 flex items-center gap-1.5">
                       <span>{catalogData?.counts?.ongoing || 1}</span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                     </span>
                   </div>
-                  <div className="bg-amber-50/60 border border-amber-200/80 p-3.5 rounded-2xl">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">Upcoming Drives</span>
-                    <span className="text-xl font-black text-amber-700">{catalogData?.counts?.upcoming || 0}</span>
+                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Upcoming Drives</span>
+                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.upcoming || 0}</span>
                   </div>
-                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Past Drives</span>
-                    <span className="text-xl font-black text-slate-800">{catalogData?.counts?.past || 0}</span>
+                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.past || 0}</span>
                   </div>
                 </div>
 
                 {/* Real-Time Database Constant Connection Status Banner */}
-                <div className="flex flex-wrap items-center justify-between gap-3 bg-emerald-50/70 border border-emerald-200/90 px-4 py-2.5 rounded-2xl text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl text-xs text-black shadow-xs">
                   <div className="flex items-center gap-2.5">
                     <span className="relative flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
                     </span>
-                    <span className="font-bold text-emerald-900">
+                    <span className="font-bold text-black">
                       Live Database Connected • Constant 3s Real-Time Synchronization Active
                     </span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-[11px] text-emerald-800">
-                    <span>Last synced: <strong>{lastSyncTime}</strong></span>
+                  <div className="flex items-center gap-2.5 text-[11px] text-slate-600">
+                    <span>Last synced: <strong className="text-black">{lastSyncTime}</strong></span>
                     <button
                       onClick={() => {
                         fetchCatalog(false);
                         fetchLiveMonitor(activeMonitorTestId, false);
                       }}
-                      className="px-2.5 py-1 bg-white hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-semibold rounded-lg shadow-xs transition-all flex items-center gap-1"
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-black font-semibold rounded-lg shadow-xs transition-all flex items-center gap-1"
                     >
                       <span>↻ Refresh Now</span>
                     </button>
@@ -2170,8 +2160,8 @@ export default function PlacementAssessment() {
                       onClick={() => setCatalogSubTab('catalog')}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         catalogSubTab === 'catalog'
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          ? 'bg-black text-white shadow-sm border border-black'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                       }`}
                     >
                       <span>🗂️ Drive Catalog</span>
@@ -2183,19 +2173,19 @@ export default function PlacementAssessment() {
                       }}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         catalogSubTab === 'live_monitor'
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          ? 'bg-black text-white shadow-sm border border-black'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                       }`}
                     >
                       <span>📡 Live Command Center</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
                     </button>
                     <button
                       onClick={() => setCatalogSubTab('builder')}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         catalogSubTab === 'builder'
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          ? 'bg-black text-white shadow-sm border border-black'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                       }`}
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -2206,7 +2196,7 @@ export default function PlacementAssessment() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => window.open('/api/assessment/admin/export', '_blank')}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                      className="bg-black hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm border border-black flex items-center gap-1.5"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Export CSV</span>
@@ -2233,7 +2223,7 @@ export default function PlacementAssessment() {
                         onClick={() => setCatalogCategory('ongoing')}
                         className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                           catalogCategory === 'ongoing'
-                            ? 'bg-blue-50 border-blue-300 text-blue-700 font-extrabold'
+                            ? 'bg-black text-white border-black font-extrabold shadow-xs'
                             : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
@@ -2243,7 +2233,7 @@ export default function PlacementAssessment() {
                         onClick={() => setCatalogCategory('upcoming')}
                         className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                           catalogCategory === 'upcoming'
-                            ? 'bg-amber-50 border-amber-300 text-amber-700 font-extrabold'
+                            ? 'bg-black text-white border-black font-extrabold shadow-xs'
                             : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
@@ -2253,7 +2243,7 @@ export default function PlacementAssessment() {
                         onClick={() => setCatalogCategory('past')}
                         className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                           catalogCategory === 'past'
-                            ? 'bg-slate-100 border-slate-300 text-slate-800 font-extrabold'
+                            ? 'bg-black text-white border-black font-extrabold shadow-xs'
                             : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
@@ -2277,7 +2267,7 @@ export default function PlacementAssessment() {
                                 {t.company_logo ? (
                                   <img src={t.company_logo} alt={t.company_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs" />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-xs">
+                                  <div className="w-10 h-10 rounded-xl bg-black text-white font-black flex items-center justify-center text-sm shadow-xs border border-slate-800">
                                     {(t.company_name || 'CO').slice(0, 2).toUpperCase()}
                                   </div>
                                 )}
@@ -2327,7 +2317,7 @@ export default function PlacementAssessment() {
                                   setCatalogSubTab('live_monitor');
                                   fetchLiveMonitor(t.id);
                                 }}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
+                                className="flex-1 bg-black hover:bg-slate-800 text-white text-xs font-bold py-2 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 border border-black"
                               >
                                 <span>📡 Monitor Live</span>
                               </button>
@@ -2424,14 +2414,14 @@ export default function PlacementAssessment() {
                                 return (c.roll_number || '').toLowerCase().includes(s) || (c.full_name || '').toLowerCase().includes(s);
                               })
                               .map((c: any) => (
-                                <tr key={c.roll_number} className="hover:bg-blue-50/30 transition-colors">
+                                <tr key={c.roll_number} className="hover:bg-slate-50 transition-colors">
                                   <td className="p-3 font-bold text-blue-600">{c.roll_number}</td>
                                   <td className="p-3 font-sans font-semibold text-slate-800">{c.full_name}</td>
                                   <td className="p-3 text-slate-500">{c.branch || 'CSE'}</td>
                                   <td className="p-3">
                                     {c.status === 'IN_PROGRESS' ? (
-                                      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 w-fit animate-pulse">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> WRITING
+                                      <span className="bg-white text-blue-700 border border-blue-400 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 w-fit shadow-xs">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" /> WRITING
                                       </span>
                                     ) : c.status === 'COMPLETED' ? (
                                       <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold text-[10px]">
@@ -2601,7 +2591,7 @@ export default function PlacementAssessment() {
                       <button
                         onClick={handleCreateTestSubmit}
                         disabled={builderSubmitting}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/25"
+                        className="bg-black hover:bg-slate-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all border border-black shadow-sm"
                       >
                         {builderSubmitting ? 'Creating Drive...' : '🚀 Publish & Enroll Drive'}
                       </button>
@@ -2619,17 +2609,17 @@ export default function PlacementAssessment() {
             <div className="space-y-3">
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">1. PLACEMENT OFFERINGS</h2>
               
-              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+              <div className="bg-white border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition-all shadow-xs">
                 <span className="font-bold text-xs text-blue-600 block">Screening Benchmark</span>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">20 focused domain MCQs evaluating real-world technical competency and algorithmic foundation.</p>
               </div>
 
-              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+              <div className="bg-white border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition-all shadow-xs">
                 <span className="font-bold text-xs text-blue-600 block">AI Evaluation & Analytics</span>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">Automated instant grading, topic strength analysis, and comprehensive performance metrics.</p>
               </div>
 
-              <div className="bg-blue-50/60 border border-blue-100 p-4 rounded-2xl hover:border-blue-300 transition-all shadow-sm">
+              <div className="bg-white border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition-all shadow-xs">
                 <span className="font-bold text-xs text-blue-600 block">Verified PDF Scorecards</span>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">Download official assessment scorecards with integrity records and question explanations.</p>
               </div>
@@ -2661,7 +2651,7 @@ export default function PlacementAssessment() {
           <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm mb-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">3. CANDIDATE IDENTIFICATION</h3>
-              <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+              <span className="text-[11px] font-bold text-blue-600 bg-white px-2.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                 ✨ Enter Roll Number or Email to auto-route to your assigned test
               </span>
             </div>
@@ -2694,7 +2684,7 @@ export default function PlacementAssessment() {
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Checking...
                     </span>
                   ) : isCandidateVerified ? (
-                    <span className="absolute right-3 top-3.5 text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
+                    <span className="absolute right-3 top-3.5 text-xs text-emerald-600 font-bold bg-white px-2 py-0.5 rounded-md border border-emerald-300 flex items-center gap-1 shadow-2xs">
                       ✓ Verified
                     </span>
                   ) : null}
@@ -2731,7 +2721,7 @@ export default function PlacementAssessment() {
                     className="w-full bg-white border border-slate-300 p-3 font-semibold text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl transition-all shadow-sm"
                   />
                   {studentName && (
-                    <span className="absolute right-3 top-3.5 text-xs text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 flex items-center gap-1">
+                    <span className="absolute right-3 top-3.5 text-xs text-blue-700 font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1 shadow-2xs">
                       ✓ Confirmed
                     </span>
                   )}
@@ -2744,15 +2734,15 @@ export default function PlacementAssessment() {
 
             {/* Candidate Test Routing Preview Card */}
             {candidateLookupResult && candidateLookupResult.test && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 space-y-3 animate-fade-in shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-200/60 pb-2.5">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 animate-fade-in shadow-sm text-black">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+                    <div className="w-8 h-8 rounded-xl bg-black text-white font-bold flex items-center justify-center text-xs">
                       {candidateLookupResult.test.company_name?.slice(0, 2).toUpperCase() || 'TH'}
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-xs text-blue-950">{candidateLookupResult.test.company_name}</h4>
-                      <p className="text-[11px] text-blue-700 font-medium">{candidateLookupResult.test.test_name}</p>
+                      <h4 className="font-extrabold text-xs text-slate-900">{candidateLookupResult.test.company_name}</h4>
+                      <p className="text-[11px] text-blue-600 font-medium">{candidateLookupResult.test.test_name}</p>
                     </div>
                   </div>
                   <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
@@ -2777,7 +2767,7 @@ export default function PlacementAssessment() {
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 block">Track</span>
-                    <strong className="text-blue-700">{candidateLookupResult.candidate.assigned_role}</strong>
+                    <strong className="text-blue-600 font-bold">{candidateLookupResult.candidate.assigned_role}</strong>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 block">Duration</span>
@@ -2785,7 +2775,7 @@ export default function PlacementAssessment() {
                   </div>
                 </div>
 
-                <div className="bg-white/80 p-2.5 rounded-xl border border-blue-100 text-xs text-blue-900 flex items-center gap-2">
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
                   <span>{candidateLookupResult.test.window_message}</span>
                 </div>
@@ -2803,15 +2793,15 @@ export default function PlacementAssessment() {
 
             {/* Display Role Badge when Verified / Fallback Selector */}
             {assignedRole && rollNumber ? (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-center justify-between animate-fade-in shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-xs text-slate-900 flex items-center justify-between animate-fade-in shadow-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🎯</span>
-                  <span>Assigned Assessment Role: <strong className="text-blue-950 font-bold">{assignedRole}</strong></span>
+                  <span>Assigned Assessment Role: <strong className="text-black font-bold">{assignedRole}</strong></span>
                 </div>
                 <select
                   value={assignedRole}
                   onChange={(e) => setAssignedRole(e.target.value)}
-                  className="bg-white border border-blue-300 text-blue-700 text-[11px] font-bold rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-blue-50 shadow-xs"
+                  className="bg-white border border-slate-300 text-blue-600 text-[11px] font-bold rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-slate-50 shadow-xs"
                   title="Change track if needed"
                 >
                   <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
@@ -2888,7 +2878,7 @@ export default function PlacementAssessment() {
               if (ok) setStep('instructions');
             }} 
             disabled={loadingQuestions || (candidateLookupResult?.test?.window_state === 'upcoming')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full bg-black hover:bg-slate-800 text-white font-bold text-base py-4 rounded-xl border border-black shadow-sm active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
           >
             {loadingQuestions 
               ? 'Preparing Assessment...' 
@@ -2905,7 +2895,7 @@ export default function PlacementAssessment() {
         <div className="max-w-lg w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 space-y-6 animate-fade-in text-slate-800">
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Assessment Guidelines</h2>
           
-          <div className="flex items-start gap-3 border-l-4 border-blue-600 pl-4 py-3 bg-blue-50 text-blue-900 text-xs rounded-r-xl">
+          <div className="flex items-start gap-3 border-l-4 border-black pl-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-r-xl">
             <ShieldAlert className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
             <p className="leading-relaxed">This system uses strict webcam and browser focus tracking. Any anomalous actions trigger warnings.</p>
           </div>
@@ -2933,7 +2923,7 @@ export default function PlacementAssessment() {
 
           <Button 
             onClick={() => setStep('system_check')} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
+            className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all border border-black shadow-sm active:scale-[0.99]"
           >
             I Agree, Run Compatibility Check
           </Button>
@@ -2942,7 +2932,7 @@ export default function PlacementAssessment() {
 
       {step === 'system_check' && (
         <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-6 animate-fade-in text-slate-800">
-          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm text-blue-600">
             <Monitor className="w-8 h-8 text-blue-600" />
           </div>
           <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">System Checks</h2>
@@ -2956,7 +2946,7 @@ export default function PlacementAssessment() {
 
           <Button
             onClick={startCamera}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
+            className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all border border-black shadow-sm active:scale-[0.99]"
           >
             Activate Proctor Webcam
           </Button>
@@ -2965,7 +2955,7 @@ export default function PlacementAssessment() {
 
       {step === 'camera_check' && (
         <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-5 animate-fade-in text-slate-800">
-          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm text-blue-600">
             <Video className="w-8 h-8 text-blue-600" />
           </div>
           <div>
@@ -2975,7 +2965,7 @@ export default function PlacementAssessment() {
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-slate-900 rounded-2xl border border-slate-200 object-cover scale-x-[-1]" />
           <Button 
             onClick={() => setStep('fullscreen_gate')} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
+            className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all border border-black shadow-sm active:scale-[0.99]"
           >
             Verify Camera & Proceed
           </Button>
@@ -2984,7 +2974,7 @@ export default function PlacementAssessment() {
 
       {step === 'fullscreen_gate' && (
         <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl shadow-blue-950/5 text-center space-y-6 animate-fade-in text-slate-800">
-          <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm animate-bounce">
+          <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mx-auto shadow-sm text-blue-600 animate-bounce">
             <Maximize2 className="w-8 h-8 text-blue-600" />
           </div>
           <div>
@@ -2993,7 +2983,7 @@ export default function PlacementAssessment() {
           </div>
           <Button 
             onClick={enterFullScreen} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-[0.99]"
+            className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-sm transition-all border border-black shadow-sm active:scale-[0.99]"
           >
             Lock Screen & Start Exam
           </Button>
@@ -3006,7 +2996,7 @@ export default function PlacementAssessment() {
           {/* Immediate Submitting Screen */}
           {isSubmitting && (
             <div className="fixed inset-0 bg-white/95 backdrop-blur-2xl flex flex-col items-center justify-center z-50 p-6 text-center space-y-4 animate-fade-in">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
               <h2 className="text-2xl font-extrabold text-slate-900">Submitting Assessment...</h2>
               <p className="text-slate-500 text-sm max-w-sm">Finalizing answers, please wait...</p>
             </div>
@@ -3031,7 +3021,7 @@ export default function PlacementAssessment() {
               <p className="text-slate-300 text-sm max-w-md text-center mb-6 leading-relaxed">
                 You exited fullscreen mode. An anomaly report has been recorded. Re-enter immediately to avoid test termination.
               </p>
-              <Button onClick={enterFullScreen} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-blue-500/25">
+              <Button onClick={enterFullScreen} className="bg-black hover:bg-slate-800 text-white font-bold px-8 py-3 rounded-xl border border-black shadow-sm">
                 Re-enter Fullscreen
               </Button>
             </div>
@@ -3066,7 +3056,7 @@ export default function PlacementAssessment() {
             {/* Header info with live Violation Counter & Company Badges */}
             <div className="flex justify-between items-center pb-4 border-b border-slate-200 mb-4 flex-wrap gap-2">
               <div className="flex items-center space-x-3 flex-wrap gap-y-2">
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold">
+                <span className="bg-white text-blue-700 border border-slate-200 px-3 py-1 rounded-full text-xs font-semibold shadow-2xs">
                   {currentQuestion.category} ➜ {currentQuestion.topic}
                 </span>
 
@@ -3143,7 +3133,7 @@ export default function PlacementAssessment() {
                               onClick={() => handleRequestHint(currentQuestion.id)}
                               disabled={loadingHint[currentQuestion.id]}
                               size="sm"
-                              className="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs px-3 py-1 h-7 rounded-lg"
+                              className="bg-white hover:bg-slate-100 text-blue-600 border border-slate-300 text-xs px-3 py-1 h-7 rounded-lg"
                             >
                               {loadingHint[currentQuestion.id] ? "Generating..." : "Reveal Hint"}
                             </Button>
@@ -3151,7 +3141,7 @@ export default function PlacementAssessment() {
                         </div>
 
                         {hints[currentQuestion.id] && (
-                          <div className="bg-blue-50/60 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 leading-relaxed space-y-1.5 animate-fade-in shadow-sm select-text">
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-800 leading-relaxed space-y-1.5 animate-fade-in shadow-sm select-text">
                             <span className="font-bold text-blue-600 block uppercase tracking-widest text-[9px] font-mono">Conceptual Coach Hint:</span>
                             <p>{hints[currentQuestion.id]}</p>
                           </div>
@@ -3254,9 +3244,9 @@ export default function PlacementAssessment() {
             ) : (currentQuestion.question_type === 'scenario' || currentQuestion.category === 'Real-World Scenarios' || (!currentQuestion.options && currentQuestion.marks >= 10)) ? (
               <div className="flex-1 overflow-y-auto mb-6 pr-2 space-y-5 select-text">
                 {/* Scenario Header Banner */}
-                <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-2xl p-5 shadow-md border border-blue-900/50">
+                <div className="bg-black text-white rounded-2xl p-5 shadow-md border border-slate-800">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5">
+                    <span className="bg-slate-900 text-blue-400 border border-blue-500/40 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3 text-amber-400" /> Real-World Engineering Scenario
                     </span>
                     <span className="bg-amber-400/20 text-amber-200 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full font-mono">
@@ -3266,7 +3256,7 @@ export default function PlacementAssessment() {
                   <h3 className="text-lg font-bold text-white tracking-tight">
                     {currentQuestion.topic || 'Engineering Architecture Challenge'}
                   </h3>
-                  <p className="text-blue-200/90 text-xs mt-1 leading-relaxed">
+                  <p className="text-slate-300 text-xs mt-1 leading-relaxed">
                     Provide a structured, step-by-step engineering answer (150–400 words recommended). Evaluators score for architecture clarity, edge cases, security, and production observability.
                   </p>
                 </div>
@@ -3351,12 +3341,12 @@ export default function PlacementAssessment() {
                           onClick={() => setAnswers(prev => ({ ...prev, [currentQuestion.id]: optKey }))}
                           className={`p-4 rounded-2xl text-left border text-sm md:text-base transition-all flex items-center space-x-3.5 shadow-sm ${
                             isSelected 
-                              ? 'bg-blue-50 border-blue-600 text-blue-900 ring-2 ring-blue-500/20 font-semibold' 
+                              ? 'bg-slate-100 border-2 border-black text-black font-bold shadow-xs' 
                               : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
                           }`}
                         >
                           <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs transition-all ${
-                            isSelected ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            isSelected ? 'bg-black text-white shadow-md' : 'bg-slate-100 text-slate-600 border border-slate-200'
                           }`}>{optKey}</span>
                           <span className="flex-1 leading-relaxed">{optText}</span>
                         </button>
@@ -3402,7 +3392,7 @@ export default function PlacementAssessment() {
               <Button
                 disabled={currentIdx === activeQs.length - 1 && activeCat === availableCategories[availableCategories.length - 1]}
                 onClick={handleNext}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20"
+                className="bg-black hover:bg-slate-800 text-white font-bold rounded-xl border border-black shadow-sm"
               >
                 Save & Next <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
@@ -3451,7 +3441,7 @@ export default function PlacementAssessment() {
                           }}
                           className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border text-xs transition-all font-semibold ${
                             isSelected
-                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              ? 'bg-black text-white border-black shadow-sm'
                               : isScenario
                               ? 'bg-amber-50/90 hover:bg-amber-100 text-amber-900 border-amber-300 font-bold'
                               : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
@@ -3462,7 +3452,7 @@ export default function PlacementAssessment() {
                             <span className="truncate">{cat.replace(/_/g, ' ')}</span>
                           </span>
                           <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                            isSelected ? 'bg-blue-700 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                            isSelected ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'
                           }`}>
                             {catQs.length} Qs
                           </span>
@@ -3482,7 +3472,7 @@ export default function PlacementAssessment() {
 
                   let itemStyle = 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100';
                   if (isCurrent) {
-                    itemStyle = 'border-blue-600 bg-blue-600 text-white font-black shadow-md ring-2 ring-blue-200';
+                    itemStyle = 'border-black bg-black text-white font-black shadow-md ring-2 ring-slate-300';
                   } else if (isFlagged && hasAnswered) {
                     itemStyle = 'border-purple-300 bg-purple-50 text-purple-800 font-bold';
                   } else if (isFlagged) {
@@ -3514,7 +3504,7 @@ export default function PlacementAssessment() {
               <Button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl mt-4 shadow-lg shadow-blue-500/25 transition-all"
+                className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3 rounded-xl mt-4 border border-black shadow-sm transition-all"
               >
                 <Send className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Submitting Assessment...' : 'Submit Assessment'}
@@ -3529,8 +3519,8 @@ export default function PlacementAssessment() {
             <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-md p-7 space-y-5 animate-fade-in text-slate-800">
               {/* Header */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
-                  <Send className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                  <Send className="w-5 h-5 text-black" />
                 </div>
                 <div>
                   <h3 className="text-lg font-extrabold text-slate-900 leading-tight">Submit Assessment?</h3>
@@ -3593,7 +3583,7 @@ export default function PlacementAssessment() {
                     submitAssessment();
                   }}
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98] shadow-lg shadow-blue-500/25"
+                  className="flex-1 bg-black hover:bg-slate-800 disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.98] border border-black shadow-sm"
                 >
                   {isSubmitting ? 'Submitting...' : 'Yes, Submit Final'}
                 </button>
@@ -3644,8 +3634,8 @@ export default function PlacementAssessment() {
             </div>
           </div>
 
-          <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-5 text-xs text-left space-y-2 text-slate-700">
-            <div className="flex items-center gap-2 text-blue-950 font-bold text-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 text-xs text-left space-y-2 text-slate-700 shadow-xs">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
               <span>📋</span>
               <span>Next Steps & Evaluation</span>
             </div>
@@ -3674,9 +3664,9 @@ export default function PlacementAssessment() {
               </button>
             </div>
           ) : (
-            <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-blue-900 shadow-sm animate-fade-in my-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-900 shadow-xs animate-fade-in my-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-blue-600 flex-shrink-0">
                   <Star className="w-5 h-5 fill-blue-600 text-blue-600" />
                 </div>
                 <div className="text-left">
@@ -3686,7 +3676,7 @@ export default function PlacementAssessment() {
               </div>
               <button
                 onClick={() => setShowFeedbackModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 flex-shrink-0 cursor-pointer text-xs"
+                className="bg-black hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl transition-all border border-black shadow-sm flex items-center gap-2 flex-shrink-0 cursor-pointer text-xs"
               >
                 <span>Rate Experience</span>
                 <Sparkles className="w-3.5 h-3.5" />
@@ -3723,7 +3713,7 @@ export default function PlacementAssessment() {
                       </p>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl text-xs font-semibold text-blue-900">
+                    <div className="inline-flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs font-semibold text-slate-900 shadow-xs">
                       <span className="text-slate-600">Your Rating:</span>
                       <div className="flex text-amber-400">
                         {[1, 2, 3, 4, 5].map((s) => (
@@ -3733,13 +3723,13 @@ export default function PlacementAssessment() {
                           />
                         ))}
                       </div>
-                      <span className="font-bold text-blue-950">({feedbackRating} / 5 Stars)</span>
+                      <span className="font-bold text-slate-900">({feedbackRating} / 5 Stars)</span>
                     </div>
 
                     <div className="pt-3">
                       <Button
                         onClick={() => setShowFeedbackModal(false)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md shadow-blue-500/20 text-sm transition-all cursor-pointer"
+                        className="w-full bg-black hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl border border-black shadow-sm text-sm transition-all cursor-pointer"
                       >
                         Close Feedback
                       </Button>
@@ -3750,7 +3740,7 @@ export default function PlacementAssessment() {
                   <div className="space-y-6">
                     {/* Header */}
                     <div className="flex items-center gap-3.5 pr-8">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0">
                         <Sparkles className="w-6 h-6 animate-pulse" />
                       </div>
                       <div>
@@ -3849,7 +3839,7 @@ export default function PlacementAssessment() {
                         type="button"
                         onClick={handleFeedbackSubmit}
                         disabled={isSubmittingFeedback || feedbackRating === 0}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                        className="flex-1 bg-black hover:bg-slate-800 disabled:opacity-40 text-white font-bold py-3 rounded-xl text-sm border border-black shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                       >
                         {isSubmittingFeedback ? (
                           <>

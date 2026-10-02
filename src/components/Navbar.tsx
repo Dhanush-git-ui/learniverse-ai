@@ -202,8 +202,8 @@ const Navbar = () => {
                   to="/dashboard" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
                     isActive('/dashboard') 
-                      ? 'text-blue-600 bg-blue-50/90 shadow-xs' 
-                      : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/60'
+                      ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' 
+                      : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4 text-blue-600" />
@@ -213,7 +213,7 @@ const Navbar = () => {
                 <Link 
                   to="/topics" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/topics') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   Topics
@@ -222,7 +222,7 @@ const Navbar = () => {
                 <Link 
                   to="/top-100-codes" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/top-100-codes') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/top-100-codes') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   Top 100 Codes
@@ -231,7 +231,7 @@ const Navbar = () => {
                 <Link 
                   to="/assessment" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/assessment') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   Placement Test
@@ -242,13 +242,13 @@ const Navbar = () => {
                     to="/assessment?admin=true" 
                     className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
                       location.search.includes('admin=true')
-                        ? 'text-emerald-700 bg-emerald-100/90 shadow-xs border border-emerald-300' 
-                        : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/80 border border-emerald-200/80'
+                        ? 'text-black bg-slate-100 shadow-xs border border-slate-300' 
+                        : 'text-slate-700 hover:text-black hover:bg-slate-50 border border-slate-200'
                     }`}
                   >
-                    <Building2 className="w-4 h-4 text-emerald-600" />
+                    <Building2 className="w-4 h-4 text-blue-600" />
                     <span>Startup Admin Hub</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                   </Link>
                 )}
 
@@ -256,7 +256,7 @@ const Navbar = () => {
                   href="https://cdc-hitam.onrender.com/dashboard"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 inline-flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:text-black hover:bg-slate-50 inline-flex items-center gap-1.5"
                   title="Check Diagnostic Assessment on CDC HITAM"
                 >
                   <span>Check Your Score</span>
@@ -271,7 +271,7 @@ const Navbar = () => {
                 <Link 
                   to="/" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   Home
@@ -280,7 +280,7 @@ const Navbar = () => {
                 <Link 
                   to="/about" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/about') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/about') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   About
@@ -289,7 +289,7 @@ const Navbar = () => {
                 <Link 
                   to="/how-it-works" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/how-it-works') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/how-it-works') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   How It Works
@@ -298,7 +298,7 @@ const Navbar = () => {
                 <Link 
                   to="/topics" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
-                    isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/topics') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   Topics
@@ -307,7 +307,7 @@ const Navbar = () => {
                 <Link 
                   to="/assessment" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
-                    isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50/70'
+                    isActive('/assessment') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:text-black hover:bg-slate-50'
                   }`}
                 >
                   <Award className="w-4 h-4 text-blue-600" />
@@ -336,27 +336,21 @@ const Navbar = () => {
                 </Link>
 
                 {/* Student / Admin Profile Pill */}
-                <div className={`flex items-center gap-2 border rounded-2xl px-3 py-1.5 shadow-xs ${
-                  isAdmin 
-                    ? "bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800" 
-                    : "bg-blue-50/90 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60"
-                }`}>
+                <div className="flex items-center gap-2 border border-slate-200 bg-white rounded-2xl px-3 py-1.5 shadow-xs">
                   <Link
                     to={isAdmin ? "/assessment?admin=true" : "/dashboard"}
                     className="flex items-center gap-2.5 hover:opacity-85 transition-opacity"
                     title={isAdmin ? "Startup Assessment Admin Console" : `Student Dashboard: ${studentInfo.roll}`}
                   >
-                    <div className={`w-7 h-7 rounded-xl text-white flex items-center justify-center font-bold text-xs shadow-xs ${
-                      isAdmin ? "bg-emerald-600" : "bg-blue-600"
-                    }`}>
+                    <div className="w-7 h-7 rounded-xl text-white bg-black flex items-center justify-center font-bold text-xs shadow-xs">
                       {isAdmin ? <ShieldCheck className="w-4 h-4 text-white" /> : studentInfo.initial}
                     </div>
                     <div className="text-left leading-tight">
                       <div className="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 flex items-center gap-1">
                         <span>{studentInfo.roll}</span>
-                        {isAdmin && <span className="bg-emerald-600 text-white text-[9px] px-1 py-0.2 rounded font-sans">ADMIN</span>}
+                        {isAdmin && <span className="bg-black text-white text-[9px] px-1 py-0.2 rounded font-sans border border-slate-700">ADMIN</span>}
                       </div>
-                      <div className={`text-[10px] font-semibold ${isAdmin ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"}`}>
+                      <div className="text-[10px] font-semibold text-blue-600">
                         {studentInfo.branch} {studentInfo.year ? `• ${studentInfo.year}` : ""}
                       </div>
                     </div>
@@ -377,18 +371,18 @@ const Navbar = () => {
                 <Button
                   onClick={() => setIsLoginModalOpen(true)}
                   variant="outline"
-                  className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 font-semibold px-3.5 py-2 rounded-xl text-xs lg:text-sm flex items-center gap-1.5 shadow-xs"
+                  className="border-slate-300 text-slate-800 hover:bg-slate-100 font-bold px-3.5 py-2 rounded-xl text-xs lg:text-sm flex items-center gap-1.5 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
                   <span>Login</span>
                 </Button>
 
                 <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md shadow-blue-500/20 text-xs lg:text-sm flex items-center gap-1.5"
+                  className="bg-black hover:bg-slate-800 text-white font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sm border border-black text-xs lg:text-sm flex items-center gap-1.5"
                   asChild
                 >
                   <Link to="/assessment">
-                    <Award className="w-4 h-4" />
+                    <Award className="w-4 h-4 text-blue-400" />
                     <span>Take Placement Test</span>
                   </Link>
                 </Button>
@@ -401,7 +395,7 @@ const Navbar = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-slate-600 hover:text-blue-600 focus:outline-none p-2 rounded-xl hover:bg-blue-50 transition-colors"
+              className="text-slate-600 hover:text-black focus:outline-none p-2 rounded-xl hover:bg-slate-100 transition-colors"
               aria-expanded={mobileMenuOpen}
               aria-label="Toggle navigation menu"
             >
@@ -420,20 +414,20 @@ const Navbar = () => {
       {/* MOBILE MENU DROPDOWN: DISTINCT FOR BEFORE vs AFTER LOGIN  */}
       {/* ========================================================= */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/98 dark:bg-gray-900/98 backdrop-blur-xl border-b border-blue-100 dark:border-gray-800 px-5 pt-3 pb-6 space-y-3 shadow-xl animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden bg-white/98 dark:bg-gray-900/98 backdrop-blur-xl border-b border-slate-200 dark:border-gray-800 px-5 pt-3 pb-6 space-y-3 shadow-xl animate-in slide-in-from-top-2 duration-200">
           {student && studentInfo ? (
             // -------------------------------------------------------
             // AFTER LOGIN (Mobile Menu)
             // -------------------------------------------------------
             <>
               {/* Student Profile Card */}
-              <div className="p-3.5 rounded-2xl bg-blue-50/90 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 flex items-center justify-between shadow-xs">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-xs">
                 <Link 
                   to="/dashboard" 
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-bold text-sm shadow-xs">
                     {studentInfo.initial}
                   </div>
                   <div>
@@ -460,7 +454,7 @@ const Navbar = () => {
                   to="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold transition-all ${
-                    isActive('/dashboard') ? 'text-blue-600 bg-blue-50 shadow-xs' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/dashboard') ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <LayoutDashboard className="w-5 h-5 text-blue-600" />
@@ -471,7 +465,7 @@ const Navbar = () => {
                   to="/topics"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold transition-all ${
-                    isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/topics') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <BookOpen className="w-5 h-5 text-slate-500" />
@@ -482,7 +476,7 @@ const Navbar = () => {
                   to="/top-100-codes"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold transition-all ${
-                    isActive('/top-100-codes') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/top-100-codes') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <Code2 className="w-5 h-5 text-slate-500" />
@@ -493,10 +487,10 @@ const Navbar = () => {
                   to="/assessment"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold transition-all ${
-                    isActive('/assessment') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/assessment') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  <Award className="w-5 h-5 text-slate-500" />
+                  <Award className="w-5 h-5 text-blue-600" />
                   <span>Placement Test</span>
                 </Link>
 
@@ -505,12 +499,12 @@ const Navbar = () => {
                     to="/assessment?admin=true"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold transition-all ${
-                      location.search.includes('admin=true') ? 'text-emerald-700 bg-emerald-50 shadow-xs' : 'text-emerald-600 hover:bg-emerald-50/60'
+                      location.search.includes('admin=true') ? 'text-black bg-slate-100 border border-slate-300 shadow-xs' : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <Building2 className="w-5 h-5 text-emerald-600" />
+                    <Building2 className="w-5 h-5 text-blue-600" />
                     <span>Startup Admin Hub</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-auto" />
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse ml-auto" />
                   </Link>
                 )}
 
@@ -551,7 +545,7 @@ const Navbar = () => {
                   to="/"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold ${
-                    isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <Home className="w-5 h-5 text-slate-500" />
@@ -562,7 +556,7 @@ const Navbar = () => {
                   to="/about"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold ${
-                    isActive('/about') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/about') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <Info className="w-5 h-5 text-slate-500" />
@@ -573,7 +567,7 @@ const Navbar = () => {
                   to="/how-it-works"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold ${
-                    isActive('/how-it-works') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/how-it-works') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <HelpCircle className="w-5 h-5 text-slate-500" />
@@ -584,7 +578,7 @@ const Navbar = () => {
                   to="/topics"
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold ${
-                    isActive('/topics') ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'
+                    isActive('/topics') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <BookOpen className="w-5 h-5 text-slate-500" />
@@ -594,8 +588,8 @@ const Navbar = () => {
                 <Link
                   to="/assessment"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold text-blue-600 ${
-                    isActive('/assessment') ? 'bg-blue-50' : 'hover:bg-slate-50'
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold text-black ${
+                    isActive('/assessment') ? 'bg-slate-100 border border-slate-200' : 'hover:bg-slate-50'
                   }`}
                 >
                   <Award className="w-5 h-5 text-blue-600" />
@@ -606,11 +600,11 @@ const Navbar = () => {
               {/* Action Buttons for Guest */}
               <div className="pt-3 space-y-2 border-t border-slate-100 dark:border-slate-800">
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-300 shadow-md shadow-blue-500/20 flex items-center justify-center gap-2"
+                  className="w-full bg-black hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl transition-all duration-300 shadow-sm border border-black flex items-center justify-center gap-2"
                   asChild
                 >
                   <Link to="/assessment" onClick={() => setMobileMenuOpen(false)}>
-                    <Award className="w-4 h-4" />
+                    <Award className="w-4 h-4 text-blue-400" />
                     <span>Take Placement Test</span>
                   </Link>
                 </Button>
@@ -621,7 +615,7 @@ const Navbar = () => {
                     setMobileMenuOpen(false);
                     setIsLoginModalOpen(true);
                   }}
-                  className="w-full border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full border-slate-300 text-slate-800 hover:bg-slate-100 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
                   <span>Login</span>
