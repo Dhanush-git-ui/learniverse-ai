@@ -7,8 +7,11 @@ const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
-            <Lightbulb className="w-6 h-6 text-blue-600 mr-2" />
-            <span className="text-lg font-black text-slate-900 tracking-tight">Learniverse</span>
+            <Lightbulb className="w-6 h-6 text-[#2563eb] stroke-[2.3] mr-2 flex-shrink-0" />
+            <span className="text-lg font-black tracking-tight leading-none select-none">
+              <span className="text-slate-950">Learn</span>
+              <span className="text-[#2563eb]">iverse</span>
+            </span>
           </div>
           
           <div className="text-sm text-slate-500">

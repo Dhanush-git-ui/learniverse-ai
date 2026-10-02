@@ -182,13 +182,14 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link
               to={student ? "/dashboard" : "/"}
-              className={`flex items-center space-x-2 text-blue-600 transition-transform hover:scale-105 ${
+              className={`flex items-center transition-transform hover:scale-105 ${
                 isActive('/top-100-codes') ? '-ml-4' : ''
               }`}
             >
-              <Lightbulb className="w-7 h-7 text-blue-600" />
-              <span className="text-xl font-black text-slate-900 tracking-tight">
-                Learniverse
+              <Lightbulb className="w-7 h-7 text-[#2563eb] stroke-[2.3] mr-2 flex-shrink-0" />
+              <span className="text-xl sm:text-[22px] font-black tracking-tight leading-none select-none">
+                <span className="text-slate-950 dark:text-white">Learn</span>
+                <span className="text-[#2563eb]">iverse</span>
               </span>
             </Link>
           </div>
