@@ -8,6 +8,29 @@ ROOT_DIR = r'C:\Users\dhanu\OneDrive\Desktop\learn'
 techhash_dir = os.path.join(ROOT_DIR, '01_TechHash_Internship_Tests')
 os.makedirs(techhash_dir, exist_ok=True)
 
+# 0. Build Roster Lookup from Application Form Responses
+roster_file = os.path.join(techhash_dir, 'Source_Documents', 'TeccHash Pvt. Ltd. - Internship Application Form (Responses).xlsx')
+roster_map = {}
+if os.path.exists(roster_file):
+    try:
+        roster_df = pd.read_excel(roster_file)
+        # Find roll number and name columns
+        name_col = next((c for c in roster_df.columns if 'name' in c.lower()), 'Full Name')
+        roll_col = next((c for c in roster_df.columns if 'roll' in c.lower()), 'Roll Number ')
+        role_col = next((c for c in roster_df.columns if 'role' in c.lower()), 'Internship Role Applying For')
+        branch_col = next((c for c in roster_df.columns if 'branch' in c.lower()), 'Branch / Department')
+
+        for _, row in roster_df.iterrows():
+            r_num = str(row.get(roll_col, '')).strip().upper()
+            if r_num and r_num != 'NAN':
+                roster_map[r_num] = {
+                    'name': str(row.get(name_col, '')).strip(),
+                    'role': str(row.get(role_col, '')).strip(),
+                    'branch': str(row.get(branch_col, '')).strip()
+                }
+    except Exception as e:
+        print(f"Notice: Roster lookup parse note: {e}")
+
 # 1. Load Vercel Cloud Submissions
 vercel_json = os.path.join(techhash_dir, 'Vercel_Cloud_Submissions.json')
 cloud_subs = []
@@ -33,23 +56,50 @@ if os.path.exists(sqlite_path):
     sqlite_subs = [dict(r) for r in cur.fetchall()]
     conn.close()
 
-# 3. Deduplicate / combine all records by (roll_number, submitted_at)
+# 3. Intelligent Deduplication and Selection
+# If multiple records exist for the same student, choose the one with:
+# 1) Non-generic name, 2) Highest total marks / answers, 3) Most recent timestamp
 all_records = {}
 
-# Priority: Cloud submissions + Local SQLite + Local JSON
+def process_submission(r, source_name):
+    roll = str(r.get('roll_number', '')).strip().upper()
+    sub_at = str(r.get('submitted_at', ''))[:19]
+    key = (roll, sub_at)
+    
+    # Auto-enrich name from roster if missing or generic 'Candidate'
+    curr_name = str(r.get('student_name', '')).strip()
+    if (not curr_name or curr_name.lower() in ['candidate', 'unknown']) and roll in roster_map:
+        r['student_name'] = roster_map[roll]['name']
+    
+    # Auto-enrich role if missing
+    if (not r.get('role') or r.get('role') == 'Engineering Intern') and roll in roster_map:
+        r['role'] = roster_map[roll]['role']
+        
+    entry = {**r, 'source_platform': source_name}
+    
+    if key not in all_records:
+        all_records[key] = entry
+    else:
+        existing = all_records[key]
+        ex_name = str(existing.get('student_name', '')).strip()
+        new_name = str(entry.get('student_name', '')).strip()
+        ex_marks = float(existing.get('total_marks') or 0.0)
+        new_marks = float(entry.get('total_marks') or 0.0)
+        
+        # Replace if current entry has a real candidate name and existing is generic
+        if ex_name.lower() in ['candidate', 'unknown'] and new_name.lower() not in ['candidate', 'unknown']:
+            all_records[key] = entry
+        elif new_marks > ex_marks:
+            all_records[key] = entry
+
 for r in cloud_subs:
-    key = (str(r.get('roll_number', '')).strip().upper(), str(r.get('submitted_at', ''))[:19])
-    all_records[key] = {**r, 'source_platform': 'Vercel (Cloud)'}
+    process_submission(r, 'Vercel (Cloud)')
 
 for r in sqlite_subs:
-    key = (str(r.get('roll_number', '')).strip().upper(), str(r.get('submitted_at', ''))[:19])
-    if key not in all_records:
-        all_records[key] = {**r, 'source_platform': 'Local / Ngrok'}
+    process_submission(r, 'Local / Ngrok')
 
 for r in local_subs:
-    key = (str(r.get('roll_number', '')).strip().upper(), str(r.get('submitted_at', ''))[:19])
-    if key not in all_records:
-        all_records[key] = {**r, 'source_platform': 'Local / Ngrok'}
+    process_submission(r, 'Local / Ngrok')
 
 records = list(all_records.values())
 # Sort by submitted_at desc

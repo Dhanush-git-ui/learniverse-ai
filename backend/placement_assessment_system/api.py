@@ -9,7 +9,7 @@ import sqlite3
 import time as _time
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
@@ -2157,3 +2157,66 @@ def get_coding_hint(req: GetHintRequest, db=Depends(get_db_cursor)):
         return {"hint": row["hint"].strip()}
         
     return {"hint": "Identify the primary data structure or pattern (e.g. Hash Table, Two Pointers, Dynamic Programming)."}
+
+
+# -------------------------------------------------------------
+# Multi-Tenant Startup Admin Panel & Candidate Routing APIs
+# -------------------------------------------------------------
+from placement_assessment_system import multi_tenant_service
+
+@router.get("/catalog")
+def get_assessment_catalog(db=Depends(get_db_cursor)):
+    """Fetch startup catalog with categorized ongoing, upcoming, and past test drives."""
+    return multi_tenant_service.get_all_tests_catalog(db)
+
+@router.get("/lookup-candidate")
+def lookup_candidate(identifier: str = Query(...), db=Depends(get_db_cursor)):
+    """Validates candidate eligibility by Roll Number or Email, checking timing and test status."""
+    return multi_tenant_service.lookup_candidate_assessment(db, identifier)
+
+@router.get("/admin/tests/{test_id}/live")
+def get_test_live_monitoring(test_id: str, db=Depends(get_db_cursor)):
+    """Full real-time command center: in-progress, completed, not started, live timer & violations."""
+    return multi_tenant_service.get_test_live_monitor(db, test_id)
+
+class CreateTestRequest(BaseModel):
+    company_name: str
+    company_logo: Optional[str] = ""
+    test_name: str
+    role_track: str = "Full Stack Developer"
+    start_time: str
+    end_time: str
+    duration_minutes: int = 60
+    total_marks: float = 70.0
+    pass_percentage: float = 50.0
+    roster: List[Dict[str, Any]] = []
+    questions: List[Dict[str, Any]] = []
+
+@router.post("/admin/tests")
+def create_test_assessment(payload: CreateTestRequest, db=Depends(get_db_cursor)):
+    """Creates a new assessment test for a startup, with roster candidates and questions."""
+    return multi_tenant_service.create_assessment_test(db, payload.dict())
+
+class ResetCandidateRequest(BaseModel):
+    roll_number: str
+
+@router.post("/admin/tests/{test_id}/candidate-reset")
+def reset_candidate_attempt(test_id: str, req: ResetCandidateRequest, db=Depends(get_db_cursor)):
+    """Resets candidate attempt to allow re-entry in case of system disconnection."""
+    return multi_tenant_service.reset_candidate_session(db, test_id, req.roll_number)
+
+class HeartbeatRequest(BaseModel):
+    test_id: Optional[str] = "default"
+    roll_number: str
+    student_name: Optional[str] = "Candidate"
+    session_id: Optional[str] = ""
+    current_question: int = 1
+    violations: int = 0
+
+@router.post("/heartbeat")
+def candidate_heartbeat(req: HeartbeatRequest, db=Depends(get_db_cursor)):
+    """Live heartbeat from candidate browser during assessment."""
+    return multi_tenant_service.heartbeat_candidate_session(
+        db, req.test_id, req.roll_number, req.student_name, req.session_id, req.current_question, req.violations
+    )
+

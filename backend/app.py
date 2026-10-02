@@ -329,6 +329,9 @@ app.include_router(assessment_router)
 from cdc_integration import cdc_router
 app.include_router(cdc_router)
 
+from auth_api import auth_router
+app.include_router(auth_router)
+
 class ChatMessage(BaseModel):
     role: str
     content: str

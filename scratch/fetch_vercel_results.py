@@ -20,8 +20,10 @@ req = urllib.request.Request(url, headers=headers)
 with urllib.request.urlopen(req, timeout=45, context=ctx) as resp:
     raw_data = resp.read()
 
-os.makedirs('01_TechHash_Internship_Tests', exist_ok=True)
-json_file = '01_TechHash_Internship_Tests/Vercel_Cloud_Submissions.json'
+ROOT_DIR = r'C:\Users\dhanu\OneDrive\Desktop\learn'
+TECHHASH_DIR = os.path.join(ROOT_DIR, '01_TechHash_Internship_Tests')
+os.makedirs(TECHHASH_DIR, exist_ok=True)
+json_file = os.path.join(TECHHASH_DIR, 'Vercel_Cloud_Submissions.json')
 with open(json_file, 'wb') as f:
     f.write(raw_data)
 
@@ -96,7 +98,7 @@ for s in subs:
                 'Submitted At': str(s.get('submitted_at'))
             })
 
-excel_out = '01_TechHash_Internship_Tests/Vercel_Students_Assessment_Results.xlsx'
+excel_out = os.path.join(TECHHASH_DIR, 'Vercel_Students_Assessment_Results.xlsx')
 with pd.ExcelWriter(excel_out, engine='openpyxl') as writer:
     pd.DataFrame(summary_rows).to_excel(writer, sheet_name='Candidate_Scores', index=False)
     if scenario_rows:

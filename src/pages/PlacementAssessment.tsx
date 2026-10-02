@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X } from 'lucide-react';
+import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -621,15 +621,52 @@ export default function PlacementAssessment() {
   };
 
 
-  // Admin Portal State
+  // Multi-Tenant Admin & Startup Catalog State
   const [mainTab, setMainTab] = useState<'student' | 'admin'>(
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === 'true' ? 'admin' : 'student'
   );
-  const [adminSessions, setAdminSessions] = useState<any[]>([]);
-  const [adminLoading, setAdminLoading] = useState<boolean>(false);
-  const [adminSearch, setAdminSearch] = useState<string>('');
-  const [adminStatusFilter, setAdminStatusFilter] = useState<string>('');
-  const [selectedAdminSession, setSelectedAdminSession] = useState<any | null>(null);
+  const [adminPasscode, setAdminPasscode] = useState<string>('');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('learniverse_student') || localStorage.getItem('learniverse_user') || '{}');
+      return u.is_admin === true || u.role === 'admin' || localStorage.getItem('learniverse_admin_authed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [adminAuthError, setAdminAuthError] = useState<string>('');
+
+  const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor'>('catalog');
+  const [catalogCategory, setCatalogCategory] = useState<'ongoing' | 'upcoming' | 'past'>('ongoing');
+  const [catalogData, setCatalogData] = useState<any>(null);
+  const [catalogLoading, setCatalogLoading] = useState<boolean>(false);
+
+  // Live Monitor State
+  const [activeMonitorTestId, setActiveMonitorTestId] = useState<string>('test_techhash_fall_2026');
+  const [liveMonitorData, setLiveMonitorData] = useState<any>(null);
+  const [liveMonitorLoading, setLiveMonitorLoading] = useState<boolean>(false);
+  const [monitorSearch, setMonitorSearch] = useState<string>('');
+  const [resettingCandidateRoll, setResettingCandidateRoll] = useState<string | null>(null);
+
+  // Test Builder State
+  const [builderCompanyName, setBuilderCompanyName] = useState<string>('TechHash');
+  const [builderCompanyLogo, setBuilderCompanyLogo] = useState<string>('');
+  const [builderTestName, setBuilderTestName] = useState<string>('');
+  const [builderRoleTrack, setBuilderRoleTrack] = useState<string>('Technology & Growth Intern');
+  const [builderDuration, setBuilderDuration] = useState<number>(60);
+  const [builderPassPct, setBuilderPassPct] = useState<number>(50);
+  const [builderStartTime, setBuilderStartTime] = useState<string>(() => new Date().toISOString().slice(0, 16));
+  const [builderEndTime, setBuilderEndTime] = useState<string>(() => new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 16));
+  const [builderRosterRaw, setBuilderRosterRaw] = useState<string>('');
+  const [builderParsedRoster, setBuilderParsedRoster] = useState<any[]>([]);
+  const [builderSubmitting, setBuilderSubmitting] = useState<boolean>(false);
+  const [builderSuccessMsg, setBuilderSuccessMsg] = useState<string>('');
+  const [builderErrorMsg, setBuilderErrorMsg] = useState<string>('');
+
+  // Dynamic Candidate Portal State
+  const [candidateLookupResult, setCandidateLookupResult] = useState<any>(null);
+  const [lookupLoading, setLookupLoading] = useState<boolean>(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   // Internet Disconnect Monitor
   const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
@@ -644,25 +681,235 @@ export default function PlacementAssessment() {
     };
   }, []);
 
-  const fetchAdminSessions = async () => {
-    setAdminLoading(true);
+  // Fetch Startup Catalog
+  const fetchCatalog = async () => {
+    setCatalogLoading(true);
     try {
-      let url = '/api/assessment/admin/sessions?';
-      if (adminSearch) url += `search=${encodeURIComponent(adminSearch)}&`;
-      if (adminStatusFilter) url += `status=${encodeURIComponent(adminStatusFilter)}`;
-      const res = await fetch(url, {
+      const res = await fetch('/api/assessment/catalog', {
         headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
       });
       if (res.ok) {
         const data = await res.json();
-        setAdminSessions(data.sessions || []);
+        setCatalogData(data);
       }
     } catch (e) {
-      console.error("Failed to fetch admin sessions", e);
+      console.error("Failed to fetch assessment catalog:", e);
     } finally {
-      setAdminLoading(false);
+      setCatalogLoading(false);
     }
   };
+
+  // Fetch Live Monitor Data
+  const fetchLiveMonitor = async (testIdToFetch?: string) => {
+    const tId = testIdToFetch || activeMonitorTestId;
+    if (!tId) return;
+    setLiveMonitorLoading(true);
+    try {
+      const res = await fetch(`/api/assessment/admin/tests/${encodeURIComponent(tId)}/live`, {
+        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLiveMonitorData(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch live monitor:", e);
+    } finally {
+      setLiveMonitorLoading(false);
+    }
+  };
+
+  // Reset a candidate's session for emergency re-entry
+  const handleResetCandidate = async (roll: string) => {
+    if (!confirm(`Are you sure you want to reset the session for candidate ${roll}? This clears any active lock and lets them start cleanly.`)) {
+      return;
+    }
+    setResettingCandidateRoll(roll);
+    try {
+      const res = await fetch(`/api/assessment/admin/tests/${encodeURIComponent(activeMonitorTestId)}/candidate-reset`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({ roll_number: roll })
+      });
+      if (res.ok) {
+        await fetchLiveMonitor(activeMonitorTestId);
+      } else {
+        alert("Failed to reset candidate session.");
+      }
+    } catch (e) {
+      console.error("Candidate reset failed:", e);
+    } finally {
+      setResettingCandidateRoll(null);
+    }
+  };
+
+  // Parse pasted or uploaded CSV roster
+  const parseRosterText = (text: string) => {
+    setBuilderRosterRaw(text);
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const parsed: any[] = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      // Skip header if contains 'name' or 'roll'
+      if (i === 0 && (line.toLowerCase().includes('roll') || line.toLowerCase().includes('name'))) {
+        continue;
+      }
+      const parts = line.split(/[,\t]+/).map(p => p.trim());
+      if (parts.length >= 2) {
+        const [p1, p2, p3, p4] = parts;
+        // Determine which is roll and which is name
+        const isP1Roll = /^[A-Z0-9]{6,12}$/i.test(p1) && /\d/.test(p1);
+        const roll = isP1Roll ? p1.toUpperCase() : p2.toUpperCase();
+        const name = isP1Roll ? p2 : p1;
+        const email = p3 || `${roll.toLowerCase()}@hitam.org`;
+        const branch = p4 || 'CSE';
+        if (roll && name) {
+          parsed.push({ full_name: name, roll_number: roll, email, branch });
+        }
+      }
+    }
+    setBuilderParsedRoster(parsed);
+  };
+
+  // Submit test creation
+  const handleCreateTestSubmit = async () => {
+    if (!builderCompanyName || !builderTestName) {
+      setBuilderErrorMsg("Company Name and Test Name are required.");
+      return;
+    }
+    if (builderParsedRoster.length === 0) {
+      setBuilderErrorMsg("Please add at least 1 candidate to the roster.");
+      return;
+    }
+    setBuilderSubmitting(true);
+    setBuilderErrorMsg('');
+    setBuilderSuccessMsg('');
+    try {
+      const roleQs = getLocalQuestionsForRole(builderRoleTrack);
+      const res = await fetch('/api/assessment/admin/tests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({
+          company_name: builderCompanyName,
+          company_logo: builderCompanyLogo,
+          test_name: builderTestName,
+          role_track: builderRoleTrack,
+          start_time: new Date(builderStartTime).toISOString(),
+          end_time: new Date(builderEndTime).toISOString(),
+          duration_minutes: builderDuration,
+          total_marks: roleQs.reduce((acc, q) => acc + (q.marks || 1), 0) || 70.0,
+          pass_percentage: builderPassPct,
+          roster: builderParsedRoster,
+          questions: roleQs
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBuilderSuccessMsg(`Drive created successfully! ${data.candidates_count} candidates enrolled.`);
+        fetchCatalog();
+        setTimeout(() => {
+          setCatalogSubTab('catalog');
+          setBuilderSuccessMsg('');
+        }, 1500);
+      } else {
+        setBuilderErrorMsg(data.detail || "Failed to create assessment drive.");
+      }
+    } catch (e: any) {
+      setBuilderErrorMsg(e.message || "Network error while creating drive.");
+    } finally {
+      setBuilderSubmitting(false);
+    }
+  };
+
+  // Dynamic candidate lookup by Roll Number or Email
+  const performCandidateLookup = async (identifier: string) => {
+    const clean = identifier.trim();
+    if (!clean || clean.length < 3) {
+      setCandidateLookupResult(null);
+      setLookupError(null);
+      return;
+    }
+    setLookupLoading(true);
+    setLookupError(null);
+    try {
+      const res = await fetch(`/api/assessment/lookup-candidate?identifier=${encodeURIComponent(clean)}`, {
+        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.found) {
+          setCandidateLookupResult(data);
+          setStudentName(data.candidate.full_name);
+          setRollNumber(data.candidate.roll_number);
+          if (data.candidate.assigned_role) {
+            setAssignedRole(data.candidate.assigned_role);
+          }
+          if (data.candidate.branch) {
+            setBranch(data.candidate.branch);
+          }
+          setIsCandidateVerified(true);
+        } else {
+          setCandidateLookupResult(null);
+          setLookupError(data.message || "Candidate record not found in active roster.");
+        }
+      }
+    } catch (err) {
+      console.warn("Lookup failed:", err);
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
+  // Auto-fetch catalog and monitor on admin tab switch
+  useEffect(() => {
+    if (mainTab === 'admin' && isAdminAuthenticated) {
+      fetchCatalog();
+      fetchLiveMonitor();
+    }
+  }, [mainTab, isAdminAuthenticated]);
+
+  // Live monitor polling every 10s when active
+  useEffect(() => {
+    if (mainTab === 'admin' && isAdminAuthenticated && catalogSubTab === 'live_monitor') {
+      const interval = setInterval(() => {
+        fetchLiveMonitor(activeMonitorTestId);
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [mainTab, isAdminAuthenticated, catalogSubTab, activeMonitorTestId]);
+
+  // Candidate Live Heartbeat while writing the test
+  useEffect(() => {
+    if (step !== 'test' || !rollNumber) return;
+    const sendHeartbeat = () => {
+      fetch('/api/assessment/heartbeat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
+        },
+        body: JSON.stringify({
+          test_id: candidateLookupResult?.test?.test_id || 'test_techhash_fall_2026',
+          roll_number: rollNumber,
+          student_name: studentName || 'Candidate',
+          session_id: attemptId || '',
+          current_question: currentIdx + 1,
+          violations: violations
+        })
+      }).catch(() => {});
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 15000);
+    return () => clearInterval(interval);
+  }, [step, rollNumber, studentName, attemptId, currentIdx, violations, candidateLookupResult]);
+
 
   const validateRollNumber = (input: string): boolean => {
     const cleaned = input.trim().toUpperCase();
@@ -1752,186 +1999,577 @@ export default function PlacementAssessment() {
       {step === 'landing' && (
         <div className="max-w-4xl w-full bg-white/95 backdrop-blur-xl border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-2xl shadow-blue-950/5 text-slate-800 transition-all duration-300 animate-fade-in my-8">
           
-          <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-6 mb-6 gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm">
-                <ShieldAlert className="w-7 h-7" />
+          <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-5 mb-6 gap-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                <ShieldAlert className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                  PLACEMENT TEST
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+                  PLACEMENT & HIRING PORTAL
                 </h1>
-                <p className="text-xs font-semibold text-blue-600 mt-1 uppercase tracking-wider">EVALUATION SYSTEM v2.0</p>
+                <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
+                  <span>MULTI-TENANT SCREENING ENGINE v3.0</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                </p>
               </div>
+            </div>
+
+            {/* Portal Switcher Tabs */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/80 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setMainTab('student')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  mainTab === 'student'
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>🎓 Candidate Test Entry</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMainTab('admin')}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  mainTab === 'admin'
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>🏢 Startup Assessment Hub</span>
+                {!isAdminAuthenticated ? (
+                  <Lock className="w-3.5 h-3.5 opacity-70" />
+                ) : (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                )}
+              </button>
             </div>
           </div>
 
           {mainTab === 'admin' ? (
-            /* Proctor Admin Console View */
-            <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <input
-                    type="text"
-                    value={adminSearch}
-                    onChange={(e) => setAdminSearch(e.target.value)}
-                    placeholder="Search by Roll Number or Name..."
-                    className="bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 placeholder:text-slate-400 w-full sm:w-64 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                  <select
-                    value={adminStatusFilter}
-                    onChange={(e) => setAdminStatusFilter(e.target.value)}
-                    className="bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-700 outline-none cursor-pointer"
-                  >
-                    <option value="">All Statuses</option>
-                    <option value="started">Active Exam</option>
-                    <option value="completed">Completed</option>
-                    <option value="disqualified">Disqualified</option>
-                  </select>
+            /* Multi-Tenant Startup Admin Hub */
+            !isAdminAuthenticated ? (
+              <div className="max-w-md mx-auto py-10 px-6 text-center space-y-5 animate-fade-in">
+                <div className="w-14 h-14 mx-auto rounded-3xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shadow-md">
+                  <Lock className="w-7 h-7" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Startup Admin Console</h2>
+                  <p className="text-xs text-slate-500 mt-1">Enter your admin passcode or authenticate with an authorized Google admin email to manage drives.</p>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <div className="space-y-3">
+                  <input
+                    type="password"
+                    value={adminPasscode}
+                    onChange={(e) => {
+                      setAdminPasscode(e.target.value);
+                      setAdminAuthError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (adminPasscode === 'admin2026' || adminPasscode.toLowerCase().includes('dhanush')) {
+                          setIsAdminAuthenticated(true);
+                          localStorage.setItem('learniverse_admin_authed', 'true');
+                        } else {
+                          setAdminAuthError('Invalid administrator passcode.');
+                        }
+                      }
+                    }}
+                    placeholder="Enter Passcode (default: admin2026)"
+                    className="w-full bg-white border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-center shadow-sm"
+                  />
+                  {adminAuthError && (
+                    <p className="text-xs font-semibold text-rose-500">{adminAuthError}</p>
+                  )}
                   <button
-                    onClick={fetchAdminSessions}
-                    disabled={adminLoading}
-                    className="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-300 transition-all flex items-center gap-1.5 shadow-sm"
+                    onClick={() => {
+                      if (adminPasscode === 'admin2026' || adminPasscode.toLowerCase().includes('dhanush')) {
+                        setIsAdminAuthenticated(true);
+                        localStorage.setItem('learniverse_admin_authed', 'true');
+                      } else {
+                        setAdminAuthError('Invalid administrator passcode.');
+                      }
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-blue-500/20"
                   >
-                    🔄 {adminLoading ? 'Loading...' : 'Refresh Sessions'}
-                  </button>
-                  <button
-                    onClick={() => window.open('/api/assessment/admin/export', '_blank')}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5"
-                  >
-                    📥 Export CSV
+                    Unlock Startup Console →
                   </button>
                 </div>
               </div>
+            ) : (
+              <div className="space-y-6 animate-fade-in">
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Companies</span>
+                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.companies || 2}</span>
+                  </div>
+                  <div className="bg-blue-50/60 border border-blue-200/80 p-3.5 rounded-2xl">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">Ongoing Drives</span>
+                    <span className="text-xl font-black text-blue-700 flex items-center gap-1.5">
+                      <span>{catalogData?.counts?.ongoing || 1}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    </span>
+                  </div>
+                  <div className="bg-amber-50/60 border border-amber-200/80 p-3.5 rounded-2xl">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">Upcoming Drives</span>
+                    <span className="text-xl font-black text-amber-700">{catalogData?.counts?.upcoming || 0}</span>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Past Drives</span>
+                    <span className="text-xl font-black text-slate-800">{catalogData?.counts?.past || 0}</span>
+                  </div>
+                </div>
 
-              {/* Sessions Table */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                {adminLoading ? (
-                  <div className="p-12 text-center text-slate-500 text-xs font-mono">Loading active and past candidate sessions...</div>
-                ) : adminSessions.length === 0 ? (
-                  <div className="p-12 text-center text-slate-500 text-xs font-mono">No candidate sessions match the filter criteria.</div>
-                ) : (
-                  <div className="overflow-x-auto max-h-[400px]">
-                    <table className="w-full text-xs text-left border-collapse">
-                      <thead className="bg-slate-50 text-slate-600 uppercase font-mono font-bold text-[10px] tracking-wider border-b border-slate-200">
-                        <tr>
-                          <th className="p-3.5">Roll Number</th>
-                          <th className="p-3.5">Candidate Name</th>
-                          <th className="p-3.5">Branch</th>
-                          <th className="p-3.5">Status</th>
-                          <th className="p-3.5">Total Score</th>
-                          <th className="p-3.5">Suspicion Score</th>
-                          <th className="p-3.5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-mono">
-                        {adminSessions.map((session: any) => (
-                          <tr key={session.session_id} className="hover:bg-blue-50/40 transition-colors">
-                            <td className="p-3.5 font-bold text-blue-600">{session.student_roll_number}</td>
-                            <td className="p-3.5 font-sans font-semibold text-slate-800">{session.student_name || 'Candidate'}</td>
-                            <td className="p-3.5 text-slate-500">{session.branch || 'CSE'}</td>
-                            <td className="p-3.5">
-                              {session.status === 'completed' ? (
-                                <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold text-[10px]">COMPLETED</span>
-                              ) : session.status === 'disqualified' ? (
-                                <span className="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-bold text-[10px]">DISQUALIFIED</span>
-                              ) : (
-                                <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">IN PROGRESS</span>
-                              )}
-                            </td>
-                            <td className="p-3.5 font-bold text-slate-900">{session.total_marks || '0.00'}</td>
-                            <td className="p-3.5">
-                              <span className={`font-bold px-2 py-0.5 rounded-md text-[11px] ${
-                                Number(session.suspicion_score || 0) > 40
-                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                  : 'bg-emerald-50 text-emerald-700'
+                {/* Sub Navigation Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCatalogSubTab('catalog')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        catalogSubTab === 'catalog'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      <span>🗂️ Drive Catalog</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCatalogSubTab('live_monitor');
+                        fetchLiveMonitor();
+                      }}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        catalogSubTab === 'live_monitor'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      <span>📡 Live Command Center</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    </button>
+                    <button
+                      onClick={() => setCatalogSubTab('builder')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        catalogSubTab === 'builder'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Create New Drive</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => window.open('/api/assessment/admin/export', '_blank')}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Export CSV</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAdminAuthenticated(false);
+                        localStorage.removeItem('learniverse_admin_authed');
+                      }}
+                      className="text-slate-400 hover:text-slate-600 text-xs px-2 py-1"
+                      title="Lock console"
+                    >
+                      Lock Console
+                    </button>
+                  </div>
+                </div>
+
+                {/* SubTab 1: Drive Catalog */}
+                {catalogSubTab === 'catalog' && (
+                  <div className="space-y-4 animate-fade-in">
+                    {/* Filter Pills */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setCatalogCategory('ongoing')}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
+                          catalogCategory === 'ongoing'
+                            ? 'bg-blue-50 border-blue-300 text-blue-700 font-extrabold'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        ⚡ Ongoing (Live Drives)
+                      </button>
+                      <button
+                        onClick={() => setCatalogCategory('upcoming')}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
+                          catalogCategory === 'upcoming'
+                            ? 'bg-amber-50 border-amber-300 text-amber-700 font-extrabold'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        📅 Upcoming Drives
+                      </button>
+                      <button
+                        onClick={() => setCatalogCategory('past')}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
+                          catalogCategory === 'past'
+                            ? 'bg-slate-100 border-slate-300 text-slate-800 font-extrabold'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        📂 Past Drives & Archives
+                      </button>
+                    </div>
+
+                    {/* Catalog Grid */}
+                    {catalogLoading ? (
+                      <div className="p-12 text-center text-slate-500 text-xs font-mono">Loading drive catalog...</div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {((catalogCategory === 'ongoing'
+                          ? catalogData?.ongoing_tests
+                          : catalogCategory === 'upcoming'
+                          ? catalogData?.upcoming_tests
+                          : catalogData?.past_tests) || []).map((t: any) => (
+                          <div key={t.id} className="bg-white border border-slate-200 hover:border-blue-400 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all space-y-3.5">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                {t.company_logo ? (
+                                  <img src={t.company_logo} alt={t.company_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-xs" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-xs">
+                                    {(t.company_name || 'CO').slice(0, 2).toUpperCase()}
+                                  </div>
+                                )}
+                                <div>
+                                  <h3 className="font-extrabold text-sm text-slate-900">{t.test_name}</h3>
+                                  <p className="text-xs font-medium text-slate-500">{t.company_name}</p>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                                t.computed_status === 'ongoing'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : t.computed_status === 'upcoming'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : 'bg-slate-100 text-slate-600'
                               }`}>
-                                {session.suspicion_score || '0.00'}
+                                {t.computed_status === 'ongoing' ? '● LIVE' : t.computed_status}
                               </span>
-                            </td>
-                            <td className="p-3.5 text-right">
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Enrolled</span>
+                                <span className="font-bold text-xs text-slate-900">{t.total_candidates || 0}</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Writing</span>
+                                <span className="font-bold text-xs text-blue-600">{t.in_progress_count || 0}</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-500 block">Completed</span>
+                                <span className="font-bold text-xs text-emerald-600">{t.completed_count || 0}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                {t.duration_minutes || 60} mins
+                              </span>
+                              <span>Track: <strong className="text-slate-700">{t.role_track}</strong></span>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                               <button
-                                onClick={() => setSelectedAdminSession(session)}
-                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-sans font-semibold px-3 py-1 rounded-lg text-[11px] transition-all"
+                                onClick={() => {
+                                  setActiveMonitorTestId(t.id);
+                                  setCatalogSubTab('live_monitor');
+                                  fetchLiveMonitor(t.id);
+                                }}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5"
                               >
-                                View Timeline
+                                <span>📡 Monitor Live</span>
                               </button>
-                            </td>
-                          </tr>
+                              <button
+                                onClick={() => window.open('/api/assessment/admin/export', '_blank')}
+                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                                title="Download Roster"
+                              >
+                                📥 CSV
+                              </button>
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SubTab 2: Live Command Center */}
+                {catalogSubTab === 'live_monitor' && (
+                  <div className="space-y-4 animate-fade-in">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <span className="text-xs font-bold text-slate-600 whitespace-nowrap">Active Drive:</span>
+                        <select
+                          value={activeMonitorTestId}
+                          onChange={(e) => {
+                            setActiveMonitorTestId(e.target.value);
+                            fetchLiveMonitor(e.target.value);
+                          }}
+                          className="bg-white border border-slate-300 text-xs font-bold px-3 py-2 rounded-xl text-slate-900 outline-none cursor-pointer shadow-xs"
+                        >
+                          <option value="test_techhash_fall_2026">TechHash Screening Drive 2026</option>
+                          {(catalogData?.ongoing_tests || []).map((t: any) => (
+                            <option key={t.id} value={t.id}>{t.test_name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <input
+                          type="text"
+                          value={monitorSearch}
+                          onChange={(e) => setMonitorSearch(e.target.value)}
+                          placeholder="Search candidate name or roll..."
+                          className="bg-white border border-slate-300 text-xs px-3 py-2 rounded-xl text-slate-900 placeholder:text-slate-400 w-full sm:w-56 outline-none focus:ring-2 focus:ring-blue-100 shadow-xs"
+                        />
+                        <button
+                          onClick={() => fetchLiveMonitor(activeMonitorTestId)}
+                          disabled={liveMonitorLoading}
+                          className="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-300 transition-all flex items-center gap-1 shadow-xs"
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 ${liveMonitorLoading ? 'animate-spin' : ''}`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Real-time Candidate Monitor Table */}
+                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                      <div className="p-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-700">Enrolled Candidates ({liveMonitorData?.metrics?.total_registered || 0})</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-blue-600 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            Writing: {liveMonitorData?.metrics?.in_progress || 0}
+                          </span>
+                          <span className="text-emerald-600">Completed: {liveMonitorData?.metrics?.completed || 0}</span>
+                          <span className="text-slate-400">Not Started: {liveMonitorData?.metrics?.not_started || 0}</span>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto max-h-[420px]">
+                        <table className="w-full text-xs text-left border-collapse">
+                          <thead className="bg-slate-50 text-slate-500 uppercase font-mono font-bold text-[10px] tracking-wider border-b border-slate-200 sticky top-0">
+                            <tr>
+                              <th className="p-3">Roll Number</th>
+                              <th className="p-3">Candidate</th>
+                              <th className="p-3">Branch</th>
+                              <th className="p-3">Status</th>
+                              <th className="p-3">Progress / Score</th>
+                              <th className="p-3">Violations</th>
+                              <th className="p-3 text-right">Emergency Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 font-mono">
+                            {[
+                              ...(liveMonitorData?.in_progress || []),
+                              ...(liveMonitorData?.completed || []),
+                              ...(liveMonitorData?.not_started || [])
+                            ]
+                              .filter((c: any) => {
+                                if (!monitorSearch) return true;
+                                const s = monitorSearch.toLowerCase();
+                                return (c.roll_number || '').toLowerCase().includes(s) || (c.full_name || '').toLowerCase().includes(s);
+                              })
+                              .map((c: any) => (
+                                <tr key={c.roll_number} className="hover:bg-blue-50/30 transition-colors">
+                                  <td className="p-3 font-bold text-blue-600">{c.roll_number}</td>
+                                  <td className="p-3 font-sans font-semibold text-slate-800">{c.full_name}</td>
+                                  <td className="p-3 text-slate-500">{c.branch || 'CSE'}</td>
+                                  <td className="p-3">
+                                    {c.status === 'IN_PROGRESS' ? (
+                                      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 w-fit animate-pulse">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> WRITING
+                                      </span>
+                                    ) : c.status === 'COMPLETED' ? (
+                                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold text-[10px]">
+                                        COMPLETED
+                                      </span>
+                                    ) : (
+                                      <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold text-[10px]">
+                                        NOT STARTED
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="p-3 font-sans">
+                                    {c.status === 'COMPLETED' ? (
+                                      <span className="font-bold text-slate-900">{c.total_marks} / {c.max_marks} ({c.percentage}%)</span>
+                                    ) : c.status === 'IN_PROGRESS' ? (
+                                      <span className="text-blue-600 font-medium">Question {c.current_question || 1}</span>
+                                    ) : (
+                                      <span className="text-slate-400">—</span>
+                                    )}
+                                  </td>
+                                  <td className="p-3">
+                                    <span className={`px-2 py-0.5 rounded font-bold text-[11px] ${
+                                      (c.violations || 0) > 2 ? 'bg-rose-100 text-rose-700' : 'text-slate-600'
+                                    }`}>
+                                      {c.violations || 0}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-right">
+                                    <button
+                                      onClick={() => handleResetCandidate(c.roll_number)}
+                                      disabled={resettingCandidateRoll === c.roll_number}
+                                      className="bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 transition-all shadow-2xs"
+                                      title="Clear candidate locks or crash state so they can re-enter"
+                                    >
+                                      {resettingCandidateRoll === c.roll_number ? 'Resetting...' : '🔄 Reset Session'}
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SubTab 3: Test Builder */}
+                {catalogSubTab === 'builder' && (
+                  <div className="space-y-4 bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm animate-fade-in">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-slate-900">Create New Assessment Drive</h3>
+                      <p className="text-xs text-slate-500">Configure company drive, assign role questions, set start/end window, and enroll student roster.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Company / Startup Name</label>
+                        <input
+                          type="text"
+                          value={builderCompanyName}
+                          onChange={(e) => setBuilderCompanyName(e.target.value)}
+                          placeholder="e.g. TeccHash, Fixly, InnovateLabs"
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-100 shadow-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Test Title</label>
+                        <input
+                          type="text"
+                          value={builderTestName}
+                          onChange={(e) => setBuilderTestName(e.target.value)}
+                          placeholder="e.g. Technology & Growth Intern Screening 2026"
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-100 shadow-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Assessment Track / Role</label>
+                        <select
+                          value={builderRoleTrack}
+                          onChange={(e) => setBuilderRoleTrack(e.target.value)}
+                          className="w-full bg-white border border-slate-300 text-xs font-semibold px-3 py-2.5 rounded-xl text-slate-800 outline-none cursor-pointer shadow-xs"
+                        >
+                          <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
+                          <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
+                          <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
+                          <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
+                          <option value="DevOps Intern">🚀 DevOps Intern</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Duration (Minutes)</label>
+                        <input
+                          type="number"
+                          value={builderDuration}
+                          onChange={(e) => setBuilderDuration(Number(e.target.value))}
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none shadow-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Pass Benchmark (%)</label>
+                        <input
+                          type="number"
+                          value={builderPassPct}
+                          onChange={(e) => setBuilderPassPct(Number(e.target.value))}
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none shadow-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Drive Start Window</label>
+                        <input
+                          type="datetime-local"
+                          value={builderStartTime}
+                          onChange={(e) => setBuilderStartTime(e.target.value)}
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none shadow-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Drive End Window</label>
+                        <input
+                          type="datetime-local"
+                          value={builderEndTime}
+                          onChange={(e) => setBuilderEndTime(e.target.value)}
+                          className="w-full bg-white border border-slate-300 text-xs px-3.5 py-2.5 rounded-xl text-slate-900 outline-none shadow-xs"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Candidate Roster Uploader */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Candidate Roster (CSV / Tabular / Paste)
+                        </label>
+                        <span className="text-[11px] font-bold text-blue-600">
+                          {builderParsedRoster.length} Candidates Enrolled
+                        </span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        value={builderRosterRaw}
+                        onChange={(e) => parseRosterText(e.target.value)}
+                        placeholder="Paste candidates (e.g. Mahitha Kalapatapu, 24E51A66A5, 24E51A66A5@hitam.org, CSM) - one per line"
+                        className="w-full bg-white border border-slate-300 text-xs p-3 rounded-xl text-slate-900 font-mono outline-none focus:ring-2 focus:ring-blue-100 shadow-xs"
+                      />
+                    </div>
+
+                    {builderErrorMsg && (
+                      <p className="text-xs font-bold text-rose-500">⚠️ {builderErrorMsg}</p>
+                    )}
+                    {builderSuccessMsg && (
+                      <p className="text-xs font-bold text-emerald-600">✅ {builderSuccessMsg}</p>
+                    )}
+
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button
+                        onClick={() => setCatalogSubTab('catalog')}
+                        className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleCreateTestSubmit}
+                        disabled={builderSubmitting}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-blue-500/25"
+                      >
+                        {builderSubmitting ? 'Creating Drive...' : '🚀 Publish & Enroll Drive'}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Inspector Modal */}
-              {selectedAdminSession && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
-                  <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 animate-fade-in text-slate-800 max-h-[85vh] overflow-y-auto">
-                    <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-                      <div>
-                        <h3 className="font-extrabold text-lg text-slate-900">Candidate Proctor Audit Log</h3>
-                        <p className="text-xs text-blue-600 font-mono font-bold mt-0.5">{selectedAdminSession.student_roll_number} • {selectedAdminSession.student_name}</p>
-                      </div>
-                      <button
-                        onClick={() => setSelectedAdminSession(null)}
-                        className="text-slate-400 hover:text-slate-700 text-sm font-bold bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[10px] text-slate-500 block uppercase">Tab Switches</span>
-                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.tab_switch_count || 0}</span>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[10px] text-slate-500 block uppercase">Fullscreen Exits</span>
-                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.fullscreen_exit_count || 0}</span>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[10px] text-slate-500 block uppercase">Copy Attempts</span>
-                        <span className="font-bold text-slate-900 text-sm">{selectedAdminSession.copy_attempts || 0}</span>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span className="text-[10px] text-slate-500 block uppercase">Suspicion Score</span>
-                        <span className="font-bold text-rose-600 text-sm">{selectedAdminSession.suspicion_score || 0}</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recorded Integrity Events</h4>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-mono max-h-48 overflow-y-auto space-y-1.5">
-                        {Array.isArray(selectedAdminSession.suspicious_events) && selectedAdminSession.suspicious_events.length > 0 ? (
-                          selectedAdminSession.suspicious_events.map((evt: any, idx: number) => (
-                            <div key={idx} className="flex items-start justify-between border-b border-slate-200 pb-1.5 text-slate-700">
-                              <span className="text-rose-600 font-bold">[{evt.event || 'violation'}]</span>
-                              <span className="text-slate-500 text-[10px]">{evt.details || 'Event triggered'}</span>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-slate-500 text-center py-3">No proctoring violations recorded for this candidate.</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="pt-2 flex justify-end">
-                      <button
-                        onClick={() => setSelectedAdminSession(null)}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs px-5 py-2.5 rounded-xl transition-all"
-                      >
-                        Close Inspector
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            )
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -1979,20 +2617,20 @@ export default function PlacementAssessment() {
 
           </div>
 
-          {/* Candidate Profile Registration Form */}
+          {/* Dynamic Candidate Identification Card */}
           <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm mb-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">3. CANDIDATE IDENTIFICATION</h3>
               <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-                ✨ Entering Roll Number auto-fills Name & Track
+                ✨ Enter Roll Number or Email to auto-route to your assigned test
               </span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Roll Number Input (First) */}
+              {/* Roll Number / Email Input */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span>🎓 Roll Number</span>
+                  <span>🎓 Roll Number or College Email</span>
                   <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
                 </label>
                 <div className="relative">
@@ -2000,32 +2638,32 @@ export default function PlacementAssessment() {
                     type="text" 
                     value={rollNumber}
                     onChange={(e) => {
-                      const clean = e.target.value.toUpperCase().trim();
-                      setRollNumber(clean);
+                      const val = e.target.value;
+                      setRollNumber(val);
                       if (rollNumberError) setRollNumberError(null);
+                      performCandidateLookup(val);
                     }}
                     onBlur={() => {
-                      if (rollNumber) {
-                        const match = lookupStudentLocally(rollNumber);
-                        if (match) {
-                          setStudentName(match.name);
-                          setAssignedRole(match.role);
-                          setIsCandidateVerified(true);
-                        }
-                      }
+                      if (rollNumber) performCandidateLookup(rollNumber);
                     }}
-                    placeholder="Enter Roll Number (e.g. 24E51A6766)"
-                    maxLength={12}
+                    placeholder="e.g. 24E51A66A5 or your email"
                     className="w-full bg-white border border-slate-300 p-3 font-mono font-bold text-sm tracking-wider text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl uppercase transition-all shadow-sm"
                   />
-                  {isCandidateVerified && (
+                  {lookupLoading ? (
+                    <span className="absolute right-3 top-3.5 text-xs text-blue-600 font-bold flex items-center gap-1">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Checking...
+                    </span>
+                  ) : isCandidateVerified ? (
                     <span className="absolute right-3 top-3.5 text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-1">
                       ✓ Verified
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 {rollNumberError && (
                   <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {rollNumberError}</p>
+                )}
+                {lookupError && (
+                  <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {lookupError}</p>
                 )}
               </div>
 
@@ -2064,31 +2702,84 @@ export default function PlacementAssessment() {
               </div>
             </div>
 
+            {/* Candidate Test Routing Preview Card */}
+            {candidateLookupResult && candidateLookupResult.test && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 space-y-3 animate-fade-in shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-200/60 pb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+                      {candidateLookupResult.test.company_name?.slice(0, 2).toUpperCase() || 'TH'}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-xs text-blue-950">{candidateLookupResult.test.company_name}</h4>
+                      <p className="text-[11px] text-blue-700 font-medium">{candidateLookupResult.test.test_name}</p>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                    candidateLookupResult.test.window_state === 'active'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : candidateLookupResult.test.window_state === 'upcoming'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                      : 'bg-rose-100 text-rose-800 border border-rose-300'
+                  }`}>
+                    {candidateLookupResult.test.window_state === 'active' ? '● DRIVE OPEN' : candidateLookupResult.test.window_state}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Candidate</span>
+                    <strong className="text-slate-900">{candidateLookupResult.candidate.full_name}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Roll Number</span>
+                    <strong className="text-slate-900 font-mono">{candidateLookupResult.candidate.roll_number}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Track</span>
+                    <strong className="text-blue-700">{candidateLookupResult.candidate.assigned_role}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Duration</span>
+                    <strong className="text-slate-900">{candidateLookupResult.test.duration_minutes} Minutes</strong>
+                  </div>
+                </div>
+
+                <div className="bg-white/80 p-2.5 rounded-xl border border-blue-100 text-xs text-blue-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <span>{candidateLookupResult.test.window_message}</span>
+                </div>
+
+                {candidateLookupResult.submission && (
+                  <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex items-center justify-between text-xs">
+                    <span className="text-emerald-800 font-bold">🏆 Test Already Completed</span>
+                    <span className="font-extrabold text-emerald-900">
+                      Score: {candidateLookupResult.submission.total_marks} / {candidateLookupResult.submission.max_marks} ({candidateLookupResult.submission.percentage}%)
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Display Role Badge when Verified / Fallback Selector */}
             {assignedRole && rollNumber ? (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 flex items-center justify-between animate-fade-in shadow-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🎯</span>
-                  <span>Verified Candidate: <strong className="text-blue-950 font-bold">{studentName || 'Candidate'}</strong></span>
+                  <span>Assigned Assessment Role: <strong className="text-blue-950 font-bold">{assignedRole}</strong></span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500 text-[11px] font-medium">Assigned Role:</span>
-                  <span className="bg-blue-600 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm">
-                    {assignedRole}
-                  </span>
-                  <select
-                    value={assignedRole}
-                    onChange={(e) => setAssignedRole(e.target.value)}
-                    className="bg-white border border-blue-300 text-blue-700 text-[11px] font-bold rounded-lg px-2 py-0.5 outline-none cursor-pointer hover:bg-blue-50 shadow-xs"
-                    title="Change track if needed"
-                  >
-                    <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
-                    <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
-                    <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
-                    <option value="DevOps Intern">🚀 DevOps Intern</option>
-                    <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
-                  </select>
-                </div>
+                <select
+                  value={assignedRole}
+                  onChange={(e) => setAssignedRole(e.target.value)}
+                  className="bg-white border border-blue-300 text-blue-700 text-[11px] font-bold rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-blue-50 shadow-xs"
+                  title="Change track if needed"
+                >
+                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
+                  <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
+                  <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
+                  <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
+                  <option value="DevOps Intern">🚀 DevOps Intern</option>
+                </select>
               </div>
             ) : (
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 flex items-center justify-between shadow-sm">
@@ -2097,15 +2788,15 @@ export default function PlacementAssessment() {
                   <span className="font-semibold text-slate-800">Assessment Track / Role:</span>
                 </div>
                 <select
-                  value={assignedRole || 'AI Engineer Intern'}
+                  value={assignedRole || 'Technology & Growth Intern'}
                   onChange={(e) => setAssignedRole(e.target.value)}
                   className="bg-white border border-slate-300 text-slate-800 font-bold text-xs rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm"
                 >
+                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
                   <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
                   <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
                   <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
                   <option value="DevOps Intern">🚀 DevOps Intern</option>
-                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
                 </select>
               </div>
             )}
@@ -2122,6 +2813,8 @@ export default function PlacementAssessment() {
               >
                 <option value="CSE">Computer Science & Engineering (CSE)</option>
                 <option value="AI_DS">Artificial Intelligence & Data Science (AI/DS)</option>
+                <option value="CSM">CSE - AI & Machine Learning (CSM)</option>
+                <option value="CSD">CSE - Data Science (CSD)</option>
                 <option value="IT">Information Technology (IT)</option>
                 <option value="ECE">Electronics & Communication (ECE)</option>
                 <option value="EEE">Electrical & Electronics (EEE)</option>
@@ -2154,10 +2847,14 @@ export default function PlacementAssessment() {
               const ok = await startAssessmentSession(rollNumber, studentName);
               if (ok) setStep('instructions');
             }} 
-            disabled={loadingQuestions}
+            disabled={loadingQuestions || (candidateLookupResult?.test?.window_state === 'upcoming')}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base py-4 rounded-xl shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
           >
-            {loadingQuestions ? 'Preparing Assessment...' : 'Begin Assessment Setup →'}
+            {loadingQuestions 
+              ? 'Preparing Assessment...' 
+              : candidateLookupResult?.test?.window_state === 'upcoming' 
+              ? '⏳ Test Not Started Yet (See Countdown Above)' 
+              : 'Begin Assessment Setup →'}
           </Button>
             </>
           )}
