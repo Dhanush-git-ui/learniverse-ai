@@ -22,22 +22,78 @@ const Hero = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
 
   const steps = [
-    { label: 'Understand' },
-    { label: 'Think' },
-    { label: 'Practice' },
-    { label: 'Get Challenged' },
-    { label: 'Master' },
+    { label: 'Understand', dotColor: 'bg-[#2563eb]', ringColor: 'ring-blue-100', textColor: 'text-blue-600' },
+    { label: 'Think', dotColor: 'bg-purple-600', ringColor: 'ring-purple-100', textColor: 'text-purple-600' },
+    { label: 'Practice', dotColor: 'bg-emerald-500', ringColor: 'ring-emerald-100', textColor: 'text-emerald-600' },
+    { label: 'Get Challenged', dotColor: 'bg-rose-500', ringColor: 'ring-rose-100', textColor: 'text-rose-600' },
+    { label: 'Master', dotColor: 'bg-amber-500', ringColor: 'ring-amber-100', textColor: 'text-amber-600' },
   ];
 
   const dsaTopics = [
-    { title: 'Arrays', icon: Layers, slug: 'arrays' },
-    { title: 'Linked Lists', icon: Link2, slug: 'linked-lists' },
-    { title: 'Stacks & Queues', icon: Disc, slug: 'stacks-and-queues' },
-    { title: 'Trees', icon: GitBranch, slug: 'trees' },
-    { title: 'Graphs', icon: Share2, slug: 'graphs' },
-    { title: 'Dynamic Programming', icon: Cpu, slug: 'dynamic-programming' },
-    { title: 'Sorting', icon: BarChart2, slug: 'sorting-algorithms' },
-    { title: 'Hashing', icon: Hash, slug: 'searching-algorithms' },
+    { 
+      title: 'Arrays', 
+      icon: Layers, 
+      slug: 'arrays', 
+      iconBg: 'bg-blue-50 border-blue-100 text-blue-600 group-hover:bg-[#2563eb]',
+      hoverText: 'group-hover:text-blue-600',
+      hoverBorder: 'hover:border-blue-300'
+    },
+    { 
+      title: 'Linked Lists', 
+      icon: Link2, 
+      slug: 'linked-lists', 
+      iconBg: 'bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-600',
+      hoverText: 'group-hover:text-emerald-600',
+      hoverBorder: 'hover:border-emerald-300'
+    },
+    { 
+      title: 'Stacks & Queues', 
+      icon: Disc, 
+      slug: 'stacks-and-queues', 
+      iconBg: 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-600',
+      hoverText: 'group-hover:text-purple-600',
+      hoverBorder: 'hover:border-purple-300'
+    },
+    { 
+      title: 'Trees', 
+      icon: GitBranch, 
+      slug: 'trees', 
+      iconBg: 'bg-emerald-50 border-emerald-100 text-emerald-600 group-hover:bg-emerald-600',
+      hoverText: 'group-hover:text-emerald-600',
+      hoverBorder: 'hover:border-emerald-300'
+    },
+    { 
+      title: 'Graphs', 
+      icon: Share2, 
+      slug: 'graphs', 
+      iconBg: 'bg-purple-50 border-purple-100 text-purple-600 group-hover:bg-purple-600',
+      hoverText: 'group-hover:text-purple-600',
+      hoverBorder: 'hover:border-purple-300'
+    },
+    { 
+      title: 'Dynamic Programming', 
+      icon: Cpu, 
+      slug: 'dynamic-programming', 
+      iconBg: 'bg-rose-50 border-rose-100 text-rose-600 group-hover:bg-rose-600',
+      hoverText: 'group-hover:text-rose-600',
+      hoverBorder: 'hover:border-rose-300'
+    },
+    { 
+      title: 'Sorting', 
+      icon: BarChart2, 
+      slug: 'sorting-algorithms', 
+      iconBg: 'bg-amber-50 border-amber-100 text-amber-600 group-hover:bg-amber-600',
+      hoverText: 'group-hover:text-amber-600',
+      hoverBorder: 'hover:border-amber-300'
+    },
+    { 
+      title: 'Hashing', 
+      icon: Hash, 
+      slug: 'searching-algorithms', 
+      iconBg: 'bg-rose-50 border-rose-100 text-rose-600 group-hover:bg-rose-600',
+      hoverText: 'group-hover:text-rose-600',
+      hoverBorder: 'hover:border-rose-300'
+    },
   ];
 
   return (
@@ -83,12 +139,12 @@ const Hero = () => {
             
             {/* Pill Badge: AI-POWERED DSA LEARNING */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 border border-blue-200/80 text-blue-600 text-[11px] font-bold tracking-wider shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
+              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
               <span>AI-POWERED DSA LEARNING</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-black tracking-tight text-slate-950 leading-[1.08]">
+            {/* Main Headline (softened from pure black with blue and purple warmth) */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-black tracking-tight text-slate-800 leading-[1.08]">
               Master <br />
               <span className="text-[#2563eb] inline-block">Data Structures</span> <br />
               & Algorithms <br />
@@ -115,41 +171,44 @@ const Hero = () => {
 
               <Link
                 to="/topics"
-                className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-semibold text-sm px-6 py-3.5 rounded-xl shadow-xs flex items-center gap-2 transition-all duration-200 cursor-pointer"
+                className="bg-white hover:bg-slate-50 hover:border-purple-200 hover:text-purple-700 border border-slate-200 text-slate-700 font-semibold text-sm px-6 py-3.5 rounded-xl shadow-xs flex items-center gap-2 transition-all duration-200 cursor-pointer"
               >
-                <BookOpen className="w-4 h-4 text-slate-600 stroke-[2]" />
+                <BookOpen className="w-4 h-4 text-slate-500 stroke-[2]" />
                 <span>Explore Topics</span>
               </Link>
             </div>
 
-            {/* Metrics Row: 12+ Topics, 607+ Concepts, AI-Guided Learning Path */}
+            {/* Metrics Row: Infused with Yellow, Green, and Purple to reduce black */}
             <div className="pt-4 flex flex-wrap items-center gap-6 sm:gap-8">
+              {/* 12+ Topics: Yellow / Amber Accent */}
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 flex-shrink-0">
                   <BookOpen className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="font-black text-slate-900 text-sm leading-tight">12+</div>
+                  <div className="font-black text-slate-800 text-sm leading-tight">12+</div>
                   <div className="text-[11px] font-medium text-slate-500">Topics</div>
                 </div>
               </div>
 
+              {/* 607+ Concepts: Green / Emerald Accent */}
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-600 flex-shrink-0">
                   <Share2 className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="font-black text-slate-900 text-sm leading-tight">607+</div>
+                  <div className="font-black text-slate-800 text-sm leading-tight">607+</div>
                   <div className="text-[11px] font-medium text-slate-500">Concepts</div>
                 </div>
               </div>
 
+              {/* AI-Guided Learning Path: Purple Accent */}
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-purple-50 border border-purple-200/80 flex items-center justify-center text-purple-600 flex-shrink-0">
                   <Target className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
-                  <div className="font-black text-slate-900 text-sm leading-tight">AI-Guided</div>
+                  <div className="font-black text-slate-800 text-sm leading-tight">AI-Guided</div>
                   <div className="text-[11px] font-medium text-slate-500">Learning Path</div>
                 </div>
               </div>
@@ -194,14 +253,14 @@ const Hero = () => {
                   </div>
                 </div>
 
-                {/* Bubble 1: Teacher AI */}
+                {/* Bubble 1: Teacher AI (Blue Accent) */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-[#2563eb] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                       <User className="w-4 h-4" />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">Teacher AI</span>
+                      <span className="font-bold text-sm text-slate-800">Teacher AI</span>
                       <span className="px-2 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-semibold">
                         Explaining
                       </span>
@@ -217,8 +276,8 @@ const Hero = () => {
                     {/* mid label pointing down */}
                     <div className="flex justify-center">
                       <div className="flex flex-col items-center">
-                        <span className="text-[11px] font-bold text-slate-600">mid</span>
-                        <span className="w-0.5 h-1.5 bg-slate-400 rounded-full" />
+                        <span className="text-[11px] font-bold text-blue-600">mid</span>
+                        <span className="w-0.5 h-1.5 bg-blue-600 rounded-full" />
                       </div>
                     </div>
 
@@ -250,14 +309,14 @@ const Hero = () => {
                   </div>
                 </div>
 
-                {/* Bubble 2: Your Turn (Practice) */}
+                {/* Bubble 2: Your Turn (Green Accent) */}
                 <div className="space-y-2 pt-1 border-t border-slate-100">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                       <User className="w-4 h-4" />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">Your Turn</span>
+                      <span className="font-bold text-sm text-slate-800">Your Turn</span>
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-semibold">
                         Practice
                       </span>
@@ -298,14 +357,14 @@ const Hero = () => {
                   </div>
                 </div>
 
-                {/* Bubble 3: Peer AI (Challenge) */}
+                {/* Bubble 3: Peer AI (Red Accent) */}
                 <div className="space-y-1.5 pt-1 border-t border-slate-100">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                       <User className="w-4 h-4" />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">Peer AI</span>
+                      <span className="font-bold text-sm text-slate-800">Peer AI</span>
                       <span className="px-2 py-0.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-semibold">
                         Challenge
                       </span>
@@ -319,7 +378,7 @@ const Hero = () => {
 
               </div>
 
-              {/* ── Stepper Track to the Right of the Card ──────────── */}
+              {/* ── Stepper Track to the Right of the Card (Multi-colored node accents) ──────────── */}
               <div className="hidden sm:flex flex-col items-start gap-6 py-4 pl-1">
                 {steps.map((step, idx) => {
                   const isActive = activeStep === idx;
@@ -340,7 +399,7 @@ const Hero = () => {
                         <div
                           className={`w-3.5 h-3.5 rounded-full transition-all flex items-center justify-center ${
                             isActive
-                              ? 'bg-[#2563eb] ring-4 ring-blue-100'
+                              ? `${step.dotColor} ring-4 ${step.ringColor}`
                               : 'bg-white border-2 border-slate-300 group-hover:border-blue-400'
                           }`}
                         />
@@ -349,7 +408,7 @@ const Hero = () => {
                       <span
                         className={`text-xs transition-colors whitespace-nowrap ${
                           isActive
-                            ? 'font-bold text-slate-900'
+                            ? `font-bold ${step.textColor}`
                             : 'font-medium text-slate-400 group-hover:text-slate-700'
                         }`}
                       >
@@ -366,7 +425,7 @@ const Hero = () => {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════ */}
-        {/* BOTTOM STRIP: LEARN DSA TOPICS                              */}
+        {/* BOTTOM STRIP: LEARN DSA TOPICS (Multi-colored Palette)      */}
         {/* ═══════════════════════════════════════════════════════════ */}
         <div className="mt-14 pt-6 border-t border-slate-100">
           <div className="flex items-center justify-between mb-3.5">
@@ -382,7 +441,7 @@ const Hero = () => {
             </Link>
           </div>
 
-          {/* 8 Topics Grid */}
+          {/* 8 Topics Grid with signature Yellow, Red, Green, Purple & Blue accents */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
             {dsaTopics.map((topic) => {
               const Icon = topic.icon;
@@ -390,12 +449,12 @@ const Hero = () => {
                 <Link
                   key={topic.title}
                   to={`/topics/${topic.slug}`}
-                  className="bg-white hover:bg-slate-50/80 border border-slate-200/90 rounded-2xl py-3 px-3.5 flex items-center gap-2.5 shadow-2xs hover:shadow-xs transition-all duration-200 group"
+                  className={`bg-white hover:bg-slate-50/80 border border-slate-200/90 ${topic.hoverBorder} rounded-2xl py-3 px-3.5 flex items-center gap-2.5 shadow-2xs hover:shadow-xs transition-all duration-200 group`}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100/60 flex items-center justify-center text-blue-600 group-hover:bg-[#2563eb] group-hover:text-white transition-colors flex-shrink-0">
+                  <div className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors flex-shrink-0 ${topic.iconBg}`}>
                     <Icon className="w-4 h-4 stroke-[2]" />
                   </div>
-                  <span className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                  <span className={`text-xs font-bold text-slate-700 ${topic.hoverText} transition-colors truncate`}>
                     {topic.title}
                   </span>
                 </Link>

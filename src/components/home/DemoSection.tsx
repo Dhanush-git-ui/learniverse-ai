@@ -50,11 +50,11 @@ const DemoSection = () => {
             
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100 p-2 rounded-xl mr-3 text-emerald-600">
+                <div className="flex-shrink-0 bg-blue-50 border border-blue-100 p-2 rounded-xl mr-3 text-blue-600">
                   <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">Technical precision</h4>
+                  <h4 className="font-bold text-slate-800">Technical precision</h4>
                   <p className="text-slate-500 text-sm">Accurate explanations of algorithm complexity and code logic</p>
                 </div>
               </div>
@@ -64,17 +64,17 @@ const DemoSection = () => {
                   <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">Code review</h4>
+                  <h4 className="font-bold text-slate-800">Code review</h4>
                   <p className="text-slate-500 text-sm">Get feedback on your code and suggestions for improvement</p>
                 </div>
               </div>
               
               <div className="flex items-start">
-                <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100 p-2 rounded-xl mr-3 text-emerald-600">
+                <div className="flex-shrink-0 bg-purple-50 border border-purple-100 p-2 rounded-xl mr-3 text-purple-600">
                   <Check className="h-4 w-4 stroke-[3]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900">Simplified explanations</h4>
+                  <h4 className="font-bold text-slate-800">Simplified explanations</h4>
                   <p className="text-slate-500 text-sm">Complex concepts broken down by your Code Buddy</p>
                 </div>
               </div>

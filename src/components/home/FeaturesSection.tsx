@@ -4,21 +4,29 @@ import { BookOpen, BrainCircuit, BarChart3, Lightbulb } from 'lucide-react';
 const features = [
   {
     icon: <BookOpen className="h-6 w-6 text-blue-600" />,
+    iconBg: "bg-blue-50 border-blue-100",
+    hoverBorder: "hover:border-blue-300 hover:shadow-blue-500/10",
     title: "Interactive Learning",
     description: "Engage with AI teachers that adapt explanations to your understanding level"
   },
   {
-    icon: <BrainCircuit className="h-6 w-6 text-blue-600" />,
+    icon: <BrainCircuit className="h-6 w-6 text-purple-600" />,
+    iconBg: "bg-purple-50 border-purple-100",
+    hoverBorder: "hover:border-purple-300 hover:shadow-purple-500/10",
     title: "Dual AI Perspective",
     description: "Get explanations from both teacher and peer AI for comprehensive understanding"
   },
   {
-    icon: <BarChart3 className="h-6 w-6 text-blue-600" />,
+    icon: <BarChart3 className="h-6 w-6 text-emerald-600" />,
+    iconBg: "bg-emerald-50 border-emerald-100",
+    hoverBorder: "hover:border-emerald-300 hover:shadow-emerald-500/10",
     title: "Progressive Difficulty",
     description: "Master concepts through 5 questions of increasing complexity"
   },
   {
-    icon: <Lightbulb className="h-6 w-6 text-blue-600" />,
+    icon: <Lightbulb className="h-6 w-6 text-amber-500" />,
+    iconBg: "bg-amber-50 border-amber-100",
+    hoverBorder: "hover:border-amber-300 hover:shadow-amber-500/10",
     title: "Smart Hints",
     description: "Receive targeted hints without full solutions to guide your learning"
   }
@@ -29,7 +37,7 @@ const FeaturesSection = () => {
     <section className="py-16 bg-white border-y border-slate-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">How Learniverse Works</h2>
+          <h2 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">How Learniverse Works</h2>
           <p className="text-base text-slate-500 max-w-2xl mx-auto">
             Our platform combines AI-driven conversations with structured learning to make complex concepts easier to understand.
           </p>
@@ -39,16 +47,16 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div 
               key={feature.title} 
-              className="bg-white rounded-2xl p-6 text-center border border-slate-200/80 shadow-sm transform transition-all duration-300 hover:scale-105 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 animate-fade-in-up"
+              className={`bg-white rounded-2xl p-6 text-center border border-slate-200/80 shadow-sm transform transition-all duration-300 hover:scale-105 ${feature.hoverBorder} hover:shadow-xl animate-fade-in-up`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex justify-center mb-4">
-                <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-100 shadow-sm">
+                <div className={`p-3.5 rounded-2xl border shadow-xs ${feature.iconBg}`}>
                   {feature.icon}
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">{feature.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-extrabold text-slate-800 mb-2">{feature.title}</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
