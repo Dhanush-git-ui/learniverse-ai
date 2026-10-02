@@ -43,28 +43,20 @@ declare global {
 export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({ 
   isOpen, 
   onClose, 
-  onLoginSuccess,
-  initialTab = "google"
+  onLoginSuccess 
 }) => {
   const navigate = useNavigate();
   const [inputVal, setInputVal] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [activeTab, setActiveTab] = useState<"google" | "manual" | "admin">(initialTab);
+  const [activeTab, setActiveTab] = useState<"google" | "manual">("google");
   
-  // Admin credentials state (Requested: admin@2026 / password@123)
-  const [adminUsername, setAdminUsername] = useState("admin@2026");
-  const [adminPassword, setAdminPassword] = useState("password@123");
+  // Direct credential login fields inside the Google tab
+  const [credUsername, setCredUsername] = useState("");
+  const [credPassword, setCredPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const googleBtnRef = useRef<HTMLDivElement>(null);
-
-  // Set active tab if initialTab changes
-  useEffect(() => {
-    if (isOpen && initialTab) {
-      setActiveTab(initialTab);
-    }
-  }, [isOpen, initialTab]);
 
   // Live decoding for manual fallback entry
   const decoded = useMemo(() => parseHitamCredentials(inputVal), [inputVal]);
@@ -164,50 +156,40 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
     }
   };
 
-  // Process Dedicated Admin Login
-  const handleAdminLogin = async (e?: React.FormEvent) => {
+  // Process Username & Password Login inside the Google tab
+  const handleCredentialLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!adminUsername.trim() || !adminPassword.trim()) {
-      setErrorMsg("Please enter both Admin Username and Password.");
+    const u = credUsername.trim();
+    const p = credPassword.trim();
+    if (!u || !p) {
+      setErrorMsg("Please enter both username/email and password.");
       return;
     }
     setErrorMsg("");
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/admin-login", {
+      const isAdminAttempt = u.toLowerCase().startsWith("admin") || u.toLowerCase().includes("dhanush");
+      const endpoint = isAdminAttempt ? "/api/auth/admin-login" : "/api/auth/hitam-login";
+      const payload = isAdminAttempt
+        ? { username: u, password: p }
+        : { identifier: u, password: p };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: adminUsername.trim(),
-          password: adminPassword.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || "Invalid admin credentials. Please check username and password.");
+        throw new Error(err.detail || "Invalid login credentials. Please verify your details.");
       }
 
       const data = await res.json();
-      
-      // Save full admin session to localStorage
-      localStorage.setItem("learniverse_token", data.token);
-      localStorage.setItem("learniverse_admin_authed", "true");
-      localStorage.setItem("learniverse_user", JSON.stringify(data.user));
-      localStorage.setItem("learniverse_student", JSON.stringify(data.student));
-      localStorage.setItem("learniverse_roll_number", "ADMIN");
-      window.dispatchEvent(new Event("learniverse_auth_change"));
-
-      if (onLoginSuccess) {
-        onLoginSuccess(data.student);
-      }
-      onClose();
-
-      // Immediately navigate to Startup Assessment Hub / Admin Panel!
-      window.location.href = data.redirect_url || "/assessment?admin=true";
+      saveSessionAndClose(data);
     } catch (e: any) {
-      setErrorMsg(e.message || "Failed to authenticate administrator.");
+      setErrorMsg(e.message || "Failed to authenticate.");
     } finally {
       setIsLoading(false);
     }
@@ -217,14 +199,7 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
   const handleManualLogin = async () => {
     const rawInput = inputVal.trim();
     if (!rawInput) {
-      setErrorMsg("Please enter a valid @hitam.org email, roll number, or admin username.");
-      return;
-    }
-
-    // If user enters admin@2026 here, automatically transition or handle admin login
-    if (rawInput.toLowerCase() === "admin@2026" || rawInput.toLowerCase() === "admin2026") {
-      setActiveTab("admin");
-      setAdminUsername(rawInput);
+      setErrorMsg("Please enter a valid @hitam.org email or 10-digit roll number.");
       return;
     }
 
@@ -261,7 +236,8 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
     const isAdmin = Boolean(
       data.student?.is_admin || 
       data.user?.role === "admin" || 
-      data.student?.role === "admin"
+      data.student?.role === "admin" ||
+      data.redirect_url?.includes("admin=true")
     );
 
     if (isAdmin) {
@@ -308,81 +284,46 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
         {/* Header */}
         <div className="space-y-1 text-center">
-          <div className={`inline-flex p-3 rounded-2xl border mb-1 transition-all ${
-            activeTab === "admin" 
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-md shadow-emerald-500/10" 
-              : "bg-blue-500/10 border-blue-500/20 text-blue-400"
-          }`}>
-            {activeTab === "admin" ? (
-              <ShieldCheck className="w-7 h-7 text-emerald-400" />
-            ) : (
-              <GraduationCap className="w-7 h-7" />
-            )}
+          <div className="inline-flex p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-1">
+            <GraduationCap className="w-7 h-7" />
           </div>
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-300 bg-clip-text text-transparent">
-            {activeTab === "admin" ? "Startup Assessment Admin" : "HITAM Portal Login"}
+          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-blue-200 bg-clip-text text-transparent">
+            HITAM Portal Login
           </h2>
           <p className="text-slate-400 text-xs">
-            {activeTab === "admin" 
-              ? "Manage startup assessment drives, live candidate tests, and catalogs" 
-              : "Personal learning hub & placement assessment dashboard"}
+            Personal learning hub & placement assessment dashboard
           </p>
         </div>
 
         {/* Restriction Banner */}
-        <div className={`flex items-center gap-2 text-left text-xs p-2.5 rounded-xl border transition-colors ${
-          activeTab === "admin"
-            ? "text-emerald-300/90 bg-emerald-950/40 border-emerald-800/50"
-            : "text-blue-300/90 bg-blue-950/40 border-blue-800/40"
-        }`}>
-          {activeTab === "admin" ? (
-            <>
-              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-              <span>Dedicated portal for <strong>Authorized Administrators</strong></span>
-            </>
-          ) : (
-            <>
-              <ShieldAlert className="w-4 h-4 flex-shrink-0 text-blue-400" />
-              <span>Restricted to registered <strong>@hitam.org</strong> student Google accounts.</span>
-            </>
-          )}
+        <div className="flex items-center gap-2 text-left text-xs p-2.5 rounded-xl border text-blue-300/90 bg-blue-950/40 border-blue-800/40">
+          <ShieldAlert className="w-4 h-4 flex-shrink-0 text-blue-400" />
+          <span>Restricted to registered <strong>@hitam.org</strong> accounts or authorized credentials.</span>
         </div>
 
-        {/* Auth Mode Toggle */}
-        <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+        {/* Auth Mode Toggle: Only Google and Roll Number (No visible admin badge) */}
+        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
           <button
             type="button"
             onClick={() => { setActiveTab("google"); setErrorMsg(""); }}
-            className={`py-1.5 px-2 rounded-lg font-medium transition-all text-center truncate ${
+            className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === "google" 
                 ? "bg-blue-600 text-white shadow-sm" 
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            Google
+            Google Sign-In
           </button>
           <button
             type="button"
             onClick={() => { setActiveTab("manual"); setErrorMsg(""); }}
-            className={`py-1.5 px-2 rounded-lg font-medium transition-all text-center truncate ${
+            className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
               activeTab === "manual" 
                 ? "bg-blue-600 text-white shadow-sm" 
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            Roll Number
-          </button>
-          <button
-            type="button"
-            onClick={() => { setActiveTab("admin"); setErrorMsg(""); }}
-            className={`py-1.5 px-2 rounded-lg font-medium transition-all text-center truncate flex items-center justify-center gap-1 ${
-              activeTab === "admin" 
-                ? "bg-emerald-600 text-white shadow-sm font-semibold" 
-                : "text-emerald-400 hover:text-emerald-300"
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Admin</span>
+            Roll Number Fallback
           </button>
         </div>
 
@@ -394,20 +335,101 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
           </div>
         )}
 
-        {/* TAB 1: GOOGLE SIGN-IN */}
+        {/* TAB 1: GOOGLE SIGN-IN + USERNAME & PASSWORD SECTION */}
         {activeTab === "google" && (
-          <div className="py-3 flex flex-col items-center justify-center min-h-[70px] space-y-2">
-            {isLoading ? (
-              <div className="text-sm text-slate-300 animate-pulse flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-                Verifying student credentials with HITAM...
+          <div className="space-y-3.5">
+            {/* Google OAuth Button */}
+            <div className="py-1 flex flex-col items-center justify-center min-h-[50px] space-y-1">
+              {isLoading && !credUsername ? (
+                <div className="text-sm text-slate-300 animate-pulse flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                  Verifying Google account...
+                </div>
+              ) : (
+                <div ref={googleBtnRef} className="w-full flex justify-center" />
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-2 w-full">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-800" />
               </div>
-            ) : (
-              <div ref={googleBtnRef} className="w-full flex justify-center" />
-            )}
-            <p className="text-[11px] text-slate-500 text-center">
-              Requires active login to your college Google Workspace account.
-            </p>
+              <div className="relative flex justify-center text-[10px] uppercase">
+                <span className="bg-slate-950 px-2.5 text-slate-400 font-semibold tracking-wider">
+                  Or sign in with username & password
+                </span>
+              </div>
+            </div>
+
+            {/* Username & Password Form */}
+            <form onSubmit={handleCredentialLogin} className="space-y-3 text-left">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 mb-1 block">
+                  Username / Email
+                </label>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder="e.g. admin@2026 or college email"
+                    value={credUsername}
+                    onChange={(e) => {
+                      setCredUsername(e.target.value);
+                      setErrorMsg("");
+                    }}
+                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 text-xs pl-8 font-sans"
+                    required
+                  />
+                  <User className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-300 mb-1 block">
+                  Password
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={credPassword}
+                    onChange={(e) => {
+                      setCredPassword(e.target.value);
+                      setErrorMsg("");
+                    }}
+                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 text-xs pl-8 pr-8 font-sans"
+                    required
+                  />
+                  <Lock className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading || !credUsername.trim() || !credPassword.trim()}
+                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-500/20"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </Button>
+            </form>
           </div>
         )}
 
@@ -473,84 +495,6 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </div>
-        )}
-
-        {/* TAB 3: DEDICATED ADMIN LOGIN */}
-        {activeTab === "admin" && (
-          <form onSubmit={handleAdminLogin} className="space-y-3.5 text-left">
-            <div>
-              <label className="text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
-                <span>Admin Username / ID</span>
-                <span className="text-[10px] text-emerald-400 font-mono">admin@2026</span>
-              </label>
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="admin@2026"
-                  value={adminUsername}
-                  onChange={(e) => {
-                    setAdminUsername(e.target.value);
-                    setErrorMsg("");
-                  }}
-                  className="bg-slate-900 border-slate-700 text-white font-mono placeholder:text-slate-500 focus:border-emerald-500 text-xs pl-8"
-                  required
-                />
-                <User className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-300 mb-1 flex items-center justify-between">
-                <span>Admin Password</span>
-                <span className="text-[10px] text-emerald-400 font-mono">password@123</span>
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="password@123"
-                  value={adminPassword}
-                  onChange={(e) => {
-                    setAdminPassword(e.target.value);
-                    setErrorMsg("");
-                  }}
-                  className="bg-slate-900 border-slate-700 text-white font-mono placeholder:text-slate-500 focus:border-emerald-500 text-xs pl-8 pr-8"
-                  required
-                />
-                <Lock className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-[11px] text-emerald-300 flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Direct access to Multi-Startup Catalog, Live Test Monitor, and Test Builder.</span>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading || !adminUsername.trim() || !adminPassword.trim()}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-500/20"
-            >
-              {isLoading ? (
-                <>
-                  <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Verifying Admin Access...</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In as Administrator</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              )}
-            </Button>
-          </form>
         )}
 
         <div className="text-[11px] text-slate-500 text-center border-t border-slate-900 pt-3 flex items-center justify-center gap-1">

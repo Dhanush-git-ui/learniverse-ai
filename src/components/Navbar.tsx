@@ -375,28 +375,12 @@ const Navbar = () => {
               // BEFORE LOGIN: Login Button + Admin Login Button + Take Placement Test CTA
               <>
                 <Button
-                  onClick={() => {
-                    setLoginModalInitialTab("google");
-                    setIsLoginModalOpen(true);
-                  }}
+                  onClick={() => setIsLoginModalOpen(true)}
                   variant="outline"
                   className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 font-semibold px-3.5 py-2 rounded-xl text-xs lg:text-sm flex items-center gap-1.5 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
                   <span>Login</span>
-                </Button>
-
-                <Button
-                  onClick={() => {
-                    setLoginModalInitialTab("admin");
-                    setIsLoginModalOpen(true);
-                  }}
-                  variant="ghost"
-                  className="border border-emerald-300/80 hover:bg-emerald-50 text-emerald-700 dark:text-emerald-300 dark:border-emerald-700 dark:hover:bg-emerald-950/40 font-semibold px-2.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-xs"
-                  title="Direct Administrator Login (admin@2026 / password@123)"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Admin Login</span>
                 </Button>
 
                 <Button
@@ -635,26 +619,12 @@ const Navbar = () => {
                   variant="outline"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    setLoginModalInitialTab("google");
                     setIsLoginModalOpen(true);
                   }}
                   className="w-full border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs"
                 >
                   <GraduationCap className="w-4 h-4 text-blue-600" />
-                  <span>Student Login</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setLoginModalInitialTab("admin");
-                    setIsLoginModalOpen(true);
-                  }}
-                  className="w-full border border-emerald-300/80 text-emerald-700 dark:text-emerald-300 font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-xs hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-                >
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Admin Login (admin@2026)</span>
+                  <span>Login</span>
                 </Button>
               </div>
             </>

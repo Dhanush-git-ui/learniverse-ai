@@ -681,9 +681,13 @@ export default function PlacementAssessment() {
     };
   }, []);
 
-  // Fetch Startup Catalog
-  const fetchCatalog = async () => {
-    setCatalogLoading(true);
+  // Constant Database Connection Status
+  const [dbConnected, setDbConnected] = useState<boolean>(true);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+
+  // Fetch Startup Catalog (with silent option for background polling)
+  const fetchCatalog = async (silent = false) => {
+    if (!silent) setCatalogLoading(true);
     try {
       const res = await fetch('/api/assessment/catalog', {
         headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
@@ -691,19 +695,24 @@ export default function PlacementAssessment() {
       if (res.ok) {
         const data = await res.json();
         setCatalogData(data);
+        setDbConnected(true);
+        setLastSyncTime(new Date().toLocaleTimeString());
+      } else {
+        setDbConnected(false);
       }
     } catch (e) {
       console.error("Failed to fetch assessment catalog:", e);
+      setDbConnected(false);
     } finally {
-      setCatalogLoading(false);
+      if (!silent) setCatalogLoading(false);
     }
   };
 
-  // Fetch Live Monitor Data
-  const fetchLiveMonitor = async (testIdToFetch?: string) => {
+  // Fetch Live Monitor Data (with silent option for constant DB connection)
+  const fetchLiveMonitor = async (testIdToFetch?: string, silent = false) => {
     const tId = testIdToFetch || activeMonitorTestId;
     if (!tId) return;
-    setLiveMonitorLoading(true);
+    if (!silent) setLiveMonitorLoading(true);
     try {
       const res = await fetch(`/api/assessment/admin/tests/${encodeURIComponent(tId)}/live`, {
         headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
@@ -711,11 +720,16 @@ export default function PlacementAssessment() {
       if (res.ok) {
         const data = await res.json();
         setLiveMonitorData(data);
+        setDbConnected(true);
+        setLastSyncTime(new Date().toLocaleTimeString());
+      } else {
+        setDbConnected(false);
       }
     } catch (e) {
       console.error("Failed to fetch live monitor:", e);
+      setDbConnected(false);
     } finally {
-      setLiveMonitorLoading(false);
+      if (!silent) setLiveMonitorLoading(false);
     }
   };
 
@@ -866,23 +880,22 @@ export default function PlacementAssessment() {
     }
   };
 
-  // Auto-fetch catalog and monitor on admin tab switch
+  // CONSTANT REAL-TIME DATABASE CONNECTION (Continuous 3-second synchronization loop)
   useEffect(() => {
-    if (mainTab === 'admin' && isAdminAuthenticated) {
-      fetchCatalog();
-      fetchLiveMonitor();
-    }
-  }, [mainTab, isAdminAuthenticated]);
+    if (mainTab !== 'admin' || !isAdminAuthenticated) return;
 
-  // Live monitor polling every 10s when active
-  useEffect(() => {
-    if (mainTab === 'admin' && isAdminAuthenticated && catalogSubTab === 'live_monitor') {
-      const interval = setInterval(() => {
-        fetchLiveMonitor(activeMonitorTestId);
-      }, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [mainTab, isAdminAuthenticated, catalogSubTab, activeMonitorTestId]);
+    // Immediate initial sync
+    fetchCatalog(false);
+    fetchLiveMonitor(activeMonitorTestId, false);
+
+    // Continuous 3-second live DB polling
+    const interval = setInterval(() => {
+      fetchCatalog(true);
+      fetchLiveMonitor(activeMonitorTestId, true);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [mainTab, isAdminAuthenticated, activeMonitorTestId]);
 
   // Candidate Live Heartbeat while writing the test
   useEffect(() => {
@@ -2122,6 +2135,31 @@ export default function PlacementAssessment() {
                   <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Past Drives</span>
                     <span className="text-xl font-black text-slate-800">{catalogData?.counts?.past || 0}</span>
+                  </div>
+                </div>
+
+                {/* Real-Time Database Constant Connection Status Banner */}
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-emerald-50/70 border border-emerald-200/90 px-4 py-2.5 rounded-2xl text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span className="font-bold text-emerald-900">
+                      Live Database Connected • Constant 3s Real-Time Synchronization Active
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-[11px] text-emerald-800">
+                    <span>Last synced: <strong>{lastSyncTime}</strong></span>
+                    <button
+                      onClick={() => {
+                        fetchCatalog(false);
+                        fetchLiveMonitor(activeMonitorTestId, false);
+                      }}
+                      className="px-2.5 py-1 bg-white hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-semibold rounded-lg shadow-xs transition-all flex items-center gap-1"
+                    >
+                      <span>↻ Refresh Now</span>
+                    </button>
                   </div>
                 </div>
 
