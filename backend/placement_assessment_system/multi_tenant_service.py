@@ -4,7 +4,6 @@ import uuid
 import re
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
-import pandas as pd
 
 def init_multi_tenant_tables(db):
     """Creates the multi-tenant tables in PostgreSQL or SQLite if they do not exist."""
@@ -153,6 +152,7 @@ def seed_default_multi_tenant_data(db, root_dir: str):
     roster_rows = []
     if os.path.exists(roster_file):
         try:
+            import pandas as pd
             df = pd.read_excel(roster_file)
             name_c = next((c for c in df.columns if 'name' in c.lower()), 'Full Name')
             roll_c = next((c for c in df.columns if 'roll' in c.lower()), 'Roll Number ')
