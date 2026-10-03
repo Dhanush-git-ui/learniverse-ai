@@ -23,11 +23,18 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"message": "Learniverse Backend Running"})
 
-    def test_health(self):
+    @patch("rag.retriever.get_chroma_collection")
+    def test_health(self, mock_get_chroma):
         """Test the health check endpoint."""
-        response = self.client.get("/health")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json().get("status"), "healthy")
+        from unittest.mock import MagicMock
+        mock_col = MagicMock()
+        mock_col.count.return_value = 1
+        mock_get_chroma.return_value = (None, mock_col)
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}):
+            with patch("config.settings.GEMINI_API_KEY", "test-key"):
+                response = self.client.get("/health")
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json().get("status"), "healthy")
 
     def test_get_topics(self):
         """Test the topics list retrieval endpoint."""

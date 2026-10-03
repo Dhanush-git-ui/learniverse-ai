@@ -12,6 +12,8 @@
  *  3. Results are displayed per test case in the OutputConsolePanel.
  */
 
+import { getAuthHeaders } from '../utils/apiAuth';
+
 const EXECUTE_API = '/api/code/execute-raw';
 
 const LANGUAGE_MAP: Record<string, { language: string; version: string }> = {
@@ -637,8 +639,6 @@ async function executeCodeOnBackend(code: string, lang: string) {
   const mapped = LANGUAGE_MAP[lang];
   if (!mapped) throw new Error(`Unsupported language: ${lang}`);
 
-  const apiKey = import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey';
-
   const fileNames: Record<string, string> = {
     python: 'solution.py', cpp: 'solution.cpp', java: 'Solution.java', javascript: 'solution.js',
   };
@@ -651,10 +651,7 @@ async function executeCodeOnBackend(code: string, lang: string) {
 
   const res = await fetch(EXECUTE_API, {
     method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'X-API-Key': apiKey
-    },
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   });
 

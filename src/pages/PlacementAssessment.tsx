@@ -1,3 +1,4 @@
+import { getAuthHeaders } from '@/utils/apiAuth';
 import { useState, useEffect, useRef } from 'react';
 import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -327,7 +328,7 @@ export default function PlacementAssessment() {
       const controller = new AbortController();
       fetch(`/api/assessment/student-lookup?roll_number=${encodeURIComponent(raw)}`, {
         signal: controller.signal,
-        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+        headers: getAuthHeaders()
       })
         .then(r => r.json())
         .then(data => {
@@ -367,10 +368,7 @@ export default function PlacementAssessment() {
     try {
       await fetch('/api/assessment/feedback', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           attempt_id: attemptId || 'session_local',
           roll_number: rollNumber || 'CANDIDATE',
@@ -629,12 +627,44 @@ export default function PlacementAssessment() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     try {
       const u = JSON.parse(localStorage.getItem('learniverse_student') || localStorage.getItem('learniverse_user') || '{}');
-      return u.is_admin === true || u.role === 'admin' || localStorage.getItem('learniverse_admin_authed') === 'true';
+      return u.is_admin === true || u.role === 'admin';
     } catch {
       return false;
     }
   });
   const [adminAuthError, setAdminAuthError] = useState<string>('');
+  const [isAdminSubmitting, setIsAdminSubmitting] = useState<boolean>(false);
+
+  const handleAdminUnlock = async () => {
+    const trimmed = adminPasscode.trim();
+    if (!trimmed) {
+      setAdminAuthError('Please enter the administrator passcode.');
+      return;
+    }
+    setAdminAuthError('');
+    setIsAdminSubmitting(true);
+    try {
+      const res = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin@2026', password: trimmed })
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        localStorage.setItem('learniverse_token', data.token);
+        if (data.student) localStorage.setItem('learniverse_student', JSON.stringify(data.student));
+        if (data.user) localStorage.setItem('learniverse_user', JSON.stringify(data.user));
+        setIsAdminAuthenticated(true);
+        setAdminPasscode('');
+      } else {
+        setAdminAuthError(data.detail || 'Invalid administrator passcode.');
+      }
+    } catch {
+      setAdminAuthError('Authentication failed. Check backend connection.');
+    } finally {
+      setIsAdminSubmitting(false);
+    }
+  };
 
   const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor'>('catalog');
   const [catalogCategory, setCatalogCategory] = useState<'ongoing' | 'upcoming' | 'past'>('ongoing');
@@ -690,7 +720,7 @@ export default function PlacementAssessment() {
     if (!silent) setCatalogLoading(true);
     try {
       const res = await fetch('/api/assessment/catalog', {
-        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -715,7 +745,7 @@ export default function PlacementAssessment() {
     if (!silent) setLiveMonitorLoading(true);
     try {
       const res = await fetch(`/api/assessment/admin/tests/${encodeURIComponent(tId)}/live`, {
-        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -742,10 +772,7 @@ export default function PlacementAssessment() {
     try {
       const res = await fetch(`/api/assessment/admin/tests/${encodeURIComponent(activeMonitorTestId)}/candidate-reset`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ roll_number: roll })
       });
       if (res.ok) {
@@ -805,10 +832,7 @@ export default function PlacementAssessment() {
       const roleQs = getLocalQuestionsForRole(builderRoleTrack);
       const res = await fetch('/api/assessment/admin/tests', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           company_name: builderCompanyName,
           company_logo: builderCompanyLogo,
@@ -853,7 +877,7 @@ export default function PlacementAssessment() {
     setLookupError(null);
     try {
       const res = await fetch(`/api/assessment/lookup-candidate?identifier=${encodeURIComponent(clean)}`, {
-        headers: { 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' }
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
@@ -903,10 +927,7 @@ export default function PlacementAssessment() {
     const sendHeartbeat = () => {
       fetch('/api/assessment/heartbeat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           test_id: candidateLookupResult?.test?.test_id || 'test_techhash_fall_2026',
           roll_number: rollNumber,
@@ -977,7 +998,7 @@ export default function PlacementAssessment() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey',
+          ...getAuthHeaders(),
           'X-Roll-Number': cleanRoll
         },
         body: JSON.stringify({
@@ -1039,7 +1060,7 @@ export default function PlacementAssessment() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey',
+            ...getAuthHeaders(),
             'X-Roll-Number': rollNumber
           },
           body: JSON.stringify({
@@ -1066,10 +1087,7 @@ export default function PlacementAssessment() {
     try {
       const response = await fetch('/api/assessment/reset', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ user_id: userId })
       });
       
@@ -1331,10 +1349,7 @@ export default function PlacementAssessment() {
     // ── Background: send to server and reconcile once response arrives ───────
     fetch('/api/assessment/submit', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-      },
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
         attempt_id: _attemptId,
         answers: mcqAnswers,
@@ -1386,10 +1401,7 @@ export default function PlacementAssessment() {
 
       fetch('/api/assessment/fixly/submit-direct', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           session_id: _attemptId,
           student_name: studentName || 'Candidate',
@@ -1421,10 +1433,7 @@ export default function PlacementAssessment() {
     try {
       const response = await fetch('/api/assessment/log-violation', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ attempt_id: currentAttemptId, violation_type: type, details })
       });
       const data = await response.json();
@@ -1772,10 +1781,7 @@ export default function PlacementAssessment() {
     try {
       const response = await fetch('/api/assessment/hint', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ question_id: questionId })
       });
       if (!response.ok) {
@@ -2066,40 +2072,28 @@ export default function PlacementAssessment() {
                   <input
                     type="password"
                     value={adminPasscode}
+                    disabled={isAdminSubmitting}
                     onChange={(e) => {
                       setAdminPasscode(e.target.value);
                       setAdminAuthError('');
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        const trimmed = adminPasscode.trim().toLowerCase();
-                        if (trimmed === 'admin2026' || trimmed === 'admin@2026' || trimmed === 'password@123' || trimmed.includes('dhanush')) {
-                          setIsAdminAuthenticated(true);
-                          localStorage.setItem('learniverse_admin_authed', 'true');
-                        } else {
-                          setAdminAuthError('Invalid administrator passcode.');
-                        }
+                        handleAdminUnlock();
                       }
                     }}
-                    placeholder="Enter Admin Passcode (password@123 or admin@2026)"
-                    className="w-full bg-white border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-center shadow-sm"
+                    placeholder="Enter Administrator Passcode"
+                    className="w-full bg-white border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-center shadow-sm disabled:opacity-50"
                   />
                   {adminAuthError && (
                     <p className="text-xs font-semibold text-rose-500">{adminAuthError}</p>
                   )}
                   <button
-                    onClick={() => {
-                      const trimmed = adminPasscode.trim().toLowerCase();
-                      if (trimmed === 'admin2026' || trimmed === 'admin@2026' || trimmed === 'password@123' || trimmed.includes('dhanush')) {
-                        setIsAdminAuthenticated(true);
-                        localStorage.setItem('learniverse_admin_authed', 'true');
-                      } else {
-                        setAdminAuthError('Invalid administrator passcode.');
-                      }
-                    }}
-                    className="w-full bg-black hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all border border-black shadow-sm"
+                    disabled={isAdminSubmitting}
+                    onClick={handleAdminUnlock}
+                    className="w-full bg-black hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all border border-black shadow-sm disabled:opacity-50"
                   >
-                    Unlock Startup Console →
+                    {isAdminSubmitting ? 'Authenticating...' : 'Unlock Startup Console →'}
                   </button>
                 </div>
               </div>

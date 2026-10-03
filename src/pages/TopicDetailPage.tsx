@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import CodingWorkspace from '@/components/coding/CodingWork';
 import GenealogyCard from '@/components/GenealogyCard';
 import { runAndEvaluate } from '@/services/codeExecutionService';
+import { getAuthHeaders } from '@/utils/apiAuth';
 
 export const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
   "Two Sum": { id: 1, url: "https://leetcode.com/problems/two-sum/" },
@@ -636,7 +637,7 @@ const TopicDetailPage = () => {
                                       // Fire Wrong-Answer Genealogy
                                       fetch('/api/genealogy', {
                                         method: 'POST',
-                                        headers: { 'Content-Type': 'application/json', 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' },
+                                        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
                                         body: JSON.stringify({ topic: q.topic || topic.title, expected: q.answer, actual: selectedAnswers[q.id], student_id: 'anonymous' })
                                       }).then(r => r.ok ? r.json() : null).then(d => { if (d) setGenealogyResult(d); }).catch(() => {});
                                     }

@@ -35,7 +35,7 @@ const Navbar = () => {
 
   // Synchronize student and admin session and streak from localStorage
   const syncStudentState = () => {
-    let currentAdmin = localStorage.getItem('learniverse_admin_authed') === 'true';
+    let currentAdmin = false;
 
     try {
       const savedUser = localStorage.getItem('learniverse_user');
@@ -644,7 +644,7 @@ const Navbar = () => {
         onLoginSuccess={(st: any) => {
           setStudent(st);
           window.dispatchEvent(new Event('learniverse_auth_change'));
-          if (st?.is_admin || st?.role === 'admin' || localStorage.getItem('learniverse_admin_authed') === 'true') {
+          if (st?.is_admin || st?.role === 'admin') {
             window.location.href = "/assessment?admin=true";
           } else {
             window.location.href = "/dashboard";

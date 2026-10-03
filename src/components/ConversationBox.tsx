@@ -5,6 +5,7 @@ import ConversationHeader from './conversation/ConversationHeader';
 import ConversationMessages from './conversation/ConversationMessages';
 import MessageInput from './conversation/MessageInput';
 import DisagreementCard, { DisagreementData } from './DisagreementCard';
+import { getAuthHeaders } from '@/utils/apiAuth';
 
 interface Source {
   book: string;
@@ -67,10 +68,7 @@ const ConversationBox = ({
       // Call the FastAPI RAG Backend via proxy
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey'
-        },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ 
           message: safeMessage,
           topic: topicName,
@@ -96,7 +94,7 @@ const ConversationBox = ({
         try {
           const debateRes = await fetch('/api/debate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-API-Key': import.meta.env.VITE_API_SECRET_KEY || 'devsecretkey' },
+            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ teacher_answer, peer_answer, query: message, topic: topicName })
           });
           if (debateRes.ok) {
