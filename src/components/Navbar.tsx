@@ -170,11 +170,12 @@ const Navbar = () => {
   const studentInfo = getStudentInfo();
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || mobileMenuOpen ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200' : 'bg-white/90 backdrop-blur-md border-b border-slate-100'
-      } dark:bg-gray-900/90 dark:backdrop-blur-md`}
-    >
+    <>
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled || mobileMenuOpen ? 'bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200' : 'bg-white/90 backdrop-blur-md border-b border-slate-100'
+        } dark:bg-gray-900/90 dark:backdrop-blur-md`}
+      >
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-10 lg:px-12 xl:px-16">
         <div className="flex items-center justify-between h-16">
           
@@ -635,25 +636,25 @@ const Navbar = () => {
           )}
         </div>
       )}
-
-      {/* HITAM / Admin Login Modal */}
-      <HitamLoginModal
-        isOpen={isLoginModalOpen}
-        initialTab={loginModalInitialTab}
-        onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={(st: any) => {
-          setStudent(st);
-          window.dispatchEvent(new Event('learniverse_auth_change'));
-          if (st?.is_admin || st?.role === 'admin') {
-            window.location.href = "/assessment?admin=true";
-          } else {
-            window.location.href = "/dashboard";
-          }
-        }}
-      />
-
     </header>
-  );
+
+    {/* HITAM / Admin Login Modal */}
+    <HitamLoginModal
+      isOpen={isLoginModalOpen}
+      initialTab={loginModalInitialTab}
+      onClose={() => setIsLoginModalOpen(false)}
+      onLoginSuccess={(st: any) => {
+        setStudent(st);
+        window.dispatchEvent(new Event('learniverse_auth_change'));
+        if (st?.is_admin || st?.role === 'admin') {
+          window.location.href = "/assessment?admin=true";
+        } else {
+          window.location.href = "/dashboard";
+        }
+      }}
+    />
+  </>
+);
 };
 
 export default Navbar;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { parseHitamCredentials, HitamStudentDemographics } from "@/utils/hitamParser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -267,9 +268,9 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
@@ -516,7 +517,8 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
           <span>Hyderabad Institute of Technology and Management</span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
