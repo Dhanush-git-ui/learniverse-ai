@@ -11,16 +11,12 @@ import {
   GraduationCap, 
   ArrowRight, 
   Building2, 
-  Calendar, 
-  BookOpen, 
   X,
   AlertCircle,
-  ShieldCheck,
   Lock,
   User,
   Eye,
-  EyeOff,
-  KeyRound
+  EyeOff
 } from "lucide-react";
 
 const GOOGLE_CLIENT_ID = 
@@ -61,6 +57,16 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
   // Live decoding for manual fallback entry
   const decoded = useMemo(() => parseHitamCredentials(inputVal), [inputVal]);
 
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   // Handle ESC key to close modal
   useEffect(() => {
     if (!isOpen) return;
@@ -89,11 +95,11 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
         if (googleBtnRef.current) {
           googleBtnRef.current.innerHTML = "";
           window.google.accounts.id.renderButton(googleBtnRef.current, {
-            theme: "filled_blue",
+            theme: "outline",
             size: "large",
             shape: "pill",
             text: "continue_with",
-            width: 300,
+            width: 320,
           });
         }
       } catch (err) {
@@ -240,9 +246,6 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
       data.redirect_url?.includes("admin=true")
     );
 
-    if (isAdmin) {
-      localStorage.setItem("learniverse_admin_authed", "true");
-    }
     if (data.user) {
       localStorage.setItem("learniverse_user", JSON.stringify(data.user));
     }
@@ -266,50 +269,50 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/60 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-md bg-slate-950 border border-slate-800 text-white p-6 rounded-2xl shadow-2xl space-y-4 animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-[440px] bg-white border border-slate-200/90 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-4 my-auto max-h-[92vh] overflow-y-auto overscroll-contain animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          aria-label="Close"
+          className="absolute right-4 top-4 p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+          aria-label="Close modal"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="space-y-1 text-center">
-          <div className="inline-flex p-3 rounded-2xl bg-black border border-slate-800 text-blue-500 mb-1">
-            <GraduationCap className="w-7 h-7" />
+        <div className="space-y-1.5 text-center pt-1">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/25 mx-auto mb-2">
+            <GraduationCap className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-blue-200 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             HITAM Portal Login
           </h2>
-          <p className="text-slate-400 text-xs">
+          <p className="text-slate-500 text-xs font-medium">
             Personal learning hub & placement assessment dashboard
           </p>
         </div>
 
         {/* Restriction Banner */}
-        <div className="flex items-center gap-2 text-left text-xs p-2.5 rounded-xl border text-slate-300 bg-slate-900 border-slate-800">
-          <ShieldAlert className="w-4 h-4 flex-shrink-0 text-blue-400" />
+        <div className="flex items-center gap-2.5 text-left text-xs p-3 rounded-2xl border text-blue-900 bg-blue-50/70 border-blue-100 font-medium">
+          <ShieldAlert className="w-4 h-4 flex-shrink-0 text-blue-600" />
           <span>Restricted to registered <strong>@hitam.org</strong> accounts or authorized credentials.</span>
         </div>
 
-        {/* Auth Mode Toggle: Only Google and Roll Number (No visible admin badge) */}
-        <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+        {/* Auth Mode Toggle */}
+        <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/60 text-xs font-semibold">
           <button
             type="button"
             onClick={() => { setActiveTab("google"); setErrorMsg(""); }}
-            className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`flex-1 py-2 rounded-xl transition-all ${
               activeTab === "google" 
-                ? "bg-white text-black font-bold shadow-sm" 
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-slate-900 font-bold shadow-xs" 
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Google Sign-In
@@ -317,10 +320,10 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
           <button
             type="button"
             onClick={() => { setActiveTab("manual"); setErrorMsg(""); }}
-            className={`flex-1 py-1.5 rounded-lg font-medium transition-colors ${
+            className={`flex-1 py-2 rounded-xl transition-all ${
               activeTab === "manual" 
-                ? "bg-white text-black font-bold shadow-sm" 
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-slate-900 font-bold shadow-xs" 
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Roll Number Fallback
@@ -329,43 +332,43 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="flex items-center gap-2 text-left text-xs text-rose-300 bg-rose-950/50 border border-rose-800/60 p-3 rounded-xl animate-fade-in">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
+          <div className="flex items-center gap-2 text-left text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-xl animate-fade-in font-medium">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {/* TAB 1: GOOGLE SIGN-IN + USERNAME & PASSWORD SECTION */}
         {activeTab === "google" && (
-          <div className="space-y-3.5">
+          <div className="space-y-4 pt-1">
             {/* Google OAuth Button */}
-            <div className="py-1 flex flex-col items-center justify-center min-h-[50px] space-y-1">
+            <div className="flex flex-col items-center justify-center min-h-[50px] w-full">
               {isLoading && !credUsername ? (
-                <div className="text-sm text-slate-300 animate-pulse flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                <div className="text-xs font-semibold text-slate-600 animate-pulse flex items-center gap-2 py-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
                   Verifying Google account...
                 </div>
               ) : (
-                <div ref={googleBtnRef} className="w-full flex justify-center" />
+                <div ref={googleBtnRef} className="w-full flex justify-center py-0.5" />
               )}
             </div>
 
             {/* Divider */}
             <div className="relative my-2 w-full">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-800" />
+                <div className="w-full border-t border-slate-200" />
               </div>
               <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-slate-950 px-2.5 text-slate-400 font-semibold tracking-wider">
+                <span className="bg-white px-3 text-slate-400 font-bold tracking-wider">
                   Or sign in with username & password
                 </span>
               </div>
             </div>
 
             {/* Username & Password Form */}
-            <form onSubmit={handleCredentialLogin} className="space-y-3 text-left">
+            <form onSubmit={handleCredentialLogin} className="space-y-3.5 text-left">
               <div>
-                <label className="text-xs font-semibold text-slate-300 mb-1 block">
+                <label className="text-xs font-bold text-slate-700 mb-1.5 block">
                   Username / Email
                 </label>
                 <div className="relative">
@@ -377,15 +380,15 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
                       setCredUsername(e.target.value);
                       setErrorMsg("");
                     }}
-                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 text-xs pl-8 font-sans"
+                    className="bg-slate-50/70 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-xs pl-9 font-medium h-10 transition-all"
                     required
                   />
-                  <User className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 mb-1 block">
+                <label className="text-xs font-bold text-slate-700 mb-1.5 block">
                   Password
                 </label>
                 <div className="relative">
@@ -397,17 +400,18 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
                       setCredPassword(e.target.value);
                       setErrorMsg("");
                     }}
-                    className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 text-xs pl-8 pr-8 font-sans"
+                    className="bg-slate-50/70 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-xs pl-9 pr-9 font-medium h-10 transition-all"
                     required
                   />
-                  <Lock className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5"
                     tabIndex={-1}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -415,11 +419,11 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
               <Button
                 type="submit"
                 disabled={isLoading || !credUsername.trim() || !credPassword.trim()}
-                className="w-full bg-white hover:bg-slate-200 text-black font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-2.5 h-11 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-slate-950/10 active:scale-[0.99] disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
-                    <span className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>Signing in...</span>
                   </>
                 ) : (
@@ -435,9 +439,9 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
         {/* TAB 2: MANUAL ROLL NUMBER ENTRY */}
         {activeTab === "manual" && (
-          <div className="space-y-3">
+          <div className="space-y-3.5 pt-1">
             <div>
-              <label className="text-xs font-semibold text-slate-300 mb-1 block text-left">
+              <label className="text-xs font-bold text-slate-700 mb-1.5 block text-left">
                 College Roll Number
               </label>
               <Input
@@ -452,33 +456,33 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
                     handleManualLogin();
                   }
                 }}
-                className="bg-slate-900 border-slate-700 text-white font-mono uppercase placeholder:text-slate-500 focus:border-blue-500 text-xs"
+                className="bg-slate-50/70 border-slate-200 text-slate-900 font-mono uppercase placeholder:text-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl text-xs h-10 transition-all"
               />
             </div>
 
             {/* LIVE DECODING PREVIEW CARD */}
             {decoded ? (
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 animate-fade-in text-left">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 animate-fade-in text-left">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     Verified Identity
                   </span>
-                  <Badge variant="outline" className="bg-transparent text-blue-400 border border-blue-500/60 font-mono text-[11px] px-2 py-0.5">
+                  <Badge variant="outline" className="bg-white text-blue-700 border-blue-200 font-mono text-[11px] px-2.5 py-0.5 shadow-2xs font-bold">
                     {decoded.rollNumber}
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                  <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
-                    <span className="text-slate-400 block text-[9px] uppercase">Department</span>
-                    <span className="font-semibold text-slate-200 truncate block" title={decoded.branchName}>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-white p-2 rounded-xl border border-slate-200/70">
+                    <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Department</span>
+                    <span className="font-semibold text-slate-800 truncate block" title={decoded.branchName}>
                       {decoded.branchName}
                     </span>
                   </div>
-                  <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
-                    <span className="text-slate-400 block text-[9px] uppercase">Batch</span>
-                    <span className="font-semibold text-slate-200">
+                  <div className="bg-white p-2 rounded-xl border border-slate-200/70">
+                    <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Batch</span>
+                    <span className="font-semibold text-slate-800">
                       {decoded.joiningYear} – {decoded.graduationYear}
                     </span>
                   </div>
@@ -489,16 +493,26 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
             <Button
               onClick={handleManualLogin}
               disabled={!decoded || isLoading}
-              className="w-full bg-white hover:bg-slate-200 text-black font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
+              className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-2.5 h-11 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-slate-950/10 active:scale-[0.99] disabled:opacity-50"
             >
-              {isLoading ? "Signing in..." : "Access My Dashboard"}
-              <ArrowRight className="w-3.5 h-3.5" />
+              {isLoading ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Access My Dashboard</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </>
+              )}
             </Button>
           </div>
         )}
 
-        <div className="text-[11px] text-slate-500 text-center border-t border-slate-900 pt-3 flex items-center justify-center gap-1">
-          <Building2 className="w-3.5 h-3.5 text-slate-600" />
+        {/* College Accreditation / Footer */}
+        <div className="text-[11px] font-medium text-slate-400 text-center border-t border-slate-100 pt-3 flex items-center justify-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5 text-slate-400" />
           <span>Hyderabad Institute of Technology and Management</span>
         </div>
       </div>

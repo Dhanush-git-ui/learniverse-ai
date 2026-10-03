@@ -35,7 +35,6 @@ const MessageInput = ({ onSendMessage, isLoading, hasMessages }: MessageInputPro
           onKeyDown={handleInputKeyDown}
           placeholder="Ask Socratic Chat about this topic..."
           aria-label="Ask Socratic Chat"
-          autoFocus
           className="min-h-[44px] max-h-28 resize-none rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-blue-400 dark:focus:ring-blue-400"
         />
         <Button
