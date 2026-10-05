@@ -126,8 +126,8 @@ def seed_default_multi_tenant_data(db, root_dir: str):
 
     # Seed TechHash Active Test
     th_test_id = "test_techhash_fall_2026"
-    test_start = (now_utc - timedelta(days=2)).isoformat()
-    test_end = (now_utc + timedelta(days=14)).isoformat()
+    test_start = (now_utc - timedelta(days=14)).isoformat()
+    test_end = (now_utc - timedelta(days=2)).isoformat()
 
     db.execute("""
         INSERT INTO assessment_tests (
@@ -143,7 +143,27 @@ def seed_default_multi_tenant_data(db, root_dir: str):
         test_end,
         60,
         70.0,
-        "ongoing",
+        "completed",
+        1
+    ))
+
+    # Seed Fixly Past Test
+    fx_test_id = "test_fixly_summer_2026"
+    db.execute("""
+        INSERT INTO assessment_tests (
+            id, company_id, test_name, role_track, start_time, end_time, duration_minutes, total_marks, status, is_active
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    """, (
+        fx_test_id,
+        fx_comp_id,
+        "Fixly Backend & Cloud Engineer Assessment",
+        "Backend & Cloud Roles",
+        test_start,
+        test_end,
+        90,
+        100.0,
+        "completed",
         1
     ))
 
