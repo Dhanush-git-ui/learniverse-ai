@@ -71,15 +71,39 @@ export default function StudentDashboard() {
     }
   };
 
-  // 2. Load real student session & analytics from Neon
+  // 2. Load real student session & analytics from Neon (with Admin guard)
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("learniverse_student");
-      if (raw) {
-        const parsed = JSON.parse(raw);
+      const rawUser = localStorage.getItem("learniverse_user");
+      const rawStudent = localStorage.getItem("learniverse_student");
+      
+      let isAdminUser = false;
+      if (rawUser) {
+        try {
+          const u = JSON.parse(rawUser);
+          if (u.role === "admin" || u.is_admin) isAdminUser = true;
+        } catch {}
+      }
+      if (rawStudent) {
+        try {
+          const s = JSON.parse(rawStudent);
+          if (s.role === "admin" || s.is_admin || s.roll_number === "ADMIN" || s.rollNumber === "ADMIN") {
+            isAdminUser = true;
+          }
+        } catch {}
+      }
+
+      // If user is Admin, redirect directly to the Admin Assessment & Command Center
+      if (isAdminUser) {
+        navigate("/assessment?admin=true", { replace: true });
+        return;
+      }
+
+      if (rawStudent) {
+        const parsed = JSON.parse(rawStudent);
         setStudent(parsed);
         const roll = parsed.roll_number || parsed.rollNumber;
-        const token = parsed.token;
+        const token = localStorage.getItem("learniverse_token") || parsed.token;
 
         if (token) {
           fetch("/api/analytics/dashboard", {
@@ -102,16 +126,16 @@ export default function StudentDashboard() {
         }
       }
     } catch {}
-  }, []);
+  }, [navigate]);
 
   // 3. Download PDF Report function
   const handleDownloadReport = () => {
     setIsGeneratingPdf(true);
     try {
       const doc = new jsPDF();
-      const roll = student?.roll_number || student?.rollNumber || "23E51A0561";
-      const name = student?.name || "HITAM Student";
-      const branch = student?.branch_name || "Computer Science & Engineering (CSE)";
+      const roll = student?.roll_number || student?.rollNumber || "Student";
+      const name = student?.name || student?.student_name || "HITAM Student";
+      const branch = student?.branch || student?.branch_name || "Computer Science & Engineering (CSE)";
       
       doc.setFontSize(18);
       doc.text("HITAM - CDC Placement Assessment Report", 20, 22);
@@ -120,7 +144,7 @@ export default function StudentDashboard() {
       doc.text(`Candidate Name: ${name}`, 20, 36);
       doc.text(`Roll Number: ${roll}`, 20, 44);
       doc.text(`Department: ${branch}`, 20, 52);
-      doc.text(`Academic Year: 4th Year (Batch 2023 - 2027)`, 20, 60);
+      doc.text(`Academic Year: ${student?.currentStudyYear || "4th Year"} (${student?.batch ? `Batch ${student.batch}` : "Batch 2023 - 2027"})`, 20, 60);
       
       doc.setDrawColor(200, 210, 230);
       doc.line(20, 66, 190, 66);
@@ -359,11 +383,15 @@ export default function StudentDashboard() {
             {/* User Profile Pill */}
             <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200/80">
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs ring-2 ring-blue-100">
-                H
+                {(student?.name || student?.roll_number || "S").slice(0, 1).toUpperCase()}
               </div>
               <div className="text-left hidden sm:block leading-tight">
-                <div className="text-xs font-bold text-slate-900 tracking-tight">23E51A0561</div>
-                <div className="text-[10px] font-semibold text-slate-400">CSE • 4th Year</div>
+                <div className="text-xs font-bold text-slate-900 tracking-tight">
+                  {student?.roll_number || student?.rollNumber || "Student Profile"}
+                </div>
+                <div className="text-[10px] font-semibold text-slate-400">
+                  {student?.branch || student?.branch_name || "HITAM"} {student?.currentStudyYear ? `• ${student.currentStudyYear}` : ""}
+                </div>
               </div>
             </div>
 
@@ -444,7 +472,7 @@ export default function StudentDashboard() {
                   WELCOME BACK,
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  HITAM Student <span className="animate-pulse inline-block">👋</span>
+                  {student?.name || "HITAM Student"} <span className="animate-pulse inline-block">👋</span>
                 </h1>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
                   Keep learning. You're building your future.
@@ -455,18 +483,18 @@ export default function StudentDashboard() {
               <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-semibold text-slate-600">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
                   <IdCard className="w-3.5 h-3.5 text-slate-400" />
-                  23E51A0561
+                  {student?.roll_number || student?.rollNumber || "Enrolled Candidate"}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
                   <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
-                  Computer Science & Engineering (CSE)
+                  {student?.branch || student?.branch_name || "Computer Science & Engineering"}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                  Batch 2023 – 2027
+                  {student?.batch ? `Batch ${student.batch}` : "Batch 2023 – 2027"}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
-                  4th Year
+                  {student?.currentStudyYear || "4th Year"}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold shadow-2xs">
                   <span className="relative flex h-2 w-2">

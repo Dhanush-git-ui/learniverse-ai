@@ -179,10 +179,10 @@ const Navbar = () => {
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-10 lg:px-12 xl:px-16">
         <div className="flex items-center justify-between h-16">
           
-          {/* Logo: links to /dashboard if logged in, otherwise / */}
+          {/* Logo: links to /assessment?admin=true if admin, /dashboard if student, otherwise / */}
           <div className="flex items-center">
             <Link
-              to={student ? "/dashboard" : "/"}
+              to={isAdmin ? "/assessment?admin=true" : (student ? "/dashboard" : "/")}
               className={`flex items-center transition-transform hover:scale-105 ${
                 isActive('/top-100-codes') ? '-ml-4' : ''
               }`}
@@ -201,18 +201,18 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-1.5">
             {student ? (
               // -------------------------------------------------------
-              // AFTER LOGIN (Student Portal Hub)
+              // AFTER LOGIN (Student Portal Hub / Admin Console)
               // -------------------------------------------------------
               <>
                 <Link 
-                  to="/dashboard" 
+                  to={isAdmin ? "/assessment?admin=true" : "/dashboard"} 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-all ${
-                    isActive('/dashboard') 
+                    (isAdmin ? (isActive('/assessment') && location.search.includes('admin=true')) : isActive('/dashboard')) 
                       ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' 
                       : 'text-slate-600 hover:text-black hover:bg-slate-50'
                   }`}
                 >
-                  <span>Dashboard</span>
+                  <span>{isAdmin ? "Admin Console" : "Dashboard"}</span>
                 </Link>
 
                 <Link 
@@ -482,14 +482,14 @@ const Navbar = () => {
               {/* Student Nav Links */}
               <div className="space-y-1 pt-1">
                 <Link
-                  to="/dashboard"
+                  to={isAdmin ? "/assessment?admin=true" : "/dashboard"}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-bold transition-all ${
-                    isActive('/dashboard') ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' : 'text-slate-700 hover:bg-slate-50'
+                    (isAdmin ? (isActive('/assessment') && location.search.includes('admin=true')) : isActive('/dashboard')) ? 'text-black bg-slate-100 border border-slate-200 shadow-xs' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <LayoutDashboard className="w-5 h-5 text-blue-600" />
-                  <span>Dashboard</span>
+                  <span>{isAdmin ? "Admin Console" : "Dashboard"}</span>
                 </Link>
 
                 <Link

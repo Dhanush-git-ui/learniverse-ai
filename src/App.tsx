@@ -9,11 +9,32 @@ import TopicsPage from "./pages/TopicsPage";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 
-// [FIX M-2] Lazy-load pages that use heavy dependencies (like Monaco Editor)
-const PlacementAssessment = React.lazy(() => import("./pages/PlacementAssessment"));
-const TopicDetailPage = React.lazy(() => import("./pages/TopicDetailPage"));
-const Top100Codes = React.lazy(() => import("./pages/Top100Codes"));
-const StudentDashboard = React.lazy(() => import("./pages/StudentDashboard"));
+// Resilient lazy load helper that handles stale deployment hashes automatically
+function lazyWithRetry<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+): React.LazyExoticComponent<T> {
+  return React.lazy(async () => {
+    const hasReloaded = window.sessionStorage.getItem('chunk_force_reloaded');
+    try {
+      const component = await factory();
+      window.sessionStorage.removeItem('chunk_force_reloaded');
+      return component;
+    } catch (error) {
+      if (!hasReloaded) {
+        window.sessionStorage.setItem('chunk_force_reloaded', 'true');
+        window.location.reload();
+        return new Promise<{ default: T }>(() => {});
+      }
+      window.sessionStorage.removeItem('chunk_force_reloaded');
+      throw error;
+    }
+  });
+}
+
+const PlacementAssessment = lazyWithRetry(() => import("./pages/PlacementAssessment"));
+const TopicDetailPage = lazyWithRetry(() => import("./pages/TopicDetailPage"));
+const Top100Codes = lazyWithRetry(() => import("./pages/Top100Codes"));
+const StudentDashboard = lazyWithRetry(() => import("./pages/StudentDashboard"));
 
 
 const queryClient = new QueryClient();
