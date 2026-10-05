@@ -260,16 +260,6 @@ const Navbar = () => {
                   <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
 
-                <a
-                  href="https://cdc-hitam.onrender.com/check-score"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 flex items-center gap-1 border border-emerald-200"
-                >
-                  Check Score
-                  <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                </a>
-
                 {isAdmin && (
                   <Link 
                     to="/assessment?admin=true" 
@@ -292,7 +282,7 @@ const Navbar = () => {
                   className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:text-black hover:bg-slate-50 inline-flex items-center gap-1.5"
                   title="Check Diagnostic Assessment on CDC HITAM"
                 >
-                  <span>Check Your Score</span>
+                  <span>Check Score</span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                 </a>
               </>
@@ -548,7 +538,7 @@ const Navbar = () => {
                 >
                   <div className="flex items-center gap-3">
                     <GraduationCap className="w-5 h-5 text-slate-500" />
-                    <span>Check Your Score</span>
+                    <span>Check Score</span>
                   </div>
                   <ExternalLink className="w-4 h-4 text-slate-400" />
                 </a>
