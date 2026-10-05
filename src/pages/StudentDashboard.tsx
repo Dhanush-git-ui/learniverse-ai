@@ -31,7 +31,8 @@ import {
   IdCard,
   Download,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  LogOut
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
@@ -44,6 +45,11 @@ export default function StudentDashboard() {
   const [student, setStudent] = useState<any>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("learniverse_student");
+    window.location.href = "/";
+  };
 
   // 1. Ctrl + K Keyboard Shortcut Listener
   useEffect(() => {
@@ -346,6 +352,15 @@ export default function StudentDashboard() {
                 <div className="text-[10px] font-semibold text-slate-400">CSE • 4th Year</div>
               </div>
             </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="ml-1 p-2 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 transition-colors flex items-center justify-center"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 
