@@ -279,11 +279,11 @@ const Navbar = () => {
                   href="https://cdc-hitam.onrender.com/dashboard"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors text-slate-600 hover:text-black hover:bg-slate-50 inline-flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-bold transition-all text-emerald-700 hover:text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100 border border-emerald-300 shadow-2xs inline-flex items-center gap-1.5"
                   title="Check Diagnostic Assessment on CDC HITAM"
                 >
                   <span>Check Score</span>
-                  <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                  <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
                 </a>
               </>
             ) : (
@@ -534,13 +534,13 @@ const Navbar = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-base font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-base font-bold text-emerald-700 bg-emerald-50/70 border border-emerald-300 hover:bg-emerald-100 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <GraduationCap className="w-5 h-5 text-slate-500" />
+                    <GraduationCap className="w-5 h-5 text-emerald-600" />
                     <span>Check Score</span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-slate-400" />
+                  <ExternalLink className="w-4 h-4 text-emerald-600" />
                 </a>
               </div>
 
