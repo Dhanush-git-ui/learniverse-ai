@@ -2344,10 +2344,25 @@ export default function PlacementAssessment() {
                           }}
                           className="bg-white border border-slate-300 text-xs font-bold px-3 py-2 rounded-xl text-slate-900 outline-none cursor-pointer shadow-xs"
                         >
-                          <option value="test_techhash_fall_2026">TechHash Screening Drive 2026</option>
-                          {(catalogData?.ongoing_tests || []).map((t: any) => (
-                            <option key={t.id} value={t.id}>{t.test_name}</option>
-                          ))}
+                          <option value="test_techhash_fall_2026">TechHash Internship Screening Drive 2026</option>
+                          
+                          <optgroup label="Ongoing Drives">
+                            {(catalogData?.ongoing_tests || []).map((t: any) => (
+                              <option key={t.id} value={t.id}>{t.test_name}</option>
+                            ))}
+                          </optgroup>
+                          
+                          <optgroup label="Past / Previous Tests">
+                            {(catalogData?.past_tests || []).map((t: any) => (
+                              <option key={t.id} value={t.id}>{t.test_name}</option>
+                            ))}
+                          </optgroup>
+
+                          <optgroup label="Upcoming Drives">
+                            {(catalogData?.upcoming_tests || []).map((t: any) => (
+                              <option key={t.id} value={t.id}>{t.test_name}</option>
+                            ))}
+                          </optgroup>
                         </select>
                       </div>
 
