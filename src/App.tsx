@@ -2,10 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React, { Suspense } from "react";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import TopicsPage from "./pages/TopicsPage";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
@@ -55,8 +54,8 @@ const App = () => (
             </Suspense>
           } />
           
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          {/* Redirect all unmatched or non-existent routes to topics page */}
+          <Route path="*" element={<Navigate to="/topics" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
