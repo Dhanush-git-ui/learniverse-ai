@@ -359,6 +359,9 @@ app.include_router(cdc_router)
 from auth_api import auth_router
 app.include_router(auth_router)
 
+from analytics_api import analytics_router
+app.include_router(analytics_router)
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -367,6 +370,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., max_length=2000)
     topic: str = "General"
     category: str = "DSA"
+    mode: str = Field("teacher", max_length=20)   # socratic | teacher | peer
     history: List[ChatMessage] = Field(default_factory=list)
 
 class SourceInfo(BaseModel):
@@ -399,6 +403,7 @@ async def chat(request: Request, chat_req: ChatRequest):
             topic=chat_req.topic,
             category=chat_req.category,
             history=chat_req.history,
+            mode=chat_req.mode,
         )
         
         # Ensure all required keys exist and return ChatResponse compatible format
@@ -779,7 +784,7 @@ async def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
     resp = await model.generate_content(prompt)
     try:
         # Extract JSON block
-        clean_text = resp.text.strip()
+        clean_text = (resp if isinstance(resp, str) else getattr(resp, "text", str(resp))).strip()
         if "```" in clean_text:
             clean_text = clean_text.split("```")[1]
             if clean_text.startswith("json"):
@@ -811,7 +816,7 @@ async def get_topic_mcqs(request: Request, topic: str = Query(...)):
         model = get_model()
         prompt = MCQ_PROMPT.format(topic=topic)
         response = await model.generate_content(prompt)
-        raw_text = response.text.strip()
+        raw_text = (response if isinstance(response, str) else getattr(response, "text", str(response))).strip()
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
             if raw_text.startswith("json"):
@@ -839,7 +844,7 @@ async def get_topic_coding(request: Request, topic: str = Query(...)):
         response = await model.generate_content(prompt)
         
         # Clean up code blocks
-        raw_text = response.text.strip()
+        raw_text = (response if isinstance(response, str) else getattr(response, "text", str(response))).strip()
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
             if raw_text.startswith("json"):
@@ -2070,7 +2075,7 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
                 passed_cases = 1
                 total_cases = 1
                 
-    review = generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
+    review = await generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
     
     all_passed = (passed_cases == total_cases and total_cases > 0)
     is_live_assessment = str(code_req.problemId).startswith("code_") or str(code_req.problemId).startswith("exam_")

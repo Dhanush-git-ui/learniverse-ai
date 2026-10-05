@@ -27,16 +27,20 @@ interface ConversationBoxProps {
   initialMessages?: Message[];
   sessionTitle?: string;
   onSendMessage?: (message: string) => void;
+  onMessageSent?: (role: string, content: string) => void;
   currentQuestion?: Question;
   topic?: Topic;
+  chatMode?: 'socratic' | 'teacher' | 'peer';
 }
 
 const ConversationBox = ({ 
   initialMessages = [], 
   sessionTitle = "Interactive Learning Session",
   onSendMessage,
+  onMessageSent,
   currentQuestion,
-  topic
+  topic,
+  chatMode = 'teacher',
 }: ConversationBoxProps) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +77,7 @@ const ConversationBox = ({
           message: safeMessage,
           topic: topicName,
           category: topicCategory,
+          mode: chatMode,
           history: clearedBackendHistory ? [] : messages.map(msg => ({
             role: msg.type,
             content: msg.content
@@ -126,6 +131,11 @@ const ConversationBox = ({
       setMessages(prev => [...prev, teacherMessage, peerMessage]);
       // After successful send, reset clearedBackendHistory flag
       setClearedBackendHistory(false);
+      // Fire analytics callback
+      if (onMessageSent) {
+        onMessageSent('user', message);
+        onMessageSent('assistant', teacher_answer || peer_answer || '');
+      }
     } catch (error) {
       console.error("Failed to fetch response from AI backend:", error);
       

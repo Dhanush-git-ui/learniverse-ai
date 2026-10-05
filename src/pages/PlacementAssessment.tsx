@@ -1,6 +1,6 @@
 import { getAuthHeaders } from '@/utils/apiAuth';
 import { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter } from 'lucide-react';
+import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter, Code2, MessageSquare, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -666,10 +666,81 @@ export default function PlacementAssessment() {
     }
   };
 
-  const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor'>('catalog');
+  const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor' | 'students'>('catalog');
   const [catalogCategory, setCatalogCategory] = useState<'ongoing' | 'upcoming' | 'past'>('ongoing');
   const [catalogData, setCatalogData] = useState<any>(null);
   const [catalogLoading, setCatalogLoading] = useState<boolean>(false);
+
+  // Students Learning History State
+  const [studentsList, setStudentsList] = useState<any[]>([]);
+  const [studentsTotal, setStudentsTotal] = useState<number>(0);
+  const [studentsLoading, setStudentsLoading] = useState<boolean>(false);
+  const [studentSearch, setStudentSearch] = useState<string>('');
+  const [studentBranchFilter, setStudentBranchFilter] = useState<string>('');
+  const [selectedStudentDetail, setSelectedStudentDetail] = useState<any>(null);
+  const [studentDetailLoading, setStudentDetailLoading] = useState<boolean>(false);
+  const [studentDetailActiveTab, setStudentDetailActiveTab] = useState<'overview' | 'mcq' | 'chat' | 'coding' | 'violations'>('overview');
+
+  const fetchStudents = async (query = studentSearch, branch = studentBranchFilter) => {
+    setStudentsLoading(true);
+    try {
+      const res = await fetch(`/api/analytics/admin/students?search=${encodeURIComponent(query)}&branch=${encodeURIComponent(branch)}`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStudentsList(data.students || []);
+        setStudentsTotal(data.total || 0);
+      }
+    } catch (e) {
+      console.error('Error fetching students:', e);
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
+
+  const openStudentDetail = async (roll: string) => {
+    setStudentDetailLoading(true);
+    setStudentDetailActiveTab('overview');
+    try {
+      const res = await fetch(`/api/analytics/admin/student/${encodeURIComponent(roll)}`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedStudentDetail(data.data);
+      }
+    } catch (e) {
+      console.error('Error fetching student detail:', e);
+    } finally {
+      setStudentDetailLoading(false);
+    }
+  };
+
+  const exportStudentsCsv = () => {
+    if (!studentsList || studentsList.length === 0) return;
+    const headers = ['Roll Number', 'Name', 'Email', 'Branch', 'Topics Explored', 'MCQ Attempted', 'MCQ Accuracy %', 'Coding Solved', 'Top 100 Solved', 'Last Active'];
+    const rows = studentsList.map(s => [
+      `"${s.roll_number || ''}"`,
+      `"${s.name || ''}"`,
+      `"${s.email || ''}"`,
+      `"${s.branch || ''}"`,
+      s.topics_viewed_count || 0,
+      s.mcq_total_attempted || 0,
+      s.mcq_accuracy_pct || 0,
+      s.coding_solved_count || 0,
+      s.top100_solved_count || 0,
+      `"${s.last_active_at ? new Date(s.last_active_at).toLocaleString() : 'Never'}"`
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `students_learning_analytics_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Live Monitor State
   const [activeMonitorTestId, setActiveMonitorTestId] = useState<string>('test_techhash_fall_2026');
@@ -2185,15 +2256,35 @@ export default function PlacementAssessment() {
                       <Plus className="w-3.5 h-3.5" />
                       <span>Create New Drive</span>
                     </button>
+                    <button
+                      onClick={() => {
+                        setCatalogSubTab('students');
+                        fetchStudents();
+                      }}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        catalogSubTab === 'students'
+                          ? 'bg-black text-white shadow-sm border border-black'
+                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>👥 All Students Analytics</span>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => window.open('/api/assessment/admin/export', '_blank')}
+                      onClick={() => {
+                        if (catalogSubTab === 'students') {
+                          exportStudentsCsv();
+                        } else {
+                          window.open('/api/assessment/admin/export', '_blank');
+                        }
+                      }}
                       className="bg-black hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm border border-black flex items-center gap-1.5"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>Export CSV</span>
+                      <span>{catalogSubTab === 'students' ? 'Export Students CSV' : 'Export CSV'}</span>
                     </button>
                     <button
                       onClick={() => {
@@ -2605,6 +2696,563 @@ export default function PlacementAssessment() {
                         {builderSubmitting ? 'Creating Drive...' : '🚀 Publish & Enroll Drive'}
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {/* SubTab 4: All Students Analytics & Learning History */}
+                {catalogSubTab === 'students' && (
+                  <div className="space-y-6 animate-fade-in">
+                    {/* Header & Search Toolbar */}
+                    <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                          <Users className="w-5 h-5 text-blue-600" />
+                          <span>Student Learning & Assessment Records</span>
+                        </h2>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Cross-platform portfolio synced from Neon DB: topics viewed, Socratic chat, MCQs, coding challenges & placement test scores.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        {/* Search Input */}
+                        <div className="relative min-w-[240px]">
+                          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="text"
+                            placeholder="Search by Roll, Name or Email..."
+                            value={studentSearch}
+                            onChange={(e) => {
+                              setStudentSearch(e.target.value);
+                              fetchStudents(e.target.value, studentBranchFilter);
+                            }}
+                            className="w-full bg-slate-50 border border-slate-200 text-xs pl-9 pr-3 py-2 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                          />
+                        </div>
+
+                        {/* Branch Filter */}
+                        <div className="flex items-center gap-1.5">
+                          <Filter className="w-3.5 h-3.5 text-slate-400" />
+                          <select
+                            value={studentBranchFilter}
+                            onChange={(e) => {
+                              setStudentBranchFilter(e.target.value);
+                              fetchStudents(studentSearch, e.target.value);
+                            }}
+                            className="bg-slate-50 border border-slate-200 text-xs px-3 py-2 rounded-xl text-slate-800 font-semibold outline-none focus:ring-2 focus:ring-blue-100"
+                          >
+                            <option value="">All Branches</option>
+                            <option value="CSM">CSM (AI & ML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSD">CSD (Data Science)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="MECH">MECH</option>
+                          </select>
+                        </div>
+
+                        {/* Refresh Button */}
+                        <button
+                          onClick={() => fetchStudents(studentSearch, studentBranchFilter)}
+                          disabled={studentsLoading}
+                          className="p-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-slate-700 transition-all"
+                          title="Refresh Student Roster"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${studentsLoading ? 'animate-spin text-blue-600' : ''}`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Stats Header Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Enrolled Students</span>
+                        <div className="text-2xl font-black text-slate-900 mt-1">{studentsTotal}</div>
+                        <span className="text-[11px] text-blue-600 font-semibold">Active Profiles in DB</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Showing in View</span>
+                        <div className="text-2xl font-black text-slate-900 mt-1">{studentsList.length}</div>
+                        <span className="text-[11px] text-slate-500 font-medium">Filtered Candidates</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Avg MCQ Accuracy</span>
+                        <div className="text-2xl font-black text-emerald-600 mt-1">
+                          {studentsList.length > 0
+                            ? Math.round(
+                                studentsList.reduce((acc, s) => acc + (Number(s.mcq_accuracy_pct) || 0), 0) /
+                                (studentsList.filter(s => (s.mcq_total_attempted || 0) > 0).length || 1)
+                              )
+                            : 0}%
+                        </div>
+                        <span className="text-[11px] text-emerald-600 font-medium">Classroom Benchmark</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Coding Solutions Logged</span>
+                        <div className="text-2xl font-black text-blue-600 mt-1">
+                          {studentsList.reduce((acc, s) => acc + (Number(s.coding_solved_count) || 0), 0)}
+                        </div>
+                        <span className="text-[11px] text-blue-600 font-medium">Challenges Solved</span>
+                      </div>
+                    </div>
+
+                    {/* Students Table */}
+                    <div className="bg-white border border-slate-200 rounded-3xl shadow-xs overflow-hidden">
+                      {studentsLoading ? (
+                        <div className="py-20 text-center">
+                          <RefreshCw className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-3" />
+                          <p className="text-sm font-bold text-slate-700">Loading student learning records from Neon...</p>
+                          <p className="text-xs text-slate-400 mt-1">Aggregating chat, MCQ attempts, and challenge metrics</p>
+                        </div>
+                      ) : studentsList.length === 0 ? (
+                        <div className="py-20 text-center">
+                          <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                          <p className="text-sm font-bold text-slate-700">No students match your query</p>
+                          <p className="text-xs text-slate-400 mt-1">Try clearing filters or search terms</p>
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                <th className="py-3.5 px-4">Candidate Profile</th>
+                                <th className="py-3.5 px-4">Branch</th>
+                                <th className="py-3.5 px-4 text-center">Topics</th>
+                                <th className="py-3.5 px-4 text-center">MCQ Accuracy</th>
+                                <th className="py-3.5 px-4 text-center">Coding Solved</th>
+                                <th className="py-3.5 px-4 text-center">Top 100 Solved</th>
+                                <th className="py-3.5 px-4 text-center">Last Active</th>
+                                <th className="py-3.5 px-4 text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-xs">
+                              {studentsList.map((st) => {
+                                const mcqAcc = Number(st.mcq_accuracy_pct) || 0;
+                                const mcqAttempts = Number(st.mcq_total_attempted) || 0;
+                                const codingSolved = Number(st.coding_solved_count) || 0;
+                                const top100Solved = Number(st.top100_solved_count) || 0;
+                                const topicsCount = Number(st.topics_viewed_count) || 0;
+
+                                return (
+                                  <tr key={st.user_id || st.roll_number} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="py-3.5 px-4">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                                          {(st.name || st.roll_number || 'S').slice(0, 2).toUpperCase()}
+                                        </div>
+                                        <div>
+                                          <div className="font-bold text-slate-900 flex items-center gap-2">
+                                            <span>{st.name || 'Student Candidate'}</span>
+                                          </div>
+                                          <div className="text-[11px] font-mono text-slate-500">
+                                            {st.roll_number} • <span className="text-slate-400">{st.email || 'No email registered'}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+
+                                    <td className="py-3.5 px-4 font-semibold text-slate-700">
+                                      <span className="px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold">
+                                        {st.branch || 'General'}
+                                      </span>
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-center">
+                                      <span className="font-bold text-slate-800">
+                                        {topicsCount}
+                                      </span>
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-center">
+                                      {mcqAttempts > 0 ? (
+                                        <div className="inline-flex flex-col items-center">
+                                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                                            mcqAcc >= 70
+                                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                              : mcqAcc >= 50
+                                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                              : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                          }`}>
+                                            {mcqAcc}%
+                                          </span>
+                                          <span className="text-[10px] text-slate-400 mt-0.5 font-medium">
+                                            {st.mcq_total_correct || 0}/{mcqAttempts} Qs
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <span className="text-slate-400 text-[11px]">Not attempted</span>
+                                      )}
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-center">
+                                      <span className={`font-black ${codingSolved > 0 ? 'text-blue-600' : 'text-slate-400'}`}>
+                                        {codingSolved}
+                                      </span>
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-center">
+                                      <div className="inline-flex items-center gap-1.5 font-semibold text-slate-700">
+                                        <Award className="w-3.5 h-3.5 text-amber-500" />
+                                        <span>{top100Solved} / 100</span>
+                                      </div>
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-center text-slate-500 text-[11px]">
+                                      {st.last_active_at ? (
+                                        <span>{new Date(st.last_active_at).toLocaleDateString()}</span>
+                                      ) : (
+                                        <span className="text-slate-400">—</span>
+                                      )}
+                                    </td>
+
+                                    <td className="py-3.5 px-4 text-right">
+                                      <button
+                                        onClick={() => openStudentDetail(st.roll_number)}
+                                        className="px-3 py-1.5 bg-black hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5"
+                                      >
+                                        <Eye className="w-3.5 h-3.5" />
+                                        <span>Inspect</span>
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Student Full Inspect Modal */}
+                    {selectedStudentDetail && (
+                      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+                          {/* Modal Header */}
+                          <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+                            <div className="flex items-center gap-3">
+                              <div className="w-11 h-11 rounded-2xl bg-black text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                {(selectedStudentDetail.summary?.name || 'S').slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-base font-black text-slate-900">
+                                    {selectedStudentDetail.summary?.name || 'Candidate Portfolio'}
+                                  </h3>
+                                  <span className="px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-extrabold uppercase">
+                                    {selectedStudentDetail.summary?.branch || 'HITAM'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                                  Roll: <strong className="text-slate-800">{selectedStudentDetail.summary?.roll_number}</strong> • Email: {selectedStudentDetail.summary?.email || 'N/A'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => setSelectedStudentDetail(null)}
+                              className="p-2 hover:bg-slate-200 rounded-xl text-slate-500 hover:text-slate-800 transition-all"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+
+                          {/* Modal SubTab Nav */}
+                          <div className="px-5 border-b border-slate-200 bg-white flex items-center gap-2 overflow-x-auto py-2.5">
+                            <button
+                              onClick={() => setStudentDetailActiveTab('overview')}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                studentDetailActiveTab === 'overview'
+                                  ? 'bg-black text-white'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <Award className="w-3.5 h-3.5" />
+                              <span>Learning Overview</span>
+                            </button>
+                            <button
+                              onClick={() => setStudentDetailActiveTab('mcq')}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                studentDetailActiveTab === 'mcq'
+                                  ? 'bg-black text-white'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>MCQ Log ({selectedStudentDetail.mcq_history?.length || 0})</span>
+                            </button>
+                            <button
+                              onClick={() => setStudentDetailActiveTab('chat')}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                studentDetailActiveTab === 'chat'
+                                  ? 'bg-black text-white'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>AI Transcripts ({selectedStudentDetail.chat_logs?.length || 0})</span>
+                            </button>
+                            <button
+                              onClick={() => setStudentDetailActiveTab('coding')}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                studentDetailActiveTab === 'coding'
+                                  ? 'bg-black text-white'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <Code2 className="w-3.5 h-3.5" />
+                              <span>Coding Submissions ({selectedStudentDetail.coding_history?.length || 0})</span>
+                            </button>
+                            <button
+                              onClick={() => setStudentDetailActiveTab('violations')}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                studentDetailActiveTab === 'violations'
+                                  ? 'bg-black text-white'
+                                  : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <ShieldAlert className="w-3.5 h-3.5" />
+                              <span>Proctoring Flags ({selectedStudentDetail.violations?.length || 0})</span>
+                            </button>
+                          </div>
+
+                          {/* Modal Body */}
+                          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)] space-y-6">
+                            {/* OVERVIEW TAB */}
+                            {studentDetailActiveTab === 'overview' && (
+                              <div className="space-y-6">
+                                {/* 4 KPI cards */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Diagnostic Score</span>
+                                    <div className="text-xl font-black text-slate-900 mt-1">
+                                      {selectedStudentDetail.summary?.placement
+                                        ? `${selectedStudentDetail.summary.placement.percentage}%`
+                                        : 'Not Attempted'}
+                                    </div>
+                                    <span className="text-[11px] text-slate-500">Placement Screening</span>
+                                  </div>
+                                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">MCQ Accuracy</span>
+                                    <div className="text-xl font-black text-emerald-600 mt-1">
+                                      {selectedStudentDetail.summary?.mcq_accuracy_pct || 0}%
+                                    </div>
+                                    <span className="text-[11px] text-slate-500">
+                                      {selectedStudentDetail.summary?.mcq_total_correct || 0} / {selectedStudentDetail.summary?.mcq_total_attempted || 0} correct
+                                    </span>
+                                  </div>
+                                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Coding Solved</span>
+                                    <div className="text-xl font-black text-blue-600 mt-1">
+                                      {selectedStudentDetail.summary?.coding_solved_count || 0}
+                                    </div>
+                                    <span className="text-[11px] text-slate-500">Challenges Cleared</span>
+                                  </div>
+                                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Top 100 Codes</span>
+                                    <div className="text-xl font-black text-amber-600 mt-1">
+                                      {selectedStudentDetail.summary?.top100_solved_count || 0} / 100
+                                    </div>
+                                    <span className="text-[11px] text-slate-500">FAANG/Tier-1 Curriculum</span>
+                                  </div>
+                                </div>
+
+                                {/* Weak Topics & Strengths */}
+                                {selectedStudentDetail.summary?.weak_topics && selectedStudentDetail.summary.weak_topics.length > 0 && (
+                                  <div className="bg-rose-50/50 border border-rose-200 rounded-2xl p-4">
+                                    <h4 className="text-xs font-black uppercase tracking-wider text-rose-800 mb-2 flex items-center gap-1.5">
+                                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                                      <span>Focus & Growth Areas (Accuracy &lt; 60%)</span>
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {selectedStudentDetail.summary.weak_topics.map((wt: any, idx: number) => (
+                                        <span key={idx} className="px-2.5 py-1 rounded-xl bg-white border border-rose-200 text-xs font-bold text-rose-700 shadow-xs">
+                                          {wt.topic_slug}: {wt.accuracy_pct}%
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Per-topic breakdown */}
+                                {selectedStudentDetail.summary?.mcq_by_topic && selectedStudentDetail.summary.mcq_by_topic.length > 0 && (
+                                  <div>
+                                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 mb-3">Topic Performance Breakdown</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                      {selectedStudentDetail.summary.mcq_by_topic.map((t: any, idx: number) => (
+                                        <div key={idx} className="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex items-center justify-between">
+                                          <div>
+                                            <span className="font-bold text-xs text-slate-800 capitalize">{t.topic_slug.replace(/-/g, ' ')}</span>
+                                            <div className="text-[10px] text-slate-400">{t.questions_attempted} attempted • {t.correct_count} correct</div>
+                                          </div>
+                                          <span className={`px-2 py-0.5 rounded-full text-xs font-black ${
+                                            t.accuracy_pct >= 70 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                          }`}>
+                                            {t.accuracy_pct}%
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* MCQ LOG TAB */}
+                            {studentDetailActiveTab === 'mcq' && (
+                              <div className="space-y-3">
+                                {(!selectedStudentDetail.mcq_history || selectedStudentDetail.mcq_history.length === 0) ? (
+                                  <p className="text-xs text-slate-400 text-center py-10">No MCQ attempts recorded yet.</p>
+                                ) : (
+                                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <table className="w-full text-left text-xs border-collapse">
+                                      <thead>
+                                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                          <th className="py-2.5 px-3">Topic</th>
+                                          <th className="py-2.5 px-3">Question ID</th>
+                                          <th className="py-2.5 px-3 text-center">Selected</th>
+                                          <th className="py-2.5 px-3 text-center">Correct</th>
+                                          <th className="py-2.5 px-3 text-center">Verdict</th>
+                                          <th className="py-2.5 px-3 text-right">Time</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-slate-100">
+                                        {selectedStudentDetail.mcq_history.map((m: any, i: number) => (
+                                          <tr key={i} className="hover:bg-slate-50">
+                                            <td className="py-2.5 px-3 font-semibold text-slate-800 capitalize">{m.topic_slug?.replace(/-/g, ' ')}</td>
+                                            <td className="py-2.5 px-3 font-mono text-[11px] text-slate-500">{m.question_id}</td>
+                                            <td className="py-2.5 px-3 text-center font-bold text-slate-700">Option {Number(m.selected_idx) + 1}</td>
+                                            <td className="py-2.5 px-3 text-center font-bold text-slate-700">Option {Number(m.correct_idx) + 1}</td>
+                                            <td className="py-2.5 px-3 text-center">
+                                              {m.is_correct ? (
+                                                <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-[11px]">
+                                                  <CheckCircle2 className="w-3.5 h-3.5" /> Correct
+                                                </span>
+                                              ) : (
+                                                <span className="inline-flex items-center gap-1 text-rose-600 font-bold text-[11px]">
+                                                  <XCircle className="w-3.5 h-3.5" /> Wrong
+                                                </span>
+                                              )}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-right font-mono text-slate-500">{m.time_taken_s}s</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* CHAT LOG TAB */}
+                            {studentDetailActiveTab === 'chat' && (
+                              <div className="space-y-3">
+                                {(!selectedStudentDetail.chat_logs || selectedStudentDetail.chat_logs.length === 0) ? (
+                                  <p className="text-xs text-slate-400 text-center py-10">No AI conversations logged yet.</p>
+                                ) : (
+                                  <div className="space-y-3">
+                                    {selectedStudentDetail.chat_logs.map((c: any, i: number) => (
+                                      <div key={i} className={`p-3.5 rounded-2xl border text-xs ${
+                                        c.role === 'user' ? 'bg-slate-50 border-slate-200' : 'bg-blue-50/40 border-blue-200'
+                                      }`}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                          <div className="flex items-center gap-2">
+                                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
+                                              c.role === 'user' ? 'bg-slate-200 text-slate-800' : 'bg-blue-600 text-white'
+                                            }`}>
+                                              {c.role === 'user' ? 'Student' : 'Learniverse AI'}
+                                            </span>
+                                            <span className="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-bold capitalize">
+                                              {c.mode || 'Socratic'} Mode
+                                            </span>
+                                            <span className="text-[11px] font-semibold text-slate-500 capitalize">
+                                              {c.topic_slug?.replace(/-/g, ' ')}
+                                            </span>
+                                          </div>
+                                          <span className="text-[10px] text-slate-400">{new Date(c.ts).toLocaleTimeString()}</span>
+                                        </div>
+                                        <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{c.content}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* CODING HISTORY TAB */}
+                            {studentDetailActiveTab === 'coding' && (
+                              <div className="space-y-3">
+                                {(!selectedStudentDetail.coding_history || selectedStudentDetail.coding_history.length === 0) ? (
+                                  <p className="text-xs text-slate-400 text-center py-10">No coding submissions recorded yet.</p>
+                                ) : (
+                                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <table className="w-full text-left text-xs border-collapse">
+                                      <thead>
+                                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                          <th className="py-2.5 px-3">Problem Title</th>
+                                          <th className="py-2.5 px-3">Language</th>
+                                          <th className="py-2.5 px-3 text-center">Verdict</th>
+                                          <th className="py-2.5 px-3 text-center">Test Cases</th>
+                                          <th className="py-2.5 px-3 text-right">Runtime</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-slate-100">
+                                        {selectedStudentDetail.coding_history.map((cd: any, i: number) => (
+                                          <tr key={i} className="hover:bg-slate-50">
+                                            <td className="py-2.5 px-3 font-bold text-slate-900">{cd.problem_title || cd.problem_id}</td>
+                                            <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600 uppercase">{cd.language}</td>
+                                            <td className="py-2.5 px-3 text-center">
+                                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                                                cd.verdict === 'Accepted'
+                                                  ? 'bg-emerald-100 text-emerald-800'
+                                                  : 'bg-rose-100 text-rose-800'
+                                              }`}>
+                                                {cd.verdict || 'Submitted'}
+                                              </span>
+                                            </td>
+                                            <td className="py-2.5 px-3 text-center font-bold text-slate-700">
+                                              {cd.passed} / {cd.total}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-right font-mono text-slate-500">{cd.runtime_ms || 0}ms</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* PROCTORING FLAGS TAB */}
+                            {studentDetailActiveTab === 'violations' && (
+                              <div className="space-y-3">
+                                {(!selectedStudentDetail.violations || selectedStudentDetail.violations.length === 0) ? (
+                                  <div className="py-10 text-center">
+                                    <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                                    <p className="text-xs font-bold text-emerald-700">Clean Proctoring Record</p>
+                                    <p className="text-[11px] text-slate-400 mt-0.5">No proctoring violations recorded for this candidate.</p>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {selectedStudentDetail.violations.map((v: any, i: number) => (
+                                      <div key={i} className="p-3 bg-rose-50/70 border border-rose-200 rounded-xl flex items-center justify-between text-xs">
+                                        <div className="flex items-center gap-2.5">
+                                          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                                          <div>
+                                            <span className="font-bold text-rose-900">{v.event_type}</span>
+                                            <p className="text-[11px] text-rose-700">{v.description}</p>
+                                          </div>
+                                        </div>
+                                        <span className="text-[10px] font-mono text-rose-500">{new Date(v.ts).toLocaleTimeString()}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

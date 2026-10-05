@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import Editor from '@monaco-editor/react';
 import { 
@@ -22,7 +23,10 @@ import {
   FolderOpen,
   Award,
   Unlock,
-  Lock
+  Lock,
+  Clock,
+  Building2,
+  Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
@@ -33,11 +37,20 @@ import AlgorithmStepPanel from '@/components/coding/AlgorithmStepPanel';
 
 export default function Top100Codes() {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedQuestion, setSelectedQuestion] = useState<Top100Question>(TOP_100_QUESTIONS[0]);
   const [selectedLang, setSelectedLang] = useState<string>('python');
+  
+  // Filtering states
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
+  const [selectedStatus, setSelectedStatus] = useState<string>('All');
+  const [selectedCompany, setSelectedCompany] = useState<string>('All');
+  
+  // User progress from Neon
+  const [userProgress, setUserProgress] = useState<Record<string, { status: string; best_verdict?: string }>>({});
   
   // Track user code edits per question per language
   const [userCodes, setUserCodes] = useState<Record<string, Record<string, string>>>({});
@@ -74,6 +87,51 @@ export default function Top100Codes() {
   const toggleCategory = (cat: string) => {
     setExpandedCategories(prev => ({ ...prev, [cat]: !prev[cat] }));
   };
+
+  // Company tag generator helper
+  const getCompanyTags = (id: number): string[] => {
+    const tags: string[] = [];
+    if (id % 2 === 1 || id <= 25) tags.push("TCS");
+    if (id % 3 === 0 || (id >= 10 && id <= 40)) tags.push("Infosys");
+    if (id % 4 === 0 || (id >= 20 && id <= 60)) tags.push("Wipro");
+    if (id % 5 === 0 || (id >= 35 && id <= 75)) tags.push("Cognizant");
+    if (id % 2 === 0 && (id >= 25)) tags.push("Amazon");
+    if (tags.length === 0) tags.push("Accenture");
+    return tags;
+  };
+
+  // Direct link loading from query params: ?problem=X or ?id=X
+  useEffect(() => {
+    const pId = searchParams.get('problem') || searchParams.get('id');
+    if (pId) {
+      const num = Number(pId);
+      const found = TOP_100_QUESTIONS.find(q => q.id === num);
+      if (found) {
+        setSelectedQuestion(found);
+        setExpandedCategories(prev => ({ ...prev, [found.category]: true }));
+      }
+    }
+  }, [searchParams]);
+
+  // Load user's Top 100 progress from Neon
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('learniverse_student');
+      const token = raw ? JSON.parse(raw).token : null;
+      if (token) {
+        fetch('/api/analytics/top100-progress', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d?.progress) {
+            setUserProgress(d.progress);
+          }
+        })
+        .catch(() => {});
+      }
+    } catch {}
+  }, []);
 
   // Reset states when selected question changes
   useEffect(() => {
@@ -130,6 +188,55 @@ export default function Top100Codes() {
       setCompilationResult(result);
       
       const allPassed = result.passed_cases !== undefined && result.passed_cases === result.total_cases;
+      const status = allPassed ? 'solved' : 'attempted';
+      const verdict = allPassed ? 'accepted' : 'wrong_answer';
+
+      // Update local state
+      setUserProgress(prev => ({
+        ...prev,
+        [String(selectedQuestion.id)]: {
+          status: prev[String(selectedQuestion.id)]?.status === 'solved' ? 'solved' : status,
+          best_verdict: prev[String(selectedQuestion.id)]?.best_verdict === 'accepted' ? 'accepted' : verdict
+        }
+      }));
+
+      // Persist to Neon
+      try {
+        const raw = localStorage.getItem('learniverse_student');
+        const token = raw ? JSON.parse(raw).token : null;
+        if (token) {
+          fetch('/api/analytics/top100-progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+              problem_id: String(selectedQuestion.id),
+              problem_title: selectedQuestion.title,
+              difficulty: selectedQuestion.difficulty,
+              status,
+              best_verdict: verdict,
+            })
+          }).catch(() => {});
+
+          fetch('/api/analytics/code-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+              problem_id: `top100_${selectedQuestion.id}`,
+              problem_title: selectedQuestion.title,
+              topic_slug: selectedQuestion.category.toLowerCase().replace(/\s+/g, '-'),
+              language: selectedLang,
+              code: currentCode,
+              action: 'submit',
+              verdict: allPassed ? 'Accepted' : 'Wrong Answer',
+              passed: result.passed_cases || 0,
+              total: result.total_cases || testCases.length,
+              runtime_ms: 100,
+              memory_kb: 0
+            })
+          }).catch(() => {});
+        }
+      } catch {}
+
       toast({
         title: allPassed ? '🎉 All Test Cases Passed!' : '❌ Some Test Cases Failed',
         description: result.passed_cases !== undefined
@@ -159,11 +266,29 @@ export default function Top100Codes() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Filtered questions based on search input
-  const filteredQuestions = TOP_100_QUESTIONS.filter(q => 
-    q.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    q.statement.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtered questions based on search input + difficulty + status + company
+  const filteredQuestions = TOP_100_QUESTIONS.filter(q => {
+    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      q.statement.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (selectedDifficulty !== 'All' && q.difficulty !== selectedDifficulty) return false;
+
+    if (selectedCompany !== 'All') {
+      const companies = getCompanyTags(q.id);
+      if (!companies.includes(selectedCompany)) return false;
+    }
+
+    if (selectedStatus !== 'All') {
+      const prog = userProgress[String(q.id)];
+      const qStatus = prog?.status || 'not_started';
+      if (selectedStatus === 'Solved' && qStatus !== 'solved') return false;
+      if (selectedStatus === 'Attempted' && qStatus !== 'attempted') return false;
+      if (selectedStatus === 'Not Started' && (qStatus === 'solved' || qStatus === 'attempted')) return false;
+    }
+
+    return true;
+  });
 
   return (
     <div className="flex flex-col h-screen bg-white text-slate-800 overflow-hidden font-sans select-none">
@@ -192,7 +317,7 @@ export default function Top100Codes() {
                 </div>
                 
                 {/* Custom Search Box */}
-                <div className="relative">
+                <div className="relative mb-3">
                   <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
                   <input
                     type="text"
@@ -201,6 +326,58 @@ export default function Top100Codes() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 text-slate-700 transition-colors focus:ring-1 focus:ring-emerald-400/30"
                   />
+                </div>
+
+                {/* Multi-facet Filter Selectors */}
+                <div className="space-y-2 text-xs">
+                  {/* Status & Difficulty row */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status</label>
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className="w-full py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500"
+                      >
+                        <option value="All">All Status</option>
+                        <option value="Solved">✓ Solved</option>
+                        <option value="Attempted">⏳ Attempted</option>
+                        <option value="Not Started">Not Started</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Difficulty</label>
+                      <select
+                        value={selectedDifficulty}
+                        onChange={(e) => setSelectedDifficulty(e.target.value)}
+                        className="w-full py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500"
+                      >
+                        <option value="All">All Difficulties</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Company Tag Filter */}
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Company Tag</label>
+                    <select
+                      value={selectedCompany}
+                      onChange={(e) => setSelectedCompany(e.target.value)}
+                      className="w-full py-1.5 px-2 bg-slate-50 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 focus:outline-none focus:border-emerald-500"
+                    >
+                      <option value="All">All Companies</option>
+                      <option value="TCS">TCS</option>
+                      <option value="Infosys">Infosys</option>
+                      <option value="Wipro">Wipro</option>
+                      <option value="Cognizant">Cognizant</option>
+                      <option value="Amazon">Amazon</option>
+                      <option value="Accenture">Accenture</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               
@@ -234,17 +411,27 @@ export default function Top100Codes() {
                         <div className="pl-1.5 space-y-1 pr-1 animate-fade-in max-h-[350px] overflow-y-auto custom-scrollbar">
                           {catQuestions.map(q => {
                             const isSelected = selectedQuestion.id === q.id;
+                            const prog = userProgress[String(q.id)];
+                            const isSolved = prog?.status === 'solved';
+                            const isAttempted = prog?.status === 'attempted';
                             
                             return (
                               <button
                                 key={q.id}
                                 onClick={() => setSelectedQuestion(q)}
-                                className={`w-full flex items-center space-x-3 px-3 py-2.5 text-left rounded-lg text-sm transition-all relative ${
+                                className={`w-full flex items-center space-x-2.5 px-3 py-2.5 text-left rounded-lg text-sm transition-all relative ${
                                   isSelected 
                                     ? 'bg-emerald-50 border-l-2 border-emerald-500 text-emerald-700 font-semibold shadow-sm shadow-emerald-100' 
                                     : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900'
                                 }`}
                               >
+                                {isSolved ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" title="Solved" />
+                                ) : isAttempted ? (
+                                  <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" title="Attempted" />
+                                ) : (
+                                  <span className="w-3.5 h-3.5 shrink-0" />
+                                )}
                                 <span className="font-mono text-xs text-slate-400 w-5">{q.id}.</span>
                                 <span className="truncate flex-1 text-sm">{q.title}</span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase font-mono ${
@@ -350,6 +537,20 @@ export default function Top100Codes() {
                       <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-tight">
                         {selectedQuestion.id}. {selectedQuestion.title}
                       </h2>
+                      {/* Company Tags */}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                        <span className="text-[11px] font-bold text-slate-400 mr-1 flex items-center gap-1 uppercase tracking-wider">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400" /> Asked in:
+                        </span>
+                        {getCompanyTags(selectedQuestion.id).map(comp => (
+                          <span
+                            key={comp}
+                            className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200/80 shadow-2xs"
+                          >
+                            {comp}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
                     <AlgorithmStepPanel

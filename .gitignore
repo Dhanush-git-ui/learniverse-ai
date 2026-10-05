@@ -68,6 +68,8 @@ backend/scraper/venv/
 dist/
 node_modules/
 *.sqlite3
+*.db
+backend/local_learniverse.db
 
 # Cache & Build logs
 .eslintcache

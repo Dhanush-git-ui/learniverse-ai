@@ -11,6 +11,7 @@ import CodingWorkspace from '@/components/coding/CodingWork';
 import GenealogyCard from '@/components/GenealogyCard';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import { getAuthHeaders } from '@/utils/apiAuth';
+import MCQSummaryScreen from '@/components/MCQSummaryScreen';
 
 export const LEETCODE_MAP: Record<string, { id: number; url: string }> = {
   "Two Sum": { id: 1, url: "https://leetcode.com/problems/two-sum/" },
@@ -57,12 +58,21 @@ const TopicDetailPage = () => {
   const [codingChallenges, setCodingChallenges] = useState<any[]>([]);
   const [loadingContent, setLoadingContent] = useState(false);
 
+  // Chat mode — persists per tab switch
+  const [chatMode, setChatMode] = useState<'socratic' | 'teacher' | 'peer'>('socratic');
+
+  // Analytics: track time on topic
+  const topicStartTime = useState<number>(() => Date.now())[0];
+
   // MCQ challenge interactive states
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
   const [submittedMCQs, setSubmittedMCQs] = useState<{ [key: string]: boolean }>({});
   const [mcqHintMode, setMcqHintMode] = useState<{ [key: string]: 'teacher' | 'peer' }>({});
   const [mcqRevealHint, setMcqRevealHint] = useState<{ [key: string]: boolean }>({});
   const [mcqScore, setMcqScore] = useState(0);
+  const [mcqFinished, setMcqFinished] = useState(false);
+  const [mcqQuizStartTime, setMcqQuizStartTime] = useState<number>(Date.now());
+  const [mcqTotalTimeTaken, setMcqTotalTimeTaken] = useState(0);
 
   // Coding problem states
   const [selectedProblemIdx, setSelectedProblemIdx] = useState(0); // 0 = Easy, 1 = Medium
@@ -91,6 +101,34 @@ const TopicDetailPage = () => {
   const [mcqSummary, setMcqSummary] = useState<{ strong: string[]; improve: string[] } | null>(null);
 
   const topic = getTopicBySlug(slug || '');
+
+  // ── Analytics: fire-and-forget helper ────────────────────────────────────
+  const logAnalytics = (path: string, body: object) => {
+    try {
+      const token = (() => { try { const s = localStorage.getItem('learniverse_student'); return s ? JSON.parse(s).token : null; } catch { return null; } })();
+      if (!token) return;
+      fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(body),
+        keepalive: true,
+      }).catch(() => {/* silent */});
+    } catch { /* silent */ }
+  };
+
+  // Log topic view when tab changes
+  useEffect(() => {
+    if (!topic || !activeTab) return;
+    const t = Date.now();
+    return () => {
+      logAnalytics('/api/analytics/topic-view', {
+        topic_slug: slug || '',
+        topic_name: topic.title,
+        tab: activeTab,
+        duration_seconds: Math.round((Date.now() - t) / 1000),
+      });
+    };
+  }, [activeTab, slug]);
 
   const normalize = (s: string | undefined | null) => {
     if (!s) return '';
@@ -330,16 +368,36 @@ const TopicDetailPage = () => {
     }
   };
 
-  // Submit code via Piston (evaluates against all example test cases)
+  // Submit code via Piston (evaluates against test cases)
   const handleSubmitCode = async () => {
     setSubmittingCode(true);
     setCompilationResult(null);
     const challenge = codingChallenges[selectedProblemIdx];
     if (!challenge) { setSubmittingCode(false); return; }
     try {
-      const result = await runAndEvaluate(userCode, selectedLang, challenge.examples ?? []);
+      const testCases = [...(challenge.examples ?? [])];
+      if (challenge.hidden_test_cases && Array.isArray(challenge.hidden_test_cases)) {
+        testCases.push(...challenge.hidden_test_cases);
+      }
+      const result = await runAndEvaluate(userCode, selectedLang, testCases);
       setCompilationResult(result);
       const allPassed = result.passed_cases !== undefined && result.passed_cases === result.total_cases;
+      
+      // Log coding submission to analytics
+      logAnalytics('/api/analytics/code-submit', {
+        problem_id: challenge.id || `topic_${slug}_${selectedProblemIdx}`,
+        problem_title: challenge.title || 'Coding Challenge',
+        topic_slug: slug || '',
+        language: selectedLang,
+        code: userCode,
+        action: 'submit',
+        verdict: allPassed ? 'Accepted' : 'Wrong Answer',
+        passed: result.passed_cases || 0,
+        total: result.total_cases || testCases.length,
+        runtime_ms: parseInt(result.runtime) || 120,
+        memory_kb: 0,
+      });
+
       toast({
         title: allPassed ? '✅ All Tests Passed!' : '❌ Some Tests Failed',
         description: result.passed_cases !== undefined
@@ -421,7 +479,7 @@ const TopicDetailPage = () => {
                   }`}
               >
                 <Sparkles className="w-4 h-4" />
-                <span>2. Socratic Chat</span>
+                <span>2. AI Chat</span>
               </button>
               <button
                 onClick={() => setActiveTab('mcq')}
@@ -541,172 +599,247 @@ const TopicDetailPage = () => {
                 </div>
               )}
 
-              {/* Tab 2: Socratic Chat */}
+              {/* Tab 2: 3-Mode AI Chat */}
               {activeTab === 'socratic' && (
                 <div className="w-full border rounded-xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
+                  {/* Mode switcher */}
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-2">Chat Mode:</span>
+                    {(['socratic', 'teacher', 'peer'] as const).map((m) => {
+                      const labels: Record<string, string> = { socratic: '🧠 Socratic', teacher: '📖 Teacher', peer: '👥 Peer' };
+                      const colors: Record<string, string> = {
+                        socratic: chatMode === 'socratic' ? 'bg-violet-600 text-white border-violet-600' : 'border-slate-300 text-slate-600 hover:bg-violet-50',
+                        teacher:  chatMode === 'teacher'  ? 'bg-blue-600 text-white border-blue-600'   : 'border-slate-300 text-slate-600 hover:bg-blue-50',
+                        peer:     chatMode === 'peer'     ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-300 text-slate-600 hover:bg-emerald-50',
+                      };
+                      return (
+                        <button
+                          key={m}
+                          onClick={() => setChatMode(m)}
+                          className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${colors[m]}`}
+                        >
+                          {labels[m]}
+                        </button>
+                      );
+                    })}
+                    <span className="ml-auto text-xs text-slate-400 hidden sm:block">
+                      {chatMode === 'socratic' && 'Guides you to discover the answer'}
+                      {chatMode === 'teacher'  && 'Direct, structured textbook-style'}
+                      {chatMode === 'peer'     && 'Friendly analogies & examples'}
+                    </span>
+                  </div>
                   <ConversationBox
-                    key={topic.id || topic.title}
-                    sessionTitle={`${topic.title} - Socratic AI Tutors`}
+                    key={`${topic.id || topic.title}-${chatMode}`}
+                    sessionTitle={`${topic.title} — ${chatMode.charAt(0).toUpperCase() + chatMode.slice(1)} Mode`}
                     topic={topic}
+                    chatMode={chatMode}
+                    onMessageSent={(role, content) =>
+                      logAnalytics('/api/analytics/chat-message', { topic_slug: slug || '', mode: chatMode, role, content })
+                    }
                   />
                 </div>
               )}
 
               {/* Tab 3: MCQ Challenge */}
               {activeTab === 'mcq' && (
-                <div className="max-w-3xl mx-auto space-y-6">
-                  <div className="bg-blue-50 dark:bg-blue-950/40 p-5 rounded-xl border flex justify-between items-center shadow-sm">
-                    <div className="flex items-center space-x-2">
-                      <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <span className="font-semibold text-blue-800 dark:text-blue-300">Socratic Practice Quiz ({mcqs.length} Questions)</span>
+                mcqFinished ? (
+                  <MCQSummaryScreen
+                    topicTitle={topic.title}
+                    questions={mcqs}
+                    selectedAnswers={selectedAnswers}
+                    timeTakenSeconds={mcqTotalTimeTaken}
+                    onRetry={() => {
+                      setSelectedAnswers({});
+                      setSubmittedMCQs({});
+                      setMcqRevealHint({});
+                      setMcqScore(0);
+                      setMcqSummary(null);
+                      setMcqFinished(false);
+                      setMcqQuizStartTime(Date.now());
+                    }}
+                    onProceedToCoding={() => setActiveTab('coding')}
+                  />
+                ) : (
+                  <div className="max-w-3xl mx-auto space-y-6">
+                    <div className="bg-blue-50 dark:bg-blue-950/40 p-5 rounded-xl border flex justify-between items-center shadow-sm">
+                      <div className="flex items-center space-x-2">
+                        <Lightbulb className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <span className="font-semibold text-blue-800 dark:text-blue-300">Socratic Practice Quiz ({mcqs.length} Questions)</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-blue-600">Score: {mcqScore} / {mcqs.length}</span>
+                        {Object.keys(submittedMCQs).length > 0 && (
+                          <Button
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm"
+                            onClick={() => {
+                              setMcqTotalTimeTaken(Math.round((Date.now() - mcqQuizStartTime) / 1000));
+                              setMcqFinished(true);
+                            }}
+                          >
+                            Finish Quiz ({Object.keys(submittedMCQs).length}/{mcqs.length}) →
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <span className="font-bold text-blue-600">Score: {mcqScore} / {mcqs.length}</span>
-                  </div>
 
-                  {mcqs.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500">Failed to load MCQs. Try again.</div>
-                  ) : (
-                    <>
-                      {mcqs.map((q, idx) => {
-                        const isSubmitted = submittedMCQs[q.id];
-                        const mode = mcqHintMode[q.id] || 'teacher';
+                    {mcqs.length === 0 ? (
+                      <div className="text-center py-12 text-slate-500">Failed to load MCQs. Try again.</div>
+                    ) : (
+                      <>
+                        {mcqs.map((q, idx) => {
+                          const isSubmitted = submittedMCQs[q.id];
+                          const mode = mcqHintMode[q.id] || 'teacher';
 
-                        return (
-                          <div key={q.id || idx} className="bg-white dark:bg-slate-900 p-6 rounded-xl border shadow-sm space-y-4">
-                            <h4 className="font-bold text-slate-900 dark:text-white text-base">{idx + 1}. {q.question}</h4>
+                          return (
+                            <div key={q.id || idx} className="bg-white dark:bg-slate-900 p-6 rounded-xl border shadow-sm space-y-4">
+                              <h4 className="font-bold text-slate-900 dark:text-white text-base">{idx + 1}. {q.question}</h4>
 
-                          <div className="grid grid-cols-1 gap-3">
-                            {q.options.map((option: string) => {
-                              const isSelected = selectedAnswers[q.id] === option;
-                              const isCorrectOption = normalize(option) === normalize(q.answer);
+                            <div className="grid grid-cols-1 gap-3">
+                              {q.options.map((option: string) => {
+                                const isSelected = selectedAnswers[q.id] === option;
+                                const isCorrectOption = normalize(option) === normalize(q.answer);
 
-                              let optionStyle = 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40';
-                              if (isSelected) {
-                                optionStyle = 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400';
-                              }
-                              if (isSubmitted) {
-                                if (isCorrectOption) {
-                                  optionStyle = 'border-green-500 bg-green-50/40 dark:bg-green-950/20 text-green-700 dark:text-green-400 font-semibold';
-                                } else if (isSelected) {
-                                  optionStyle = 'border-red-500 bg-red-50/40 dark:bg-red-950/20 text-red-700 dark:text-red-400';
-                                } else {
-                                  optionStyle = 'border-slate-200 dark:border-slate-800 opacity-60';
+                                let optionStyle = 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40';
+                                if (isSelected) {
+                                  optionStyle = 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400';
                                 }
-                              }
+                                if (isSubmitted) {
+                                  if (isCorrectOption) {
+                                    optionStyle = 'border-green-500 bg-green-50/40 dark:bg-green-950/20 text-green-700 dark:text-green-400 font-semibold';
+                                  } else if (isSelected) {
+                                    optionStyle = 'border-red-500 bg-red-50/40 dark:bg-red-950/20 text-red-700 dark:text-red-400';
+                                  } else {
+                                    optionStyle = 'border-slate-200 dark:border-slate-800 opacity-60';
+                                  }
+                                }
 
-                              return (
-                                <button
-                                  key={option}
-                                  disabled={isSubmitted}
-                                  onClick={() => setSelectedAnswers(prev => ({ ...prev, [q.id]: option }))}
-                                  className={`p-3.5 rounded-lg text-left border text-sm transition-all ${optionStyle}`}
-                                >
-                                  {option}
-                                </button>
-                              );
-                            })}
-                          </div>
+                                return (
+                                  <button
+                                    key={option}
+                                    disabled={isSubmitted}
+                                    onClick={() => setSelectedAnswers(prev => ({ ...prev, [q.id]: option }))}
+                                    className={`p-3.5 rounded-lg text-left border text-sm transition-all ${optionStyle}`}
+                                  >
+                                    {option}
+                                  </button>
+                                );
+                              })}
+                            </div>
 
-                          <div className="flex items-center space-x-2 text-xs pt-2">
-                            <span className="text-slate-600 dark:text-slate-300">Socratic Mode:</span>
-                            <button
-                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'teacher' }))}
-                              className={`px-3 py-1 rounded-full border ${mode === 'teacher' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
-                            >
-                              Teacher Mode
-                            </button>
-                            <button
-                              onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'peer' }))}
-                              className={`px-3 py-1 rounded-full border ${mode === 'peer' ? 'bg-purple-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
-                            >
-                              Peer Mode
-                            </button>
-                          </div>
+                            <div className="flex items-center space-x-2 text-xs pt-2">
+                              <span className="text-slate-600 dark:text-slate-300">Socratic Mode:</span>
+                              <button
+                                onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'teacher' }))}
+                                className={`px-3 py-1 rounded-full border ${mode === 'teacher' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                              >
+                                Teacher Mode
+                              </button>
+                              <button
+                                onClick={() => setMcqHintMode(p => ({ ...p, [q.id]: 'peer' }))}
+                                className={`px-3 py-1 rounded-full border ${mode === 'peer' ? 'bg-purple-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                              >
+                                Peer Mode
+                              </button>
+                            </div>
 
-                          <div className="flex space-x-3">
-                            {!isSubmitted && (
-                              <>
-                                <Button
-                                  onClick={() => {
-                                    const isCorrect = normalize(selectedAnswers[q.id]) === normalize(q.answer);
-                                    setSubmittedMCQs(prev => ({ ...prev, [q.id]: true }));
-                                    if (isCorrect) {
-                                      setMcqScore(s => s + 1);
-                                      setGenealogyResult(null);
-                                    } else {
-                                      // Fire Wrong-Answer Genealogy
-                                      fetch('/api/genealogy', {
-                                        method: 'POST',
-                                        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-                                        body: JSON.stringify({ topic: q.topic || topic.title, expected: q.answer, actual: selectedAnswers[q.id], student_id: 'anonymous' })
-                                      }).then(r => r.ok ? r.json() : null).then(d => { if (d) setGenealogyResult(d); }).catch(() => {});
-                                    }
-                                  }}
-                                  disabled={!selectedAnswers[q.id]}
-                                  className="bg-blue-600 text-white"
-                                >
-                                  Submit Answer
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setMcqRevealHint(p => ({ ...p, [q.id]: !p[q.id] }))}
-                                >
-                                  {mcqRevealHint[q.id] ? 'Hide Hint' : 'Request Hint'}
-                                </Button>
-                              </>
+                            <div className="flex space-x-3">
+                              {!isSubmitted && (
+                                <>
+                                  <Button
+                                    onClick={() => {
+                                      const isCorrect = normalize(selectedAnswers[q.id]) === normalize(q.answer);
+                                      setSubmittedMCQs(prev => {
+                                        const updated = { ...prev, [q.id]: true };
+                                        if (Object.keys(updated).length === mcqs.length) {
+                                          setTimeout(() => {
+                                            setMcqTotalTimeTaken(Math.round((Date.now() - mcqQuizStartTime) / 1000));
+                                            setMcqFinished(true);
+                                          }, 800);
+                                        }
+                                        return updated;
+                                      });
+                                      if (isCorrect) {
+                                        setMcqScore(s => s + 1);
+                                        setGenealogyResult(null);
+                                      } else {
+                                        // Fire Wrong-Answer Genealogy
+                                        fetch('/api/genealogy', {
+                                          method: 'POST',
+                                          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+                                          body: JSON.stringify({ topic: q.topic || topic.title, expected: q.answer, actual: selectedAnswers[q.id], student_id: 'anonymous' })
+                                        }).then(r => r.ok ? r.json() : null).then(d => { if (d) setGenealogyResult(d); }).catch(() => {});
+                                      }
+                                      // Log MCQ attempt to analytics
+                                      const correctIdx = q.options?.findIndex((o: string) => normalize(o) === normalize(q.answer)) ?? -1;
+                                      const selectedIdx = q.options?.findIndex((o: string) => o === selectedAnswers[q.id]) ?? -1;
+                                      logAnalytics('/api/analytics/mcq-attempt', {
+                                        topic_slug: slug || '',
+                                        question_id: q.id || `q${idx}`,
+                                        selected_idx: selectedIdx,
+                                        correct_idx: correctIdx,
+                                        is_correct: isCorrect,
+                                        hint_used: !!mcqRevealHint[q.id],
+                                      });
+                                    }}
+                                    disabled={!selectedAnswers[q.id]}
+                                    className="bg-blue-600 text-white"
+                                  >
+                                    Submit Answer
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setMcqRevealHint(p => ({ ...p, [q.id]: !p[q.id] }))}
+                                  >
+                                    {mcqRevealHint[q.id] ? 'Hide Hint' : 'Request Hint'}
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+
+                            {mcqRevealHint[q.id] && !isSubmitted && (
+                              <div className="p-3 bg-amber-50 dark:bg-amber-900 dark:bg-amber-955 dark:bg-amber-950/20 border rounded-lg text-xs">
+                                <strong>{mode === 'teacher' ? '👨‍🏫 Teacher Hint:' : '💡 Buddy Hint:'}</strong>{' '}
+                                {mode === 'teacher' ? q.hint_teacher : q.hint_peer}
+                              </div>
+                            )}
+
+                            {isSubmitted && genealogyResult && (
+                              <div className="mb-3">
+                                <GenealogyCard data={genealogyResult} />
+                              </div>
+                            )}
+                            {isSubmitted && (
+                              <div className="p-4 bg-slate-50 dark:bg-slate-900 border rounded-lg text-xs space-y-2">
+                                <span className={`font-bold block ${normalize(selectedAnswers[q.id]) === normalize(q.answer) ? 'text-green-600' : 'text-red-650'}`}>
+                                  {normalize(selectedAnswers[q.id]) === normalize(q.answer) ? 'Correct!' : `Incorrect (Correct Answer: ${q.answer})`}
+                                </span>
+                                <p><strong>{mode === 'teacher' ? 'Teacher Explanation:' : 'Peer Analogy:'}</strong></p>
+                                <p className="text-slate-605">{mode === 'teacher' ? q.explanation_teacher : q.explanation_peer}</p>
+                              </div>
                             )}
                           </div>
+                          )
+                        })}
 
-                          {mcqRevealHint[q.id] && !isSubmitted && (
-                            <div className="p-3 bg-amber-50 dark:bg-amber-900 dark:bg-amber-955 dark:bg-amber-950/20 border rounded-lg text-xs">
-                              <strong>{mode === 'teacher' ? '👨‍🏫 Teacher Hint:' : '💡 Buddy Hint:'}</strong>{' '}
-                              {mode === 'teacher' ? q.hint_teacher : q.hint_peer}
-                            </div>
-                          )}
-
-                          {isSubmitted && genealogyResult && (
-                            <div className="mb-3">
-                              <GenealogyCard data={genealogyResult} />
-                            </div>
-                          )}
-                          {isSubmitted && (
-                            <div className="p-4 bg-slate-50 dark:bg-slate-900 border rounded-lg text-xs space-y-2">
-                              <span className={`font-bold block ${normalize(selectedAnswers[q.id]) === normalize(q.answer) ? 'text-green-600' : 'text-red-650'}`}>
-                                {normalize(selectedAnswers[q.id]) === normalize(q.answer) ? 'Correct!' : `Incorrect (Correct Answer: ${q.answer})`}
-                              </span>
-                              <p><strong>{mode === 'teacher' ? 'Teacher Explanation:' : 'Peer Analogy:'}</strong></p>
-                              <p className="text-slate-605">{mode === 'teacher' ? q.explanation_teacher : q.explanation_peer}</p>
-                            </div>
-                          )}
-                        </div>
-                        )
-                      })}
-
-                      {mcqSummary && (
-                        <div className="bg-slate-900 text-white p-4 rounded-xl shadow-sm">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-bold text-white">Quiz Summary</h3>
-                            <span className="text-xs text-slate-300">{mcqScore}/{mcqs.length}</span>
+                        {Object.keys(submittedMCQs).length > 0 && (
+                          <div className="flex justify-center pt-4">
+                            <Button
+                              size="lg"
+                              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 shadow-md"
+                              onClick={() => {
+                                setMcqTotalTimeTaken(Math.round((Date.now() - mcqQuizStartTime) / 1000));
+                                setMcqFinished(true);
+                              }}
+                            >
+                              Finish Quiz & View Full Analysis ({Object.keys(submittedMCQs).length}/{mcqs.length} Answered) →
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                            <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-lg p-3">
-                              <div className="font-semibold text-emerald-300 mb-1">Strong</div>
-                              <ul className="list-disc pl-4 text-emerald-50 space-y-0.5">
-                                {mcqSummary.strong.map((item) => <li key={item}>{item}</li>)}
-                              </ul>
-                            </div>
-                            <div className="bg-amber-500/10 border border-amber-400/30 rounded-lg p-3">
-                              <div className="font-semibold text-amber-300 mb-1">Improve</div>
-                              <ul className="list-disc pl-4 text-amber-50 space-y-0.5">
-                                {mcqSummary.improve.map((item) => <li key={item}>{item}</li>)}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )
               )}
 
               {/* Tab 4: Coding Challenges */}

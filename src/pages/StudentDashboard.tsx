@@ -44,6 +44,7 @@ export default function StudentDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [student, setStudent] = useState<any>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleLogout = () => {
@@ -70,7 +71,7 @@ export default function StudentDashboard() {
     }
   };
 
-  // 2. Load real student session if present, otherwise default to screenshot data
+  // 2. Load real student session & analytics from Neon
   useEffect(() => {
     try {
       const raw = localStorage.getItem("learniverse_student");
@@ -78,6 +79,19 @@ export default function StudentDashboard() {
         const parsed = JSON.parse(raw);
         setStudent(parsed);
         const roll = parsed.roll_number || parsed.rollNumber;
+        const token = parsed.token;
+
+        if (token) {
+          fetch("/api/analytics/dashboard", {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+              if (data?.data) setAnalyticsData(data.data);
+            })
+            .catch(() => {});
+        }
+
         if (roll) {
           fetch(`/api/student/dashboard/${roll}`)
             .then((res) => (res.ok ? res.json() : null))
@@ -466,83 +480,129 @@ export default function StudentDashboard() {
           </div>
 
           {/* ─────────────────────────────────────────────────────────────
-              4. TOP 4 METRIC CARDS ROW (With Hover Lift & Glow)
+              4. TOP 4 METRIC CARDS ROW (With Live Neon Analytics)
           ───────────────────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            {/* Metric 1: Overall Score */}
+            {/* Metric 1: Diagnostic Assessment Score */}
             <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-blue-200/90 transition-all duration-200 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-blue-600" />
+                    <Award className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                      1 <span className="text-slate-400 text-sm font-bold">/ 20</span>
+                      {analyticsData?.placement?.total_marks ?? (dashboardData?.total_marks ?? 1)}{" "}
+                      <span className="text-slate-400 text-sm font-bold">/ {analyticsData?.placement?.max_marks ?? (dashboardData?.max_marks ?? 20)}</span>
                     </div>
-                    <div className="text-[11px] font-semibold text-slate-400">Overall Score</div>
+                    <div className="text-[11px] font-semibold text-slate-400">Diagnostic Assessment</div>
                   </div>
                 </div>
-                <div className="text-xs font-bold text-blue-600">5%</div>
+                <div className="text-xs font-bold text-blue-600">
+                  {analyticsData?.placement?.percentage ?? (dashboardData?.percentage ?? 5)}%
+                </div>
               </div>
               <div className="mt-3">
-                <Progress value={5} className="h-1.5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-blue-600 [&>div]:to-indigo-600" />
+                <Progress
+                  value={Number(analyticsData?.placement?.percentage ?? (dashboardData?.percentage ?? 5))}
+                  className="h-1.5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-blue-600 [&>div]:to-indigo-600"
+                />
               </div>
             </div>
 
-            {/* Metric 2: Placement Readiness */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-blue-200/90 transition-all duration-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-extrabold text-slate-900">Needs Remedial Training</div>
-                  <div className="text-[11px] font-semibold text-slate-400">Placement Readiness</div>
-                </div>
-              </div>
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-full shrink-0">
-                &lt; 4.5 LPA
-              </span>
-            </div>
-
-            {/* Metric 3: Target Companies */}
+            {/* Metric 2: Socratic MCQ Accuracy */}
             <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-blue-200/90 transition-all duration-200 flex flex-col justify-between">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Target Companies</div>
-                  <div className="flex flex-wrap gap-1 mt-1 text-[10px] font-bold text-slate-600">
-                    <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200/80 hover:border-blue-200 hover:text-blue-700 transition-colors">TCS Ninja</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200/80 hover:border-blue-200 hover:text-blue-700 transition-colors">Infosys SE</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200/80 hover:border-blue-200 hover:text-blue-700 transition-colors">Wipro Elite</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200/80 hover:border-blue-200 hover:text-blue-700 transition-colors">Cognizant GenC</span>
-                    <span className="text-blue-600 text-[10px] font-bold px-1">+2 more</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      {analyticsData?.mcq_accuracy_pct ?? 0}%
+                    </div>
+                    <div className="text-[11px] font-semibold text-slate-400">MCQ Accuracy</div>
                   </div>
                 </div>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full shrink-0">
+                  {analyticsData?.mcq_attempted ?? 0} Solved
+                </span>
+              </div>
+              <div className="mt-3">
+                <Progress
+                  value={Number(analyticsData?.mcq_accuracy_pct ?? 0)}
+                  className="h-1.5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-600 [&>div]:to-teal-600"
+                />
               </div>
             </div>
 
-            {/* Metric 4: Proctoring Status with Live Pulsing Radar Beacon */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-200/90 transition-all duration-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold text-slate-400">Proctoring Status</div>
-                  <div className="text-sm font-black text-emerald-600 flex items-center gap-1.5">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    PASSED
+            {/* Metric 3: Coding Challenges Solved */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-blue-200/90 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <Code2 className="w-5 h-5 text-purple-600" />
                   </div>
-                  <div className="text-[10px] font-medium text-slate-400">0 Violations Logged</div>
+                  <div>
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      {analyticsData?.coding_solved ?? 0}
+                    </div>
+                    <div className="text-[11px] font-semibold text-slate-400">Coding Solved</div>
+                  </div>
                 </div>
+                <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200/80 px-2 py-0.5 rounded-full shrink-0">
+                  Challenges
+                </span>
               </div>
+              <div className="mt-3 text-[10px] text-slate-400 font-medium">
+                {analyticsData?.recent_submissions?.length ?? 0} submissions verified by sandbox
+              </div>
+            </div>
+
+            {/* Metric 4: Top 100 Codes Progress */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-emerald-200/90 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      {analyticsData?.top100_solved ?? 0} <span className="text-slate-400 text-sm font-bold">/ 100</span>
+                    </div>
+                    <div className="text-[11px] font-semibold text-slate-400">Top 100 Codes</div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full shrink-0">
+                  {analyticsData?.top100_solved ?? 0}%
+                </span>
+              </div>
+              <div className="mt-3">
+                <Progress
+                  value={Number(analyticsData?.top100_solved ?? 0)}
+                  className="h-1.5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-amber-500 [&>div]:to-orange-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Ribbon: Topics, Chat, Streak */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs text-xs font-semibold text-slate-700">
+            <div className="flex items-center gap-2.5 px-3 py-1">
+              <BookOpen className="w-4 h-4 text-blue-600" />
+              <span>Topics Explored: <strong className="text-slate-900 font-extrabold">{analyticsData?.topics_viewed ?? 0}</strong></span>
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-1">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span>Socratic Messages: <strong className="text-slate-900 font-extrabold">{analyticsData?.chat_messages_count ?? 0}</strong></span>
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-1">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span>Learning Streak: <strong className="text-slate-900 font-extrabold">{analyticsData?.streak_days ?? 1} Days</strong></span>
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Proctoring Clearance: <strong className="text-emerald-600 font-extrabold">PASSED</strong></span>
             </div>
           </div>
 
