@@ -45,6 +45,7 @@ export default function StudentDashboard() {
   const [student, setStudent] = useState<any>(null);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleLogout = () => {
@@ -106,6 +107,7 @@ export default function StudentDashboard() {
         const token = localStorage.getItem("learniverse_token") || parsed.token;
 
         if (token) {
+          setAnalyticsLoading(true);
           fetch("/api/analytics/dashboard", {
             headers: { Authorization: `Bearer ${token}` }
           })
@@ -113,7 +115,11 @@ export default function StudentDashboard() {
             .then(data => {
               if (data?.data) setAnalyticsData(data.data);
             })
-            .catch(() => {});
+            .catch(() => {})
+            .finally(() => setAnalyticsLoading(false));
+        } else {
+          // No token yet (e.g. Google login still resolving) — keep skeleton briefly
+          setTimeout(() => setAnalyticsLoading(false), 3000);
         }
 
         if (roll) {
@@ -168,27 +174,23 @@ export default function StudentDashboard() {
     }
   };
 
-  const focusAreas = [
-    "Mobile App Architecture",
-    "Security & Architecture",
-    "Full-Stack Technologies",
-    "API Connectivity",
-    "System Components",
-    "Data Update Flow",
-    "API Reliability",
-    "Network Debugging",
-    "Database Selection",
-    "Offline Architecture",
-    "Performance Troubleshooting",
-    "Authentication Security",
-    "Distributed Systems",
-    "System Scalability",
-    "Number Pattern",
-    "Logical Deduction",
-    "Arithmetic",
-    "Direction Sense",
-    "Ordering"
-  ];
+  // ── Derived skill data from real analytics ──────────────────────────────────
+  const mcqByTopic: { topic_slug: string; accuracy_pct: number; questions_attempted: number }[] =
+    analyticsData?.mcq_by_topic ?? [];
+
+  // Strong: ≥ 80% accuracy with at least 3 attempts
+  const strongTopics = mcqByTopic
+    .filter(t => t.accuracy_pct >= 80 && t.questions_attempted >= 3)
+    .map(t => t.topic_slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+  // Weak / Focus areas: < 60% accuracy with at least 3 attempts
+  const focusAreas = mcqByTopic
+    .filter(t => t.accuracy_pct < 60 && t.questions_attempted >= 3)
+    .sort((a, b) => a.accuracy_pct - b.accuracy_pct)
+    .map(t => t.topic_slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+  // Has the user attempted anything yet?
+  const isFirstTimeUser = !analyticsLoading && mcqByTopic.length === 0;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
@@ -714,6 +716,7 @@ export default function StudentDashboard() {
 
                 {/* CARD 2: Skill & Topic Mastery */}
                 <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs hover:shadow-md transition-shadow space-y-4">
+                  {/* Card Header — always visible */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -724,7 +727,7 @@ export default function StudentDashboard() {
                         <p className="text-[11px] text-slate-400 mt-0.5">Strengths, focus areas and personalized insights</p>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => navigate("/topics")}
                       className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-0.5"
                     >
@@ -732,38 +735,103 @@ export default function StudentDashboard() {
                     </button>
                   </div>
 
-                  {/* Strongest Concepts */}
-                  <div className="space-y-1.5 pt-1">
-                    <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      Strongest Concepts
+                  {/* ── LOADING SKELETON ─────────────────────────────────── */}
+                  {analyticsLoading && (
+                    <div className="space-y-4 animate-pulse pt-1">
+                      {/* Skeleton: Strongest Concepts label */}
+                      <div className="space-y-2">
+                        <div className="h-3 w-32 bg-slate-100 rounded-full" />
+                        <div className="flex gap-1.5">
+                          <div className="h-6 w-28 bg-emerald-50 border border-emerald-100 rounded-md" />
+                          <div className="h-6 w-20 bg-emerald-50 border border-emerald-100 rounded-md" />
+                        </div>
+                      </div>
+                      {/* Skeleton: Focus Areas label */}
+                      <div className="space-y-2">
+                        <div className="h-3 w-40 bg-slate-100 rounded-full" />
+                        <div className="flex flex-wrap gap-1.5">
+                          {[80, 112, 96, 72, 104, 88, 64, 100].map(w => (
+                            <div key={w} className="h-5 bg-rose-50 border border-rose-100 rounded-md" style={{ width: w }} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md hover:scale-105 transition-transform cursor-pointer">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        Real-Time Communication
-                      </span>
-                    </div>
-                  </div>
+                  )}
 
-                  {/* Focus Areas / Critical Gaps with Smooth Custom Scrollbar */}
-                  <div className="space-y-2 pt-1">
-                    <div className="text-[11px] font-bold text-rose-600 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
-                      Focus Areas / Critical Gaps
+                  {/* ── FIRST-TIME USER EMPTY STATE ───────────────────────── */}
+                  {!analyticsLoading && isFirstTimeUser && (
+                    <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="text-[12px] font-bold text-slate-700">No insights yet</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5 max-w-[200px] mx-auto">
+                          Attempt a few MCQs on any topic — your strengths and gaps will appear here.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => navigate("/topics")}
+                        className="text-[11px] font-bold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Start Practising →
+                      </button>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
-                      {focusAreas.map((skill) => (
-                        <span
-                          key={skill}
-                          className="inline-flex items-center gap-1 text-[10px] font-semibold bg-rose-50/80 text-rose-700 border border-rose-200/70 px-2 py-0.5 rounded-md hover:bg-rose-100 hover:scale-105 transition-all cursor-pointer shadow-2xs"
-                        >
-                          <span className="w-1 h-1 rounded-full bg-rose-400"></span>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  )}
+
+                  {/* ── REAL DATA: Strongest Concepts ─────────────────────── */}
+                  {!analyticsLoading && !isFirstTimeUser && (
+                    <>
+                      <div className="space-y-1.5 pt-1">
+                        <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          Strongest Concepts
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {strongTopics.length > 0 ? (
+                            strongTopics.map(topic => (
+                              <span
+                                key={topic}
+                                className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md hover:scale-105 transition-transform cursor-pointer"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                {topic}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[11px] text-slate-400 italic">
+                              Keep practising — strong topics will appear here at ≥ 80% accuracy.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* ── REAL DATA: Focus Areas / Critical Gaps ───────────── */}
+                      <div className="space-y-2 pt-1">
+                        <div className="text-[11px] font-bold text-rose-600 flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                          Focus Areas / Critical Gaps
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+                          {focusAreas.length > 0 ? (
+                            focusAreas.map(skill => (
+                              <span
+                                key={skill}
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold bg-rose-50/80 text-rose-700 border border-rose-200/70 px-2 py-0.5 rounded-md hover:bg-rose-100 hover:scale-105 transition-all cursor-pointer shadow-2xs"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-rose-400" />
+                                {skill}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[11px] text-slate-400 italic">
+                              Great work — no critical gaps detected yet!
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
