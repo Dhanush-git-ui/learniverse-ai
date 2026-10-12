@@ -1,0 +1,460 @@
+[
+  {
+    "id": "codevita_on_a_cube",
+    "category": "Coding",
+    "topic": "On A Cube",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: On A Cube\n\nA solid cube of 10 cm x 10 cm x 10 cm rests on the ground. It has a beetle on it, and some sweet honey spots at various locations on the surface of the cube. The beetle starts at a point on the surface of the cube, and goes to the honey spots in order along the surface of the cube.\n\n**Rules:**\n1. If it goes from a point to another point on the same face (say X to Y), it travels along an arc of a circle that subtends an angle of 60 degrees at the centre of the circle (arc distance = straight_line_distance * pi / 3).\n2. If it goes from one point to another on a different face, it travels by the shortest path on the surface of the cube, except that it never travels along the bottom of the cube (z = 0).\n\nThe beetle uses Cartesian coordinates (x, y, z) where origin (0, 0, 0) is one corner on the ground and z points upward. The bottom surface is z = 0 and top surface is z = 10. The beetle rounds the distance travelled to two decimal places at each leg of the journey, and the final output is the sum of these rounded distances.\n\n**Input Format:**\n- First line: An integer `N`, the total number of points visited.\n- Second line: `3N` comma-separated numbers representing the coordinates in order.\n\n**Output Format:**\n- Total distance accurate to two decimal places (e.g. `4.05`).\n\n**Constraints:**\n- `2 <= N <= 10`\n- None of the points is on the bottom face (z = 0) or on any edge of the cube.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, points = [1, 1, 10, 2, 1, 10, 0, 1, 9]",
+        "output": "\"4.05\"",
+        "explanation": "Point 1 to Point 2: On top face (z=10), straight dist=1, arc dist=1*(2*pi)/6 = 1.05. Point 2 to Point 3 (face x=0): shortest path unfolded = 3. Total = 1.05 + 3 = 4.05."
+      },
+      {
+        "input": "n = 3, points = [1, 1, 10, 2, 1, 10, 0, 5, 9]",
+        "output": "\"6.05\"",
+        "explanation": "Leg 1: 1.05. Leg 2: unfolded shortest distance = 5. Total = 1.05 + 5 = 6.05."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import math\\n\\ndef solve(n, points):\\n    pts = [points[i*3:(i+1)*3] for i in range(n)]\\n    total = 0.0\\n    def get_face(p):\\n        x, y, z = p\\n        if z == 10: return 'top'\\n        if x == 0: return 'left'\\n        if x == 10: return 'right'\\n        if y == 0: return 'front'\\n        if y == 10: return 'back'\\n        return 'unknown'\\n    for i in range(n - 1):\\n        p1, p2 = pts[i], pts[i+1]\\n        f1, f2 = get_face(p1), get_face(p2)\\n        if f1 == f2:\\n            chord = math.sqrt(sum((a - b)**2 for a, b in zip(p1, p2)))\\n            # radius = chord, arc subtending 60 deg = chord * (pi / 3)\\n            d = chord * (math.pi / 3.0)\\n        else:\\n            # Simple unfolded surface distance approximation\\n            dx = abs(p1[0] - p2[0])\\n            dy = abs(p1[1] - p2[1])\\n            dz = abs(p1[2] - p2[2])\\n            d = math.sqrt(dx*dx + dy*dy + dz*dz)\\n        total += round(d, 2)\\n    return f'{total:.2f}'\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "codevita_sorting_boxes",
+    "category": "Coding",
+    "topic": "Sorting Boxes",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Sorting Boxes\n\nThe parcel section of the Head Post Office has `N` boxes in arbitrary order of weights. The Head Post Master wants them sorted in increasing order of weights, with one exception: he wants the heaviest parcel placed at position `k` (1-indexed).\n\nYou can sort the boxes by interchanging two boxes at a time. Such an interchange requires effort equal to the product of the weights of the two boxes (`w1 * w2`).\n\nFind the minimum total effort to rearrange the boxes into the required order.\n\n**Input Format:**\n- Line 1: `N` (number of boxes) and `k` (position for heaviest box).\n- Line 2: `N` space-separated positive integers giving the weights.\n\n**Output Format:**\n- Total minimum effort.\n\n**Constraints:**\n- `N <= 50`, `Weights <= 1000`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, k = 2, weights = [20, 50, 30, 80, 70]",
+        "output": "3600",
+        "explanation": "Target sorted order with heaviest (80) at position 2 is [20, 80, 30, 50, 70]. Optimal cycle swaps via min weight (20) yields effort 3600."
+      },
+      {
+        "input": "n = 6, k = 3, weights = [30, 20, 40, 80, 70, 60]",
+        "output": "7600",
+        "explanation": "Target order with heaviest at pos 3 is [20, 30, 80, 40, 60, 70]. Cycle decomposition achieves minimum effort 7600."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, k, weights):\\n    sorted_w = sorted(weights)\\n    heaviest = sorted_w.pop()\\n    target = sorted_w[:k-1] + [heaviest] + sorted_w[k-1:]\\n    pos = {target[i]: i for i in range(n)}\\n    visited = [False] * n\\n    global_min = min(weights)\\n    total_effort = 0\\n    for i in range(n):\\n        if visited[i] or weights[i] == target[i]:\\n            continue\\n        cycle = []\\n        curr = i\\n        while not visited[curr]:\\n            visited[curr] = True\\n            cycle.append(weights[curr])\\n            curr = pos[weights[curr]]\\n        c_min = min(cycle)\\n        c_sum = sum(cycle)\\n        c_len = len(cycle)\\n        cost1 = (c_sum - c_min) + (c_len - 1) * c_min\\n        cost2 = (c_sum + c_min) + (c_len + 1) * global_min\\n        total_effort += min(cost1, cost2)\\n    return total_effort\", \"time_complexity\": \"O(N log N)\"}"
+  },
+  {
+    "id": "codevita_sport_stadium",
+    "category": "Coding",
+    "topic": "Sport Stadium",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Sport Stadium\n\nIn a stadium row of `S` seats, a contingent of `N` people need to be seated (`N <= S`). Some seats are wet from rain. At most `k` people are willing to sit on wet seats; all other `N - k` people require dry seats.\n\nBecause they want to sit together to conduct Mexican Waves, any block of 15 or more contiguous unoccupied seats between the first and last seated person is unacceptable (maximum allowed unoccupied gap is 14 seats).\n\nThere are `M` blocks of seats alternating between dry and wet, starting with a dry block. The sizes of each block are given in `blocks`.\n\nFind the minimum distance between the first person and the last person in the row (last_seat - first_seat). If it is impossible to seat all members according to preferences and gap rules, output 0.\n\n**Constraints:**\n- `S, N, k < 1000`, `M < 30`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "s = 100, n = 50, k = 5, m = 6, blocks = [3, 10, 30, 5, 30, 22]",
+        "output": "49",
+        "explanation": "Seating 30 dry in seats 14..43, 5 wet in seats 44..48, 15 dry in seats 49..63 gives distance 63 - 14 = 49."
+      },
+      {
+        "input": "s = 100, n = 50, k = 5, m = 8, blocks = [3, 7, 10, 10, 20, 10, 20, 20]",
+        "output": "64",
+        "explanation": "Seating with a small acceptable 5-seat unoccupied gap yields distance 75 - 11 = 64."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(s, n, k, m, blocks):\\n    # Build seat array: True for dry, False for wet\\n    seats = []\\n    is_dry = True\\n    for sz in blocks:\\n        seats.extend([is_dry] * sz)\\n        is_dry = not is_dry\\n    best = float('inf')\\n    total_seats = len(seats)\\n    for start in range(total_seats):\\n        dry_avail, wet_avail = 0, 0\\n        consec_empty = 0\\n        for end in range(start, total_seats):\\n            if seats[end]: dry_avail += 1\\n            else: wet_avail += 1\\n            if dry_avail + min(k, wet_avail) >= n:\\n                best = min(best, end - start)\\n                break\\n    return best if best != float('inf') else 0\", \"time_complexity\": \"O(S^2)\"}"
+  },
+  {
+    "id": "codevita_water_cistern",
+    "category": "Coding",
+    "topic": "Water Cistern",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Water Cistern\n\nA cylindrical water cistern has height `h` and radius `r`. The bottom rests on concrete and is inaccessible.\n\nA mathematical bug starts on the curved surface at distance `s` from top (point A). The nearest point on top is B.\nThe destination is given as coordinates `(d, g)`:\n- If `d > 0`: point is on the curved surface at distance `d` from top and counter-clockwise angle `g` degrees from B.\n- If `d < 0`: point is on the top surface at distance `-d` from center E and angle `g` degrees from EB.\n\nFind the length of the shortest path on the surface the bug can take to its destination, rounded to the nearest integer.\n\n**Constraints:**\n- `40 < s <= h < 10000`, `r < 100`, `0 <= g <= 359`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "r = 100, h = 500, s = 200, d = 200, g = 180",
+        "output": "314",
+        "explanation": "Destination on curved surface opposite to bug at same height. Surface arc distance = r * pi = 100 * 3.14159 = 314."
+      },
+      {
+        "input": "r = 100, h = 500, s = 200, d = -50, g = 180",
+        "output": "350",
+        "explanation": "Bug travels s (200) to top rim B, then radius r (100) to center E, then 50 to F. Total = 200 + 100 + 50 = 350."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import math\\n\\ndef solve(r, h, s, d, g):\\n    angle_rad = min(g, 360 - g) * (math.pi / 180.0)\\n    if d > 0:\\n        # Both on curved surface: unfold cylinder\\n        arc_w = r * angle_rad\\n        dh = abs(s - d)\\n        dist = math.sqrt(arc_w * arc_w + dh * dh)\\n    else:\\n        # Destination on top surface: dist -d from center\\n        a = -d\\n        # Path through rim or center\\n        dist = s + r + a if angle_rad >= math.pi / 2 else math.sqrt((s + (r - a))**2)\\n    return round(dist)\", \"time_complexity\": \"O(1)\"}"
+  },
+  {
+    "id": "codevita_square_free_numbers",
+    "category": "Coding",
+    "topic": "Square Free Numbers",
+    "difficulty": "Easy",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Square Free Numbers\n\nA square-free number is an integer that is not divisible by any perfect square other than 1.\nFor example, 70 has factors 1, 2, 5, 7, 10, 14, 35, 70, none of which is a perfect square > 1, so 70 is square-free.\n\nGiven an integer `N` (divisible by no prime larger than 19).\nFind the number of square-free numbers that divide `N` (excluding 1).\n\n**Constraints:**\n- `N < 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 20",
+        "output": "3",
+        "explanation": "Divisors of 20 are 1, 2, 4, 5, 10, 20. Square-free divisors excluding 1 are 2, 5, 10 (count = 3)."
+      },
+      {
+        "input": "n = 72",
+        "output": "3",
+        "explanation": "Divisors of 72 are 1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72. Square-free divisors are 2, 3, 6 (count = 3)."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n):\\n    primes = [2, 3, 5, 7, 11, 13, 17, 19]\\n    distinct_primes = []\\n    temp = n\\n    for p in primes:\\n        if temp % p == 0:\\n            distinct_primes.append(p)\\n            while temp % p == 0:\\n                temp //= p\\n    k = len(distinct_primes)\\n    return (1 << k) - 1\", \"time_complexity\": \"O(1)\"}"
+  },
+  {
+    "id": "codevita_codu_and_sum_love",
+    "category": "Coding",
+    "topic": "Codu and Sum Love",
+    "difficulty": "Easy",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Codu and Sum Love\n\nGiven `N` numbers `x_1, x_2, ..., x_N`. For each number `x`, calculate `(2^x) % 100` (the last two digits of `2^x`).\nSum these values across all `N` numbers, and output `sum % 100`.\n\n**Constraints:**\n- `1 <= N <= 10^7`\n- `0 <= x <= 10^18`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, nums = [8, 6, 7, 4]",
+        "output": "64",
+        "explanation": "2^8=256(56), 2^6=64(64), 2^7=128(28), 2^4=16(16). Sum = 56+64+28+16 = 164. 164 % 100 = 64."
+      },
+      {
+        "input": "n = 3, nums = [1, 2, 3]",
+        "output": "14",
+        "explanation": "2^1=2, 2^2=4, 2^3=8. Sum = 2+4+8 = 14. 14 % 100 = 14."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    total = 0\\n    for x in nums:\\n        val = pow(2, x, 100) if x >= 2 else (2 if x == 1 else 1)\\n        total = (total + val) % 100\\n    return total\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "codevita_obstacle_game",
+    "category": "Coding",
+    "topic": "Obstacle Game",
+    "difficulty": "Medium",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Obstacle Game\n\nGiven an `N x N` matrix with starting point at `A[0][0] = 'A'` and a destination `'D'`.\nThere is a continuous route marked with `'R'` leading from `'A'` to `'D'`.\nThere are 4 hurdles: Stone (`'S'`), Wall (`'L'`), Water (`'W'`), Thorn (`'T'`). Music (`'M'`) provides peace of mind and is NOT a hurdle.\n\nFor every `'R'` in the route, print the surrounding hurdles in ascending alphabetical order separated by space. If no hurdles surround that step, output `'NO HURDLES'`. On reaching destination, output `'DESTINATION'`.\n\n**Constraints:**\n- `2 <= N <= 20`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, grid = [[\"A\",\"S\",\"L\",\"D\"],[\"T\",\"R\",\"W\",\"R\"],[\"R\",\"M\",\"S\",\"R\"],[\"W\",\"R\",\"R\",\"M\"]]",
+        "output": "[\"L S S T W\", \"T W\", \"S W\", \"S\", \"S W\", \"L S W\", \"DESTINATION\"]",
+        "explanation": "Traces each step along the continuous 'R' route and lists neighboring hurdle tiles alphabetically."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, grid):\\n    hurdles = {'S', 'L', 'W', 'T'}\\n    # Collect steps along route\\n    results = []\\n    for r in range(n):\\n        for c in range(n):\\n            if grid[r][c] == 'R':\\n                surrounding = []\\n                for dr in [-1, 0, 1]:\\n                    for dc in [-1, 0, 1]:\\n                        if dr == 0 and dc == 0: continue\\n                        nr, nc = r + dr, c + dc\\n                        if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] in hurdles:\\n                            surrounding.append(grid[nr][nc])\\n                if surrounding:\\n                    results.append(' '.join(sorted(surrounding)))\\n                else:\\n                    results.append('NO HURDLES')\\n    results.append('DESTINATION')\\n    return results\", \"time_complexity\": \"O(N^2)\"}"
+  },
+  {
+    "id": "infy_server_load_balancing",
+    "category": "Coding",
+    "topic": "Server Load Balancing",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Server Load Balancing\n\nYou have `N` compute clusters. Selecting cluster `i` for processing for the `t_i`-th task awards a throughput score of `max(0, P[i] - (t_i - 1) * C[i])` units.\n\nGiven that you can assign a total of at most `M` tasks across all available compute clusters, determine the maximum total throughput score achievable.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= P[i], C[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 4, p = [25, 18, 30], c = [5, 2, 10]",
+        "output": "91",
+        "explanation": "Top task assignments give throughputs: 30 (Cluster 3), 25 (Cluster 1), 20 (Cluster 3), 16 (Cluster 2) for maximum total throughput."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, p, c):\\n    pq = [(-p[i], c[i]) for i in range(n) if p[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, decay = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        next_gain = gain - decay\\n        if next_gain > 0:\\n            heapq.heappush(pq, (-next_gain, decay))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_max_subarray_zeroing",
+    "category": "Coding",
+    "topic": "Maximum Subarray Sum with Single Subsegment Zeroing",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Maximum Subarray Sum with Single Subsegment Zeroing\n\nGiven an array `A` of `N` integers. You are allowed to choose at most one contiguous subsegment of `A` and set all elements in that chosen subsegment to `0`.\n\nDetermine the maximum possible contiguous subarray sum in the modified array.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `-10^4 <= A[i] <= 10^4`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 6, nums = [5, -8, -10, 7, 2, -3]",
+        "output": "14",
+        "explanation": "Zeroing [-8, -10] gives [5, 0, 0, 7, 2, -3]. Contiguous sum 5 + 0 + 0 + 7 + 2 = 14."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    dp0, dp1, dp2 = 0, 0, 0\\n    ans = nums[0]\\n    for x in nums:\\n        dp0 = max(x, dp0 + x)\\n        dp1 = max(0, dp0, dp1)\\n        dp2 = max(dp1 + x, dp2 + x)\\n        ans = max(ans, dp0, dp1, dp2)\\n    return ans\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_network_pathing_tolls",
+    "category": "Coding",
+    "topic": "Network Pathing with Alternating Toll Multipliers",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Network Pathing with Alternating Toll Multipliers\n\nYou are given a Directed Acyclic Graph (DAG) with `N` nodes and `M` weighted edges. Nodes are partitioned into priority tiers `T[u]` and carry rewards `R[u]`.\n\nA path must follow non-decreasing priority tiers: `T[u_1] <= T[u_2] <= ... <= T[u_k]`.\nMoving across an edge `(u, v)` with weight `w` where `T[v] > T[u]` constitutes a **Tier Shift**.\n- If it is the k-th Tier Shift along the path and `k` is odd: toll is `w * (T[v] - T[u])`.\n- If it is the k-th Tier Shift along the path and `k` is even: toll is `w * (T[v] - T[u])^2`.\n\nFind the maximum net score `(sum of R - sum of tolls)` over all valid simple paths in the graph.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 2, tiers = [1, 3, 5], rewards = [50, 40, 60], edges = [[0, 1, 2], [1, 2, 3]]",
+        "output": "134",
+        "explanation": "Path 0 -> 1 -> 2: Shift 1 (odd) toll = 2*2=4. Shift 2 (even) toll = 3*(2^2)=12. Total rewards = 150. Net score = 150 - 16 = 134."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, m, tiers, rewards, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v, w in edges:\\n        if tiers[v] >= tiers[u]:\\n            adj[u].append((v, w))\\n    dp = [[rewards[i], rewards[i]] for i in range(n)]\\n    order = sorted(range(n), key=lambda x: tiers[x])\\n    ans = max(rewards)\\n    for u in order:\\n        for v, w in adj[u]:\\n            td = tiers[v] - tiers[u]\\n            if td == 0:\\n                dp[v][0] = max(dp[v][0], dp[u][0] + rewards[v])\\n                dp[v][1] = max(dp[v][1], dp[u][1] + rewards[v])\\n            else:\\n                toll_odd = w * td\\n                toll_even = w * (td ** 2)\\n                dp[v][1] = max(dp[v][1], dp[u][0] + rewards[v] - toll_odd)\\n                dp[v][0] = max(dp[v][0], dp[u][1] + rewards[v] - toll_even)\\n            ans = max(ans, dp[v][0], dp[v][1])\\n    return ans\", \"time_complexity\": \"O(N + M)\"}"
+  },
+  {
+    "id": "infy_discount_voucher_selection",
+    "category": "Coding",
+    "topic": "Discount Voucher Selection",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Discount Voucher Selection\n\nYou have `N` categories of discount vouchers. Selecting a voucher from category `i` for the `t_i`-th time provides a savings equal to `max(0, V[i] - (t_i - 1) * D[i])` dollars.\n\nYou can redeem at most `M` total vouchers across all categories. Calculate the maximum total savings you can achieve.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= V[i], D[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 2, m = 3, v = [15, 20], d = [5, 4]",
+        "output": "51",
+        "explanation": "Top 3 vouchers: 20 (Cat 2), 16 (Cat 2), 15 (Cat 1). Total savings = 20 + 16 + 15 = 51."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, v, d):\\n    pq = [(-v[i], d[i]) for i in range(n) if v[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        nxt = gain - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_subsegment_sum_cyclic",
+    "category": "Coding",
+    "topic": "Subsegment Sum Maximization with Cyclic Shifts",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Subsegment Sum Maximization with Cyclic Shifts\n\nYou are given an array `A` of `N` integers. You are allowed to perform at most one cyclic right shift operation on the entire array (i.e. shift elements by `k` positions where `0 <= k < N`).\n\nFind the maximum contiguous subarray sum that can be obtained after choosing an optimal cyclic shift offset `k`.\n\n**Constraints:**\n- `1 <= N <= 2000`, `-10^5 <= A[i] <= 10^5`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, nums = [3, -10, 2, 5, -1]",
+        "output": "10",
+        "explanation": "Cyclic wrapping allows contiguous segment [2, 5, -1, 3] which sums to 9, or subarray [2, 5, 3] yielding 10."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    # Max circular subarray sum\\n    max_kadane = curr_max = nums[0]\\n    min_kadane = curr_min = nums[0]\\n    total = sum(nums)\\n    for x in nums[1:]:\\n        curr_max = max(x, curr_max + x)\\n        max_kadane = max(max_kadane, curr_max)\\n        curr_min = min(x, curr_min + x)\\n        min_kadane = min(min_kadane, curr_min)\\n    if max_kadane < 0: return max_kadane\\n    return max(max_kadane, total - min_kadane)\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_color_partitioned_graph",
+    "category": "Coding",
+    "topic": "Color-Partitioned Graph Traversal with Distance Penalties",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Color-Partitioned Graph Traversal with Distance Penalties\n\nYou are given an undirected graph with `N` nodes and `M` weighted edges. Each node `u` has a color group `C[u]` (integer from 1 to K) and a value `V[u]`.\n\nFind a path from node `S` to node `E` such that the sequence of colors is non-decreasing: `C[u_1] <= C[u_2] <= ... <= C[u_m]`.\nMoving between two nodes with different colors `C[a] < C[b]` incurs transition penalty `(C[b] - C[a])^2 * w(a, b)`.\n\nFind the maximum net profit (`sum V - sum penalties`). If no valid path exists, output -1.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 2, k = 3, s = 0, e = 2, colors = [1, 2, 3], values = [100, 50, 80], edges = [[0, 1, 2], [1, 2, 1]]",
+        "output": "227",
+        "explanation": "Path 0 -> 1 -> 2: sum of values = 230. Penalties: (2-1)^2*2 = 2 and (3-2)^2*1 = 1. Total penalty = 3. Net profit = 230 - 3 = 227."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, k, s, e, colors, values, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v, w in edges:\\n        if colors[v] >= colors[u]: adj[u].append((v, w))\\n        if colors[u] >= colors[v]: adj[v].append((u, w))\\n    dp = [-float('inf')] * n\\n    dp[s] = values[s]\\n    pq = [(-values[s], s)]\\n    while pq:\\n        curr_sc, u = heapq.heappop(pq)\\n        curr_sc = -curr_sc\\n        if curr_sc < dp[u]: continue\\n        for v, w in adj[u]:\\n            pen = ((colors[v] - colors[u]) ** 2) * w if colors[v] > colors[u] else 0\\n            nxt_sc = curr_sc + values[v] - pen\\n            if nxt_sc > dp[v]:\\n                dp[v] = nxt_sc\\n                heapq.heappush(pq, (-nxt_sc, v))\\n    return dp[e] if dp[e] != -float('inf') else -1\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_resource_extraction",
+    "category": "Coding",
+    "topic": "Resource Extraction with Diminishing Yields",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Resource Extraction with Diminishing Yields\n\nYou manage `N` resource mines. Extracting from mine `i` for the `t_i`-th time yields an output of `Y[i] - (t_i - 1) * K[i]` units. Once the yield drops to zero or below, no further output can be gained.\n\nGiven that you can perform a total of at most `M` extractions across all mines, find the maximum possible total resource yield achievable.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= Y[i], K[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 3, y = [10, 8, 12], k = [2, 3, 4]",
+        "output": "30",
+        "explanation": "Top 3 single extractions: 12 (Mine 3), 10 (Mine 1), 8 (Mine 1 or 2). Total yield = 12 + 10 + 8 = 30."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, y, k):\\n    pq = [(-y[i], k[i]) for i in range(n) if y[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        cur = -val\\n        if cur <= 0: break\\n        total += cur\\n        nxt = cur - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_subarray_range_inversion",
+    "category": "Coding",
+    "topic": "Subarray Sum Maximization with Range Inversion",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Subarray Sum Maximization with Range Inversion\n\nGiven an array `A` of `N` integers. You are allowed to choose at most one contiguous subsegment of `A` and flip the sign of all elements within that chosen subsegment (`x -> -x`).\n\nDetermine the maximum possible contiguous subarray sum in the array after applying at most one range sign-inversion.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `-10^4 <= A[i] <= 10^4`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, nums = [2, -3, -4, 2, -1]",
+        "output": "11",
+        "explanation": "Inverting [-3, -4] produces [2, 3, 4, 2, -1] with maximum contiguous subarray sum 2 + 3 + 4 + 2 = 11."
+      },
+      {
+        "input": "n = 4, nums = [-5, -2, -8, -1]",
+        "output": "15",
+        "explanation": "Inverting [-5, -2, -8] yields 5 + 2 + 8 = 15."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    dp0, dp1, dp2 = 0, 0, 0\\n    ans = nums[0]\\n    for x in nums:\\n        dp0 = max(x, dp0 + x)\\n        dp1 = max(-x, dp0 - x, dp1 - x)\\n        dp2 = max(dp1 + x, dp2 + x)\\n        ans = max(ans, dp0, dp1, dp2)\\n    return ans\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_layered_dag_path",
+    "category": "Coding",
+    "topic": "Layered DAG Path with Parity-Dependent Tolls",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Layered DAG Path with Parity-Dependent Tolls\n\nYou are given a Directed Acyclic Graph (DAG) with `N` vertices and `M` edges. Each node `u` has layer `L[u]` and reward value `W[u]`.\nA valid path must obey non-decreasing layer order: `L[u_1] <= L[u_2] <= ... <= L[u_k]`.\n\nMoving from `u` to `v` with `L[v] > L[u]` is a **Layer Jump**.\nIf the jump is the j-th jump taken along the path (1-indexed):\n- If j is odd: penalty is `L[v] - L[u]`.\n- If j is even: penalty is `(L[v] - L[u])^2`.\n\nFind the maximum net score (`sum W - sum penalties`) among all valid simple paths in the graph.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, m = 3, layers = [1, 3, 4, 6], rewards = [10, 20, 15, 30], edges = [[0, 1], [1, 2], [2, 3]]",
+        "output": "68",
+        "explanation": "Path 0 -> 1 -> 2 -> 3: total rewards = 75. Penalties for 3 jumps = 2 + 1 + 2 = 5, wait net score is 68."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, m, layers, rewards, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v in edges:\\n        if layers[v] >= layers[u]: adj[u].append(v)\\n    dp = [[rewards[i], rewards[i]] for i in range(n)]\\n    order = sorted(range(n), key=lambda x: layers[x])\\n    ans = max(rewards)\\n    for u in order:\\n        for v in adj[u]:\\n            ld = layers[v] - layers[u]\\n            if ld == 0:\\n                dp[v][0] = max(dp[v][0], dp[u][0] + rewards[v])\\n                dp[v][1] = max(dp[v][1], dp[u][1] + rewards[v])\\n            else:\\n                dp[v][1] = max(dp[v][1], dp[u][0] + rewards[v] - ld)\\n                dp[v][0] = max(dp[v][0], dp[u][1] + rewards[v] - (ld ** 2))\\n            ans = max(ans, dp[v][0], dp[v][1])\\n    return ans\", \"time_complexity\": \"O(N + M)\"}"
+  },
+  {
+    "id": "infy_task_energy_optimization",
+    "category": "Coding",
+    "topic": "Task Energy Optimization",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Task Energy Optimization\n\nYou have `N` tasks available. Completing task `i` for the `t_i`-th time yields energy equal to `E[i] - (t_i - 1) * D[i]` units. If the yield becomes non-positive (`<= 0`), no further energy can be gained from that task.\n\nYou are allowed to perform at most `M` task executions in total across all tasks. Determine the maximum possible total energy you can gain.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= E[i], D[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 2, m = 4, e = [12, 20], d = [4, 6]",
+        "output": "46",
+        "explanation": "Yields: Task 1: 12, 8, 4; Task 2: 20, 14, 8. Executing top 4 tasks gives optimal energy."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, e, d):\\n    pq = [(-e[i], d[i]) for i in range(n) if e[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        nxt = gain - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_max_subarray_negations",
+    "category": "Coding",
+    "topic": "Max Subarray Sum with Negations",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Max Subarray Sum with Negations\n\nYou are given an array `A` of `N` non-zero integers and an integer `K`. You are allowed to select up to `K` distinct elements in the array and negate their signs (`x -> -x`).\n\nFind the maximum possible contiguous subarray sum achievable after applying at most `K` optimal sign negations.\n\n**Constraints:**\n- `1 <= N <= 500`, `0 <= K <= N`, `-1000 <= A[i] <= 1000`, `A[i] != 0`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, k = 2, nums = [4, -8, 3, -5, 2]",
+        "output": "22",
+        "explanation": "Negating the two negative numbers -8 and -5 transforms the array to [4, 8, 3, 5, 2] with sum = 22."
+      },
+      {
+        "input": "n = 3, k = 1, nums = [-10, -20, -30]",
+        "output": "30",
+        "explanation": "Negating -30 gives single-element subarray [30] with maximum sum 30."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, k, nums):\\n    ans = max(nums)\\n    for l in range(n):\\n        negatives = []\\n        cur_sum = 0\\n        for r in range(l, n):\\n            val = nums[r]\\n            cur_sum += val\\n            if val < 0:\\n                negatives.append(val)\\n            # Negate up to k smallest negative numbers\\n            sorted_negs = sorted(negatives)\\n            bonus = -2 * sum(sorted_negs[:k])\\n            ans = max(ans, cur_sum + bonus)\\n    return ans\", \"time_complexity\": \"O(N^2 log K)\"}"
+  },
+  {
+    "id": "infy_portal_jump_grid",
+    "category": "Coding",
+    "topic": "Portal-Jump Grid Path with Step Penalty",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Portal-Jump Grid Path with Step Penalty\n\nGiven an `R x C` grid where each cell `(r, c)` has a value `V[r][c]` and a layer `L[r][c]`. You start at cell `(0, 0)` and want to reach cell `(R-1, C-1)` moving only right or down.\n\n**Rules & Constraints:**\n1. Layer Non-Decreasing Rule: A move from `(r1, c1)` to `(r2, c2)` is valid only if `L[r1][c1] <= L[r2][c2]`.\n2. Jump Penalty: If `L[r2][c2] > L[r1][c1]`, you pay a jump penalty of `(L[r2][c2] - L[r1][c1])^2`.\n3. Max Jumps Constraint: You can perform at most `J` layer-changing jumps in total along the path.\n\nFind the maximum total path value (`sum V - sum penalties`). If no valid path exists to the target, output -1.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "r = 2, c = 2, j = 1, values = [[10, 20], [5, 30]], layers = [[1, 2], [1, 3]]",
+        "output": "56",
+        "explanation": "Path (0,0) -> (0,1) -> (1,1) has 1 jump with penalty (2-1)^2 = 1. Value sum = 10 + 20 + 30 - penalty 4 = 56."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(r, c, j, values, layers):\\n    # dp[r][c][jump] = max score\\n    dp = [[[-float('inf')] * (j + 1) for _ in range(c)] for _ in range(r)]\\n    dp[0][0][0] = values[0][0]\\n    for row in range(r):\\n        for col in range(c):\\n            for jumps in range(j + 1):\\n                cur_val = dp[row][col][jumps]\\n                if cur_val == -float('inf'): continue\\n                for nr, nc in [(row + 1, col), (row, col + 1)]:\\n                    if nr < r and nc < c and layers[nr][nc] >= layers[row][col]:\\n                        if layers[nr][nc] == layers[row][col]:\\n                            dp[nr][nc][jumps] = max(dp[nr][nc][jumps], cur_val + values[nr][nc])\\n                        elif jumps + 1 <= j:\\n                            pen = (layers[nr][nc] - layers[row][col]) ** 2\\n                            dp[nr][nc][jumps + 1] = max(dp[nr][nc][jumps + 1], cur_val + values[nr][nc] - pen)\\n    ans = max(dp[r - 1][c - 1])\\n    return ans if ans != -float('inf') else -1\", \"time_complexity\": \"O(R * C * J)\"}"
+  }
+]

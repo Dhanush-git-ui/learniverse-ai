@@ -328,6 +328,15 @@ const Navbar = () => {
                 </Link>
 
                 <Link 
+                  to="/top-100-codes" 
+                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-colors ${
+                    isActive('/top-100-codes') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-600 hover:text-black hover:bg-slate-50'
+                  }`}
+                >
+                  Top 100
+                </Link>
+
+                <Link 
                   to="/assessment" 
                   className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
                     isActive('/assessment') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:text-black hover:bg-slate-50'
@@ -604,6 +613,17 @@ const Navbar = () => {
                 >
                   <BookOpen className="w-5 h-5 text-slate-500" />
                   <span>Topics</span>
+                </Link>
+
+                <Link
+                  to="/top-100-codes"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-base font-semibold ${
+                    isActive('/top-100-codes') ? 'text-black bg-slate-100 border border-slate-200' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <Code2 className="w-5 h-5 text-slate-500" />
+                  <span>Top 100 Codes</span>
                 </Link>
 
                 <Link

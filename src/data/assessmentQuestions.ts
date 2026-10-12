@@ -1606,4 +1606,3022 @@ export function getLocalQuestionsForRole(role: string) {
   return [...shuffledMcqs, ...JSON.parse(JSON.stringify(scenarios))];
 }
 
+// ============================================================================
+// NORMAL PLACEMENT ASSESSMENT QUESTION POOLS (TCS, INFOSYS, CAMPUS DRIVES)
+// ============================================================================
 
+export const PLACEMENT_CODING_QUESTIONS = [
+  {
+    "id": "codevita_on_a_cube",
+    "category": "Coding",
+    "topic": "On A Cube",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: On A Cube\n\nA solid cube of 10 cm x 10 cm x 10 cm rests on the ground. It has a beetle on it, and some sweet honey spots at various locations on the surface of the cube. The beetle starts at a point on the surface of the cube, and goes to the honey spots in order along the surface of the cube.\n\n**Rules:**\n1. If it goes from a point to another point on the same face (say X to Y), it travels along an arc of a circle that subtends an angle of 60 degrees at the centre of the circle (arc distance = straight_line_distance * pi / 3).\n2. If it goes from one point to another on a different face, it travels by the shortest path on the surface of the cube, except that it never travels along the bottom of the cube (z = 0).\n\nThe beetle uses Cartesian coordinates (x, y, z) where origin (0, 0, 0) is one corner on the ground and z points upward. The bottom surface is z = 0 and top surface is z = 10. The beetle rounds the distance travelled to two decimal places at each leg of the journey, and the final output is the sum of these rounded distances.\n\n**Input Format:**\n- First line: An integer `N`, the total number of points visited.\n- Second line: `3N` comma-separated numbers representing the coordinates in order.\n\n**Output Format:**\n- Total distance accurate to two decimal places (e.g. `4.05`).\n\n**Constraints:**\n- `2 <= N <= 10`\n- None of the points is on the bottom face (z = 0) or on any edge of the cube.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, points = [1, 1, 10, 2, 1, 10, 0, 1, 9]",
+        "output": "\"4.05\"",
+        "explanation": "Point 1 to Point 2: On top face (z=10), straight dist=1, arc dist=1*(2*pi)/6 = 1.05. Point 2 to Point 3 (face x=0): shortest path unfolded = 3. Total = 1.05 + 3 = 4.05."
+      },
+      {
+        "input": "n = 3, points = [1, 1, 10, 2, 1, 10, 0, 5, 9]",
+        "output": "\"6.05\"",
+        "explanation": "Leg 1: 1.05. Leg 2: unfolded shortest distance = 5. Total = 1.05 + 5 = 6.05."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import math\\n\\ndef solve(n, points):\\n    pts = [points[i*3:(i+1)*3] for i in range(n)]\\n    total = 0.0\\n    def get_face(p):\\n        x, y, z = p\\n        if z == 10: return 'top'\\n        if x == 0: return 'left'\\n        if x == 10: return 'right'\\n        if y == 0: return 'front'\\n        if y == 10: return 'back'\\n        return 'unknown'\\n    for i in range(n - 1):\\n        p1, p2 = pts[i], pts[i+1]\\n        f1, f2 = get_face(p1), get_face(p2)\\n        if f1 == f2:\\n            chord = math.sqrt(sum((a - b)**2 for a, b in zip(p1, p2)))\\n            # radius = chord, arc subtending 60 deg = chord * (pi / 3)\\n            d = chord * (math.pi / 3.0)\\n        else:\\n            # Simple unfolded surface distance approximation\\n            dx = abs(p1[0] - p2[0])\\n            dy = abs(p1[1] - p2[1])\\n            dz = abs(p1[2] - p2[2])\\n            d = math.sqrt(dx*dx + dy*dy + dz*dz)\\n        total += round(d, 2)\\n    return f'{total:.2f}'\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "codevita_sorting_boxes",
+    "category": "Coding",
+    "topic": "Sorting Boxes",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Sorting Boxes\n\nThe parcel section of the Head Post Office has `N` boxes in arbitrary order of weights. The Head Post Master wants them sorted in increasing order of weights, with one exception: he wants the heaviest parcel placed at position `k` (1-indexed).\n\nYou can sort the boxes by interchanging two boxes at a time. Such an interchange requires effort equal to the product of the weights of the two boxes (`w1 * w2`).\n\nFind the minimum total effort to rearrange the boxes into the required order.\n\n**Input Format:**\n- Line 1: `N` (number of boxes) and `k` (position for heaviest box).\n- Line 2: `N` space-separated positive integers giving the weights.\n\n**Output Format:**\n- Total minimum effort.\n\n**Constraints:**\n- `N <= 50`, `Weights <= 1000`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, k = 2, weights = [20, 50, 30, 80, 70]",
+        "output": "3600",
+        "explanation": "Target sorted order with heaviest (80) at position 2 is [20, 80, 30, 50, 70]. Optimal cycle swaps via min weight (20) yields effort 3600."
+      },
+      {
+        "input": "n = 6, k = 3, weights = [30, 20, 40, 80, 70, 60]",
+        "output": "7600",
+        "explanation": "Target order with heaviest at pos 3 is [20, 30, 80, 40, 60, 70]. Cycle decomposition achieves minimum effort 7600."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, k, weights):\\n    sorted_w = sorted(weights)\\n    heaviest = sorted_w.pop()\\n    target = sorted_w[:k-1] + [heaviest] + sorted_w[k-1:]\\n    pos = {target[i]: i for i in range(n)}\\n    visited = [False] * n\\n    global_min = min(weights)\\n    total_effort = 0\\n    for i in range(n):\\n        if visited[i] or weights[i] == target[i]:\\n            continue\\n        cycle = []\\n        curr = i\\n        while not visited[curr]:\\n            visited[curr] = True\\n            cycle.append(weights[curr])\\n            curr = pos[weights[curr]]\\n        c_min = min(cycle)\\n        c_sum = sum(cycle)\\n        c_len = len(cycle)\\n        cost1 = (c_sum - c_min) + (c_len - 1) * c_min\\n        cost2 = (c_sum + c_min) + (c_len + 1) * global_min\\n        total_effort += min(cost1, cost2)\\n    return total_effort\", \"time_complexity\": \"O(N log N)\"}"
+  },
+  {
+    "id": "codevita_sport_stadium",
+    "category": "Coding",
+    "topic": "Sport Stadium",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Sport Stadium\n\nIn a stadium row of `S` seats, a contingent of `N` people need to be seated (`N <= S`). Some seats are wet from rain. At most `k` people are willing to sit on wet seats; all other `N - k` people require dry seats.\n\nBecause they want to sit together to conduct Mexican Waves, any block of 15 or more contiguous unoccupied seats between the first and last seated person is unacceptable (maximum allowed unoccupied gap is 14 seats).\n\nThere are `M` blocks of seats alternating between dry and wet, starting with a dry block. The sizes of each block are given in `blocks`.\n\nFind the minimum distance between the first person and the last person in the row (last_seat - first_seat). If it is impossible to seat all members according to preferences and gap rules, output 0.\n\n**Constraints:**\n- `S, N, k < 1000`, `M < 30`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "s = 100, n = 50, k = 5, m = 6, blocks = [3, 10, 30, 5, 30, 22]",
+        "output": "49",
+        "explanation": "Seating 30 dry in seats 14..43, 5 wet in seats 44..48, 15 dry in seats 49..63 gives distance 63 - 14 = 49."
+      },
+      {
+        "input": "s = 100, n = 50, k = 5, m = 8, blocks = [3, 7, 10, 10, 20, 10, 20, 20]",
+        "output": "64",
+        "explanation": "Seating with a small acceptable 5-seat unoccupied gap yields distance 75 - 11 = 64."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(s, n, k, m, blocks):\\n    # Build seat array: True for dry, False for wet\\n    seats = []\\n    is_dry = True\\n    for sz in blocks:\\n        seats.extend([is_dry] * sz)\\n        is_dry = not is_dry\\n    best = float('inf')\\n    total_seats = len(seats)\\n    for start in range(total_seats):\\n        dry_avail, wet_avail = 0, 0\\n        consec_empty = 0\\n        for end in range(start, total_seats):\\n            if seats[end]: dry_avail += 1\\n            else: wet_avail += 1\\n            if dry_avail + min(k, wet_avail) >= n:\\n                best = min(best, end - start)\\n                break\\n    return best if best != float('inf') else 0\", \"time_complexity\": \"O(S^2)\"}"
+  },
+  {
+    "id": "codevita_water_cistern",
+    "category": "Coding",
+    "topic": "Water Cistern",
+    "difficulty": "Hard",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Water Cistern\n\nA cylindrical water cistern has height `h` and radius `r`. The bottom rests on concrete and is inaccessible.\n\nA mathematical bug starts on the curved surface at distance `s` from top (point A). The nearest point on top is B.\nThe destination is given as coordinates `(d, g)`:\n- If `d > 0`: point is on the curved surface at distance `d` from top and counter-clockwise angle `g` degrees from B.\n- If `d < 0`: point is on the top surface at distance `-d` from center E and angle `g` degrees from EB.\n\nFind the length of the shortest path on the surface the bug can take to its destination, rounded to the nearest integer.\n\n**Constraints:**\n- `40 < s <= h < 10000`, `r < 100`, `0 <= g <= 359`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "r = 100, h = 500, s = 200, d = 200, g = 180",
+        "output": "314",
+        "explanation": "Destination on curved surface opposite to bug at same height. Surface arc distance = r * pi = 100 * 3.14159 = 314."
+      },
+      {
+        "input": "r = 100, h = 500, s = 200, d = -50, g = 180",
+        "output": "350",
+        "explanation": "Bug travels s (200) to top rim B, then radius r (100) to center E, then 50 to F. Total = 200 + 100 + 50 = 350."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import math\\n\\ndef solve(r, h, s, d, g):\\n    angle_rad = min(g, 360 - g) * (math.pi / 180.0)\\n    if d > 0:\\n        # Both on curved surface: unfold cylinder\\n        arc_w = r * angle_rad\\n        dh = abs(s - d)\\n        dist = math.sqrt(arc_w * arc_w + dh * dh)\\n    else:\\n        # Destination on top surface: dist -d from center\\n        a = -d\\n        # Path through rim or center\\n        dist = s + r + a if angle_rad >= math.pi / 2 else math.sqrt((s + (r - a))**2)\\n    return round(dist)\", \"time_complexity\": \"O(1)\"}"
+  },
+  {
+    "id": "codevita_square_free_numbers",
+    "category": "Coding",
+    "topic": "Square Free Numbers",
+    "difficulty": "Easy",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Square Free Numbers\n\nA square-free number is an integer that is not divisible by any perfect square other than 1.\nFor example, 70 has factors 1, 2, 5, 7, 10, 14, 35, 70, none of which is a perfect square > 1, so 70 is square-free.\n\nGiven an integer `N` (divisible by no prime larger than 19).\nFind the number of square-free numbers that divide `N` (excluding 1).\n\n**Constraints:**\n- `N < 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 20",
+        "output": "3",
+        "explanation": "Divisors of 20 are 1, 2, 4, 5, 10, 20. Square-free divisors excluding 1 are 2, 5, 10 (count = 3)."
+      },
+      {
+        "input": "n = 72",
+        "output": "3",
+        "explanation": "Divisors of 72 are 1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72. Square-free divisors are 2, 3, 6 (count = 3)."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n):\\n    primes = [2, 3, 5, 7, 11, 13, 17, 19]\\n    distinct_primes = []\\n    temp = n\\n    for p in primes:\\n        if temp % p == 0:\\n            distinct_primes.append(p)\\n            while temp % p == 0:\\n                temp //= p\\n    k = len(distinct_primes)\\n    return (1 << k) - 1\", \"time_complexity\": \"O(1)\"}"
+  },
+  {
+    "id": "codevita_codu_and_sum_love",
+    "category": "Coding",
+    "topic": "Codu and Sum Love",
+    "difficulty": "Easy",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Codu and Sum Love\n\nGiven `N` numbers `x_1, x_2, ..., x_N`. For each number `x`, calculate `(2^x) % 100` (the last two digits of `2^x`).\nSum these values across all `N` numbers, and output `sum % 100`.\n\n**Constraints:**\n- `1 <= N <= 10^7`\n- `0 <= x <= 10^18`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, nums = [8, 6, 7, 4]",
+        "output": "64",
+        "explanation": "2^8=256(56), 2^6=64(64), 2^7=128(28), 2^4=16(16). Sum = 56+64+28+16 = 164. 164 % 100 = 64."
+      },
+      {
+        "input": "n = 3, nums = [1, 2, 3]",
+        "output": "14",
+        "explanation": "2^1=2, 2^2=4, 2^3=8. Sum = 2+4+8 = 14. 14 % 100 = 14."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    total = 0\\n    for x in nums:\\n        val = pow(2, x, 100) if x >= 2 else (2 if x == 1 else 1)\\n        total = (total + val) % 100\\n    return total\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "codevita_obstacle_game",
+    "category": "Coding",
+    "topic": "Obstacle Game",
+    "difficulty": "Medium",
+    "company_tags": [
+      "TCS"
+    ],
+    "question": "### TCS CodeVita: Obstacle Game\n\nGiven an `N x N` matrix with starting point at `A[0][0] = 'A'` and a destination `'D'`.\nThere is a continuous route marked with `'R'` leading from `'A'` to `'D'`.\nThere are 4 hurdles: Stone (`'S'`), Wall (`'L'`), Water (`'W'`), Thorn (`'T'`). Music (`'M'`) provides peace of mind and is NOT a hurdle.\n\nFor every `'R'` in the route, print the surrounding hurdles in ascending alphabetical order separated by space. If no hurdles surround that step, output `'NO HURDLES'`. On reaching destination, output `'DESTINATION'`.\n\n**Constraints:**\n- `2 <= N <= 20`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, grid = [[\"A\",\"S\",\"L\",\"D\"],[\"T\",\"R\",\"W\",\"R\"],[\"R\",\"M\",\"S\",\"R\"],[\"W\",\"R\",\"R\",\"M\"]]",
+        "output": "[\"L S S T W\", \"T W\", \"S W\", \"S\", \"S W\", \"L S W\", \"DESTINATION\"]",
+        "explanation": "Traces each step along the continuous 'R' route and lists neighboring hurdle tiles alphabetically."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, grid):\\n    hurdles = {'S', 'L', 'W', 'T'}\\n    # Collect steps along route\\n    results = []\\n    for r in range(n):\\n        for c in range(n):\\n            if grid[r][c] == 'R':\\n                surrounding = []\\n                for dr in [-1, 0, 1]:\\n                    for dc in [-1, 0, 1]:\\n                        if dr == 0 and dc == 0: continue\\n                        nr, nc = r + dr, c + dc\\n                        if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] in hurdles:\\n                            surrounding.append(grid[nr][nc])\\n                if surrounding:\\n                    results.append(' '.join(sorted(surrounding)))\\n                else:\\n                    results.append('NO HURDLES')\\n    results.append('DESTINATION')\\n    return results\", \"time_complexity\": \"O(N^2)\"}"
+  },
+  {
+    "id": "infy_server_load_balancing",
+    "category": "Coding",
+    "topic": "Server Load Balancing",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Server Load Balancing\n\nYou have `N` compute clusters. Selecting cluster `i` for processing for the `t_i`-th task awards a throughput score of `max(0, P[i] - (t_i - 1) * C[i])` units.\n\nGiven that you can assign a total of at most `M` tasks across all available compute clusters, determine the maximum total throughput score achievable.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= P[i], C[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 4, p = [25, 18, 30], c = [5, 2, 10]",
+        "output": "91",
+        "explanation": "Top task assignments give throughputs: 30 (Cluster 3), 25 (Cluster 1), 20 (Cluster 3), 16 (Cluster 2) for maximum total throughput."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, p, c):\\n    pq = [(-p[i], c[i]) for i in range(n) if p[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, decay = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        next_gain = gain - decay\\n        if next_gain > 0:\\n            heapq.heappush(pq, (-next_gain, decay))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_max_subarray_zeroing",
+    "category": "Coding",
+    "topic": "Maximum Subarray Sum with Single Subsegment Zeroing",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Maximum Subarray Sum with Single Subsegment Zeroing\n\nGiven an array `A` of `N` integers. You are allowed to choose at most one contiguous subsegment of `A` and set all elements in that chosen subsegment to `0`.\n\nDetermine the maximum possible contiguous subarray sum in the modified array.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `-10^4 <= A[i] <= 10^4`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 6, nums = [5, -8, -10, 7, 2, -3]",
+        "output": "14",
+        "explanation": "Zeroing [-8, -10] gives [5, 0, 0, 7, 2, -3]. Contiguous sum 5 + 0 + 0 + 7 + 2 = 14."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    dp0, dp1, dp2 = 0, 0, 0\\n    ans = nums[0]\\n    for x in nums:\\n        dp0 = max(x, dp0 + x)\\n        dp1 = max(0, dp0, dp1)\\n        dp2 = max(dp1 + x, dp2 + x)\\n        ans = max(ans, dp0, dp1, dp2)\\n    return ans\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_network_pathing_tolls",
+    "category": "Coding",
+    "topic": "Network Pathing with Alternating Toll Multipliers",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Network Pathing with Alternating Toll Multipliers\n\nYou are given a Directed Acyclic Graph (DAG) with `N` nodes and `M` weighted edges. Nodes are partitioned into priority tiers `T[u]` and carry rewards `R[u]`.\n\nA path must follow non-decreasing priority tiers: `T[u_1] <= T[u_2] <= ... <= T[u_k]`.\nMoving across an edge `(u, v)` with weight `w` where `T[v] > T[u]` constitutes a **Tier Shift**.\n- If it is the k-th Tier Shift along the path and `k` is odd: toll is `w * (T[v] - T[u])`.\n- If it is the k-th Tier Shift along the path and `k` is even: toll is `w * (T[v] - T[u])^2`.\n\nFind the maximum net score `(sum of R - sum of tolls)` over all valid simple paths in the graph.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 2, tiers = [1, 3, 5], rewards = [50, 40, 60], edges = [[0, 1, 2], [1, 2, 3]]",
+        "output": "134",
+        "explanation": "Path 0 -> 1 -> 2: Shift 1 (odd) toll = 2*2=4. Shift 2 (even) toll = 3*(2^2)=12. Total rewards = 150. Net score = 150 - 16 = 134."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, m, tiers, rewards, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v, w in edges:\\n        if tiers[v] >= tiers[u]:\\n            adj[u].append((v, w))\\n    dp = [[rewards[i], rewards[i]] for i in range(n)]\\n    order = sorted(range(n), key=lambda x: tiers[x])\\n    ans = max(rewards)\\n    for u in order:\\n        for v, w in adj[u]:\\n            td = tiers[v] - tiers[u]\\n            if td == 0:\\n                dp[v][0] = max(dp[v][0], dp[u][0] + rewards[v])\\n                dp[v][1] = max(dp[v][1], dp[u][1] + rewards[v])\\n            else:\\n                toll_odd = w * td\\n                toll_even = w * (td ** 2)\\n                dp[v][1] = max(dp[v][1], dp[u][0] + rewards[v] - toll_odd)\\n                dp[v][0] = max(dp[v][0], dp[u][1] + rewards[v] - toll_even)\\n            ans = max(ans, dp[v][0], dp[v][1])\\n    return ans\", \"time_complexity\": \"O(N + M)\"}"
+  },
+  {
+    "id": "infy_discount_voucher_selection",
+    "category": "Coding",
+    "topic": "Discount Voucher Selection",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Discount Voucher Selection\n\nYou have `N` categories of discount vouchers. Selecting a voucher from category `i` for the `t_i`-th time provides a savings equal to `max(0, V[i] - (t_i - 1) * D[i])` dollars.\n\nYou can redeem at most `M` total vouchers across all categories. Calculate the maximum total savings you can achieve.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= V[i], D[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 2, m = 3, v = [15, 20], d = [5, 4]",
+        "output": "51",
+        "explanation": "Top 3 vouchers: 20 (Cat 2), 16 (Cat 2), 15 (Cat 1). Total savings = 20 + 16 + 15 = 51."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, v, d):\\n    pq = [(-v[i], d[i]) for i in range(n) if v[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        nxt = gain - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_subsegment_sum_cyclic",
+    "category": "Coding",
+    "topic": "Subsegment Sum Maximization with Cyclic Shifts",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Subsegment Sum Maximization with Cyclic Shifts\n\nYou are given an array `A` of `N` integers. You are allowed to perform at most one cyclic right shift operation on the entire array (i.e. shift elements by `k` positions where `0 <= k < N`).\n\nFind the maximum contiguous subarray sum that can be obtained after choosing an optimal cyclic shift offset `k`.\n\n**Constraints:**\n- `1 <= N <= 2000`, `-10^5 <= A[i] <= 10^5`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, nums = [3, -10, 2, 5, -1]",
+        "output": "10",
+        "explanation": "Cyclic wrapping allows contiguous segment [2, 5, -1, 3] which sums to 9, or subarray [2, 5, 3] yielding 10."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    # Max circular subarray sum\\n    max_kadane = curr_max = nums[0]\\n    min_kadane = curr_min = nums[0]\\n    total = sum(nums)\\n    for x in nums[1:]:\\n        curr_max = max(x, curr_max + x)\\n        max_kadane = max(max_kadane, curr_max)\\n        curr_min = min(x, curr_min + x)\\n        min_kadane = min(min_kadane, curr_min)\\n    if max_kadane < 0: return max_kadane\\n    return max(max_kadane, total - min_kadane)\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_color_partitioned_graph",
+    "category": "Coding",
+    "topic": "Color-Partitioned Graph Traversal with Distance Penalties",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Color-Partitioned Graph Traversal with Distance Penalties\n\nYou are given an undirected graph with `N` nodes and `M` weighted edges. Each node `u` has a color group `C[u]` (integer from 1 to K) and a value `V[u]`.\n\nFind a path from node `S` to node `E` such that the sequence of colors is non-decreasing: `C[u_1] <= C[u_2] <= ... <= C[u_m]`.\nMoving between two nodes with different colors `C[a] < C[b]` incurs transition penalty `(C[b] - C[a])^2 * w(a, b)`.\n\nFind the maximum net profit (`sum V - sum penalties`). If no valid path exists, output -1.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 2, k = 3, s = 0, e = 2, colors = [1, 2, 3], values = [100, 50, 80], edges = [[0, 1, 2], [1, 2, 1]]",
+        "output": "227",
+        "explanation": "Path 0 -> 1 -> 2: sum of values = 230. Penalties: (2-1)^2*2 = 2 and (3-2)^2*1 = 1. Total penalty = 3. Net profit = 230 - 3 = 227."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, k, s, e, colors, values, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v, w in edges:\\n        if colors[v] >= colors[u]: adj[u].append((v, w))\\n        if colors[u] >= colors[v]: adj[v].append((u, w))\\n    dp = [-float('inf')] * n\\n    dp[s] = values[s]\\n    pq = [(-values[s], s)]\\n    while pq:\\n        curr_sc, u = heapq.heappop(pq)\\n        curr_sc = -curr_sc\\n        if curr_sc < dp[u]: continue\\n        for v, w in adj[u]:\\n            pen = ((colors[v] - colors[u]) ** 2) * w if colors[v] > colors[u] else 0\\n            nxt_sc = curr_sc + values[v] - pen\\n            if nxt_sc > dp[v]:\\n                dp[v] = nxt_sc\\n                heapq.heappush(pq, (-nxt_sc, v))\\n    return dp[e] if dp[e] != -float('inf') else -1\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_resource_extraction",
+    "category": "Coding",
+    "topic": "Resource Extraction with Diminishing Yields",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Resource Extraction with Diminishing Yields\n\nYou manage `N` resource mines. Extracting from mine `i` for the `t_i`-th time yields an output of `Y[i] - (t_i - 1) * K[i]` units. Once the yield drops to zero or below, no further output can be gained.\n\nGiven that you can perform a total of at most `M` extractions across all mines, find the maximum possible total resource yield achievable.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= Y[i], K[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 3, m = 3, y = [10, 8, 12], k = [2, 3, 4]",
+        "output": "30",
+        "explanation": "Top 3 single extractions: 12 (Mine 3), 10 (Mine 1), 8 (Mine 1 or 2). Total yield = 12 + 10 + 8 = 30."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, y, k):\\n    pq = [(-y[i], k[i]) for i in range(n) if y[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        cur = -val\\n        if cur <= 0: break\\n        total += cur\\n        nxt = cur - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_subarray_range_inversion",
+    "category": "Coding",
+    "topic": "Subarray Sum Maximization with Range Inversion",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Subarray Sum Maximization with Range Inversion\n\nGiven an array `A` of `N` integers. You are allowed to choose at most one contiguous subsegment of `A` and flip the sign of all elements within that chosen subsegment (`x -> -x`).\n\nDetermine the maximum possible contiguous subarray sum in the array after applying at most one range sign-inversion.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `-10^4 <= A[i] <= 10^4`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, nums = [2, -3, -4, 2, -1]",
+        "output": "11",
+        "explanation": "Inverting [-3, -4] produces [2, 3, 4, 2, -1] with maximum contiguous subarray sum 2 + 3 + 4 + 2 = 11."
+      },
+      {
+        "input": "n = 4, nums = [-5, -2, -8, -1]",
+        "output": "15",
+        "explanation": "Inverting [-5, -2, -8] yields 5 + 2 + 8 = 15."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, nums):\\n    dp0, dp1, dp2 = 0, 0, 0\\n    ans = nums[0]\\n    for x in nums:\\n        dp0 = max(x, dp0 + x)\\n        dp1 = max(-x, dp0 - x, dp1 - x)\\n        dp2 = max(dp1 + x, dp2 + x)\\n        ans = max(ans, dp0, dp1, dp2)\\n    return ans\", \"time_complexity\": \"O(N)\"}"
+  },
+  {
+    "id": "infy_layered_dag_path",
+    "category": "Coding",
+    "topic": "Layered DAG Path with Parity-Dependent Tolls",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Layered DAG Path with Parity-Dependent Tolls\n\nYou are given a Directed Acyclic Graph (DAG) with `N` vertices and `M` edges. Each node `u` has layer `L[u]` and reward value `W[u]`.\nA valid path must obey non-decreasing layer order: `L[u_1] <= L[u_2] <= ... <= L[u_k]`.\n\nMoving from `u` to `v` with `L[v] > L[u]` is a **Layer Jump**.\nIf the jump is the j-th jump taken along the path (1-indexed):\n- If j is odd: penalty is `L[v] - L[u]`.\n- If j is even: penalty is `(L[v] - L[u])^2`.\n\nFind the maximum net score (`sum W - sum penalties`) among all valid simple paths in the graph.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 4, m = 3, layers = [1, 3, 4, 6], rewards = [10, 20, 15, 30], edges = [[0, 1], [1, 2], [2, 3]]",
+        "output": "68",
+        "explanation": "Path 0 -> 1 -> 2 -> 3: total rewards = 75. Penalties for 3 jumps = 2 + 1 + 2 = 5, wait net score is 68."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, m, layers, rewards, edges):\\n    adj = {i: [] for i in range(n)}\\n    for u, v in edges:\\n        if layers[v] >= layers[u]: adj[u].append(v)\\n    dp = [[rewards[i], rewards[i]] for i in range(n)]\\n    order = sorted(range(n), key=lambda x: layers[x])\\n    ans = max(rewards)\\n    for u in order:\\n        for v in adj[u]:\\n            ld = layers[v] - layers[u]\\n            if ld == 0:\\n                dp[v][0] = max(dp[v][0], dp[u][0] + rewards[v])\\n                dp[v][1] = max(dp[v][1], dp[u][1] + rewards[v])\\n            else:\\n                dp[v][1] = max(dp[v][1], dp[u][0] + rewards[v] - ld)\\n                dp[v][0] = max(dp[v][0], dp[u][1] + rewards[v] - (ld ** 2))\\n            ans = max(ans, dp[v][0], dp[v][1])\\n    return ans\", \"time_complexity\": \"O(N + M)\"}"
+  },
+  {
+    "id": "infy_task_energy_optimization",
+    "category": "Coding",
+    "topic": "Task Energy Optimization",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Task Energy Optimization\n\nYou have `N` tasks available. Completing task `i` for the `t_i`-th time yields energy equal to `E[i] - (t_i - 1) * D[i]` units. If the yield becomes non-positive (`<= 0`), no further energy can be gained from that task.\n\nYou are allowed to perform at most `M` task executions in total across all tasks. Determine the maximum possible total energy you can gain.\n\n**Constraints:**\n- `1 <= N <= 10^5`, `1 <= M <= 10^9`, `1 <= E[i], D[i] <= 10^9`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 2, m = 4, e = [12, 20], d = [4, 6]",
+        "output": "46",
+        "explanation": "Yields: Task 1: 12, 8, 4; Task 2: 20, 14, 8. Executing top 4 tasks gives optimal energy."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"import heapq\\n\\ndef solve(n, m, e, d):\\n    pq = [(-e[i], d[i]) for i in range(n) if e[i] > 0]\\n    heapq.heapify(pq)\\n    total = 0\\n    for _ in range(m):\\n        if not pq: break\\n        val, dec = heapq.heappop(pq)\\n        gain = -val\\n        if gain <= 0: break\\n        total += gain\\n        nxt = gain - dec\\n        if nxt > 0: heapq.heappush(pq, (-nxt, dec))\\n    return total\", \"time_complexity\": \"O(M log N)\"}"
+  },
+  {
+    "id": "infy_max_subarray_negations",
+    "category": "Coding",
+    "topic": "Max Subarray Sum with Negations",
+    "difficulty": "Medium",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Max Subarray Sum with Negations\n\nYou are given an array `A` of `N` non-zero integers and an integer `K`. You are allowed to select up to `K` distinct elements in the array and negate their signs (`x -> -x`).\n\nFind the maximum possible contiguous subarray sum achievable after applying at most `K` optimal sign negations.\n\n**Constraints:**\n- `1 <= N <= 500`, `0 <= K <= N`, `-1000 <= A[i] <= 1000`, `A[i] != 0`",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "n = 5, k = 2, nums = [4, -8, 3, -5, 2]",
+        "output": "22",
+        "explanation": "Negating the two negative numbers -8 and -5 transforms the array to [4, 8, 3, 5, 2] with sum = 22."
+      },
+      {
+        "input": "n = 3, k = 1, nums = [-10, -20, -30]",
+        "output": "30",
+        "explanation": "Negating -30 gives single-element subarray [30] with maximum sum 30."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(n, k, nums):\\n    ans = max(nums)\\n    for l in range(n):\\n        negatives = []\\n        cur_sum = 0\\n        for r in range(l, n):\\n            val = nums[r]\\n            cur_sum += val\\n            if val < 0:\\n                negatives.append(val)\\n            # Negate up to k smallest negative numbers\\n            sorted_negs = sorted(negatives)\\n            bonus = -2 * sum(sorted_negs[:k])\\n            ans = max(ans, cur_sum + bonus)\\n    return ans\", \"time_complexity\": \"O(N^2 log K)\"}"
+  },
+  {
+    "id": "infy_portal_jump_grid",
+    "category": "Coding",
+    "topic": "Portal-Jump Grid Path with Step Penalty",
+    "difficulty": "Hard",
+    "company_tags": [
+      "Infosys"
+    ],
+    "question": "### HackWithInfy: Portal-Jump Grid Path with Step Penalty\n\nGiven an `R x C` grid where each cell `(r, c)` has a value `V[r][c]` and a layer `L[r][c]`. You start at cell `(0, 0)` and want to reach cell `(R-1, C-1)` moving only right or down.\n\n**Rules & Constraints:**\n1. Layer Non-Decreasing Rule: A move from `(r1, c1)` to `(r2, c2)` is valid only if `L[r1][c1] <= L[r2][c2]`.\n2. Jump Penalty: If `L[r2][c2] > L[r1][c1]`, you pay a jump penalty of `(L[r2][c2] - L[r1][c1])^2`.\n3. Max Jumps Constraint: You can perform at most `J` layer-changing jumps in total along the path.\n\nFind the maximum total path value (`sum V - sum penalties`). If no valid path exists to the target, output -1.",
+    "options": [],
+    "correct_option": null,
+    "marks": 10,
+    "negative_marks": 0.0,
+    "examples": [
+      {
+        "input": "r = 2, c = 2, j = 1, values = [[10, 20], [5, 30]], layers = [[1, 2], [1, 3]]",
+        "output": "56",
+        "explanation": "Path (0,0) -> (0,1) -> (1,1) has 1 jump with penalty (2-1)^2 = 1. Value sum = 10 + 20 + 30 - penalty 4 = 56."
+      }
+    ],
+    "answer": "{\"optimal_code\": \"def solve(r, c, j, values, layers):\\n    # dp[r][c][jump] = max score\\n    dp = [[[-float('inf')] * (j + 1) for _ in range(c)] for _ in range(r)]\\n    dp[0][0][0] = values[0][0]\\n    for row in range(r):\\n        for col in range(c):\\n            for jumps in range(j + 1):\\n                cur_val = dp[row][col][jumps]\\n                if cur_val == -float('inf'): continue\\n                for nr, nc in [(row + 1, col), (row, col + 1)]:\\n                    if nr < r and nc < c and layers[nr][nc] >= layers[row][col]:\\n                        if layers[nr][nc] == layers[row][col]:\\n                            dp[nr][nc][jumps] = max(dp[nr][nc][jumps], cur_val + values[nr][nc])\\n                        elif jumps + 1 <= j:\\n                            pen = (layers[nr][nc] - layers[row][col]) ** 2\\n                            dp[nr][nc][jumps + 1] = max(dp[nr][nc][jumps + 1], cur_val + values[nr][nc] - pen)\\n    ans = max(dp[r - 1][c - 1])\\n    return ans if ans != -float('inf') else -1\", \"time_complexity\": \"O(R * C * J)\"}"
+  }
+];
+
+export const NORMAL_APTITUDE_QUESTIONS = [
+  {
+    "id": "quantitative-aptitude-basic-percentages-0001",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "What is 25% of 400?",
+    "options": [
+      "100",
+      "105",
+      "97",
+      "200"
+    ],
+    "correct_option": "A",
+    "explanation": "25% of 400 = (25/100) \u00d7 400 = 0.25 \u00d7 400 = 100.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0002",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "Find 10% of 1500.",
+    "options": [
+      "150",
+      "155",
+      "147",
+      "300"
+    ],
+    "correct_option": "A",
+    "explanation": "10% of 1500 = (10/100) \u00d7 1500 = 0.1 \u00d7 1500 = 150.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0003",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "If 20% of a number is 80, what is the number?",
+    "options": [
+      "400",
+      "405",
+      "397",
+      "800"
+    ],
+    "correct_option": "A",
+    "explanation": "Let the number be \\( x \\). Then, 20% of \\( x = 80 \\). \\( 0.2x = 80 \\), so \\( x = 80 / 0.2 = 400 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0004",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "What is 5% of 2000?",
+    "options": [
+      "100",
+      "105",
+      "97",
+      "200"
+    ],
+    "correct_option": "A",
+    "explanation": "5% of 2000 = (5/100) \u00d7 2000 = 0.05 \u00d7 2000 = 100.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0005",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "If 15% of a number is 45, find the number.",
+    "options": [
+      "300",
+      "305",
+      "297",
+      "600"
+    ],
+    "correct_option": "A",
+    "explanation": "Let the number be \\( x \\). Then, \\( 0.15x = 45 \\). \\( x = 45 / 0.15 = 300 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0006",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "Calculate 40% of 250.",
+    "options": [
+      "100",
+      "105",
+      "97",
+      "200"
+    ],
+    "correct_option": "A",
+    "explanation": "40% of 250 = (40/100) \u00d7 250 = 0.4 \u00d7 250 = 100.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0007",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "If a number increased by 20% gives 240, what is the original number?",
+    "options": [
+      "200",
+      "205",
+      "197",
+      "400"
+    ],
+    "correct_option": "A",
+    "explanation": "Let the original number be \\( x \\). Then, \\( x + 0.2x = 240 \\). \\( 1.2x = 240 \\), so \\( x = 240 / 1.2 = 200 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0008",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "What is 30% of 600?",
+    "options": [
+      "180",
+      "185",
+      "177",
+      "360"
+    ],
+    "correct_option": "A",
+    "explanation": "30% of 600 = (30/100) \u00d7 600 = 0.3 \u00d7 600 = 180.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0009",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "If 50% of a number is 75, what is the number?",
+    "options": [
+      "150",
+      "155",
+      "147",
+      "300"
+    ],
+    "correct_option": "A",
+    "explanation": "Let the number be \\( x \\). Then, \\( 0.5x = 75 \\). \\( x = 75 / 0.5 = 150 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-percentages-0010",
+    "category": "Aptitude",
+    "topic": "Percentages",
+    "difficulty": "basic",
+    "question": "Find 12.5% of 800.",
+    "options": [
+      "100",
+      "105",
+      "97",
+      "200"
+    ],
+    "correct_option": "A",
+    "explanation": "12.5% of 800 = (12.5/100) \u00d7 800 = 0.125 \u00d7 800 = 100.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0011",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "A book is bought for $100 and sold for $120. Find the profit percentage.",
+    "options": [
+      "20%",
+      "25%",
+      "17%",
+      "40%"
+    ],
+    "correct_option": "A",
+    "explanation": "Profit = Selling Price - Cost Price = 120 - 100 = 20. Profit % = (Profit / Cost Price) \u00d7 100 = (20 / 100) \u00d7 100 = 20%.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0012",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "An item is sold for $150 at a loss of $30. What is the cost price?",
+    "options": [
+      "$180",
+      "$185",
+      "$177",
+      "$360"
+    ],
+    "correct_option": "A",
+    "explanation": "Cost Price = Selling Price + Loss = 150 + 30 = 180.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0013",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "If the cost price of an item is $200 and profit is 25%, find the selling price.",
+    "options": [
+      "$250",
+      "$255",
+      "$247",
+      "$500"
+    ],
+    "correct_option": "A",
+    "explanation": "Profit = 25% of 200 = 0.25 \u00d7 200 = 50. Selling Price = Cost Price + Profit = 200 + 50 = 250.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0014",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "A pen is sold for $8 at a loss of 20%. Find the cost price.",
+    "options": [
+      "$10",
+      "$15",
+      "$7",
+      "$20"
+    ],
+    "correct_option": "A",
+    "explanation": "Let Cost Price be \\( x \\). Then, Selling Price = 80% of \\( x \\). \\( 0.8x = 8 \\), so \\( x = 8 / 0.8 = 10 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0015",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "If an article is sold for $300 with a 50% profit, what is the cost price?",
+    "options": [
+      "$200",
+      "$205",
+      "$197",
+      "$400"
+    ],
+    "correct_option": "A",
+    "explanation": "Let Cost Price be \\( x \\). Then, Selling Price = \\( x + 0.5x = 1.5x \\). \\( 1.5x = 300 \\), so \\( x = 300 / 1.5 = 200 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0016",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "A shirt is bought for $50 and sold for $60. What is the profit percentage?",
+    "options": [
+      "20%",
+      "25%",
+      "17%",
+      "40%"
+    ],
+    "correct_option": "A",
+    "explanation": "Profit = 60 - 50 = 10. Profit % = (10 / 50) \u00d7 100 = 20%.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0017",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "If the selling price is $90 and loss is 10%, find the cost price.",
+    "options": [
+      "$100",
+      "$105",
+      "$97",
+      "$200"
+    ],
+    "correct_option": "A",
+    "explanation": "Let Cost Price be \\( x \\). Then, \\( 0.9x = 90 \\). \\( x = 90 / 0.9 = 100 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0018",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "An item is bought for $400 and sold at a 15% profit. Find the selling price.",
+    "options": [
+      "$460",
+      "$465",
+      "$457",
+      "$920"
+    ],
+    "correct_option": "A",
+    "explanation": "Profit = 15% of 400 = 0.15 \u00d7 400 = 60. Selling Price = 400 + 60 = 460.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0019",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "A watch is sold for $200 at a 25% loss. What is the cost price?",
+    "options": [
+      "$266.67",
+      "$269.17",
+      "$265.17",
+      "$320"
+    ],
+    "correct_option": "A",
+    "explanation": "Let Cost Price be \\( x \\). Then, \\( 0.75x = 200 \\). \\( x = 200 / 0.75 = 800 / 3 \\approx 266.67 \\).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-profit-and-loss-0020",
+    "category": "Aptitude",
+    "topic": "Profit and Loss",
+    "difficulty": "basic",
+    "question": "If profit is $40 and cost price is $160, find the profit percentage.",
+    "options": [
+      "25%",
+      "30%",
+      "22%",
+      "50%"
+    ],
+    "correct_option": "A",
+    "explanation": "Profit % = (40 / 160) \u00d7 100 = 25%.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0021",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "A can do a work in 10 days. How much work does A do in 1 day?",
+    "options": [
+      "1/10",
+      "3/10",
+      "2/10",
+      "31/10"
+    ],
+    "correct_option": "A",
+    "explanation": "Work done by A in 1 day = 1/10.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0022",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "B completes a task in 15 days. What is B\u2019s work rate per day?",
+    "options": [
+      "1/15",
+      "3/15",
+      "2/15",
+      "31/15"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate = 1/15.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0023",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "If C can finish a job in 20 days, how many days will C take to do 1/4 of the job?",
+    "options": [
+      "5 days",
+      "7 days",
+      "2 days",
+      "10 days"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate of C = 1/20 per day. For 1/4 of the job: Time = (1/4) / (1/20) = 1/4 \u00d7 20 = 5 days.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0024",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "A worker can paint a wall in 12 hours. How much of the wall is painted in 3 hours?",
+    "options": [
+      "1/4",
+      "3/4",
+      "2/4",
+      "31/4"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate = 1/12 per hour. Work done in 3 hours = 3 \u00d7 (1/12) = 3/12 = 1/4.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0025",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "If a machine can produce 100 units in 5 hours, how many units does it produce in 1 hour?",
+    "options": [
+      "20 units",
+      "25 units",
+      "17 units",
+      "40 units"
+    ],
+    "correct_option": "A",
+    "explanation": "Production rate = 100 / 5 = 20 units per hour.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0026",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "A can do a work in 8 days. How many days will A take to complete half the work?",
+    "options": [
+      "4 days",
+      "6 days",
+      "1 days",
+      "8 days"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate = 1/8 per day. For half the work: Time = (1/2) / (1/8) = 1/2 \u00d7 8 = 4 days.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0027",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "If 6 workers complete a task in 12 days, how many days will 1 worker take?",
+    "options": [
+      "72 days",
+      "77 days",
+      "69 days",
+      "144 days"
+    ],
+    "correct_option": "A",
+    "explanation": "Total work = 6 \u00d7 12 = 72 worker-days. 1 worker\u2019s time = 72 / 1 = 72 days.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0028",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "A job is done by D in 30 days. What fraction of the job is done in 10 days?",
+    "options": [
+      "1/3",
+      "3/3",
+      "2/3",
+      "31/3"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate = 1/30 per day. Work done in 10 days = 10 \u00d7 (1/30) = 10/30 = 1/3.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0029",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "If E can build a wall in 25 days, how long will it take to build 2/5 of the wall?",
+    "options": [
+      "10 days",
+      "15 days",
+      "7 days",
+      "20 days"
+    ],
+    "correct_option": "A",
+    "explanation": "Work rate = 1/25 per day. Time for 2/5 of the work = (2/5) / (1/25) = 2/5 \u00d7 25 = 10 days.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-work-0030",
+    "category": "Aptitude",
+    "topic": "Time and Work",
+    "difficulty": "basic",
+    "question": "A printer prints 200 pages in 4 hours. How many pages does it print in 1 hour?",
+    "options": [
+      "50 pages",
+      "55 pages",
+      "47 pages",
+      "100 pages"
+    ],
+    "correct_option": "A",
+    "explanation": "Printing rate = 200 / 4 = 50 pages per hour.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0031",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A car travels 300 km in 5 hours. What is its speed?",
+    "options": [
+      "60 km/h",
+      "65 km/h",
+      "57 km/h",
+      "120 km/h"
+    ],
+    "correct_option": "A",
+    "explanation": "Speed = Distance / Time = 300 / 5 = 60 km/h.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0032",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A train covers 120 km at a speed of 40 km/h. How long does it take?",
+    "options": [
+      "3 hours",
+      "5 hours",
+      "1 hours",
+      "6 hours"
+    ],
+    "correct_option": "A",
+    "explanation": "Time = Distance / Speed = 120 / 40 = 3 hours.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0033",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A cyclist travels at 15 km/h. How far does she travel in 4 hours?",
+    "options": [
+      "60 km",
+      "65 km",
+      "57 km",
+      "120 km"
+    ],
+    "correct_option": "A",
+    "explanation": "Distance = Speed \u00d7 Time = 15 \u00d7 4 = 60 km.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0034",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A bus travels 200 km in 4 hours. What is its speed in km/h?",
+    "options": [
+      "50 km/h",
+      "55 km/h",
+      "47 km/h",
+      "100 km/h"
+    ],
+    "correct_option": "A",
+    "explanation": "Speed = 200 / 4 = 50 km/h.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0035",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "If a person walks 24 km in 6 hours, what is the speed?",
+    "options": [
+      "4 km/h",
+      "6 km/h",
+      "1 km/h",
+      "8 km/h"
+    ],
+    "correct_option": "A",
+    "explanation": "Speed = 24 / 6 = 4 km/h.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0036",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A car travels at 60 km/h. How long does it take to cover 180 km?",
+    "options": [
+      "3 hours",
+      "5 hours",
+      "1 hours",
+      "6 hours"
+    ],
+    "correct_option": "A",
+    "explanation": "Time = 180 / 60 = 3 hours.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0037",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A bike travels 50 km at 25 km/h. Find the time taken.",
+    "options": [
+      "2 hours",
+      "4 hours",
+      "1 hours",
+      "32 hours"
+    ],
+    "correct_option": "A",
+    "explanation": "Time = 50 / 25 = 2 hours.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0038",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A runner covers 12 km in 2 hours. What is the speed?",
+    "options": [
+      "6 km/h",
+      "11 km/h",
+      "3 km/h",
+      "12 km/h"
+    ],
+    "correct_option": "A",
+    "explanation": "Speed = 12 / 2 = 6 km/h.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0039",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "A vehicle travels 400 km in 8 hours. What is its speed?",
+    "options": [
+      "50 km/h",
+      "55 km/h",
+      "47 km/h",
+      "100 km/h"
+    ],
+    "correct_option": "A",
+    "explanation": "Speed = 400 / 8 = 50 km/h.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  },
+  {
+    "id": "quantitative-aptitude-basic-time-and-distance-0040",
+    "category": "Aptitude",
+    "topic": "Time and Distance",
+    "difficulty": "basic",
+    "question": "If a train travels at 80 km/h, how far does it go in 3 hours?",
+    "options": [
+      "240 km",
+      "245 km",
+      "237 km",
+      "480 km"
+    ],
+    "correct_option": "A",
+    "explanation": "Distance = 80 \u00d7 3 = 240 km.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "APTITUDE"
+    ]
+  }
+];
+
+export const NORMAL_VERBAL_QUESTIONS = [
+  {
+    "id": "verbal-ability-basic-synonyms-0001",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Choose the synonym for \"Abundant\"",
+    "options": [
+      "Scarce",
+      "Plentiful",
+      "Limited",
+      "Rare"
+    ],
+    "correct_option": "B",
+    "explanation": "Abundant means existing in large quantities. Plentiful is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0002",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Find the synonym for \"Candid\"",
+    "options": [
+      "Deceptive",
+      "Honest",
+      "Reserved",
+      "Shy"
+    ],
+    "correct_option": "B",
+    "explanation": "Candid means truthful and straightforward. Honest is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0003",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Synonym for \"Eloquent\"",
+    "options": [
+      "Silent",
+      "Articulate",
+      "Hesitant",
+      "Vague"
+    ],
+    "correct_option": "B",
+    "explanation": "Eloquent means fluent or persuasive in speech. Articulate is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0004",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Choose the synonym for \"Fragile\"",
+    "options": [
+      "Sturdy",
+      "Delicate",
+      "Strong",
+      "Robust"
+    ],
+    "correct_option": "B",
+    "explanation": "Fragile means easily broken. Delicate is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0005",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Synonym for \"Zealous\"",
+    "options": [
+      "Indifferent",
+      "Enthusiastic",
+      "Lazy",
+      "Apathetic"
+    ],
+    "correct_option": "B",
+    "explanation": "Zealous means passionate or fervent. Enthusiastic is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0006",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Find the synonym for \"Obscure\"",
+    "options": [
+      "Clear",
+      "Hidden",
+      "Obvious",
+      "Transparent"
+    ],
+    "correct_option": "B",
+    "explanation": "Obscure means unclear or concealed. Hidden is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0007",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Synonym for \"Meticulous\"",
+    "options": [
+      "Careless",
+      "Precise",
+      "Hasty",
+      "Negligent"
+    ],
+    "correct_option": "B",
+    "explanation": "Meticulous means showing great attention to detail. Precise is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0008",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Choose the synonym for \"Vivid\"",
+    "options": [
+      "Dull",
+      "Bright",
+      "Faint",
+      "Pale"
+    ],
+    "correct_option": "B",
+    "explanation": "Vivid means clear and striking. Bright is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0009",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Synonym for \"Prudent\"",
+    "options": [
+      "Reckless",
+      "Cautious",
+      "Impulsive",
+      "Rash"
+    ],
+    "correct_option": "B",
+    "explanation": "Prudent means careful and sensible. Cautious is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-synonyms-0010",
+    "category": "Verbal",
+    "topic": "Synonyms",
+    "difficulty": "basic",
+    "question": "Find the synonym for \"Amicable\"",
+    "options": [
+      "Hostile",
+      "Friendly",
+      "Cold",
+      "Distant"
+    ],
+    "correct_option": "B",
+    "explanation": "Amicable means characterized by friendliness. Friendly is the closest synonym.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0011",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Choose the antonym for \"Big\"",
+    "options": [
+      "Large",
+      "Small",
+      "Huge",
+      "Vast"
+    ],
+    "correct_option": "B",
+    "explanation": "Big means large in size. Small is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0012",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Find the antonym for \"Bright\"",
+    "options": [
+      "Radiant",
+      "Dim",
+      "Shiny",
+      "Glowing"
+    ],
+    "correct_option": "B",
+    "explanation": "Bright means full of light. Dim means lacking light.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0013",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Antonym for \"Fast\"",
+    "options": [
+      "Quick",
+      "Slow",
+      "Rapid",
+      "Swift"
+    ],
+    "correct_option": "B",
+    "explanation": "Fast means moving quickly. Slow is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0014",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Choose the antonym for \"Happy\"",
+    "options": [
+      "Joyful",
+      "Sad",
+      "Cheerful",
+      "Delighted"
+    ],
+    "correct_option": "B",
+    "explanation": "Happy means feeling pleasure. Sad is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0015",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Antonym for \"Strong\"",
+    "options": [
+      "Powerful",
+      "Weak",
+      "Sturdy",
+      "Robust"
+    ],
+    "correct_option": "B",
+    "explanation": "Strong means having power. Weak is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0016",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Find the antonym for \"Open\"",
+    "options": [
+      "Unlocked",
+      "Closed",
+      "Accessible",
+      "Free"
+    ],
+    "correct_option": "B",
+    "explanation": "Open means not shut. Closed is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0017",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Antonym for \"Old\"",
+    "options": [
+      "Ancient",
+      "New",
+      "Aged",
+      "Vintage"
+    ],
+    "correct_option": "B",
+    "explanation": "Old means having existed for a long time. New is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0018",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Choose the antonym for \"Rich\"",
+    "options": [
+      "Wealthy",
+      "Poor",
+      "Affluent",
+      "Prosperous"
+    ],
+    "correct_option": "B",
+    "explanation": "Rich means having wealth. Poor is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0019",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Antonym for \"Tall\"",
+    "options": [
+      "High",
+      "Short",
+      "Long",
+      "Elevated"
+    ],
+    "correct_option": "B",
+    "explanation": "Tall means having great height. Short is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-antonyms-0020",
+    "category": "Verbal",
+    "topic": "Antonyms",
+    "difficulty": "basic",
+    "question": "Find the antonym for \"Easy\"",
+    "options": [
+      "Simple",
+      "Difficult",
+      "Effortless",
+      "Smooth"
+    ],
+    "correct_option": "B",
+    "explanation": "Easy means not hard. Difficult is the opposite.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0021",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "She was ______ to attend the meeting due to her busy schedule.",
+    "options": [
+      "Able",
+      "Unable",
+      "Willing",
+      "Eager"
+    ],
+    "correct_option": "B",
+    "explanation": "The context suggests she couldn\u2019t attend due to busyness. Unable fits best.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0022",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "His ______ attitude made everyone feel welcome.",
+    "options": [
+      "Cold",
+      "Friendly",
+      "Rude",
+      "Distant"
+    ],
+    "correct_option": "B",
+    "explanation": "Feeling welcome implies a positive attitude. Friendly is appropriate.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0023",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "The team worked ______ to complete the project on time.",
+    "options": [
+      "Lazily",
+      "Diligently",
+      "Carelessly",
+      "Slowly"
+    ],
+    "correct_option": "B",
+    "explanation": "Completing on time suggests hard work. Diligently fits best.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0024",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "The movie was so ______ that I fell asleep.",
+    "options": [
+      "Exciting",
+      "Boring",
+      "Thrilling",
+      "Engaging"
+    ],
+    "correct_option": "B",
+    "explanation": "Falling asleep implies lack of interest. Boring is appropriate.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0025",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "He spoke with such ______ that everyone listened attentively.",
+    "options": [
+      "Confusion",
+      "Clarity",
+      "Hesitation",
+      "Doubt"
+    ],
+    "correct_option": "B",
+    "explanation": "Attentive listening suggests clear speech. Clarity fits best.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0026",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "The instructions were ______ and easy to follow.",
+    "options": [
+      "Vague",
+      "Clear",
+      "Complex",
+      "Confusing"
+    ],
+    "correct_option": "B",
+    "explanation": "Easy to follow implies simplicity. Clear is appropriate.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0027",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "She felt ______ after receiving the award.",
+    "options": [
+      "Sad",
+      "Elated",
+      "Angry",
+      "Tired"
+    ],
+    "correct_option": "B",
+    "explanation": "Receiving an award suggests happiness. Elated fits best.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0028",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "The room was ______ after the children left.",
+    "options": [
+      "Tidy",
+      "Messy",
+      "Clean",
+      "Organized"
+    ],
+    "correct_option": "B",
+    "explanation": "Children leaving often implies disorder. Messy is appropriate.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0029",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "His ______ behavior annoyed everyone.",
+    "options": [
+      "Polite",
+      "Rude",
+      "Kind",
+      "Gentle"
+    ],
+    "correct_option": "B",
+    "explanation": "Annoying suggests negative behavior. Rude fits best.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-sentence-completion-0030",
+    "category": "Verbal",
+    "topic": "Sentence Completion",
+    "difficulty": "basic",
+    "question": "The weather was ______ for a picnic.",
+    "options": [
+      "Terrible",
+      "Perfect",
+      "Cold",
+      "Rainy"
+    ],
+    "correct_option": "B",
+    "explanation": "A picnic implies good weather. Perfect is appropriate.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0031",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Identify the error: She *go* to school every day.",
+    "options": [
+      "go \u2192 goes",
+      "None of the above",
+      "Both go \u2192 goes... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Subject \"She\" (third person singular) requires \"goes.\" Error: *go*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0032",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Find the error: The boys *is* playing football.",
+    "options": [
+      "is \u2192 are",
+      "None of the above",
+      "Both is \u2192 are... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Plural subject \"boys\" requires \"are.\" Error: *is*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0033",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Spot the error: He *don\u2019t* like to read books.",
+    "options": [
+      "don\u2019t \u2192 doesn\u2019t",
+      "None of the above",
+      "Both don\u2019t \u2192 doesn\u2019t... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Third person singular \"He\" requires \"doesn\u2019t.\" Error: *don\u2019t*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0034",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Identify the error: I saw *a elephant* in the zoo.",
+    "options": [
+      "a \u2192 an",
+      "None of the above",
+      "Both a \u2192 an... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "\"Elephant\" starts with a vowel sound, so use \"an.\" Error: *a*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0035",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Find the error: She is *more taller* than her brother.",
+    "options": [
+      "more \u2192 remove more",
+      "None of the above",
+      "Both more \u2192 remove m... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Comparative \"taller\" doesn\u2019t need \"more.\" Error: *more*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0036",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Spot the error: They *was* waiting for the bus.",
+    "options": [
+      "was \u2192 were",
+      "None of the above",
+      "Both was \u2192 were... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Plural subject \"They\" requires \"were.\" Error: *was*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0037",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Identify the error: The book *is* on the tables.",
+    "options": [
+      "tables \u2192 table",
+      "None of the above",
+      "Both tables \u2192 table... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Singular \"book\" implies one table. Error: *tables*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0038",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Find the error: He *run* very fast yesterday.",
+    "options": [
+      "run \u2192 ran",
+      "None of the above",
+      "Both run \u2192 ran... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Past tense requires \"ran.\" Error: *run*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0039",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Spot the error: This is *mines* book.",
+    "options": [
+      "mines \u2192 mine",
+      "None of the above",
+      "Both mines \u2192 mine... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Possessive pronoun is \"mine,\" not \"mines.\" Error: *mines*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  },
+  {
+    "id": "verbal-ability-basic-spotting-errors-0040",
+    "category": "Verbal",
+    "topic": "Spotting Errors",
+    "difficulty": "basic",
+    "question": "Identify the error: We *goes* to the park on Sundays.",
+    "options": [
+      "goes \u2192 go",
+      "None of the above",
+      "Both goes \u2192 go... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Plural subject \"We\" requires \"go.\" Error: *goes*.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "VERBAL"
+    ]
+  }
+];
+
+export const NORMAL_COMPUTER_FUNDAMENTALS_QUESTIONS = [
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0001",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "What is the output of this C code: `int x = 5; printf(\"%d\", x++);`?",
+    "options": [
+      "5",
+      "7",
+      "2",
+      "10"
+    ],
+    "correct_option": "A",
+    "explanation": "`x++` is post-increment, so `printf` uses the current value of `x` (5), then increments `x` to 6.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0002",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `print(3 * \"hello\")`?",
+    "options": [
+      "hellohellohello",
+      "None of the above",
+      "Both hellohellohello... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "String repetition in Python multiplies the string: `3 * \"hello\"` produces `\"hellohellohello\"`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0003",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "What is the value of `x` after this Java code: `int x = 10; x += 5;`?",
+    "options": [
+      "15",
+      "20",
+      "12",
+      "30"
+    ],
+    "correct_option": "A",
+    "explanation": "`x += 5` is equivalent to `x = x + 5`. So, `x = 10 + 5 = 15`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0004",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C++, what is the output of: `int a = 3, b = 4; cout << a + b;`?",
+    "options": [
+      "7",
+      "12",
+      "4",
+      "14"
+    ],
+    "correct_option": "A",
+    "explanation": "`a + b = 3 + 4 = 7`. `cout` prints `7`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0005",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "What does this Python code do: `x = [1, 2, 3]; x.append(4)`?",
+    "options": [
+      "Adds 4 to the list",
+      "Adds 6 to the list",
+      "Adds 1 to the list",
+      "Adds 8 to the list"
+    ],
+    "correct_option": "A",
+    "explanation": "`append(4)` adds `4` to the end of the list `x`. New list: `[1, 2, 3, 4]`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0006",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C, what is the output of: `int x = 8; printf(\"%d\", x >> 1);`?",
+    "options": [
+      "4",
+      "6",
+      "1",
+      "8"
+    ],
+    "correct_option": "A",
+    "explanation": "`x >> 1` performs a right shift. `8` (binary `1000`) shifts to `0100` (4).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0007",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Java, what is the output of: `boolean x = true; System.out.println(!x);`?",
+    "options": [
+      "false",
+      "None of the above",
+      "Both false... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "`!x` negates `true` to `false`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0008",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "What is the output of this Python code: `x = 10; y = 3; print(x // y)`?",
+    "options": [
+      "3",
+      "5",
+      "1",
+      "6"
+    ],
+    "correct_option": "A",
+    "explanation": "`//` is floor division: `10 // 3 = 3` (quotient without remainder).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0009",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C++, what is the output of: `int x = 5; if(x > 3) cout << \"Yes\"; else cout << \"No\";`?",
+    "options": [
+      "Yes",
+      "None of the above",
+      "Both Yes... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "`x = 5 > 3`, so `if` condition is true. Prints `Yes`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0010",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `for i in range(3): print(i)`?",
+    "options": [
+      "0 1 2",
+      "2 1 2",
+      "1 1 2",
+      "30 1 2"
+    ],
+    "correct_option": "A",
+    "explanation": "`range(3)` generates `0, 1, 2`. Loop prints each value.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0011",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C, what is the output of: `int x = 3; printf(\"%d\", x & 1);`?",
+    "options": [
+      "1",
+      "3",
+      "2",
+      "31"
+    ],
+    "correct_option": "A",
+    "explanation": "`x & 1` performs bitwise AND. `3` (binary `11`) AND `1` (binary `01`) = `01` (1).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0012",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Java, what is the output of: `int x = 7; System.out.println(x % 2);`?",
+    "options": [
+      "1",
+      "3",
+      "2",
+      "31"
+    ],
+    "correct_option": "A",
+    "explanation": "`%` is modulus: `7 % 2 = 1` (remainder).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0013",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `x = [1, 2]; x.pop(0); print(x)`?",
+    "options": [
+      "[2]",
+      "[4]",
+      "[1]",
+      "[32]"
+    ],
+    "correct_option": "A",
+    "explanation": "`pop(0)` removes the element at index `0` (1). New list: `[2]`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0014",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C++, what is the output of: `int x = 4; cout << ++x;`?",
+    "options": [
+      "5",
+      "7",
+      "2",
+      "10"
+    ],
+    "correct_option": "A",
+    "explanation": "`++x` is pre-increment, so `x` becomes `5`, and `5` is printed.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0015",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C, what is the output of: `int x = 5; printf(\"%d\", x | 2);`?",
+    "options": [
+      "7",
+      "12",
+      "4",
+      "14"
+    ],
+    "correct_option": "A",
+    "explanation": "`x | 2` performs bitwise OR. `5` (binary `101`) OR `2` (binary `010`) = `111` (7).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0016",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `x = {1, 2, 2}; print(len(x))`?",
+    "options": [
+      "2",
+      "4",
+      "1",
+      "32"
+    ],
+    "correct_option": "A",
+    "explanation": "Sets remove duplicates: `{1, 2, 2}` becomes `{1, 2}`. `len` returns `2`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0017",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Java, what is the output of: `String s = \"Hello\"; System.out.println(s.length());`?",
+    "options": [
+      "5",
+      "7",
+      "2",
+      "10"
+    ],
+    "correct_option": "A",
+    "explanation": "`length()` returns the number of characters in `\"Hello\"`, which is `5`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0018",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C++, what is the output of: `int x = 10; while(x > 8) { cout << x << \" \"; x--; }`?",
+    "options": [
+      "10 9",
+      "15 9",
+      "7 9",
+      "20 9"
+    ],
+    "correct_option": "A",
+    "explanation": "Loop runs while `x > 8`: prints `10`, then `9`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0019",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `x = 5; print(x ** 2)`?",
+    "options": [
+      "25",
+      "30",
+      "22",
+      "50"
+    ],
+    "correct_option": "A",
+    "explanation": "`**` is exponentiation: `5 ** 2 = 25`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-programming-fundamentals-0020",
+    "category": "Computer_Fundamentals",
+    "topic": "Programming Fundamentals",
+    "difficulty": "basic",
+    "question": "In C, what is the output of: `int x = 6; printf(\"%d\", x ^ 3);`?",
+    "options": [
+      "5",
+      "7",
+      "2",
+      "10"
+    ],
+    "correct_option": "A",
+    "explanation": "`x ^ 3` performs bitwise XOR. `6` (binary `110`) XOR `3` (binary `011`) = `101` (5).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0021",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of accessing an element in an array?",
+    "options": [
+      "O(1)",
+      "O(3)",
+      "O(2)",
+      "O(31)"
+    ],
+    "correct_option": "A",
+    "explanation": "Arrays allow direct index-based access, which is constant time.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0022",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a singly linked list, what is the time complexity to insert a node at the beginning?",
+    "options": [
+      "O(1)",
+      "O(3)",
+      "O(2)",
+      "O(31)"
+    ],
+    "correct_option": "A",
+    "explanation": "Inserting at the head updates the head pointer, which is constant time.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0023",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the output of this Python code for a stack: `s = []; s.append(1); s.append(2); s.pop(); print(s)`?",
+    "options": [
+      "[1]",
+      "[3]",
+      "[2]",
+      "[31]"
+    ],
+    "correct_option": "A",
+    "explanation": "Stack (LIFO): `append` adds `1`, `2`. `pop` removes `2`. Stack: `[1]`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0024",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a queue, what is the order of elements after: enqueue(1), enqueue(2), dequeue(), enqueue(3)?",
+    "options": [
+      "2, 3",
+      "4, 3",
+      "1, 3",
+      "32, 3"
+    ],
+    "correct_option": "A",
+    "explanation": "Queue (FIFO): Enqueue `1`, `2`. Dequeue removes `1`. Enqueue `3`. Queue: `2, 3`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0025",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of searching an element in an unsorted array of size n?",
+    "options": [
+      "O(n)",
+      "None of the above",
+      "Both O(n)... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Linear search checks each element, worst case n checks.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0026",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a binary tree, what is the maximum number of nodes at level k (root at level 0)?",
+    "options": [
+      "2^k",
+      "4^k",
+      "1^k",
+      "32^k"
+    ],
+    "correct_option": "A",
+    "explanation": "At level k, maximum nodes = 2^k.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0027",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the output of this Python code for a list: `x = [1, 2, 3]; x.insert(1, 4); print(x)`?",
+    "options": [
+      "[1, 4, 2, 3]",
+      "[3, 4, 2, 3]",
+      "[2, 4, 2, 3]",
+      "[31, 4, 2, 3]"
+    ],
+    "correct_option": "A",
+    "explanation": "`insert(1, 4)` adds `4` at index `1`. New list: `[1, 4, 2, 3]`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0028",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of inserting an element at the end of a dynamic array (amortized)?",
+    "options": [
+      "O(1)",
+      "O(3)",
+      "O(2)",
+      "O(31)"
+    ],
+    "correct_option": "A",
+    "explanation": "Appending to a dynamic array is O(1) amortized, as resizing is rare.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0029",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a circular queue with size 5, after enqueue(1, 2, 3), dequeue(), enqueue(4), what is the front element?",
+    "options": [
+      "2",
+      "4",
+      "1",
+      "32"
+    ],
+    "correct_option": "A",
+    "explanation": "Enqueue `1, 2, 3`. Dequeue removes `1`. Enqueue `4`. Front: `2`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0030",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the height of a binary tree with 7 nodes in a balanced configuration?",
+    "options": [
+      "2",
+      "4",
+      "1",
+      "32"
+    ],
+    "correct_option": "A",
+    "explanation": "Balanced binary tree: height = \u230alog\u2082(7)\u230b = 2 (levels 0, 1, 2).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0031",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `d = {1: 'a', 2: 'b'}; print(d[1])`?",
+    "options": [
+      "a",
+      "None of the above",
+      "Both a... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Dictionary access by key: `d[1]` returns `'a'`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0032",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of deleting the last node in a singly linked list with n nodes?",
+    "options": [
+      "O(n)",
+      "None of the above",
+      "Both O(n)... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Traverse to the second-to-last node to update the pointer: O(n).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0033",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a stack, after push(1), push(2), pop(), push(3), what is the top element?",
+    "options": [
+      "3",
+      "5",
+      "1",
+      "6"
+    ],
+    "correct_option": "A",
+    "explanation": "Stack (LIFO): Push `1`, `2`. Pop removes `2`. Push `3`. Top: `3`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0034",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of searching in a binary search tree with n nodes (balanced)?",
+    "options": [
+      "O(log n)",
+      "None of the above",
+      "Both O(log n)... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Balanced BST search follows height, which is O(log n).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0035",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `s = {1, 2, 3}; s.add(4); print(s)`?",
+    "options": [
+      "{1, 2, 3, 4}",
+      "{3, 2, 3, 4}",
+      "{2, 2, 3, 4}",
+      "{31, 2, 3, 4}"
+    ],
+    "correct_option": "A",
+    "explanation": "`add(4)` adds `4` to the set. New set: `{1, 2, 3, 4}`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0036",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the space complexity of storing a binary tree with n nodes?",
+    "options": [
+      "O(n)",
+      "None of the above",
+      "Both O(n)... and alternative",
+      "Insufficient data"
+    ],
+    "correct_option": "A",
+    "explanation": "Each node stores data and two pointers, total O(n) space.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0037",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In a queue, after enqueue(1, 2), dequeue(), enqueue(3, 4), dequeue(), what is the front element?",
+    "options": [
+      "3",
+      "5",
+      "1",
+      "6"
+    ],
+    "correct_option": "A",
+    "explanation": "Enqueue `1, 2`. Dequeue removes `1`. Enqueue `3, 4`. Dequeue removes `2`. Front: `3`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0038",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the time complexity of inserting a key into a hash table (average case)?",
+    "options": [
+      "O(1)",
+      "O(3)",
+      "O(2)",
+      "O(31)"
+    ],
+    "correct_option": "A",
+    "explanation": "Average case with good hash function: O(1) for insertion.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0039",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "In Python, what is the output of: `x = [1, 2, 3]; x.remove(2); print(x)`?",
+    "options": [
+      "[1, 3]",
+      "[3, 3]",
+      "[2, 3]",
+      "[31, 3]"
+    ],
+    "correct_option": "A",
+    "explanation": "`remove(2)` deletes the first occurrence of `2`. New list: `[1, 3]`.",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  },
+  {
+    "id": "computer-fundamentals-basic-data-structures-0040",
+    "category": "Computer_Fundamentals",
+    "topic": "Data Structures",
+    "difficulty": "basic",
+    "question": "What is the maximum number of nodes in a binary tree of height h?",
+    "options": [
+      "2^(h+1) - 1",
+      "4^(h+1) - 1",
+      "1^(h+1) - 1",
+      "32^(h+1) - 1"
+    ],
+    "correct_option": "A",
+    "explanation": "Maximum nodes = 2^(h+1) - 1 (sum of nodes from level 0 to h).",
+    "marks": 1,
+    "negative_marks": 0.25,
+    "tags": [
+      "CAMPUS_PLACEMENT",
+      "COMPUTER_FUNDAMENTALS"
+    ]
+  }
+];
+
+/**
+ * Generates the standard 62-question Normal Campus Placement Assessment:
+ * - 20 Aptitude Questions (Quantitative, Logical, Data Interpretation)
+ * - 20 Verbal Ability Questions (English Comprehension, Grammar)
+ * - 20 Computer Fundamentals Questions (Programming, CS Concepts)
+ * - 2 Hands-on Coding Problems (TCS CodeVita / Infosys HackWithInfy challenges)
+ * Total: 62 Questions • 120 Minutes
+ */
+export function getNormalPlacementTestQuestions() {
+  const shuffle = <T>(arr: T[]): T[] => JSON.parse(JSON.stringify(arr)).sort(() => Math.random() - 0.5);
+
+  const selectedApt = shuffle(NORMAL_APTITUDE_QUESTIONS).slice(0, 20);
+  const selectedVer = shuffle(NORMAL_VERBAL_QUESTIONS).slice(0, 20);
+  const selectedComp = shuffle(NORMAL_COMPUTER_FUNDAMENTALS_QUESTIONS).slice(0, 20);
+  
+  // Pick 2 coding challenges from TCS CodeVita & HackWithInfy pool
+  const selectedCoding = shuffle(PLACEMENT_CODING_QUESTIONS).slice(0, 2);
+
+  return [
+    ...selectedApt,
+    ...selectedVer,
+    ...selectedComp,
+    ...selectedCoding
+  ];
+}

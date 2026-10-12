@@ -62,6 +62,7 @@ backend/data/raw_calculus/
 backend/data/chunks/
 backend/data/embeddings/
 backend/data/*.json
+!backend/data/placement_coding_questions.json
 
 # Local virtualenvs and build artifacts
 backend/scraper/venv/

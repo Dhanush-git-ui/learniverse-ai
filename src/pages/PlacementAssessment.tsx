@@ -7,7 +7,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { lookupStudentLocally } from '@/data/studentsRoster';
-import { getLocalQuestionsForRole } from '@/data/assessmentQuestions';
+import { getLocalQuestionsForRole, getNormalPlacementTestQuestions } from '@/data/assessmentQuestions';
 
 interface Question {
   id: string;
@@ -1050,9 +1050,9 @@ export default function PlacementAssessment() {
     localStorage.setItem('learniverse_student_branch', branch);
     localStorage.setItem('learniverse_assessment_user_id', cleanRoll);
 
-    // 1. Instantly prepare local candidate role and question pool
-    const roleToUse = assignedRole || lookupStudentLocally(cleanRoll)?.role || 'AI Engineer Intern';
-    const localQs = getLocalQuestionsForRole(roleToUse);
+    // 1. Instantly prepare local question pool for standard Campus Placement Assessment
+    const roleToUse = 'Campus Placement Assessment';
+    const localQs = getNormalPlacementTestQuestions();
     const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
 
     setAttemptId(localAttemptId);
@@ -1281,18 +1281,8 @@ export default function PlacementAssessment() {
     }
   }, [currentQuestion?.id, selectedLang, step]);
 
-  // Auto-upgrade session questions if scenarios are missing from a legacy session
-  useEffect(() => {
-    if (step === 'test' && questions.length > 0) {
-      const hasScenarios = questions.some(q => q.category === 'Real-World Scenarios' || q.question_type === 'scenario');
-      if (!hasScenarios) {
-        const fresh = getLocalQuestionsForRole(assignedRole || 'AI Engineer Intern');
-        if (fresh && fresh.length > 0) {
-          setQuestions(fresh);
-        }
-      }
-    }
-  }, [step, questions.length, assignedRole]);
+  // Ready for placement assessment
+
 
   function handleNext() {
     if (currentIdx < activeQs.length - 1) {
@@ -3267,8 +3257,8 @@ export default function PlacementAssessment() {
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">1. PLACEMENT OFFERINGS</h2>
               
               <div className="bg-white border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition-all shadow-xs">
-                <span className="font-bold text-xs text-blue-600 block">Screening Benchmark</span>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">20 focused domain MCQs evaluating real-world technical competency and algorithmic foundation.</p>
+                <span className="font-bold text-xs text-blue-600 block">Placement Benchmark</span>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">62 comprehensive questions: 20 Aptitude, 20 Verbal, 20 Computer Fundamentals, and 2 Hands-on Coding Challenges.</p>
               </div>
 
               <div className="bg-white border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition-all shadow-xs">
@@ -3448,45 +3438,16 @@ export default function PlacementAssessment() {
               </div>
             )}
 
-            {/* Display Role Badge when Verified / Fallback Selector */}
-            {assignedRole && rollNumber ? (
-              <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-xs text-slate-900 flex items-center justify-between animate-fade-in shadow-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">🎯</span>
-                  <span>Assigned Assessment Role: <strong className="text-black font-bold">{assignedRole}</strong></span>
-                </div>
-                <select
-                  value={assignedRole}
-                  onChange={(e) => setAssignedRole(e.target.value)}
-                  className="bg-white border border-slate-300 text-blue-600 text-[11px] font-bold rounded-lg px-2 py-1 outline-none cursor-pointer hover:bg-slate-50 shadow-xs"
-                  title="Change track if needed"
-                >
-                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
-                  <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
-                  <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
-                  <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
-                  <option value="DevOps Intern">🚀 DevOps Intern</option>
-                </select>
+            {/* Standard Placement Track Indicator */}
+            <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-xs text-slate-900 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🎯</span>
+                <span>Assessment Track: <strong className="text-blue-600 font-bold">Standard Campus Placement Test</strong></span>
               </div>
-            ) : (
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">🎯</span>
-                  <span className="font-semibold text-slate-800">Assessment Track / Role:</span>
-                </div>
-                <select
-                  value={assignedRole || 'Technology & Growth Intern'}
-                  onChange={(e) => setAssignedRole(e.target.value)}
-                  className="bg-white border border-slate-300 text-slate-800 font-bold text-xs rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm"
-                >
-                  <option value="Technology & Growth Intern">📈 Technology & Growth Intern</option>
-                  <option value="AI Engineer Intern">🤖 AI Engineer Intern</option>
-                  <option value="Backend & Full Stack Intern">⚙️ Backend & Full Stack Intern</option>
-                  <option value="Mobile App Developer Intern">📱 Mobile App Developer Intern</option>
-                  <option value="DevOps Intern">🚀 DevOps Intern</option>
-                </select>
-              </div>
-            )}
+              <span className="bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-extrabold px-2.5 py-1 rounded-md">
+                62 Qs • 120 Mins
+              </span>
+            </div>
 
             {/* Branch / Department selector */}
             <div className="pt-2">

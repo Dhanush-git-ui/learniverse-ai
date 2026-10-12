@@ -781,6 +781,24 @@ def _load_local_json_fallback_questions() -> List[Dict]:
             for item in data:
                 raw_cat = item.get("category_label") or item.get("category") or ""
                 target_cat = cat_map.get(raw_cat, "Aptitude")
+                
+                # Accurately resolve correct_option from answer & options
+                ans_str = str(item.get("answer") or "").strip()
+                opts = [str(o).strip() for o in (item.get("options") or [])]
+                c_opt = item.get("correct_option")
+                if not c_opt:
+                    m = re.match(r'^([A-D])[\)\.\:\s]', ans_str, re.IGNORECASE)
+                    if m:
+                        c_opt = m.group(1).upper()
+                    elif ans_str in opts:
+                        c_opt = chr(ord('A') + opts.index(ans_str))
+                    else:
+                        clean_ans = re.sub(r'^[A-D][\)\.\:\s]+', '', ans_str).strip()
+                        if clean_ans in opts:
+                            c_opt = chr(ord('A') + opts.index(clean_ans))
+                        else:
+                            c_opt = "A"
+
                 q_dict = {
                     "id": str(item.get("id")),
                     "category": target_cat,
@@ -788,8 +806,8 @@ def _load_local_json_fallback_questions() -> List[Dict]:
                     "subtopic": item.get("topic"),
                     "difficulty": item.get("difficulty") or "Easy",
                     "question": item.get("question", ""),
-                    "options": item.get("options") or [],
-                    "correct_option": item.get("correct_option") or "A",
+                    "options": opts,
+                    "correct_option": c_opt,
                     "answer": item.get("answer"),
                     "explanation": item.get("solution") or item.get("explanation", ""),
                     "marks": item.get("marks", 1),
@@ -821,6 +839,17 @@ def _load_local_json_fallback_questions() -> List[Dict]:
                     }
                     flat_qs.append(q_dict)
 
+        # Load Placement Coding Problems (TCS CodeVita, HackWithInfy, Placement Sets)
+        placement_coding_path = os.path.join(os.path.dirname(__file__), "../data/placement_coding_questions.json")
+        if os.path.exists(placement_coding_path):
+            try:
+                with open(placement_coding_path, "r", encoding="utf-8") as pcf:
+                    pc_data = json.load(pcf)
+                    for pc in pc_data:
+                        flat_qs.append(pc)
+            except Exception as e:
+                print(f"[OFFLINE FALLBACK] Error loading placement coding questions: {e}")
+
         # Load Coding problems from data/topics
         topics_dir = os.path.join(os.path.dirname(__file__), "../data/topics")
         if os.path.exists(topics_dir):
@@ -835,14 +864,14 @@ def _load_local_json_fallback_questions() -> List[Dict]:
                                     "category": "Coding",
                                     "topic": cp.get("title") or tdata.get("topic", "Coding"),
                                     "difficulty": cp.get("difficulty", "Easy"),
-                                    "question": cp.get("description", ""),
+                                    "question": cp.get("statement") or cp.get("description", ""),
                                     "options": [],
                                     "correct_option": None,
                                     "examples": cp.get("examples", []),
                                     "answer": json.dumps({
-                                        "optimal_code": cp.get("solution_optimal", {}).get("python", ""),
-                                        "brute_code": cp.get("solution_regular", {}).get("python", ""),
-                                        "time_complexity": cp.get("solution_optimal", {}).get("time_complexity", "O(N)")
+                                        "optimal_code": cp.get("solution_optimal", {}).get("python", "") or cp.get("solution_optimal", {}).get("code", ""),
+                                        "brute_code": cp.get("solution_regular", {}).get("python", "") or cp.get("solution_regular", {}).get("code", ""),
+                                        "time_complexity": cp.get("solution_optimal", {}).get("time_complexity", "O(N)") or cp.get("solution_optimal", {}).get("time", "O(N)")
                                     }),
                                     "marks": 10,
                                     "negative_marks": 0.0
@@ -1168,35 +1197,40 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
     )
     active_session = db.fetchone()
     if active_session:
-        start_t = active_session.get("start_time")
-        if start_t:
-            if isinstance(start_t, str):
-                try:
-                    start_t = datetime.fromisoformat(start_t.replace("Z", "+00:00"))
-                except Exception:
-                    start_t = datetime.now(timezone.utc)
-            if start_t.tzinfo is None:
-                start_t = start_t.replace(tzinfo=timezone.utc)
-            elapsed = datetime.now(timezone.utc) - start_t
+        saved_questions = _make_json_serializable(active_session.get("questions") or [])
+        has_scenarios = any(q.get("category") == "Real-World Scenarios" or q.get("question_type") == "scenario" for q in saved_questions)
+        # If active session was an old internship/scenario test or empty, discard and start clean placement test
+        if not saved_questions or has_scenarios or len(saved_questions) < 50:
+            active_session = None
         else:
-            elapsed = timedelta(seconds=0)
-        remaining = 7200 - int(elapsed.total_seconds())
-        if remaining > 0:
-            saved_questions = _make_json_serializable(active_session.get("questions") or [])
-            sanitized_qs = _sanitize_questions_for_candidate(saved_questions)
-            return {
-                "attempt_id": str(active_session["session_id"]),
-                "session_id": str(active_session["session_id"]),
-                "duration": remaining,
-                "questions": sanitized_qs,
-                "roll_number": clean_roll,
-                "student_name": active_session.get("student_name", req.student_name),
-                "branch": active_session.get("branch", req.branch),
-                "saved_answers": active_session.get("answers") or {},
-                "saved_coding_submissions": active_session.get("coding_submissions") or {}
-            }
+            start_t = active_session.get("start_time")
+            if start_t:
+                if isinstance(start_t, str):
+                    try:
+                        start_t = datetime.fromisoformat(start_t.replace("Z", "+00:00"))
+                    except Exception:
+                        start_t = datetime.now(timezone.utc)
+                if start_t.tzinfo is None:
+                    start_t = start_t.replace(tzinfo=timezone.utc)
+                elapsed = datetime.now(timezone.utc) - start_t
+            else:
+                elapsed = timedelta(seconds=0)
+            remaining = 7200 - int(elapsed.total_seconds())
+            if remaining > 0:
+                sanitized_qs = _sanitize_questions_for_candidate(saved_questions)
+                return {
+                    "attempt_id": str(active_session["session_id"]),
+                    "session_id": str(active_session["session_id"]),
+                    "duration": remaining,
+                    "questions": sanitized_qs,
+                    "roll_number": clean_roll,
+                    "student_name": active_session.get("student_name", req.student_name),
+                    "branch": active_session.get("branch", req.branch),
+                    "saved_answers": active_session.get("answers") or {},
+                    "saved_coding_submissions": active_session.get("coding_submissions") or {}
+                }
 
-       # 1. Look up student in roster to find their registered role and details
+    # 1. Look up student in roster to find their registered details
     roster = _get_roster()
     clean_alphanumeric = re.sub(r'[^A-Z0-9]', '', clean_roll)
     registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == clean_alphanumeric), None)
@@ -1210,42 +1244,33 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
         cand_fixed = "25" + clean_alphanumeric[1:]
         registered = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_fixed), None)
 
-    assigned_role = registered.get("role", "AI Engineer Intern") if registered else "AI Engineer Intern"
+    assigned_role = "Campus Placement Assessment"
     student_name = registered.get("name", req.student_name or "Candidate") if registered else (req.student_name or "Candidate")
     branch = registered.get("branch", req.branch or "CSE") if registered else (req.branch or "CSE")
 
-    # 2. Select the specific question file for the student's role
-    role_lower = assigned_role.lower()
-    if "ai" in role_lower or "artificial" in role_lower:
-        q_file = os.path.join(os.path.dirname(__file__), "../data/ai_engineer_questions.json")
-    elif "backend" in role_lower or "full stack" in role_lower or "fullstack" in role_lower or "frontend" in role_lower or "front-end" in role_lower:
-        q_file = os.path.join(os.path.dirname(__file__), "../data/backend_fullstack_questions.json")
-    elif "devops" in role_lower:
-        q_file = os.path.join(os.path.dirname(__file__), "../data/devops_questions.json")
+    # 2. Sample standard 62-question placement assessment:
+    # 20 Aptitude, 20 Verbal, 20 Computer Fundamentals, 2 Coding
+    pool = _get_all_questions_cached(db)
+
+    aptitude_qs = _sample_questions_by_difficulty(pool, "Aptitude", 20)
+    verbal_qs = _sample_questions_by_difficulty(pool, "Verbal", 20)
+    comp_qs = _sample_questions_by_difficulty(pool, "Computer_Fundamentals", 20)
+
+    coding_pool = [q for q in pool if q.get("category") == "Coding"]
+    if len(coding_pool) >= 2:
+        coding_qs = random.sample(coding_pool, 2)
     else:
-        q_file = os.path.join(os.path.dirname(__file__), "../data/react_native_questions.json")
+        coding_qs = coding_pool
 
-    if os.path.exists(q_file):
-        with open(q_file, "r", encoding="utf-8") as f:
-            pool = json.load(f)
-    else:
-        q_fallback = os.path.join(os.path.dirname(__file__), "../data/ai_engineer_questions.json")
-        with open(q_fallback, "r", encoding="utf-8") as f:
-            pool = json.load(f)
+    prepared_apt = [_prepare_candidate_question(dict(q)) for q in aptitude_qs]
+    prepared_ver = [_prepare_candidate_question(dict(q)) for q in verbal_qs]
+    prepared_comp = [_prepare_candidate_question(dict(q)) for q in comp_qs]
 
-    # 3. Separate MCQs and Scenarios: Randomize MCQs, keep Scenarios in order at the end
-    mcqs = [q for q in pool if q.get("category") != "Real-World Scenarios" and q.get("question_type") != "scenario"]
-    scenarios = [q for q in pool if q.get("category") == "Real-World Scenarios" or q.get("question_type") == "scenario"]
-
-    candidate_mcqs = [_prepare_candidate_question(dict(q)) for q in mcqs]
-    random.shuffle(candidate_mcqs)
-
-    candidate_questions = candidate_mcqs + scenarios
-
+    candidate_questions = prepared_apt + prepared_ver + prepared_comp + coding_qs
     serializable_candidate_qs = _make_json_serializable(candidate_questions)
     session_id = str(uuid.uuid4())
 
-    # 5. Save the candidate's randomized sequence to the database
+    # 3. Save the candidate's sequence to the database
     db.execute(
         """
         INSERT INTO test_sessions (
@@ -1269,11 +1294,11 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
 
     sanitized_qs = _sanitize_questions_for_candidate(serializable_candidate_qs)
 
-    # 6. Return sanitized test payload (3600 seconds = 60 minutes)
+    # 4. Return sanitized test payload (7200 seconds = 120 minutes)
     return {
         "attempt_id": session_id,
         "session_id": session_id,
-        "duration": 3600,
+        "duration": 7200,
         "role": assigned_role,
         "questions": sanitized_qs,
         "roll_number": clean_roll,
