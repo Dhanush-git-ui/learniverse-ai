@@ -297,11 +297,10 @@ export default function PlacementAssessment() {
   const [branch, setBranch] = useState<string>('CSE');
   const [isCandidateVerified, setIsCandidateVerified] = useState<boolean>(false);
 
-  // Reactive auto-fill: When rollNumber changes, lookup from roster & backend
+  // Reactive lookup for role and branch when rollNumber changes (Candidate name is not auto-synced)
   useEffect(() => {
     const raw = (rollNumber || '').trim();
     if (!raw || raw.length < 4) {
-      setStudentName('');
       setAssignedRole(null);
       setIsCandidateVerified(false);
       return;
@@ -309,10 +308,8 @@ export default function PlacementAssessment() {
 
     const match = lookupStudentLocally(raw);
     if (match) {
-      setStudentName(match.name);
       setAssignedRole(match.role);
       setIsCandidateVerified(true);
-      if (studentNameError) setStudentNameError(null);
       if (rollNumberError) setRollNumberError(null);
       if (match.branch) {
         const b = match.branch.toLowerCase();
@@ -333,10 +330,8 @@ export default function PlacementAssessment() {
         .then(r => r.json())
         .then(data => {
           if (data && data.found && data.student) {
-            setStudentName(data.student.name);
             setAssignedRole(data.student.role);
             setIsCandidateVerified(true);
-            if (studentNameError) setStudentNameError(null);
             if (rollNumberError) setRollNumberError(null);
             if (data.student.branch) {
               const b = data.student.branch.toLowerCase();
@@ -954,7 +949,7 @@ export default function PlacementAssessment() {
         const data = await res.json();
         if (data.found) {
           setCandidateLookupResult(data);
-          setStudentName(data.candidate.full_name);
+          // Do not overwrite candidate full name - student enters and owns their own name
           setRollNumber(data.candidate.roll_number);
           if (data.candidate.assigned_role) {
             setAssignedRole(data.candidate.assigned_role);
@@ -1025,8 +1020,7 @@ export default function PlacementAssessment() {
   const startAssessmentSession = async (rollToUse?: string, nameToUse?: string): Promise<boolean> => {
     const rawRoll = rollToUse !== undefined ? rollToUse : rollNumber;
     const cleanRoll = rawRoll.trim().toUpperCase();
-    const localMatch = lookupStudentLocally(cleanRoll);
-    const rawName = nameToUse !== undefined ? nameToUse : (studentName || localMatch?.name || 'Candidate');
+    const rawName = nameToUse !== undefined ? nameToUse : studentName;
     const cleanName = rawName.trim();
     
     let hasErr = false;
@@ -1038,6 +1032,13 @@ export default function PlacementAssessment() {
       hasErr = true;
     } else {
       setRollNumberError(null);
+    }
+
+    if (!cleanName) {
+      setStudentNameError("Please enter your Full Name before starting.");
+      hasErr = true;
+    } else {
+      setStudentNameError(null);
     }
 
     if (hasErr) return false;
@@ -1094,7 +1095,7 @@ export default function PlacementAssessment() {
           setAttemptId(data.attempt_id);
           setQuestions(data.questions);
           if (data.role) setAssignedRole(data.role);
-          if (data.student_name) setStudentName(data.student_name);
+          if (data.student_name && !cleanName) setStudentName(data.student_name);
           if (data.saved_answers && Object.keys(data.saved_answers).length > 0) {
             setAnswers(data.saved_answers);
           }
@@ -3348,13 +3349,7 @@ export default function PlacementAssessment() {
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>👤 Candidate Full Name</span>
-                  {studentName ? (
-                    <span className="text-emerald-600 font-semibold text-[11px] flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Auto-Identified from Roster
-                    </span>
-                  ) : (
-                    <span className="text-slate-400 font-medium text-[11px]">Auto-fills from Roll Number</span>
-                  )}
+                  <span className="text-rose-500 font-semibold text-[11px]">* Required</span>
                 </label>
                 <div className="relative">
                   <input 
@@ -3364,14 +3359,9 @@ export default function PlacementAssessment() {
                       setStudentName(e.target.value);
                       if (studentNameError) setStudentNameError(null);
                     }}
-                    placeholder="Candidate Full Name (auto-fills when roll number is entered)"
+                    placeholder="Enter your Full Name"
                     className="w-full bg-white border border-slate-300 p-3 font-semibold text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-xl transition-all shadow-sm"
                   />
-                  {studentName && (
-                    <span className="absolute right-3 top-3.5 text-xs text-blue-700 font-bold bg-white px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1 shadow-2xs">
-                      ✓ Confirmed
-                    </span>
-                  )}
                 </div>
                 {studentNameError && (
                   <p className="text-[11px] font-medium text-rose-500 mt-1 font-mono">⚠️ {studentNameError}</p>
@@ -3406,7 +3396,7 @@ export default function PlacementAssessment() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                   <div>
                     <span className="text-[10px] text-slate-500 block">Candidate</span>
-                    <strong className="text-slate-900">{candidateLookupResult.candidate.full_name}</strong>
+                    <strong className="text-slate-900">{studentName || candidateLookupResult.candidate.full_name}</strong>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 block">Roll Number</span>

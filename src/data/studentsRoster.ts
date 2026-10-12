@@ -1193,11 +1193,12 @@ export function lookupStudentLocally(rollNumber: string): StudentRecord | undefi
     if (hit) return hit;
   }
 
-  // 5. Full 8-12 char prefix or substring match
+  // 5. Full 8-12 char prefix or substring match (both must be valid student roll numbers)
   if (clean.length >= 8) {
     hit = STUDENTS_ROSTER.find(s => {
       const sRoll = s.roll_number.toUpperCase().replace(/[^A-Z0-9]/g, '');
-      return sRoll === clean || sRoll.endsWith(clean) || clean.endsWith(sRoll) || sRoll.includes(clean);
+      if (sRoll.length < 8) return false;
+      return sRoll === clean || sRoll.endsWith(clean) || clean.endsWith(sRoll);
     });
     if (hit) return hit;
   }
