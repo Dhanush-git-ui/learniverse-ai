@@ -1,0 +1,1647 @@
+{
+  "Getting Started": [
+    {
+      "title": "Positive or Negative number",
+      "raw": "Positive or Negative number: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/a-number-is-positive-or-negative/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-positive-or-negative/",
+        "Java": "https://prepinsta.com/java-program/a-number-is-positive-or-negative-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-whether-a-given-number-is-positive-or-negative/"
+      }
+    },
+    {
+      "title": "Even or Odd number",
+      "raw": "Even or Odd number: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/a-number-is-even-or-odd/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-whether-a-number-is-even-or-odd/",
+        "Java": "https://prepinsta.com/java-program/a-number-is-even-or-odd-using-java/",
+        "Python": "https://prepinsta.com/python-program/Check-Whether-a-Number-is-Even-or-Odd/"
+      }
+    },
+    {
+      "title": "Sum of First N Natural numbers:C|C++|Java|Python",
+      "raw": "Sum of First N Natural numbers: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-the-sum-of-first-n-natural-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-sum-of-n-natural-numbers/",
+        "Java": "https://prepinsta.com/java-program/program-to-find-the-sum-of-first-n-natural-numbers-in-java/",
+        "Python": "https://prepinsta.com/python-program/find-the-sum-of-first-n-natural-numbers/"
+      }
+    },
+    {
+      "title": "Sum of N natural numbers:C|C++|Java|Python",
+      "raw": "Sum of N natural numbers: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sum-of-n-natural-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/-to-find-the-sum-of-n-natural-numbers/",
+        "Java": "https://prepinsta.com/java-program/sum-of-n-natural-numbers-using-java/",
+        "Python": "https://prepinsta.com/python-program-to-print-sum-of-n-natural-numbers/"
+      }
+    },
+    {
+      "title": "Sum of numbers in a given range:C|C++|Java|Python",
+      "raw": "Sum of numbers in a given range: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sum-of-numbers-in-a-given-range/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-sum-of-numbers-in-a-given-range/",
+        "Java": "https://prepinsta.com/java-program/sum-of-numbers-in-a-given-range-using-java/",
+        "Python": "https://prepinsta.com/python-program/sum-of-numbers-in-a-given-range/"
+      }
+    },
+    {
+      "title": "Greatest of two numbers:C|C++|Java|Python",
+      "raw": "Greatest of two numbers: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/greatest-of-two-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-greatest-of-two-numbers/",
+        "Java": "https://prepinsta.com/java-program/greatest-of-two-numbers-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-greatest-of-two-numbers/"
+      }
+    },
+    {
+      "title": "Greatest of the Three numbers:C|C++|Java|Python",
+      "raw": "Greatest of the Three numbers: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-the-largest-number-among-three-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-greatest-of-three-numbers/",
+        "Java": "https://prepinsta.com/java-program/greatest-of-three-numbers-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-the-largest-number-among-three-numbers/"
+      }
+    },
+    {
+      "title": "Leap year or not:C|C++|Java|Python",
+      "raw": "Leap year or not: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/leap-year-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-year-is-a-leap-year-or-not/",
+        "Java": "https://prepinsta.com/java-program/leap-year-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/check-leap-year-or-not/"
+      }
+    },
+    {
+      "title": "Prime number:C|C++|Java|Python",
+      "raw": "Prime number: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/prime-number-or-not-in-c-programming/",
+        "C++": "https://prepinsta.com/cpp-program/prime-number/",
+        "Java": "https://prepinsta.com/java-program/prime-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/program-to-check-if-the-given-number-is-prime-or-not"
+      }
+    },
+    {
+      "title": "Prime number within a given range:C|C++|Java|Python",
+      "raw": "Prime number within a given range: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/prime-numbers-in-a-given-range/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-prime-numbers-in-a-given-range/",
+        "Java": "https://prepinsta.com/java-program/prime-numbers-in-a-given-range-using-java/",
+        "Python": "https://prepinsta.com/python-program/prime-numbers-in-a-given-range/"
+      }
+    },
+    {
+      "title": "Sum of digits of a number:C|C++|Java|Python",
+      "raw": "Sum of digits of a number: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sum-of-digits-of-a-number/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-sum-of-digits-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/sum-of-digits-of-a-number-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-sum-of-digits-of-a-number/"
+      }
+    },
+    {
+      "title": "Reverse of a number\u00a0:C|C++|Java|Python",
+      "raw": "Reverse of a number\u00a0: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/reverse-a-given-number/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-reverse-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/reverse-a-given-number-using-java/",
+        "Python": "https://prepinsta.com/python-program/to-find-the-reverse-of-a-given-number/"
+      }
+    },
+    {
+      "title": "Palindrome number:C|C++|Java|Python",
+      "raw": "Palindrome number: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/palindrome-or-not-using-c/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-palindrome-or-not/",
+        "Java": "https://prepinsta.com/java-program/palindrome-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-a-number-is-palindrome-or-not/"
+      }
+    },
+    {
+      "title": "Armstrong number :C|C++|Java|Python",
+      "raw": "Armstrong number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/armstrong-number-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-whether-a-number-is-armstrong-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/armstrong-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/to-find-a-number-is-armstrong-or-not/"
+      }
+    },
+    {
+      "title": "Armstrong number in a given range :C|C++|Java|Python",
+      "raw": "Armstrong number in a given range : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/armstrong-numbers-between-two-intervals/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-armstrong-numbers-between-two-intervals/",
+        "Java": "https://prepinsta.com/java-program/armstrong-numbers-between-two-intervals-using-java/",
+        "Python": "https://prepinsta.com/python-program/armstrong-numbers-between-two-intervals/"
+      }
+    },
+    {
+      "title": "Fibonacci Series uptonthterm :C|C++|Java|Python",
+      "raw": "Fibonacci Series upto nth term : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/fibonacci-series-up-to-n-using-c/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-print-fibonacci-series-up-to-n-numbers/",
+        "Java": "https://prepinsta.com/java-program/fibonacci-series-up-to-n-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-fibonacci-series-up-to-n/"
+      }
+    },
+    {
+      "title": "Find theNthTerm of the Fibonacci Series",
+      "raw": "Find the Nth Term of the Fibonacci Series : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-nth-term-of-a-fibonacci-series/",
+        "C++": "https://prepinsta.com/cpp-program/finding-the-nth-term-of-the-fibonacci-series/",
+        "Java": "https://prepinsta.com/java-program/fibonacci-series-up-to-n-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-the-nth-term-of-a-fibonacci-series/"
+      }
+    },
+    {
+      "title": "Factorial of a number :C|C++|Java|Python",
+      "raw": "Factorial of a number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/factorial-of-a-number-in-c/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-factorial-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/factorial-of-a-number/",
+        "Python": "https://prepinsta.com/python-program/factorial-of-a-number/"
+      }
+    },
+    {
+      "title": "Power of a number :C|C++|Java|Python",
+      "raw": "Power of a number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/power-of-a-number/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-power-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/power-of-a-number-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-power-of-a-given-number/"
+      }
+    },
+    {
+      "title": "Factor of a number :C|C++|Java|Python",
+      "raw": "Factor of a number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/factors-of-a-number/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-factors-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/factors-of-a-number-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-factors-of-a-number/"
+      }
+    },
+    {
+      "title": "Finding Prime Factors of a number :C|C++|Java|Python",
+      "raw": "Finding Prime Factors of a number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/prime-factors-of-a-number/",
+        "C++": "https://prepinsta.com/cpp-program/finding-prime-factors-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/for-finding-out-the-prime-factors-of-a-number/",
+        "Python": "https://prepinsta.com/python-program/prime-factors-of-a-number/"
+      }
+    },
+    {
+      "title": "Strong number :C|C++|Java|Python",
+      "raw": "Strong number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/strong-number-or-not-2/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-a-strong-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/strong-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/to-check-whether-a-number-is-a-strong-number-or-not/"
+      }
+    },
+    {
+      "title": "Perfect number :C|C++|Java|Python",
+      "raw": "Perfect number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/perfect-number-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-perfect-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/perfect-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/perfect-number-code/"
+      }
+    },
+    {
+      "title": "Perfect Square :C|C++|Java|Python",
+      "raw": "Perfect Square : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-check-for-perfect-square/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-for-perfect-square/",
+        "Java": "https://prepinsta.com/java-program/check-for-perfect-square/",
+        "Python": "https://prepinsta.com/python-program/check-for-perfect-square/"
+      }
+    },
+    {
+      "title": "Automorphic number :C|C++|Java|Python",
+      "raw": "Automorphic number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/automorphic-number-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-an-automorphic-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/automorphic-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/to-check-automorphic-number/"
+      }
+    },
+    {
+      "title": "Harshad number :C|C++|Java|Python",
+      "raw": "Harshad number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/harshad-number-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-a-harshad-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/harshad-number-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/checking-harshad-number-or-not-using-python"
+      }
+    },
+    {
+      "title": "Abundant number :C|C++|Java|Python",
+      "raw": "Abundant number : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/abundant-number-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-check-whether-a-number-is-an-abundant-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/abundant-number-or-not-using-java-2/",
+        "Python": "https://prepinsta.com/python-program/to-check-abundant-number/"
+      }
+    },
+    {
+      "title": "Friendly pair :C|C++|Java|Python",
+      "raw": "Friendly pair : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/friendly-pair-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-whether-two-numbers-are-friendly-pairamicable-number-or-not/",
+        "Java": "https://prepinsta.com/java-program/friendly-pair-or-notamicable-or-not-using-java/",
+        "Python": "https://prepinsta.com/python-program/to-check-whether-two-numbers-are-friendly-pair/"
+      }
+    }
+  ],
+  "Working with Numbers": [
+    {
+      "title": "Highest Common Factor(HCF)",
+      "raw": "Highest Common Factor(HCF): C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/hcf-of-two-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-gcd-or-hcf-of-two-numbers/",
+        "Java": "https://prepinsta.com/java-program/gcd-or-hcf-of-two-numbers-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-hcf-of-two-numbers"
+      }
+    },
+    {
+      "title": "Lowest Common Multiple (LCM) :C|C++|Java|Python",
+      "raw": "Lowest Common Multiple (LCM) : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/lcm-of-two-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-to-find-the-lcm-of-two-numbers/",
+        "Java": "https://prepinsta.com/java-program/lcm-of-two-numbers-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-lcm-of-two-numbers"
+      }
+    },
+    {
+      "title": "Greatest Common Divisor :C|C++|Java|Python",
+      "raw": "Greatest Common Divisor : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/gcd-of-two-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/gcd-of-two-numbers/",
+        "Java": "https://prepinsta.com/java-program/to-calculate-gcd-of-two-numbers/",
+        "Python": "https://prepinsta.com/python-program/find-gcd-of-two-numbers"
+      }
+    },
+    {
+      "title": "Binary to Decimal to conversion :C|C++|Java|Python",
+      "raw": "Binary to Decimal to conversion : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/binary-to-decimal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/cpp-program-for-binary-to-decimal-conversion/",
+        "Java": "https://prepinsta.com/java-program/binary-to-decimal-conversion-using-java/",
+        "Python": "https://prepinsta.com/python-program/find-binary-to-decimal-conversion"
+      }
+    },
+    {
+      "title": "Octal to Decimal conversion :C|C++|Java|Python",
+      "raw": "Octal to Decimal conversion : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/octal-to-decimal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/octal-to-decimal-conversion/",
+        "Java": "https://prepinsta.com/java-program/octal-to-decimal-conversion/",
+        "Python": "https://prepinsta.com/python-program/octal-to-decimal-conversion/"
+      }
+    },
+    {
+      "title": "Hexadecimal to Decimal conversion:C|C++|Java|Python",
+      "raw": "Hexadecimal to Decimal conversion: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/hexadecimal-to-decimal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/convert-hexadecimal-to-decimal/",
+        "Java": "https://prepinsta.com/java-program/hexadecimal-to-decimal-conversion",
+        "Python": "https://prepinsta.com/python-program/hexadecimal-to-decimal-conversion"
+      }
+    },
+    {
+      "title": "Decimal to Binary conversion:C|C++|Java|Python",
+      "raw": "Decimal to Binary conversion: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/decimal-to-binary-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/for-decimal-to-binary-conversion/",
+        "Java": "https://prepinsta.com/java-program/decimal-to-binary-conversion-using-java/",
+        "Python": "https://prepinsta.com/python-program/decimal-to-binary-conversion/"
+      }
+    },
+    {
+      "title": "Decimal to Octal Conversion:C|C++|Java|Python",
+      "raw": "Decimal to Octal Conversion: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/decimal-to-octal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/for-decimal-to-octal-conversion/",
+        "Java": "https://prepinsta.com/java-program/decimal-to-octal-conversion/",
+        "Python": "https://prepinsta.com/python-program/decimal-to-octal-conversion"
+      }
+    },
+    {
+      "title": "Decimal to Hexadecimal Conversion:C|C++|Java|Python",
+      "raw": "Decimal to Hexadecimal Conversion: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/decimal-to-hexadecimal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/decimal-to-hexadecimal-conversion/",
+        "Java": "https://prepinsta.com/java-program/decimal-to-hexadecimal-conversion/",
+        "Python": "https://prepinsta.com/python-program/decimal-to-hexadecimal-conversion/"
+      }
+    },
+    {
+      "title": "Binary to Octal conversion :C|C++|Java|Python",
+      "raw": "Binary to Octal conversion : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/binary-to-octal-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/for-binary-to-octal-conversion/",
+        "Java": "https://prepinsta.com/java-program/binary-to-octal-conversion/",
+        "Python": "https://prepinsta.com/python-program/binary-to-octal-conversion/"
+      }
+    },
+    {
+      "title": "Octal to Binary conversion :C|C++|Java|Python",
+      "raw": "Octal to Binary conversion : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/octal-to-binary-conversion/",
+        "C++": "https://prepinsta.com/cpp-program/for-octal-to-binary-conversion/",
+        "Java": "https://prepinsta.com/java-program/octal-to-binary-conversion/",
+        "Python": "https://prepinsta.com/python-program/octal-to-binary-conversion/"
+      }
+    },
+    {
+      "title": "Quadrants in which a given coordinate lies :C|C++|Java|Python",
+      "raw": "Quadrants in which a given coordinate lies : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/quadrants-in-which-coordinates-lie/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-quadrant-in-which-coordinates-lie/",
+        "Java": "https://prepinsta.com/java-program/find-out-the-quadrant-in-which-the-given-co-ordinate-lie/",
+        "Python": "https://prepinsta.com/python-program/quadrants-in-which-coordinates-lie/"
+      }
+    },
+    {
+      "title": "Permutations in which n people can occupy r seats in a classroom :C|C++|Java|Python",
+      "raw": "Permutations in which n people can occupy r seats in a classroom : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/permutations-in-which-n-people-can-occupy-r-seats-in-a-classroom/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-permutations-in-which-n-people-can-occupy-r-seats-in-a-classroom/",
+        "Java": "https://prepinsta.com/java-program/permutations-in-which-n-people-can-occupy-r-seats-in-a-classroom/",
+        "Python": "https://prepinsta.com/python-program/permutations-in-which-n-people-can-occupy-r-seats-in-a-classroom/"
+      }
+    },
+    {
+      "title": "Maximum number of handshakes:C|C++|Java|Python",
+      "raw": "Maximum number of handshakes: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/maximum-number-of-handshakes/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-maximum-number-of-handshakes/",
+        "Java": "https://prepinsta.com/java-program/maximum-number-of-handshakes/",
+        "Python": "https://prepinsta.com/python-program/finding-maximum-number-of-handshakes/"
+      }
+    },
+    {
+      "title": "Addition of two fractions:C|C++|Java",
+      "raw": "Addition of two fractions: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/add-two-fractions-in-c/",
+        "C++": "https://prepinsta.com/cpp-program/to-add-two-fractions/",
+        "Java": "https://prepinsta.com/java-program/add-two-fractions/",
+        "Python": "https://prepinsta.com/python-program/addition-of-two-fractions/"
+      }
+    },
+    {
+      "title": "Replace all 0\u2019s with 1 in a given integer :C|C++|Java|Python",
+      "raw": "Replace all 0\u2019s with 1 in a given integer : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/replace-all-0s-with-1-in-a-given-integer/",
+        "C++": "https://prepinsta.com/cpp-program/to-replace-all-0s-with-1-in-a-given-integer/",
+        "Java": "https://prepinsta.com/java-program/replace-all-0s-with-1-in-a-given-integer/",
+        "Python": "https://prepinsta.com/python-program/replace-all-0s-with-1-in-a-given-integer/"
+      }
+    },
+    {
+      "title": "Can a number be expressed as a sum of two prime numbers :C|C++|Java|Python",
+      "raw": "Can a number be expressed as a sum of two prime numbers : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/can-a-number-be-expressed-as-a-sum-of-two-prime-numbers/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-whether-a-number-be-expressed-as-a-sum-of-two-prime-numbers/",
+        "Java": "https://prepinsta.com/java-program/can-a-number-be-expressed-as-a-sum-of-two-prime-numbers/",
+        "Python": "https://prepinsta.com/python-program/can-a-number-be-expressed-as-a-sum-of-two-prime-numbers/"
+      }
+    },
+    {
+      "title": "Count possible decoding of a given digit sequence :C|C++|Java",
+      "raw": "Count possible decoding of a given digit sequence : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/count-possible-decoding-of-a-given-digit-sequence/",
+        "C++": "https://prepinsta.com/cpp-program/to-count-possible-decoding-of-a-given-digit-sequence/",
+        "Java": "https://prepinsta.com/java-program/count-possible-decoding-of-a-given-digit-sequence/",
+        "Python": "https://prepinsta.com/python-program/to-count-possible-decoding-of-a-given-digit-sequence/"
+      }
+    },
+    {
+      "title": "Calculate the area of a circle :C|C++|Java|Python",
+      "raw": "Calculate the area of a circle : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/area-of-a-circle/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-area-of-a-circle/",
+        "Java": "https://prepinsta.com/java-program/for-calculating-the-area-of-a-circle/",
+        "Python": "https://prepinsta.com/python-program/calculating-the-area-of-circle/"
+      }
+    },
+    {
+      "title": "Find the prime numbers between 1 to 100 :C|C++|Java|Python",
+      "raw": "Find the prime numbers between 1 to 100 : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/prime-number-between-1-to-100/",
+        "C++": "https://prepinsta.com/cpp-program/prime-number-between-1-to-100/",
+        "Java": "https://prepinsta.com/java-program/find-prime-number-between-1-to-100/",
+        "Python": "https://prepinsta.com/python-program/to-find-prime-numbers-between-1-too-100/"
+      }
+    },
+    {
+      "title": "Calculate the number of digits in an integer :C|C++|Java|Python",
+      "raw": "Calculate the number of digits in an integer : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/number-of-digits-in-an-integer/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-number-of-digits-in-an-integer/",
+        "Java": "https://prepinsta.com/java-program/number-of-digits-in-an-integer/",
+        "Python": "https://prepinsta.com/python-program/to-calculate-number-of-digits-in-an-integer/"
+      }
+    },
+    {
+      "title": "Convert digit/number to words :C|C++|Java|Python",
+      "raw": "Convert digit/number to words : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/convert-digit-number-to-words/",
+        "C++": "https://prepinsta.com/cpp-program/for-converting-digit-number-to-words/",
+        "Java": "https://prepinsta.com/java-program/to-convert-digitsnumbers-to-words/",
+        "Python": "https://prepinsta.com/python-program/for-converting-digit-number-to-words/"
+      }
+    },
+    {
+      "title": "Counting number of days in a given month of a year",
+      "raw": "Counting number of days in a given month of a year : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-the-number-of-days-in-a-given-month-of-a-year/",
+        "C++": "https://prepinsta.com/cpp-program/to-count-the-number-of-days-in-a-given-month-of-a-year/",
+        "Java": "https://prepinsta.com/java-program/counting-number-of-days-in-a-given-month-of-a-year/",
+        "Python": "https://prepinsta.com/python-program/to-count-the-number-of-days-in-a-given-month-of-a-year/"
+      }
+    },
+    {
+      "title": "Finding Number of times x digit occurs in a given input :C|C++|Java|Python",
+      "raw": "Finding Number of times x digit occurs in a given input : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/occurrence-of-a-digit-in-a-given-number/",
+        "C++": "https://prepinsta.com/cpp-program/occurrence-of-a-digit-in-a-given-number/",
+        "Java": "https://prepinsta.com/java-program/occurrence-of-a-x-digit-in-a-given-number/",
+        "Python": "https://prepinsta.com/python-program/count-number-of-times-x-digit-occurs-in-each-and-every-number-from-0-to-n/"
+      }
+    },
+    {
+      "title": "Finding number of integers which has exactly x divisors:C|C++|Java|Python",
+      "raw": "Finding number of integers which has exactly x divisors: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-number-of-integers-which-has-exactly-x-divisors/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-number-of-integers-which-has-exactly-x-divisors/",
+        "Java": "https://prepinsta.com/java-program/finding-number-of-integers-which-has-exactly-x-divisors/",
+        "Python": "https://prepinsta.com/python-program/find-number-of-integers-which-has-exactly-x-divisors/"
+      }
+    },
+    {
+      "title": "Finding Roots of a quadratic equation :C|C++|Java|Python",
+      "raw": "Finding Roots of a quadratic equation : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/roots-of-a-quadratic-equation",
+        "C++": "https://prepinsta.com/cpp-program/to-find-roots-of-a-quadratic-equation/",
+        "Java": "https://prepinsta.com/java-program/finding-roots-of-a-quadratic-equation/",
+        "Python": "https://prepinsta.com/python-program/find-roots-of-a-quadratic-equation/"
+      }
+    }
+  ],
+  "Codes for Recursion": [
+    {
+      "title": "Power of a Number \u2013C|C++|Java|Python",
+      "raw": "Power of a Number \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/power-of-number-using-recursion",
+        "C++": "https://prepinsta.com/cpp-program/power-of-a-number-using-recursion",
+        "Java": "https://prepinsta.com/java-program/power-of-a-number-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/power-of-a-number-using-recursion"
+      }
+    },
+    {
+      "title": "Prime Number \u2013C|C++|Java|Python",
+      "raw": "Prime Number \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/checking-for-prime-number-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/prime-number-using-recursion",
+        "Java": "https://prepinsta.com/java-program/prime-number-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/prime-number-using-recursion/"
+      }
+    },
+    {
+      "title": "Largest element in an array \u2013C|C++|Java|Python",
+      "raw": "Largest element in an array \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-the-largest-element-in-an-array-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/largest-element-of-the-array-using-recursion",
+        "Java": "https://prepinsta.com/java-program/recursive-program-to-find-largest-element-of-the-array/",
+        "Python": "https://prepinsta.com/python-program/largest-element-in-an-array-using-recursion/"
+      }
+    },
+    {
+      "title": "Smallest element in an array \u2013C|C++|Java|Python",
+      "raw": "Smallest element in an array \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-the-smallest-element-in-an-array-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/program-to-find-smallest-element-of-the-array-using-recursion",
+        "Java": "https://prepinsta.com/java-program/program-to-find-smallest-element-of-the-array-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/smallest-element-in-an-array/"
+      }
+    },
+    {
+      "title": "Reversing a Number \u2013C|C++|Java|Python",
+      "raw": "Reversing a Number \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/reversing-a-number-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/reversing-a-number-using-recursion",
+        "Java": "https://prepinsta.com/java-program/reversing-a-number-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/reversing-a-number-using-recursion/"
+      }
+    },
+    {
+      "title": "HCF of two numbers using Recursion \u2013C|C++|Java|Python",
+      "raw": "HCF of two numbers using Recursion \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-hcf-of-a-number-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/hcf-of-two-numbers-using-recursion",
+        "Java": "https://prepinsta.com/java-program/hcf-of-a-number-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/hcf-of-a-number-using-recursion/"
+      }
+    },
+    {
+      "title": "LCM of two numbers \u2013C|C++|Java|Python",
+      "raw": "LCM of two numbers \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-lcm-of-the-numbers-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/lcm-of-two-numbers-using-recursion/",
+        "Java": "https://prepinsta.com/java-program/lcm-of-two-numbers-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/lcm-of-a-number-using-recursion/"
+      }
+    },
+    {
+      "title": "Program to calculate length of the string using recursion-C|C++|Java|Python",
+      "raw": "Program to calculate length of the string using recursion- C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/length-of-the-string-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/to-calculate-length-of-the-string-using-recursion/",
+        "Java": "https://prepinsta.com/java-program/to-calculate-length-of-the-string-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/to-calculate-length-of-the-string-using-recursion/"
+      }
+    },
+    {
+      "title": "Print All Permutations of a String- C |C++|Java| Python",
+      "raw": "Print All Permutations of a String- C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/print-all-permutations-of-a-string-using-recursion/",
+        "Java": "https://prepinsta.com/java-program/print-all-permutations-of-a-string/"
+      }
+    },
+    {
+      "title": "Given an integer N the task is to print the F(N)th term.-C|C++|Java| Python",
+      "raw": "Given an integer N the task is to print the F(N)th term.- C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/given-an-integer-n-the-task-is-to-print-the-fnth-term/",
+        "C++": "https://prepinsta.com/cpp-program/given-an-integer-n-the-task-is-to-print-the-fnth-term/",
+        "Java": "https://prepinsta.com/java-program/given-an-integer-n-the-task-is-to-print-the-fnth-term/"
+      }
+    },
+    {
+      "title": "Given a list arr of N integers, print sums of all subsets in it-C|C++|Java| Python",
+      "raw": "Given a list arr of N integers, print sums of all subsets in it- C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/given-a-list-arr-of-n-integers-print-sums-of-all-subsets/",
+        "C++": "https://prepinsta.com/cpp-program/given-a-list-arr-of-n-integers-print-sums-of-all-subsets-in-it/",
+        "Java": "https://prepinsta.com/java-program/print-sums-of-all-subsets-of-a-given-set/"
+      }
+    },
+    {
+      "title": "Last non-zero digit in factorial-C|C++|Java| Python",
+      "raw": "Last non-zero digit in factorial- C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-last-non-zero-digit-in-factorial/",
+        "C++": "https://prepinsta.com/cpp-program/last-non-zero-digit-in-factorial",
+        "Java": "https://prepinsta.com/java-program/last-non-zero-digit-in-factorial/"
+      }
+    },
+    {
+      "title": "Given a positive integer N, return the Nth row of pascal\u2019s triangle \u2013C|C++|Java|Python",
+      "raw": "Given a positive integer N, return the Nth row of pascal\u2019s triangle \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-the-nth-row-in-pascals-triangle/",
+        "C++": "https://prepinsta.com/cpp-program/find-the-nth-row-in-pascals-triangle",
+        "Java": "https://prepinsta.com/java-program/find-the-nth-row-in-pascals-triangle/",
+        "Python": "https://prepinsta.com/python-program/find-the-nth-row-in-pascals-triangle/"
+      }
+    },
+    {
+      "title": "Given an integer N representing the number of pairs of parentheses, the task is to generate all combinations of well-formed(balanced) parentheses \u2013C|C++|Java|Python",
+      "raw": "Given an integer N representing the number of pairs of parentheses, the task is to generate all combinations of well-formed(balanced) parentheses \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/?page_id=1316922",
+        "C++": "https://prepinsta.com/cpp-program/generate-all-combinations-of-balanced-parentheses/",
+        "Java": "https://prepinsta.com/java-program/generate-all-combinations-of-balanced-parentheses/",
+        "Python": "https://prepinsta.com/python-program/generate-all-combinations-of-balanced-parentheses/"
+      }
+    },
+    {
+      "title": "Find the Factorial of a number using recursion \u2013C|C++|Java|Python",
+      "raw": "Find the Factorial of a number using recursion \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-the-factorial-of-a-number-using-recursion/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-factorial-of-a-number/",
+        "Java": "https://prepinsta.com/java-program/find-the-factorial-of-the-number-using-recursion/",
+        "Python": "https://prepinsta.com/python-program/find-the-factorial-of-the-number-using-recursion/"
+      }
+    },
+    {
+      "title": "Find all possible Palindromic partitions of the given String \u2013 C |C++|Java|Python",
+      "raw": "Find all possible Palindromic partitions of the given String \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/find-all-possible-palindromic-partitions-of-the-given-string/",
+        "Java": "https://prepinsta.com/java-program/find-all-possible-palindromic-partitions-of-the-given-string/",
+        "Python": "https://prepinsta.com/python-program/find-all-possible-palindromic-partitions-of-the-given-string/"
+      }
+    },
+    {
+      "title": "Find all the N bit binary numbers having more than or equal 1\u2019s than 0\u2019s \u2013 C |C++|Java|Python",
+      "raw": "Find all the N bit binary numbers having more than or equal 1\u2019s than 0\u2019s \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/print-n-bit-binary-numbers-having-more-1s-than-0s-in-all-prefixes/",
+        "Java": "https://prepinsta.com/java-program/print-n-bit-binary-numbers-having-more-1s-than-0s-in-all-prefixes/",
+        "Python": "https://prepinsta.com/python-program/print-n-bit-binary-numbers-having-more-1s-than-0s-in-all-prefixes/"
+      }
+    },
+    {
+      "title": "Given a set of positive integers, find all its subsets \u2013 C |C++|Java|Python",
+      "raw": "Given a set of positive integers, find all its subsets \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/given-a-set-of-positive-integers-find-all-its-subsets/",
+        "Java": "https://prepinsta.com/java-program/given-a-set-of-positive-integers-find-all-its-subsets/",
+        "Python": "https://prepinsta.com/python-program/given-a-set-of-positive-integers-find-all-subsets/"
+      }
+    },
+    {
+      "title": "Given a string s, remove all its adjacent duplicate characters recursively \u2013 C |C++|Python",
+      "raw": "Given a string s, remove all its adjacent duplicate characters recursively \u2013 C | C++ | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/recursively-remove-all-adjacent-duplicate-characters/",
+        "Python": "https://prepinsta.com/python-program/recursively-remove-all-adjacent-duplicate-characters/"
+      }
+    }
+  ],
+  "Important Codes related to Arrays": [
+    {
+      "title": "Find Largest element in an array :C|C++|Java|Python",
+      "raw": "Find Largest element in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/largest-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/largest-element-in-an-array",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-largest-element-of-the-array/",
+        "Python": "https://prepinsta.com/python-program/find-largest-element-in-an-array-using-python/"
+      }
+    },
+    {
+      "title": "Find Smallest Element in an Array :C|C++|Java|Python",
+      "raw": "Find Smallest Element in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-smallest-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/smallest-element-in-an-array",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-smallest-element-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/find-smallest-element-in-an-array-using-python/"
+      }
+    },
+    {
+      "title": "Find the Smallest and largest element in an array :C|C++|Java|Python",
+      "raw": "Find the Smallest and largest element in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-largest-and-smallest-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-largest-and-smallest-element-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-smallest-and-largest-element-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/find-the-smallest-and-largest-element-in-an-array-using-python/"
+      }
+    },
+    {
+      "title": "Find Second Smallest Element in an Array :C|C++|Java|Python",
+      "raw": "Find Second Smallest Element in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-second-smallest-element-in-an-array-using-c/",
+        "C++": "https://prepinsta.com/cpp-program/for-finding-the-second-smallest-element-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-second-smallest-element-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/find-second-smallest-element-in-an-array-using-python/"
+      }
+    },
+    {
+      "title": "Calculate the sum of elements in an array :C|C++|Java|Python",
+      "raw": "Calculate the sum of elements in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-sum-of-elements-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/calculate-the-sum-of-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-calculating-the-sum-of-all-the-elements-of-an-array/",
+        "Python": "https://prepinsta.com/python-program/calculate-the-sum-of-elements-in-an-array/"
+      }
+    },
+    {
+      "title": "Reverse an Array :C|C++|Java|Python",
+      "raw": "Reverse an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-reverse-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-reverse-elements-of-an-array/",
+        "Java": "https://prepinsta.com/java-program/reverse-an-array/",
+        "Python": "https://prepinsta.com/python-program/for-reverse-an-array/"
+      }
+    },
+    {
+      "title": "Sort first half in ascending order and second half in descending :C|C++|Java|Python",
+      "raw": "Sort first half in ascending order and second half in descending : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sort-first-half-in-ascending-order-and-second-descending-order/",
+        "C++": "https://prepinsta.com/cpp-program/program-to-sort-an-array-in-ascending-and-descending-order/",
+        "Java": "https://prepinsta.com/java-program/for-sorting-first-half-in-ascending-order-and-second-half-in-descending/",
+        "Python": "https://prepinsta.com/python-program/program-to-sort-first-half-in-ascending-order-and-second-half-in-descending-order-in-an-array/"
+      }
+    },
+    {
+      "title": "Sort the elements of an array :C|C++|Java|Python",
+      "raw": "Sort the elements of an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-sort-an-array-in-ascending-or-descending-order",
+        "C++": "https://prepinsta.com/cpp-program/to-sort-elements-of-the-given-array/",
+        "Java": "https://prepinsta.com/java-program/for-sorting-elements-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/to-sort-the-elements-of-an-array/"
+      }
+    },
+    {
+      "title": "Finding the frequency of elements in an array :C|C++|Java|Python",
+      "raw": "Finding the frequency of elements in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-the-frequency-of-each-element-in-the-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-frequency-of-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-find-the-frequency-of-elements-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/finding-the-frequency-of-elements-in-an-array-using-python/"
+      }
+    },
+    {
+      "title": "Sorting elements of an array by frequency :C|C++|Java|Python",
+      "raw": "Sorting elements of an array by frequency : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sorting-element-in-array-by-frequency/",
+        "C++": "https://prepinsta.com/cpp-program/sorting-of-elements-by-frequency/",
+        "Java": "https://prepinsta.com/java-program/for-sorting-elements-of-an-array-by-frequency/",
+        "Python": "https://prepinsta.com/python-program/for-sorting-elements-of-an-array-by-frequency/"
+      }
+    },
+    {
+      "title": "Finding the Longest Palindrome in an Array :C|C++|Java|Python",
+      "raw": "Finding the Longest Palindrome in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-the-longest-palindrome-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/finding-the-longest-palindrome-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-longest-palindrome-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/find-the-longest-palindrome-in-an-array/"
+      }
+    },
+    {
+      "title": "Counting Distinct Elements in an Array :C|C++|Java|Python",
+      "raw": "Counting Distinct Elements in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-distinct-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/program-to-count-distinct-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-count-distinct-element-in-an-array",
+        "Python": "https://prepinsta.com/python-program/for-counting-distinct-elements-in-an-array/"
+      }
+    },
+    {
+      "title": "Finding\u00a0 Repeating elements in an Array :C|C++|",
+      "raw": "Finding\u00a0 Repeating elements in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-finding-repeating-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/repeating-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-finding-repeating-element-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/finding-repeating-elements-in-an-array/"
+      }
+    },
+    {
+      "title": "Finding Non Repeating elements in an Array :C|C++|",
+      "raw": "Finding Non Repeating elements in an Array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-non-repeating-elements-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-non-repeating-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/find-non-repeating-elements-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/find-non-repeating-elements-in-an-array/"
+      }
+    },
+    {
+      "title": "Removing Duplicate elements from an array :C|C++|Java|",
+      "raw": "Removing Duplicate elements from an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-remove-duplicate-element-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/for-removing-duplicate-element-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-removing-duplicates-elements-from-an-array/",
+        "Python": "https://prepinsta.com/python-program/removing-duplicates-elements-from-an-array/"
+      }
+    },
+    {
+      "title": "Finding Minimum scalar product of two vectors :C|C++|Java|Python",
+      "raw": "Finding Minimum scalar product of two vectors : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-minimum-scalar-product-of-two-vectors/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-minimum-scalar-of-two-vectors/",
+        "Java": "https://prepinsta.com/java-program/to-find-minimum-scalar-of-two-vectors/",
+        "Python": "https://prepinsta.com/python-program/to-find-minimum-scalar-product-of-two-vectors-in-an-array/"
+      }
+    },
+    {
+      "title": "Finding Maximum scalar product of two vectors in an array :C|C++|Java|Python",
+      "raw": "Finding Maximum scalar product of two vectors in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-maximum-scalar-product-of-two-vectors/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-maximum-scalar-product-of-two-vectors/",
+        "Java": "https://prepinsta.com/java-program/to-find-maximum-scalar-product-of-two-vectors-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/to-find-maximum-scalar-product-of-two-vectors-in-an-array/"
+      }
+    },
+    {
+      "title": "Counting the number of even and odd elements in an array :C|C++|Java|Python",
+      "raw": "Counting the number of even and odd elements in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-numbers-of-even-and-odd-elements-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-count-numbers-of-even-and-odd-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-counting-numbers-of-even-and-odd-elements-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/counting-the-number-of-even-and-odd-elements-in-an-array/"
+      }
+    },
+    {
+      "title": "Find all Symmetric pairs in an array :C|C++|Java|Python",
+      "raw": "Find all Symmetric pairs in an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-all-symmetric-elements-in-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-all-symmetric-elements-in-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-find-all-symmetric-elements-in-an-array/",
+        "Python": "https://prepinsta.com/python-program/finding-symmetric-pairs-in-an-array/"
+      }
+    },
+    {
+      "title": "Find maximum product sub-array in a given array :C|C++|Java|Python",
+      "raw": "Find maximum product sub-array in a given array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-maximum-product-sub-array-in-a-given-array/",
+        "C++": "https://prepinsta.com/cpp-program/for-finding-the-maximum-product-of-sub-array-of-a-given-array/",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-maximum-product-of-sub-array-of-a-given-array/",
+        "Python": "https://prepinsta.com/python-program/find-maximum-product-sub-array-in-a-given-array/"
+      }
+    },
+    {
+      "title": "Finding Arrays are disjoint or not :C|C++|Java|Python",
+      "raw": "Finding Arrays are disjoint or not : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-if-arrays-are-disjoint-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/finding-if-arrays-are-disjoint-or-not/",
+        "Java": "https://prepinsta.com/java-program/to-find-arrays-are-disjoint-or-not/",
+        "Python": "https://prepinsta.com/python-program/find-whether-arrays-are-disjoint-or-not/"
+      }
+    },
+    {
+      "title": "Determine Array is a subset of another array or not :C|C++|Java|Python",
+      "raw": "Determine Array is a subset of another array or not : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-determine-the-array-is-a-subset-of-another-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-determine-the-array-is-a-subset-of-another-array/",
+        "Java": "https://prepinsta.com/java-program/to-determine-the-array-is-a-subset-of-another-array/",
+        "Python": "https://prepinsta.com/python-program/array-is-subset-or-not/"
+      }
+    },
+    {
+      "title": "Determine can all numbers of an array be made equal :C|C++|Java|Python",
+      "raw": "Determine can all numbers of an array be made equal : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/determine-can-all-number-of-array-be-made-equal/",
+        "C++": "https://prepinsta.com/cpp-program/to-determine-can-all-numbers-of-an-array-be-made-equal/",
+        "Java": "https://prepinsta.com/java-program/to-determine-can-all-numbers-of-an-array-be-made-equal/",
+        "Python": "https://prepinsta.com/python-program/determine-can-all-numbers-of-an-array-be-made-equal/"
+      }
+    },
+    {
+      "title": "Finding Minimum sum of absolute difference of given array :C|C++|Java|Python",
+      "raw": "Finding Minimum sum of absolute difference of given array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-sum-of-minimum-absolute-difference-of-the-given-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-sum-of-minimum-absolute-difference-of-the-given-array/",
+        "Java": "https://prepinsta.com/java-program/to-find-sum-of-minimum-absolute-difference-of-the-given-array/",
+        "Python": "https://prepinsta.com/python-program/finding-sum-of-minimum-absolute-difference-of-array/"
+      }
+    },
+    {
+      "title": "Sort an array according to the order defined by another array :C|C++|Java|Python",
+      "raw": "Sort an array according to the order defined by another array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/sort-an-array-according-to-the-order-defined-by-another-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-sort-an-array-according-to-the-order-defined-by-another-array/",
+        "Java": "https://prepinsta.com/java-program/to-sort-an-array-according-to-the-order-defined-by-another-array/",
+        "Python": "https://prepinsta.com/python-program/to-sort-array-according-to-the-order-defined-by-another-array/"
+      }
+    },
+    {
+      "title": "Replace each element of the array by its rank in the array :C|C++|Java|Python",
+      "raw": "Replace each element of the array by its rank in the array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-replace-each-element-by-its-rank-in-the-given-array/",
+        "C++": "https://prepinsta.com/cpp-program/replace-each-element-by-its-rank-given-in-array/",
+        "Java": "https://prepinsta.com/java-program/to-replace-each-element-by-its-rank-in-the-given-array/",
+        "Python": "https://prepinsta.com/python-program/to-replace-each-element-by-its-rank-in-the-given-array/"
+      }
+    },
+    {
+      "title": "Finding equilibrium index of an array :C|C++|Java|Python",
+      "raw": "Finding equilibrium index of an array : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/finding-equilibrium-index-of-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-the-equilibrium-index-of-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-find-equilibrium-index-of-an-array/",
+        "Python": "https://prepinsta.com/python-program/to-find-equilibrium-index-of-an-array/"
+      }
+    },
+    {
+      "title": "Rotation of elements of array- left and right :C|C++|Java|Python",
+      "raw": "Rotation of elements of array- left and right : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/array-rotation/",
+        "C++": "https://prepinsta.com/cpp-program/for-rotation-of-elements-of-array-left-and-right/",
+        "Java": "https://prepinsta.com/java-program/for-array-rotation-left-and-right/",
+        "Python": "https://prepinsta.com/python-program/for-rotation-of-elements-of-array-left-and-right"
+      }
+    },
+    {
+      "title": "Block swap algorithm for array rotation :C|C++|Java|Python",
+      "raw": "Block swap algorithm for array rotation : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-block-swapping-algorithm/",
+        "C++": "https://prepinsta.com/cpp-program/block-swapping-algorithm/",
+        "Java": "https://prepinsta.com/java-program/for-block-swaping-algorithm-for-array-rotation/",
+        "Python": "https://prepinsta.com/python-program/for-block-swapping-algorithm-for-array-rotation/"
+      }
+    },
+    {
+      "title": "Juggling algorithm for array rotation :C|C++|Java|Python",
+      "raw": "Juggling algorithm for array rotation : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/juggling-algorithm-for-array-rotation/",
+        "C++": "https://prepinsta.com/cpp-program/program-to-find-juggling-algorithm-for-array-rotation/",
+        "Java": "https://prepinsta.com/java-program/to-find-juggling-algorithm-for-array-rotation/",
+        "Python": "https://prepinsta.com/python-program/to-find-juggling-algorithm-for-array-rotation"
+      }
+    },
+    {
+      "title": "Finding Circular rotation of an array by K positions :C|C++|Java|Python",
+      "raw": "Finding Circular rotation of an array by K positions : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/circular-rotation-of-an-array-by-k-positions/",
+        "C++": "https://prepinsta.com/cpp-program/circular-rotation-of-an-array/",
+        "Java": "https://prepinsta.com/java-program/for-finding-the-circular-rotations-of-array-by-k-positions/",
+        "Python": "https://prepinsta.com/python-program/finding-the-circular-rotations-of-array-by-k-positions/"
+      }
+    },
+    {
+      "title": "Balanced Parenthesis Problem :C|C++|Java|Python",
+      "raw": "Balanced Parenthesis Problem : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/program-to-check-the-balance-of-parenthesis/",
+        "C++": "https://prepinsta.com/cpp-program/balanced-parenthesis-problem/",
+        "Java": "https://prepinsta.com/java-program/to-check-the-balance-of-parenthesis/",
+        "Python": "https://prepinsta.com/python-program/program-to-check-the-balance-of-parenthesis/"
+      }
+    }
+  ],
+  "Operations on Strings": [
+    {
+      "title": "Check whether a character is a vowel or consonant :C|C++|Java|Python",
+      "raw": "Check whether a character is a vowel or consonant : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/a-character-is-a-vowel-or-consonant/",
+        "C++": "https://prepinsta.com/cpp-program/character-is-vowel-or-consonant/",
+        "Java": "https://prepinsta.com/java-program/a-character-is-a-vowel-or-consonant/",
+        "Python": "https://prepinsta.com/python-program/for-checking-a-character-is-a-vowel-or-consonant/"
+      }
+    },
+    {
+      "title": "Check whether a character is a alphabet or not :C|C++|Java|Python",
+      "raw": "Check whether a character is a alphabet or not : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/a-character-is-an-alphabet-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/check-whether-a-character-is-alphabet-or-not/",
+        "Java": "https://prepinsta.com/java-program/a-character-is-an-alphabet-or-not/",
+        "Python": "https://prepinsta.com/python-program/to-check-whether-a-character-is-alphabet-or-not/"
+      }
+    },
+    {
+      "title": "Find the ASCII value of a character :C|C++|Java|Python",
+      "raw": "Find the ASCII value of a character : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/ascii-values-of-a-character/",
+        "C++": "https://prepinsta.com/cpp-program/ascii-value-of-character/",
+        "Java": "https://prepinsta.com/java-program/for-calculating-ascii-value-of-a-character/",
+        "Python": "https://prepinsta.com/python-program/ascii-values-of-a-character/"
+      }
+    },
+    {
+      "title": "Length of the string without using strlen() function :C|C++|Java|Python",
+      "raw": "Length of the string without using strlen() function : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/calculating-the-length-of-the-string-without-using-strlen-function",
+        "C++": "https://prepinsta.com/cpp-program/calculating-the-length-of-string-without-using-length-function",
+        "Java": "https://prepinsta.com/java-program/length-of-the-string-without-using-length-function/",
+        "Python": "https://prepinsta.com/python-program/calculating-the-length-of-string-without-using-length-function/"
+      }
+    },
+    {
+      "title": "Toggle each character in a string :C|C++|Java|Python",
+      "raw": "Toggle each character in a string : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-toggle-each-character-in-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-toggle-each-characters-in-a-string",
+        "Java": "https://prepinsta.com/java-program/toggle-each-character-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/toggle-each-character-in-a-string"
+      }
+    },
+    {
+      "title": "Count the number of vowels :C|C++|Java|Python",
+      "raw": "Count the number of vowels : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-the-number-of-vowels-in-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-count-the-number-of-vowels-in-a-string",
+        "Java": "https://prepinsta.com/java-program/count-the-number-of-vowels-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/count-the-number-of-vowels-in-a-string/"
+      }
+    },
+    {
+      "title": "Remove the vowels from a String :C|C++|Java|Python",
+      "raw": "Remove the vowels from a String : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-remove-vowels-from-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-remove-the-vowels-from-a-string",
+        "Java": "https://prepinsta.com/java-program/remove-vowels-from-a-string/",
+        "Python": "https://prepinsta.com/python-program/python-program-to-remove-the-vowels-from-a-string/"
+      }
+    },
+    {
+      "title": "Check if the given string is Palindrome or not :C|C++|Java|Python",
+      "raw": "Check if the given string is Palindrome or not : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-check-if-a-given-string-is-palindrome-or-not",
+        "C++": "https://prepinsta.com/cpp-program/to-check-if-the-given-string-is-palindrome-or-not/",
+        "Java": "https://prepinsta.com/java-program/check-string-is-a-palindrome-or-not/",
+        "Python": "https://prepinsta.com/python-program/python-program-to-check-if-the-given-string-is-palindrome-or-not/"
+      }
+    },
+    {
+      "title": "Print the given string in reverse order :C|C++|Java|Python",
+      "raw": "Print the given string in reverse order : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-print-the-string-in-reverse-order",
+        "C++": "https://prepinsta.com/cpp-program/to-print-the-given-string-in-reverse-order",
+        "Java": "https://prepinsta.com/java-program/program-to-reverse-a-string/",
+        "Python": "https://prepinsta.com/python-program/reverse-a-string/"
+      }
+    },
+    {
+      "title": "Remove all characters from string except alphabets :C|C++|Java|Python",
+      "raw": "Remove all characters from string except alphabets : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-remove-all-characters-from-string-except-alphabets",
+        "C++": "https://prepinsta.com/cpp-program/to-remove-all-character-from-string-except-alphabets",
+        "Java": "https://prepinsta.com/java-program/remove-characters-in-a-string-except-alphabets/",
+        "Python": "https://prepinsta.com/python-program/remove-all-character-from-string-except-alphabets/"
+      }
+    },
+    {
+      "title": "Remove spaces from a string :C|C++|Java|Python",
+      "raw": "Remove spaces from a string : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-remove-spaces-from-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-remove-spaces-from-a-string/",
+        "Java": "https://prepinsta.com/java-program/remove-spaces-from-a-string/",
+        "Python": "https://prepinsta.com/python-program/remove-spaces-from-a-string/"
+      }
+    },
+    {
+      "title": "Remove brackets from an algebraic expression :C|C++|Java|Python",
+      "raw": "Remove brackets from an algebraic expression : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-remove-brackets-from-an-algebraic-expression",
+        "C++": "https://prepinsta.com/cpp-program/to-remove-brackets-from-an-algebraic-expression",
+        "Java": "https://prepinsta.com/java-program/remove-brackets-from-an-algebraic-expression/",
+        "Python": "https://prepinsta.com/python-program/to-remove-brackets-from-an-algebraic-expression/"
+      }
+    },
+    {
+      "title": "Count the sum of numbers in a string :C|C++|Java|Python",
+      "raw": "Count the sum of numbers in a string : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-the-sum-of-numbers-in-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-count-the-sum-of-numbers-in-a-string",
+        "Java": "https://prepinsta.com/java-program/to-count-the-sum-of-numbers-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/count-the-sum-of-numbers-in-a-string/"
+      }
+    },
+    {
+      "title": "Capitalize the first and last character of each word of a string :C|C++|Java|Python",
+      "raw": "Capitalize the first and last character of each word of a string : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-capitalize-the-first-and-last-letter-of-each-word-of-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-capitalize-the-first-and-last-letter-of-each-word-of-a-string",
+        "Java": "https://prepinsta.com/java-program/to-capitalize-the-first-and-last-letter-of-each-word-of-a-string",
+        "Python": "https://prepinsta.com/python-program/capitalize-the-first-and-last-letter-of-each-word-of-a-string/"
+      }
+    },
+    {
+      "title": "Calculate frequency of characters in a string :C|C++|Java|Python",
+      "raw": "Calculate frequency of characters in a string : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-calculate-frequency-of-characters-in-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-calculate-frequency-of-characters-in-a-string",
+        "Java": "https://prepinsta.com/java-program/to-check-frequency-of-characters-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/calculate-frequency-of-a-characters-in-a-string/"
+      }
+    },
+    {
+      "title": "Find non-repeating characters in a string :C|C++|JAVA|Python",
+      "raw": "Find non-repeating characters in a string : C | C++ | JAVA | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-non-repeating-characters-in-a-string",
+        "C++": "https://prepinsta.com/cpp-program/to-find-non-repeating-characters-in-a-string",
+        "JAVA": "https://prepinsta.com/top-100-codes/to-find-non-repeating-characters-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/find-non-repeating-characters-in-a-string/"
+      }
+    },
+    {
+      "title": "Check if two strings are Anagram or not :C|C++|Java|Python",
+      "raw": "Check if two strings are Anagram or not : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-check-if-two-strings-are-anagram-or-not/",
+        "C++": "https://prepinsta.com/cpp-program/to-check-if-two-strings-are-anagram-or-not",
+        "Java": "https://prepinsta.com/java-program/check-if-two-strings-are-anagram-or-not/",
+        "Python": "https://prepinsta.com/python-program/check-if-two-strings-are-anagram-or-not/"
+      }
+    },
+    {
+      "title": "Replace a sub-string in a string:C|C++|Java|Python",
+      "raw": "Replace a sub-string in a string: C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-replace-a-substring-in-a-string/",
+        "C++": "https://prepinsta.com/cpp-program/to-replace-a-substring-in-a-string/",
+        "Java": "https://prepinsta.com/java-program/replace-substring-in-a-string/",
+        "Python": "https://prepinsta.com/python-program/to-replace-a-substring-in-a-string"
+      }
+    },
+    {
+      "title": "Replacing a particular word with another word in a string \u2013C|C++|Java|Python",
+      "raw": "Replacing a particular word with another word in a string \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-replace-a-particular-word-by-another-word-from-a-given-string/",
+        "C++": "https://prepinsta.com/cpp-program/to-replace-a-particular-word-by-another-word-from-a-given-string/",
+        "Java": "https://prepinsta.com/java-program/program-to-replace-a-particular-word-by-another-word-from-a-given-string/",
+        "Python": "https://prepinsta.com/python-program/replace-a-particular-word-by-another-word-from-a-given-string/"
+      }
+    },
+    {
+      "title": "Count common sub-sequence in two strings :C|C++|Java|Python",
+      "raw": "Count common sub-sequence in two strings : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-count-common-subsequence-in-two-strings/",
+        "C++": "https://prepinsta.com/cpp-program/to-count-common-subsequence-in-two-strings",
+        "Java": "https://prepinsta.com/java-program/count-common-sub-sequence-in-two-strings/",
+        "Python": "https://prepinsta.com/python-program/count-common-subsequence-in-two-strings/"
+      }
+    },
+    {
+      "title": "Check if two strings match where one string contains wildcard characters :C|C++|Java|Python",
+      "raw": "Check if two strings match where one string contains wildcard characters : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-check-if-two-strings-match-where-one-string-contains-wild-characters",
+        "C++": "https://prepinsta.com/cpp-program/check-if-two-strings-match-where-one-string-contains-wildcard-characters",
+        "Java": "https://prepinsta.com/java-program/to-check-if-two-strings-match-where-one-string-contains-wildcard-characters/",
+        "Python": "https://prepinsta.com/python-program/to-check-if-two-strings-match-where-one-string-contains-wildcard-characters"
+      }
+    },
+    {
+      "title": "Print all permutations of a given string in lexicographically sorted order :C|C++| Java |Python",
+      "raw": "Print all permutations of a given string in lexicographically sorted order : C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/given-a-string-s-task-is-to-print-all-permutations-of-a-given-string-in-lexicographically-sorted-order/",
+        "C++": "https://prepinsta.com/cpp-program/given-a-string-s-task-is-to-print-all-permutations-of-a-given-string-in-lexicographically-sorted-order/",
+        "Python": "https://prepinsta.com/python-program/print-all-lexicographic-permutations-in-sorted-order/"
+      }
+    }
+  ],
+  "Advanced Codes related to Arrays": [
+    {
+      "title": "Given an array which consists of only 0, 1 and 2. Sort the array without using any\u00a0 algorithm \u2013C|C++|Java|Python",
+      "raw": "Given an array which consists of only 0, 1 and 2. Sort the array without using any\u00a0 algorithm \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/given-an-array-which-consists-of-only-0-1-and-2-sort-the-array-without-using-any-sorting-algorithm/",
+        "C++": "https://prepinsta.com/cpp-program/given-an-array-which-consists-of-only-0-1-and-2-sort-the-array-without-using-any-sorting-algorithm/",
+        "Java": "https://prepinsta.com/java-program/given-an-array-which-consists-of-only-0-1-and-2-sort-the-array-without-using-any-sorting-algorithm/",
+        "Python": "https://prepinsta.com/python-program/sort-array-which-consists-of-0-1-and-2-without-using-any-sorting-algo"
+      }
+    },
+    {
+      "title": "Find the \u201cKth\u201d max and min element of an array \u2013C|C++|Java|Python",
+      "raw": "Find the \u201cKth\u201d max and min element of an array \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-the-kth-max-and-min-element-of-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/find-kth-max-and-min-element-in-array/",
+        "Java": "https://prepinsta.com/java-program/find-kth-max-and-min-element-in-array/",
+        "Python": "https://prepinsta.com/python-program/find-the-kth-max-and-min-element-of-an-array/"
+      }
+    },
+    {
+      "title": "Move all the negative elements to one side of the array \u2013C|C++|Java|Python",
+      "raw": "Move all the negative elements to one side of the array \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/move-all-the-negative-elements-to-one-side-of-the-array/",
+        "C++": "https://prepinsta.com/cpp-program/move-all-the-negative-elements-to-one-side-of-the-array/",
+        "Java": "https://prepinsta.com/java-program/move-all-the-negative-elements-to-one-side-of-the-array/",
+        "Python": "https://prepinsta.com/python-program/move-all-the-negative-elements-to-one-side-of-the-array"
+      }
+    },
+    {
+      "title": "Find the Union and Intersection of the two sorted arrays. \u2013C|C++|Java|Python",
+      "raw": "Find the Union and Intersection of the two sorted arrays. \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/union-and-intersection-of-the-two-sorted-arrays/",
+        "C++": "https://prepinsta.com/cpp-program/find-the-union-and-intersection-of-the-two-sorted-arrays/",
+        "Java": "https://prepinsta.com/java-program/find-the-union-and-intersection-of-the-two-sorted-arrays/",
+        "Python": "https://prepinsta.com/python-program/find-the-union-and-intersection-of-the-two-sorted-arrays/"
+      }
+    },
+    {
+      "title": "Find Largest sum contiguous Subarray \u2013C|C++|Java|Python",
+      "raw": "Find Largest sum contiguous Subarray \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/largest-sum-contigous-subarray/",
+        "C++": "https://prepinsta.com/cpp-program/largest-sum-contigous-subarray/",
+        "Java": "https://prepinsta.com/java-program/largest-sum-contigous-subarray/",
+        "Python": "https://prepinsta.com/python-program/find-largest-sum-of-contiguous-subarray/"
+      }
+    },
+    {
+      "title": "Minimize the maximum difference between heights \u2013C|C++|Java|Python",
+      "raw": "Minimize the maximum difference between heights \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-minimize-the-maximum-difference-between-heights/",
+        "C++": "https://prepinsta.com/cpp-program/to-minimize-the-maximum-difference-between-heights/",
+        "Java": "https://prepinsta.com/java-program/to-minimize-the-maximum-difference-between-heights/",
+        "Python": "https://prepinsta.com/python-program/to-minimize-the-maximum-difference-between-heights/"
+      }
+    },
+    {
+      "title": "Minimum no. of Jumps to reach the end of an array \u2013C|C++|Java|Python",
+      "raw": "Minimum no. of Jumps to reach the end of an array \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-minimum-no-of-jumps-to-reach-the-end-of-an-array/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-minimum-no-of-jumps-to-reach-the-end-of-an-array/",
+        "Java": "https://prepinsta.com/java-program/to-find-minimum-no-of-jumps-to-reach-the-end-of-an-array/",
+        "Python": "https://prepinsta.com/python-program/minimum-no-of-jumps-to-reach-the-end-of-an-array/"
+      }
+    },
+    {
+      "title": "Find duplicate in an array of N+1 Integers \u2013C|C++|Java|Python",
+      "raw": "Find duplicate in an array of N+1 Integers \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-duplicate-in-an-array-of-n1-integers",
+        "C++": "https://prepinsta.com/cpp-program/find-duplicate-in-an-array-of-n1-integers",
+        "Java": "https://prepinsta.com/java-program/find-duplicate-in-an-array-of-n1-integers-in-java",
+        "Python": "https://prepinsta.com/python-program/find-duplicate-in-an-array-of-n1-integers"
+      }
+    },
+    {
+      "title": "Merge 2 sorted arrays without using extra space. \u2013C|C++|Java|Python",
+      "raw": "Merge 2 sorted arrays without using extra space. \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-merge-two-sorted-arrays-without-using-extra-space",
+        "C++": "https://prepinsta.com/cpp-program/to-merge-two-sorted-arrays-without-using-extra-space",
+        "Java": "https://prepinsta.com/java-program/to-merge-two-sorted-arrays-without-using-extra-space",
+        "Python": "https://prepinsta.com/python-program/merge-2-sorted-arrays-without-using-extra-space"
+      }
+    },
+    {
+      "title": "Kadane\u2019s Algorithm \u2013C|C++|Java|Python",
+      "raw": "Kadane\u2019s Algorithm \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-kadanes-algorithm",
+        "C++": "https://prepinsta.com/cpp-program/for-kadanes-algorithm/",
+        "Java": "https://prepinsta.com/java-program/kadanes-algorithm/",
+        "Python": "https://prepinsta.com/python-program/kadanes-algorithm/"
+      }
+    },
+    {
+      "title": "Merge Intervals \u2013 C |C++|Java|Python",
+      "raw": "Merge Intervals \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/for-merge-intervals",
+        "Java": "https://prepinsta.com/java-program/program-for-merge-intervals",
+        "Python": "https://prepinsta.com/python-program/to-merge-intervals"
+      }
+    },
+    {
+      "title": "Count Inversion \u2013C|C++|Java|Python",
+      "raw": "Count Inversion \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-count-inversion/",
+        "C++": "https://prepinsta.com/cpp-program/for-count-inversion/",
+        "Java": "https://prepinsta.com/java-program/for-count-inversion",
+        "Python": "https://prepinsta.com/python-program/counting-inversion"
+      }
+    },
+    {
+      "title": "Best time to buy and Sell stock \u2013C|C++|Java|Python",
+      "raw": "Best time to buy and Sell stock \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/for-best-time-to-buy-and-sell-stock/",
+        "C++": "https://prepinsta.com/cpp-program/for-best-time-to-buy-and-sell",
+        "Java": "https://prepinsta.com/java-program/best-time-to-buy-and-sell-stock-in-java/",
+        "Python": "https://prepinsta.com/python-program/best-time-to-buy-and-sell-stock/"
+      }
+    },
+    {
+      "title": "Find all pairs on integer array whose sum is equal to given number \u2013C|C++|Java|Python",
+      "raw": "Find all pairs on integer array whose sum is equal to given number \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-all-pairs-on-integer-array-whose-sum-is-equal-to-given-number/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-all-pairs-on-integer-array-whose-sum-is-equal-to-given-number/",
+        "Java": "https://prepinsta.com/java-program/program-to-find-all-pairs-on-integer-array-whose-sum-is-equal-to-given-number/",
+        "Python": "https://prepinsta.com/python-program/find-all-pairs-on-integer-array-whose-sum-is-equal-to-given-number"
+      }
+    },
+    {
+      "title": "Find if there is any subarray with sum equal to 0 \u2013C|C++|Java|Python",
+      "raw": "Find if there is any subarray with sum equal to 0 \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-if-there-is-any-subarray-with-sum-equal-to-0/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-if-there-is-any-subarray-with-sum-equal-to-0/",
+        "Java": "https://prepinsta.com/java-program/to-find-if-there-is-any-subarray-with-sum-equal-to-0-2/",
+        "Python": "https://prepinsta.com/python-program/find-if-there-is-any-subarray-with-sum-equal-to-0/"
+      }
+    },
+    {
+      "title": "Find factorial of a Large Number \u2013C|C++|Java|Python",
+      "raw": "Find factorial of a Large Number \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-factorial-of-a-large-number/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-factorial-of-a-large-number/",
+        "Java": "https://prepinsta.com/java-program/to-find-factorial-of-a-large-number/",
+        "Python": "https://prepinsta.com/python-program/factorial-of-a-large-number/"
+      }
+    },
+    {
+      "title": "Find common elements In 3 sorted arrays \u2013C|C++|Java|Python",
+      "raw": "Find common elements In 3 sorted arrays \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-the-common-elements-in-three-sorted-arrays",
+        "C++": "https://prepinsta.com/cpp-program/to-find-common-elements-in-three-sorted-arrays",
+        "Java": "https://prepinsta.com/java-program/find-common-elements-in-3-sorted-arrays/",
+        "Python": "https://prepinsta.com/python-program/find-common-elements-in-3-sorted-arrays/"
+      }
+    },
+    {
+      "title": "Rearrange the array in alternating positive and negative items with O(1) extra space \u2013C|C++|Java|Python",
+      "raw": "Rearrange the array in alternating positive and negative items with O(1) extra space \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-rearrange-the-array-in-alternating-positive-and-negative-items-with-o1-extra-space",
+        "C++": "https://prepinsta.com/cpp-program/to-rearrange-the-array-in-alternating-positive-and-negative-items-with-o1-extra-space",
+        "Java": "https://prepinsta.com/java-program/to-rearrange-the-array-in-alternating-positive-and-negative-items-with-o1-extra-space/",
+        "Python": "https://prepinsta.com/python-program/rearrange-the-array-in-alternating-positive-and-negative-items/"
+      }
+    },
+    {
+      "title": "Given an array of size n and a number k, find all elements that appear more than \u201d n/k \u201d times. \u2013C|C++|Java|Python",
+      "raw": "Given an array of size n and a number k, find all elements that appear more than \u201d n/k \u201d times. \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-all-elements-that-appear-more-than-n-k-times",
+        "C++": "https://prepinsta.com/cpp-program/to-find-all-the-elements-that-appear-more-than-n-k-times",
+        "Java": "https://prepinsta.com/java-program/program-to-find-all-the-elements-that-appear-more-than-n-k-times/",
+        "Python": "https://prepinsta.com/python-program/given-an-array-of-size-n-and-a-number-k-fin-all-elements-that-appear-more-than-n-k-times//"
+      }
+    },
+    {
+      "title": "Maximum profit by buying and selling a share atmost twice \u2013C|C++|Java|Python",
+      "raw": "Maximum profit by buying and selling a share atmost twice \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-maximum-profit-by-buying-and-selling-a-share-atmost-twice",
+        "C++": "https://prepinsta.com/cpp-program/to-find-maximum-profit-by-buying-and-selling-a-share-atmost-twice",
+        "Java": "https://prepinsta.com/java-program/to-find-maximum-profit-by-buying-and-selling-a-share-atmost-twice/",
+        "Python": "https://prepinsta.com/python-program/find-maximum-profit-by-buying-and-selling-a-share-at-most-twice/"
+      }
+    },
+    {
+      "title": "Next Permutation \u2013 C |C++|Java| Python",
+      "raw": "Next Permutation \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/to-find-next-permutation/",
+        "Java": "https://prepinsta.com/java-program/to-find-next-permutation/"
+      }
+    },
+    {
+      "title": "Find longest consecutive subsequence \u2013C|C++|Java|Python",
+      "raw": "Find longest consecutive subsequence \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-longest-consecutive-subsequence/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-longest-consecutive-subsequence",
+        "Java": "https://prepinsta.com/java-program/to-find-longest-consecutive-subsequence",
+        "Python": "https://prepinsta.com/python-program/longest-consecutive-subsequence/"
+      }
+    },
+    {
+      "title": "Trapping Rain water problem \u2013C|C++|Java|Python",
+      "raw": "Trapping Rain water problem \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/trapping-rain-water-problem/",
+        "C++": "https://prepinsta.com/cpp-program/trapping-rain-water-problem/",
+        "Java": "https://prepinsta.com/java-program/program-for-trapping-rain-water-problem/",
+        "Python": "https://prepinsta.com/python-program/trapping-rain-water-problem/"
+      }
+    },
+    {
+      "title": "Chocolate Distribution problem \u2013 C |C++|Java|Python",
+      "raw": "Chocolate Distribution problem \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/chocolate-distribution-problem/",
+        "Java": "https://prepinsta.com/java-program/chocolate-distribution-problem-in-java-3/",
+        "Python": "https://prepinsta.com/python-program/chocolate-distribution-problem/"
+      }
+    },
+    {
+      "title": "Smallest Subarray with sum greater than a given value \u2013C|C++|Java|Python",
+      "raw": "Smallest Subarray with sum greater than a given value \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-smallest-subarray-with-sum-greater-than-a-given-value/",
+        "C++": "https://prepinsta.com/cpp-program/smallest-sub-array-with-sum-greater-than-a-given-value",
+        "Java": "https://prepinsta.com/java-program/smallest-sub-array-with-sum-greater-than-a-given-value/",
+        "Python": "https://prepinsta.com/python-program/smallest-subarray-with-sum-greater-than-a-given-value/"
+      }
+    },
+    {
+      "title": "Three way partitioning of an array around a given value \u2013C|C++|Java|Python",
+      "raw": "Three way partitioning of an array around a given value \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/three-way-partitioning-of-an-array-around-a-given-range/",
+        "C++": "https://prepinsta.com/cpp-program/three-way-partitioning-of-an-array-around-a-given-range/",
+        "Java": "https://prepinsta.com/java-program/three-way-partitioning-of-an-array-around-a-given-range/",
+        "Python": "https://prepinsta.com/python-program/three-way-partitioning-of-an-array-around-a-given-range/"
+      }
+    },
+    {
+      "title": "Minimum no. of operations required to make an array palindrome \u2013C|C++|Java|Python",
+      "raw": "Minimum no. of operations required to make an array palindrome \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-minimum-number-of-merge-operations-required-to-make-an-array-palindrome/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-minimum-number-of-merge-operations-required-to-make-an-array-palindrome/",
+        "Java": "https://prepinsta.com/java-program/find-minimum-number-of-merge-operations-required-to-make-an-array-palindrome/",
+        "Python": "https://prepinsta.com/python-program/minimum-no-of-merge-operations-required-to-make-an-array-palindrome/"
+      }
+    },
+    {
+      "title": "Median of 2 sorted arrays of equal size \u2013C|C++|Java|Python",
+      "raw": "Median of 2 sorted arrays of equal size \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-median-of-two-sorted-arrays-of-equal-size/",
+        "C++": "https://prepinsta.com/cpp-program/to-find-median-of-two-sorted-arrays-of-equal-size/",
+        "Java": "https://prepinsta.com/java-program/to-find-median-of-two-sorted-arrays-of-equal-size/",
+        "Python": "https://prepinsta.com/python-program/find-median-of-two-sorted-arrays-of-equal-size/"
+      }
+    },
+    {
+      "title": "Median of 2 sorted arrays of different size \u2013C|C++|Java|Python",
+      "raw": "Median of 2 sorted arrays of different size \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/median-of-two-sorted-arrays-of-different-size/",
+        "C++": "https://prepinsta.com/cpp-program/median-of-two-sorted-arrays-of-different-size/",
+        "Java": "https://prepinsta.com/java-program/median-of-two-sorted-arrays-of-different-size/",
+        "Python": "https://prepinsta.com/python-program/find-median-of-2-sorted-arrays-of-different-size/"
+      }
+    }
+  ],
+  "Codes related to Matrix": [
+    {
+      "title": "Spiral traversal on a Matrix \u2013C|C++|Java|Python",
+      "raw": "Spiral traversal on a Matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/to-find-spiral-traversal-of-a-matrix/",
+        "C++": "https://prepinsta.com/cpp-program/spiral-traversal-of-a-matrix/",
+        "Java": "https://prepinsta.com/java-program/spiral-traversal-of-a-matrix/",
+        "Python": "https://prepinsta.com/python-program/spiral-traversal-of-a-matrix/"
+      }
+    },
+    {
+      "title": "Search an element in a matrix \u2013C|C++|Java|Python",
+      "raw": "Search an element in a matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/search-an-element-in-a-matrix/",
+        "C++": "https://prepinsta.com/cpp-program/search-an-element-in-a-matrix/",
+        "Java": "https://prepinsta.com/java-program/search-an-element-in-a-matrix/",
+        "Python": "https://prepinsta.com/python-program/given-a-sequence-of-words-print-all-anagrams-together/"
+      }
+    },
+    {
+      "title": "Find median in a row wise sorted matrix \u2013C|C++|Java|Python",
+      "raw": "Find median in a row wise sorted matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-median-in-a-row-wise-sorted-matrix/",
+        "C++": "https://prepinsta.com/cpp-program/find-median-in-a-row-wise-sorted-matrix/",
+        "Java": "https://prepinsta.com/java-program/find-median-in-a-row-wise-sorted-matrix/",
+        "Python": "https://prepinsta.com/python-program/find-median-of-row-wise-sorted-matrix/"
+      }
+    },
+    {
+      "title": "Find row with maximum no. of 1\u2019s \u2013C|C++|Python",
+      "raw": "Find row with maximum no. of 1\u2019s \u2013 C | C++ | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-row-with-maximum-number-of-1s/",
+        "C++": "https://prepinsta.com/cpp-program/find-row-with-maximum-number-of-1s/",
+        "Python": "https://prepinsta.com/python-program/find-row-with-maximum-no-of-1s/"
+      }
+    },
+    {
+      "title": "Print elements in sorted order using row-column wise sorted matrix \u2013C|C++|Java|Python",
+      "raw": "Print elements in sorted order using row-column wise sorted matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/elements-in-sorted-order-using-row-column-wise-sorted-matrix/",
+        "C++": "https://prepinsta.com/cpp-program/print-elements-in-sorted-order-using-row-column-wise-sorted-matrix/",
+        "Java": "https://prepinsta.com/java-program/print-elements-in-sorted-order-using-row-column-wise-sorted-matrix/",
+        "Python": "https://prepinsta.com/python-program/print-elements-in-sorted-order-using-row-column-wise-sorted-matrix/"
+      }
+    },
+    {
+      "title": "Find a specific pair in matrix \u2013C| C++ |Java|Python",
+      "raw": "Find a specific pair in matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/find-a-specific-pair-in-matrix/",
+        "Java": "https://prepinsta.com/java-program/find-a-specific-pair-in-matrix/",
+        "Python": "https://prepinsta.com/?page_id=1305252&preview=true"
+      }
+    },
+    {
+      "title": "Rotate matrix by 90 degrees \u2013C|C++|Java|Python",
+      "raw": "Rotate matrix by 90 degrees \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/rotate-a-matrix-by-90-degree-in-clockwise-direction/",
+        "C++": "https://prepinsta.com/cpp-program/rotate-a-matrix-by-90-degree-in-clockwise-direction/",
+        "Java": "https://prepinsta.com/java-program/rotate-a-matrix-by-90-degree-in-clockwise-direction/",
+        "Python": "https://prepinsta.com/python-program/rotate-a-matrix-by-90-degree-in-clockwise-direction"
+      }
+    },
+    {
+      "title": "Kth smallest element in a row-column wise sorted matrix \u2013 C |C++|Java| Python",
+      "raw": "Kth smallest element in a row-column wise sorted matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C++": "https://prepinsta.com/cpp-program/kth-smallest-element-in-a-row-column-wise-sorted-matrix/",
+        "Java": "https://prepinsta.com/java-program/kth-smallest-element-in-a-row-column-wise-sorted-matrix-in-java/"
+      }
+    },
+    {
+      "title": "Common elements in all rows of a given matrix \u2013C|C++|Java|Python",
+      "raw": "Common elements in all rows of a given matrix \u2013 C | C++ | Java | Python",
+      "links": {
+        "C": "https://prepinsta.com/c-program/common-elements-in-all-rows-of-a-given-matrix/",
+        "C++": "https://prepinsta.com/cpp-program/common-elements-in-all-rows-of-a-given-matrix/",
+        "Java": "https://prepinsta.com/java-program/common-elements-in-all-rows-of-a-given-matrix/",
+        "Python": "https://prepinsta.com/python-program/common-elements-in-all-rows-of-a-given-matrix/"
+      }
+    }
+  ]
+}

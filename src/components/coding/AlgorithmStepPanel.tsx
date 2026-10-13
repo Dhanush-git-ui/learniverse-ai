@@ -27,10 +27,12 @@ export default function AlgorithmStepPanel({
 
   const handleSave = () => {
     setIsSaved(true);
+    setIsExpanded(false);
     if (onConfirmAlgorithm) onConfirmAlgorithm();
   };
 
   const handleSkip = () => {
+    setIsExpanded(false);
     if (onSkipAlgorithm) onSkipAlgorithm();
   };
 
@@ -48,9 +50,9 @@ export default function AlgorithmStepPanel({
           </span>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-sans ml-2"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-sans ml-2 cursor-pointer font-medium"
           >
-            {isExpanded ? 'Collapse' : 'Edit Algorithm'}
+            {isExpanded ? 'Collapse' : (algorithmText.trim() ? 'Edit Algorithm' : 'Write Approach')}
           </button>
         </div>
       </div>

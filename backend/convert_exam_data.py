@@ -12,9 +12,9 @@ if os.path.exists(students_excel):
     df_students.columns = [c.strip() for c in df_students.columns]
     
     roster = []
-    for idx, row in df_students.iterrows():
+    for i, (_, row) in enumerate(df_students.iterrows(), start=1):
         raw_roll = str(row.get('College roll no', '')).strip()
-        clean_roll = f"TEMP_{idx+1:03d}" if raw_roll.lower() in ('nan', 'none', '') else raw_roll.upper().replace(" ", "")
+        clean_roll = f"TEMP_{i:03d}" if raw_roll.lower() in ('nan', 'none', '') else raw_roll.upper().replace(" ", "")
         role_str = str(row.get('Role', '')).strip()
         standard_role = "DevOps Intern" if "devops" in role_str.lower() else "Mobile App Developer Intern"
         
@@ -36,9 +36,9 @@ devops_excel = os.path.join(DATA_DIR, "DevOps_Questions.xlsx")
 if os.path.exists(devops_excel):
     df_dev = pd.read_excel(devops_excel)
     dev_qs = []
-    for idx, row in df_dev.iterrows():
+    for i, (_, row) in enumerate(df_dev.iterrows(), start=1):
         dev_qs.append({
-            "id": f"devops_{idx+1:03d}",
+            "id": f"devops_{i:03d}",
             "category": "DevOps",
             "topic": str(row.get('Topic', 'DevOps Fundamentals')).strip(),
             "difficulty": "Easy",
@@ -69,12 +69,12 @@ rn_excel = next((p for p in rn_candidates if os.path.exists(p)), None)
 if rn_excel:
     df_rn = pd.read_excel(rn_excel)
     rn_qs = []
-    for idx, row in df_rn.iterrows():
+    for i, (_, row) in enumerate(df_rn.iterrows(), start=1):
         diff_raw = str(row.get('Difficulty_Level', row.get('difficulty', 'Medium'))).strip()
         difficulty_formatted = diff_raw.replace('_', ' ').title() if diff_raw and diff_raw.lower() != 'nan' else 'Medium'
         
         rn_qs.append({
-            "id": f"rn_{idx+1:03d}",
+            "id": f"rn_{i:03d}",
             "category": str(row.get('Skill', 'Mobile App Development')).strip(),
             "role": "Mobile App Developer Intern",
             "topic": str(row.get('Topic', 'Mobile App Architecture')).strip(),

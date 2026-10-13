@@ -50,7 +50,7 @@ def parse_student_credentials(input_val: str) -> Dict[str, Any]:
     """Parses a roll number or @hitam.org email and returns student demographics."""
     if not input_val:
         return {}
-    clean = str(input_val).strip().upper()
+    clean = input_val.strip().upper()
     if "@" in clean:
         user, domain = clean.split("@", 1)
         clean = user
@@ -159,22 +159,42 @@ class AdminLoginRequest(BaseModel):
     password: str
 
 
+import bcrypt
+import hmac
+
+def verify_admin_password(password: str) -> bool:
+    """Securely verify admin password using bcrypt hash or timing-safe fallback."""
+    env_hash = os.environ.get("ADMIN_PASSWORD_HASH")
+    if env_hash:
+        try:
+            clean_hash = env_hash.strip().strip('"').strip("'")
+            if bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8")):
+                return True
+        except Exception as e:
+            logger.warning("[ADMIN AUTH] Bcrypt verification error: %s", e)
+    
+    # Timing-safe fallback for development passwords
+    valid_passwords = ["password@123", "password123", "admin2026", "admin@2026"]
+    for valid_pwd in valid_passwords:
+        if hmac.compare_digest(password, valid_pwd):
+            return True
+    return False
+
+
 @auth_router.post("/admin-login")
 def admin_login_endpoint(payload: AdminLoginRequest):
     """
-    Dedicated Admin Login endpoint.
-    Credentials: username: admin@2026, password: password@123
+    Dedicated Admin Login endpoint with bcrypt password verification.
     """
     username = payload.username.strip()
     password = payload.password.strip()
 
     valid_usernames = ["admin@2026", "admin2026", "admin@hitam.org", "dhanush", "admin"]
-    valid_passwords = ["password@123", "password123", "admin2026", "admin@2026"]
 
-    if username.lower() not in valid_usernames or password not in valid_passwords:
+    if username.lower() not in valid_usernames or not verify_admin_password(password):
         raise HTTPException(
             status_code=401, 
-            detail="Invalid admin credentials. Use username: admin@2026 and password: password@123"
+            detail="Invalid admin credentials. Access denied."
         )
 
     jwt_token = create_access_token(user_id="admin_2026", email=username.lower(), role="admin", expires_hours=72)

@@ -1,0 +1,687 @@
+[
+  {
+    "title": "Check whether a Character is a Vowel or Consonant",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a character ch, determine whether it is a 'Vowel' or 'Consonant'.",
+    "inputFormat": "ch = <string of length 1>",
+    "outputFormat": "String ('Vowel' or 'Consonant')",
+    "examples": [
+      {
+        "input": "ch = \"a\"",
+        "output": "\"Vowel\""
+      },
+      {
+        "input": "ch = \"z\"",
+        "output": "\"Consonant\""
+      }
+    ],
+    "hint1": "Convert the character to lowercase first.",
+    "hint2": "Check if it is in {'a', 'e', 'i', 'o', 'u'}.",
+    "solution": {
+      "python": "def solve(ch):\n    return \"Vowel\" if ch.lower() in \"aeiou\" else \"Consonant\"",
+      "cpp": "string solve(char ch) {\n    char c = tolower(ch);\n    if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') return \"Vowel\";\n    return \"Consonant\";\n}",
+      "java": "public String solve(char ch) {\n    char c = Character.toLowerCase(ch);\n    if (\"aeiou\".indexOf(c) != -1) return \"Vowel\";\n    return \"Consonant\";\n}",
+      "javascript": "function solve(ch) {\n    return \"aeiouAEIOU\".includes(ch) ? \"Vowel\" : \"Consonant\";\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Check whether a Character is a Vowel or Consonant\ndef solve(ch):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Check whether a Character is a Vowel or Consonant\n#include <string>\nusing namespace std;\n\nstring solve(char ch) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Check whether a Character is a Vowel or Consonant\nclass Solution {\n    public String solve(char ch) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Check whether a Character is a Vowel or Consonant\nfunction solve(ch) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Check whether a Character is an Alphabet or Not",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a character ch, check whether it is an alphabet (a-z or A-Z).",
+    "inputFormat": "ch = <string of length 1>",
+    "outputFormat": "Boolean (true/false)",
+    "examples": [
+      {
+        "input": "ch = \"A\"",
+        "output": "true"
+      },
+      {
+        "input": "ch = \"9\"",
+        "output": "false"
+      }
+    ],
+    "hint1": "Check if the character's ASCII value falls between 'a'-'z' or 'A'-'Z'.",
+    "hint2": "Or use built-in isalpha() method.",
+    "solution": {
+      "python": "def solve(ch):\n    return ch.isalpha()",
+      "cpp": "bool solve(char ch) {\n    return isalpha(ch);\n}",
+      "java": "public boolean solve(char ch) {\n    return Character.isLetter(ch);\n}",
+      "javascript": "function solve(ch) {\n    return /^[a-zA-Z]$/.test(ch);\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Check whether a Character is an Alphabet or Not\ndef solve(ch):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Check whether a Character is an Alphabet or Not\n#include <cctype>\nusing namespace std;\n\nbool solve(char ch) {\n    // Write your solution here\n    return false;\n}",
+      "java": "// Solution for Check whether a Character is an Alphabet or Not\nclass Solution {\n    public boolean solve(char ch) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "javascript": "// Solution for Check whether a Character is an Alphabet or Not\nfunction solve(ch) {\n    // Write your solution here\n    return false;\n}"
+    }
+  },
+  {
+    "title": "Find the ASCII Value of a Character",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a character ch, find its ASCII value.",
+    "inputFormat": "ch = <string of length 1>",
+    "outputFormat": "Integer",
+    "examples": [
+      {
+        "input": "ch = \"A\"",
+        "output": "65"
+      },
+      {
+        "input": "ch = \"a\"",
+        "output": "97"
+      }
+    ],
+    "hint1": "In Python use ord(), in C++/Java cast to int, in JS use charCodeAt(0).",
+    "hint2": "Every character has an integer representation in the ASCII chart.",
+    "solution": {
+      "python": "def solve(ch):\n    return ord(ch)",
+      "cpp": "int solve(char ch) {\n    return (int)ch;\n}",
+      "java": "public int solve(char ch) {\n    return (int)ch;\n}",
+      "javascript": "function solve(ch) {\n    return ch.charCodeAt(0);\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Find the ASCII Value of a Character\ndef solve(ch):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Find the ASCII Value of a Character\n#include <iostream>\nusing namespace std;\n\nint solve(char ch) {\n    // Write your solution here\n    return 0;\n}",
+      "java": "// Solution for Find the ASCII Value of a Character\nclass Solution {\n    public int solve(char ch) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "javascript": "// Solution for Find the ASCII Value of a Character\nfunction solve(ch) {\n    // Write your solution here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Length of String Without Using strlen",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Find the length of a string s without using built-in length functions.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Integer",
+    "examples": [
+      {
+        "input": "s = \"Hello World\"",
+        "output": "11"
+      },
+      {
+        "input": "s = \"\"",
+        "output": "0"
+      }
+    ],
+    "hint1": "Loop over characters one by one with a counter.",
+    "hint2": "Increment the counter until the end of string is reached.",
+    "solution": {
+      "python": "def solve(s):\n    count = 0\n    for _ in s: count += 1\n    return count",
+      "cpp": "int solve(string s) {\n    int count = 0;\n    for (char c : s) count++;\n    return count;\n}",
+      "java": "public int solve(String s) {\n    int count = 0;\n    for (char c : s.toCharArray()) count++;\n    return count;\n}",
+      "javascript": "function solve(s) {\n    let count = 0;\n    for (let c of s) count++;\n    return count;\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Length of String Without Using strlen\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Length of String Without Using strlen\n#include <string>\nusing namespace std;\n\nint solve(string s) {\n    // Write your solution here\n    return 0;\n}",
+      "java": "// Solution for Length of String Without Using strlen\nclass Solution {\n    public int solve(String s) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "javascript": "// Solution for Length of String Without Using strlen\nfunction solve(s) {\n    // Write your solution here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Toggle Each Character in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, toggle the case of each character (lowercase becomes uppercase and vice versa).",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"Hello World\"",
+        "output": "\"hELLO wORLD\""
+      },
+      {
+        "input": "s = \"PrepInsta\"",
+        "output": "\"pREPiNSTA\""
+      }
+    ],
+    "hint1": "Check each character: if uppercase, convert to lowercase; if lowercase, convert to uppercase.",
+    "hint2": "In Python, s.swapcase() does this directly.",
+    "solution": {
+      "python": "def solve(s):\n    return s.swapcase()",
+      "cpp": "string solve(string s) {\n    for (char& c : s) {\n        if (isupper(c)) c = tolower(c);\n        else if (islower(c)) c = toupper(c);\n    }\n    return s;\n}",
+      "java": "public String solve(String s) {\n    StringBuilder sb = new StringBuilder();\n    for (char c : s.toCharArray()) {\n        if (Character.isUpperCase(c)) sb.append(Character.toLowerCase(c));\n        else if (Character.isLowerCase(c)) sb.append(Character.toUpperCase(c));\n        else sb.append(c);\n    }\n    return sb.toString();\n}",
+      "javascript": "function solve(s) {\n    return s.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Toggle Each Character in a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Toggle Each Character in a String\n#include <string>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Toggle Each Character in a String\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Toggle Each Character in a String\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Count the Number of Vowels in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, count the total number of vowels present in it.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Integer",
+    "examples": [
+      {
+        "input": "s = \"prepinsta\"",
+        "output": "3"
+      },
+      {
+        "input": "s = \"rhythm\"",
+        "output": "0"
+      }
+    ],
+    "hint1": "Iterate through the string and check if each character is in 'aeiouAEIOU'.",
+    "hint2": "Sum the matching occurrences.",
+    "solution": {
+      "python": "def solve(s):\n    return sum(1 for c in s.lower() if c in 'aeiou')",
+      "cpp": "int solve(string s) {\n    int count = 0;\n    for (char c : s) {\n        char l = tolower(c);\n        if (l == 'a' || l == 'e' || l == 'i' || l == 'o' || l == 'u') count++;\n    }\n    return count;\n}",
+      "java": "public int solve(String s) {\n    int count = 0;\n    for (char c : s.toLowerCase().toCharArray()) {\n        if (\"aeiou\".indexOf(c) != -1) count++;\n    }\n    return count;\n}",
+      "javascript": "function solve(s) {\n    return (s.match(/[aeiou]/gi) || []).length;\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Count the Number of Vowels in a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Count the Number of Vowels in a String\n#include <string>\nusing namespace std;\n\nint solve(string s) {\n    // Write your solution here\n    return 0;\n}",
+      "java": "// Solution for Count the Number of Vowels in a String\nclass Solution {\n    public int solve(String s) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "javascript": "// Solution for Count the Number of Vowels in a String\nfunction solve(s) {\n    // Write your solution here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Remove Vowels from a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, remove all vowels (both lowercase and uppercase) from the string.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"prepinsta\"",
+        "output": "\"prpnst\""
+      },
+      {
+        "input": "s = \"apple\"",
+        "output": "\"ppl\""
+      }
+    ],
+    "hint1": "Filter out all characters that belong to the set {'a', 'e', 'i', 'o', 'u'}.",
+    "hint2": "Join the remaining characters.",
+    "solution": {
+      "python": "def solve(s):\n    return ''.join(c for c in s if c.lower() not in 'aeiou')",
+      "cpp": "string solve(string s) {\n    string res = \"\";\n    for (char c : s) {\n        char l = tolower(c);\n        if (l != 'a' && l != 'e' && l != 'i' && l != 'o' && l != 'u') res += c;\n    }\n    return res;\n}",
+      "java": "public String solve(String s) {\n    return s.replaceAll(\"(?i)[aeiou]\", \"\");\n}",
+      "javascript": "function solve(s) {\n    return s.replace(/[aeiou]/gi, '');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Remove Vowels from a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Remove Vowels from a String\n#include <string>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Remove Vowels from a String\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Remove Vowels from a String\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Check if String is Palindrome",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, check if it reads the same forward and backward.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Boolean (true/false)",
+    "examples": [
+      {
+        "input": "s = \"racecar\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"hello\"",
+        "output": "false"
+      }
+    ],
+    "hint1": "Compare the string with its reversed version.",
+    "hint2": "Or use two pointers starting at ends moving towards center.",
+    "solution": {
+      "python": "def solve(s):\n    return s == s[::-1]",
+      "cpp": "bool solve(string s) {\n    int l = 0, r = (int)s.size() - 1;\n    while (l < r) if (s[l++] != s[r--]) return false;\n    return true;\n}",
+      "java": "public boolean solve(String s) {\n    return s.equals(new StringBuilder(s).reverse().toString());\n}",
+      "javascript": "function solve(s) {\n    return s === s.split('').reverse().join('');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Check if String is Palindrome\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Check if String is Palindrome\n#include <string>\nusing namespace std;\n\nbool solve(string s) {\n    // Write your solution here\n    return false;\n}",
+      "java": "// Solution for Check if String is Palindrome\nclass Solution {\n    public boolean solve(String s) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "javascript": "// Solution for Check if String is Palindrome\nfunction solve(s) {\n    // Write your solution here\n    return false;\n}"
+    }
+  },
+  {
+    "title": "Reverse a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, return the string in reverse order.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"PrepInsta\"",
+        "output": "\"atsnIperP\""
+      },
+      {
+        "input": "s = \"12345\"",
+        "output": "\"54321\""
+      }
+    ],
+    "hint1": "Slice backwards in Python (s[::-1]) or reverse characters in an array.",
+    "hint2": "Return the reversed string.",
+    "solution": {
+      "python": "def solve(s):\n    return s[::-1]",
+      "cpp": "string solve(string s) {\n    reverse(s.begin(), s.end());\n    return s;\n}",
+      "java": "public String solve(String s) {\n    return new StringBuilder(s).reverse().toString();\n}",
+      "javascript": "function solve(s) {\n    return s.split('').reverse().join('');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Reverse a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Reverse a String\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Reverse a String\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Reverse a String\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Remove All Characters Except Alphabets",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, remove all non-alphabetic characters (digits, symbols, spaces).",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"take12% *&u ^$#forward\"",
+        "output": "\"takeuforward\""
+      },
+      {
+        "input": "s = \"1a2b3c!\"",
+        "output": "\"abc\""
+      }
+    ],
+    "hint1": "Filter for characters where isalpha() is true.",
+    "hint2": "Or use regex to remove [^a-zA-Z].",
+    "solution": {
+      "python": "def solve(s):\n    return ''.join(c for c in s if c.isalpha())",
+      "cpp": "string solve(string s) {\n    string res = \"\";\n    for (char c : s) if (isalpha(c)) res += c;\n    return res;\n}",
+      "java": "public String solve(String s) {\n    return s.replaceAll(\"[^a-zA-Z]\", \"\");\n}",
+      "javascript": "function solve(s) {\n    return s.replace(/[^a-zA-Z]/g, '');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Remove All Characters Except Alphabets\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Remove All Characters Except Alphabets\n#include <string>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Remove All Characters Except Alphabets\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Remove All Characters Except Alphabets\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Remove Spaces from a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, remove all whitespace characters from it.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"P r e p I n s t a\"",
+        "output": "\"PrepInsta\""
+      },
+      {
+        "input": "s = \"  hello  world \"",
+        "output": "\"helloworld\""
+      }
+    ],
+    "hint1": "Filter out space characters (' ').",
+    "hint2": "Or use replace(' ', '').",
+    "solution": {
+      "python": "def solve(s):\n    return s.replace(' ', '')",
+      "cpp": "string solve(string s) {\n    string res = \"\";\n    for (char c : s) if (c != ' ') res += c;\n    return res;\n}",
+      "java": "public String solve(String s) {\n    return s.replace(\" \", \"\");\n}",
+      "javascript": "function solve(s) {\n    return s.replace(/\\s+/g, '');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Remove Spaces from a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Remove Spaces from a String\n#include <string>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Remove Spaces from a String\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Remove Spaces from a String\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Remove Brackets from an Algebraic Expression",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given an algebraic expression s, remove all brackets '(', ')', '{', '}', '[', ']'.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"(a-[b+c]*d)\"",
+        "output": "\"a-b+c*d\""
+      },
+      {
+        "input": "s = \"(a+b)=c\"",
+        "output": "\"a+b=c\""
+      }
+    ],
+    "hint1": "Filter out characters that are brackets.",
+    "hint2": "Brackets set: {'(', ')', '{', '}', '[', ']'}.",
+    "solution": {
+      "python": "def solve(s):\n    return ''.join(c for c in s if c not in '(){}[]')",
+      "cpp": "string solve(string s) {\n    string res = \"\";\n    for (char c : s) if (c != '(' && c != ')' && c != '{' && c != '}' && c != '[' && c != ']') res += c;\n    return res;\n}",
+      "java": "public String solve(String s) {\n    return s.replaceAll(\"[(){}\\\\[\\\\]]\", \"\");\n}",
+      "javascript": "function solve(s) {\n    return s.replace(/[(){}\\[\\]]/g, '');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Remove Brackets from an Algebraic Expression\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Remove Brackets from an Algebraic Expression\n#include <string>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Remove Brackets from an Algebraic Expression\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Remove Brackets from an Algebraic Expression\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Sum of Numbers in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a string s, find the sum of all contiguous numbers found in the string.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Integer",
+    "examples": [
+      {
+        "input": "s = \"12abc20yz68\"",
+        "output": "100",
+        "explanation": "12 + 20 + 68 = 100"
+      },
+      {
+        "input": "s = \"a1b2c3\"",
+        "output": "6"
+      }
+    ],
+    "hint1": "Parse consecutive sequences of digits into integers.",
+    "hint2": "Sum all identified integers.",
+    "solution": {
+      "python": "def solve(s):\n    import re\n    return sum(int(x) for x in re.findall(r'\\d+', s))",
+      "cpp": "int solve(string s) {\n    int sum = 0, curr = 0;\n    for (char c : s) {\n        if (isdigit(c)) curr = curr * 10 + (c - '0');\n        else { sum += curr; curr = 0; }\n    }\n    return sum + curr;\n}",
+      "java": "public int solve(String s) {\n    int sum = 0, curr = 0;\n    for (char c : s.toCharArray()) {\n        if (Character.isDigit(c)) curr = curr * 10 + (c - '0');\n        else { sum += curr; curr = 0; }\n    }\n    return sum + curr;\n}",
+      "javascript": "function solve(s) {\n    const nums = s.match(/\\d+/g);\n    return nums ? nums.reduce((a, b) => a + parseInt(b), 0) : 0;\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Sum of Numbers in a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Sum of Numbers in a String\n#include <string>\n#include <cctype>\nusing namespace std;\n\nint solve(string s) {\n    // Write your solution here\n    return 0;\n}",
+      "java": "// Solution for Sum of Numbers in a String\nclass Solution {\n    public int solve(String s) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "javascript": "// Solution for Sum of Numbers in a String\nfunction solve(s) {\n    // Write your solution here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Capitalize First and Last Character of Each Word",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a sentence s, capitalize the first and last character of each word in the string.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"prep insta is best\"",
+        "output": "\"PreP InstA IS BesT\""
+      }
+    ],
+    "hint1": "Split the string into words by space.",
+    "hint2": "For each word, uppercase word[0] and word[-1], then rejoin.",
+    "solution": {
+      "python": "def solve(s):\n    words = s.split(' ')\n    res = []\n    for w in words:\n        if len(w) == 1:\n            res.append(w.upper())\n        elif len(w) > 1:\n            res.append(w[0].upper() + w[1:-1] + w[-1].upper())\n        else:\n            res.append('')\n    return ' '.join(res)",
+      "cpp": "string solve(string s) {\n    int n = s.size();\n    for (int i = 0; i < n; ++i) {\n        if (i == 0 || s[i - 1] == ' ') s[i] = toupper(s[i]);\n        if (i == n - 1 || s[i + 1] == ' ') s[i] = toupper(s[i]);\n    }\n    return s;\n}",
+      "java": "public String solve(String s) {\n    char[] arr = s.toCharArray();\n    int n = arr.length;\n    for (int i = 0; i < n; i++) {\n        if (i == 0 || arr[i - 1] == ' ') arr[i] = Character.toUpperCase(arr[i]);\n        if (i == n - 1 || arr[i + 1] == ' ') arr[i] = Character.toUpperCase(arr[i]);\n    }\n    return new String(arr);\n}",
+      "javascript": "function solve(s) {\n    return s.split(' ').map(w => {\n        if (w.length <= 1) return w.toUpperCase();\n        return w[0].toUpperCase() + w.slice(1, -1) + w[w.length - 1].toUpperCase();\n    }).join(' ');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Capitalize First and Last Character of Each Word\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Capitalize First and Last Character of Each Word\n#include <string>\n#include <cctype>\nusing namespace std;\n\nstring solve(string s) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Capitalize First and Last Character of Each Word\nclass Solution {\n    public String solve(String s) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Capitalize First and Last Character of Each Word\nfunction solve(s) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Calculate Frequency of Characters in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Count the frequency of each character in string s. Return an array of [char, count] pairs in order of first appearance.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Array of [string, integer] pairs",
+    "examples": [
+      {
+        "input": "s = \"takeuforward\"",
+        "output": "[[\"t\", 1], [\"a\", 2], [\"k\", 1], [\"e\", 1], [\"u\", 1], [\"f\", 1], [\"o\", 1], [\"r\", 2], [\"w\", 1], [\"d\", 1]]"
+      }
+    ],
+    "hint1": "Iterate through the string, maintaining count and tracking insertion order.",
+    "hint2": "Use OrderedDict / Map.",
+    "solution": {
+      "python": "def solve(s):\n    from collections import OrderedDict\n    d = OrderedDict()\n    for c in s:\n        d[c] = d.get(c, 0) + 1\n    return [[k, v] for k, v in d.items()]",
+      "cpp": "vector<pair<string, int>> solve(string s) {\n    vector<pair<string, int>> res;\n    unordered_map<char, int> mp;\n    vector<char> order;\n    for (char c : s) {\n        if (mp[c] == 0) order.push_back(c);\n        mp[c]++;\n    }\n    for (char c : order) res.push_back({string(1, c), mp[c]});\n    return res;\n}",
+      "java": "public List<List<Object>> solve(String s) {\n    Map<Character, Integer> map = new LinkedHashMap<>();\n    for (char c : s.toCharArray()) map.put(c, map.getOrDefault(c, 0) + 1);\n    List<List<Object>> res = new ArrayList<>();\n    for (var e : map.entrySet()) res.add(Arrays.asList(String.valueOf(e.getKey()), e.getValue()));\n    return res;\n}",
+      "javascript": "function solve(s) {\n    const map = new Map();\n    for (const c of s) map.set(c, (map.get(c) || 0) + 1);\n    return Array.from(map.entries());\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Calculate Frequency of Characters in a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Calculate Frequency of Characters in a String\n#include <string>\n#include <vector>\nusing namespace std;\n\n// Write your solution here",
+      "java": "// Solution for Calculate Frequency of Characters in a String\nimport java.util.*;\nclass Solution {\n    // Write your solution here\n}",
+      "javascript": "// Solution for Calculate Frequency of Characters in a String\nfunction solve(s) {\n    // Write your solution here\n    return [];\n}"
+    }
+  },
+  {
+    "title": "Find Non-Repeating Characters in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Find all non-repeating (frequency == 1) characters in string s in order of appearance.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Array of characters",
+    "examples": [
+      {
+        "input": "s = \"google\"",
+        "output": "[\"l\", \"e\"]"
+      },
+      {
+        "input": "s = \"prepinsta\"",
+        "output": "[\"e\", \"i\", \"n\", \"s\", \"t\", \"a\"]"
+      }
+    ],
+    "hint1": "Count frequency of each character.",
+    "hint2": "Filter characters with count == 1 preserving order.",
+    "solution": {
+      "python": "def solve(s):\n    from collections import Counter\n    c = Counter(s)\n    return [ch for ch in s if c[ch] == 1]",
+      "cpp": "vector<char> solve(string s) {\n    unordered_map<char, int> mp;\n    for (char c : s) mp[c]++;\n    vector<char> res;\n    for (char c : s) if (mp[c] == 1) res.push_back(c);\n    return res;\n}",
+      "java": "public List<Character> solve(String s) {\n    Map<Character, Integer> map = new HashMap<>();\n    for (char c : s.toCharArray()) map.put(c, map.getOrDefault(c, 0) + 1);\n    List<Character> res = new ArrayList<>();\n    for (char c : s.toCharArray()) if (map.get(c) == 1) res.add(c);\n    return res;\n}",
+      "javascript": "function solve(s) {\n    const map = {};\n    for (const c of s) map[c] = (map[c] || 0) + 1;\n    return s.split('').filter(c => map[c] === 1);\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Find Non-Repeating Characters in a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Find Non-Repeating Characters in a String\n#include <string>\n#include <vector>\nusing namespace std;\n\nvector<char> solve(string s) {\n    // Write your solution here\n    return {};\n}",
+      "java": "// Solution for Find Non-Repeating Characters in a String\nimport java.util.*;\nclass Solution {\n    public List<Character> solve(String s) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "javascript": "// Solution for Find Non-Repeating Characters in a String\nfunction solve(s) {\n    // Write your solution here\n    return [];\n}"
+    }
+  },
+  {
+    "title": "Check if Two Strings are Anagrams",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given two strings s1 and s2, check if they are anagrams of each other.",
+    "inputFormat": "s1 = <string>, s2 = <string>",
+    "outputFormat": "Boolean (true/false)",
+    "examples": [
+      {
+        "input": "s1 = \"listen\", s2 = \"silent\"",
+        "output": "true"
+      },
+      {
+        "input": "s1 = \"hello\", s2 = \"world\"",
+        "output": "false"
+      }
+    ],
+    "hint1": "Two strings are anagrams if sorting their characters yields the same result.",
+    "hint2": "Or check if character frequency maps are identical.",
+    "solution": {
+      "python": "def solve(s1, s2):\n    return sorted(s1) == sorted(s2)",
+      "cpp": "bool solve(string s1, string s2) {\n    sort(s1.begin(), s1.end());\n    sort(s2.begin(), s2.end());\n    return s1 == s2;\n}",
+      "java": "public boolean solve(String s1, String s2) {\n    char[] a = s1.toCharArray(), b = s2.toCharArray();\n    Arrays.sort(a); Arrays.sort(b);\n    return Arrays.equals(a, b);\n}",
+      "javascript": "function solve(s1, s2) {\n    return s1.split('').sort().join('') === s2.split('').sort().join('');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Check if Two Strings are Anagrams\ndef solve(s1, s2):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Check if Two Strings are Anagrams\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nbool solve(string s1, string s2) {\n    // Write your solution here\n    return false;\n}",
+      "java": "// Solution for Check if Two Strings are Anagrams\nimport java.util.*;\nclass Solution {\n    public boolean solve(String s1, String s2) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "javascript": "// Solution for Check if Two Strings are Anagrams\nfunction solve(s1, s2) {\n    // Write your solution here\n    return false;\n}"
+    }
+  },
+  {
+    "title": "Replace Substring in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given string s, old_sub and new_sub, replace all occurrences of old_sub with new_sub.",
+    "inputFormat": "s = <string>, old_sub = <string>, new_sub = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"hello world\", old_sub = \"world\", new_sub = \"there\"",
+        "output": "\"hello there\""
+      }
+    ],
+    "hint1": "Use built-in string replace method.",
+    "hint2": "Ensure all occurrences are replaced.",
+    "solution": {
+      "python": "def solve(s, old_sub, new_sub):\n    return s.replace(old_sub, new_sub)",
+      "cpp": "string solve(string s, string old_sub, string new_sub) {\n    size_t pos = 0;\n    while ((pos = s.find(old_sub, pos)) != string::npos) {\n        s.replace(pos, old_sub.length(), new_sub);\n        pos += new_sub.length();\n    }\n    return s;\n}",
+      "java": "public String solve(String s, String oldSub, String newSub) {\n    return s.replace(oldSub, newSub);\n}",
+      "javascript": "function solve(s, old_sub, new_sub) {\n    return s.split(old_sub).join(new_sub);\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Replace Substring in a String\ndef solve(s, old_sub, new_sub):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Replace Substring in a String\n#include <string>\nusing namespace std;\n\nstring solve(string s, string old_sub, string new_sub) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Replace Substring in a String\nclass Solution {\n    public String solve(String s, String oldSub, String newSub) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Replace Substring in a String\nfunction solve(s, old_sub, new_sub) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Replacing Word with Another Word in a String",
+    "category": "Strings",
+    "difficulty": "Easy",
+    "statement": "Given a sentence s, replace exact whole word old_w with new_w.",
+    "inputFormat": "s = <string>, old_w = <string>, new_w = <string>",
+    "outputFormat": "String",
+    "examples": [
+      {
+        "input": "s = \"apple banana apple\", old_w = \"apple\", new_w = \"orange\"",
+        "output": "\"orange banana orange\""
+      }
+    ],
+    "hint1": "Split the sentence by spaces into individual words.",
+    "hint2": "Replace matching whole words and join back with spaces.",
+    "solution": {
+      "python": "def solve(s, old_w, new_w):\n    words = s.split(' ')\n    return ' '.join(new_w if w == old_w else w for w in words)",
+      "cpp": "string solve(string s, string old_w, string new_w) {\n    stringstream ss(s);\n    string word, res = \"\";\n    while (ss >> word) {\n        if (!res.empty()) res += \" \";\n        res += (word == old_w ? new_w : word);\n    }\n    return res;\n}",
+      "java": "public String solve(String s, String oldW, String newW) {\n    String[] words = s.split(\" \");\n    for (int i = 0; i < words.length; i++) if (words[i].equals(oldW)) words[i] = newW;\n    return String.join(\" \", words);\n}",
+      "javascript": "function solve(s, old_w, new_w) {\n    return s.split(' ').map(w => w === old_w ? new_w : w).join(' ');\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Replacing Word with Another Word in a String\ndef solve(s, old_w, new_w):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Replacing Word with Another Word in a String\n#include <string>\nusing namespace std;\n\nstring solve(string s, string old_w, string new_w) {\n    // Write your solution here\n    return \"\";\n}",
+      "java": "// Solution for Replacing Word with Another Word in a String\nclass Solution {\n    public String solve(String s, String oldW, String newW) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "javascript": "// Solution for Replacing Word with Another Word in a String\nfunction solve(s, old_w, new_w) {\n    // Write your solution here\n    return \"\";\n}"
+    }
+  },
+  {
+    "title": "Count Common Subsequences in Two Strings",
+    "category": "Strings",
+    "difficulty": "Medium",
+    "statement": "Count all matching non-empty common subsequences of two strings s1 and s2.",
+    "inputFormat": "s1 = <string>, s2 = <string>",
+    "outputFormat": "Integer",
+    "examples": [
+      {
+        "input": "s1 = \"ajblqcpks\", s2 = \"apple\"",
+        "output": "3"
+      }
+    ],
+    "hint1": "Use 2D dynamic programming.",
+    "hint2": "dp[i][j] represents common subsequences of prefixes s1[:i] and s2[:j].",
+    "solution": {
+      "python": "def solve(s1, s2):\n    n, m = len(s1), len(s2)\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(1, m + 1):\n            if s1[i-1] == s2[j-1]:\n                dp[i][j] = 1 + dp[i-1][j] + dp[i][j-1]\n            else:\n                dp[i][j] = dp[i-1][j] + dp[i][j-1] - dp[i-1][j-1]\n    return dp[n][m]",
+      "cpp": "int solve(string s1, string s2) {\n    int n = s1.size(), m = s2.size();\n    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));\n    for (int i = 1; i <= n; ++i) {\n        for (int j = 1; j <= m; ++j) {\n            if (s1[i-1] == s2[j-1]) dp[i][j] = 1 + dp[i-1][j] + dp[i][j-1];\n            else dp[i][j] = dp[i-1][j] + dp[i][j-1] - dp[i-1][j-1];\n        }\n    }\n    return dp[n][m];\n}",
+      "java": "public int solve(String s1, String s2) {\n    int n = s1.length(), m = s2.length();\n    int[][] dp = new int[n + 1][m + 1];\n    for (int i = 1; i <= n; i++) {\n        for (int j = 1; j <= m; j++) {\n            if (s1.charAt(i - 1) == s2.charAt(j - 1)) dp[i][j] = 1 + dp[i - 1][j] + dp[i][j - 1];\n            else dp[i][j] = dp[i - 1][j] + dp[i][j - 1] - dp[i - 1][j - 1];\n        }\n    }\n    return dp[n][m];\n}",
+      "javascript": "function solve(s1, s2) {\n    const n = s1.length, m = s2.length;\n    const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));\n    for (let i = 1; i <= n; i++) {\n        for (let j = 1; j <= m; j++) {\n            if (s1[i - 1] === s2[j - 1]) dp[i][j] = 1 + dp[i - 1][j] + dp[i][j - 1];\n            else dp[i][j] = dp[i - 1][j] + dp[i][j - 1] - dp[i - 1][j - 1];\n        }\n    }\n    return dp[n][m];\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Count Common Subsequences in Two Strings\ndef solve(s1, s2):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Count Common Subsequences in Two Strings\n#include <string>\n#include <vector>\nusing namespace std;\n\nint solve(string s1, string s2) {\n    // Write your solution here\n    return 0;\n}",
+      "java": "// Solution for Count Common Subsequences in Two Strings\nclass Solution {\n    public int solve(String s1, String s2) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "javascript": "// Solution for Count Common Subsequences in Two Strings\nfunction solve(s1, s2) {\n    // Write your solution here\n    return 0;\n}"
+    }
+  },
+  {
+    "title": "Wildcard Matching",
+    "category": "Strings",
+    "difficulty": "Hard",
+    "statement": "Check if string s matches pattern p containing wildcards '?' (matches any single character) and '*' (matches any sequence).",
+    "inputFormat": "s = <string>, p = <string>",
+    "outputFormat": "Boolean (true/false)",
+    "examples": [
+      {
+        "input": "s = \"aa\", p = \"*\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"cb\", p = \"?a\"",
+        "output": "false"
+      }
+    ],
+    "hint1": "Use 2D dynamic programming dp[i][j] = matches s[:i] with p[:j].",
+    "hint2": "When p[j-1] == '*', dp[i][j] = dp[i-1][j] (match 1+) or dp[i][j-1] (match 0).",
+    "solution": {
+      "python": "def solve(s, p):\n    n, m = len(s), len(p)\n    dp = [[False] * (m + 1) for _ in range(n + 1)]\n    dp[0][0] = True\n    for j in range(1, m + 1):\n        if p[j-1] == '*': dp[0][j] = dp[0][j-1]\n    for i in range(1, n + 1):\n        for j in range(1, m + 1):\n            if p[j-1] == '*':\n                dp[i][j] = dp[i-1][j] or dp[i][j-1]\n            elif p[j-1] == '?' or s[i-1] == p[j-1]:\n                dp[i][j] = dp[i-1][j-1]\n    return dp[n][m]",
+      "cpp": "bool solve(string s, string p) {\n    int n = s.size(), m = p.size();\n    vector<vector<bool>> dp(n + 1, vector<bool>(m + 1, false));\n    dp[0][0] = true;\n    for (int j = 1; j <= m; ++j) if (p[j-1] == '*') dp[0][j] = dp[0][j-1];\n    for (int i = 1; i <= n; ++i) {\n        for (int j = 1; j <= m; ++j) {\n            if (p[j-1] == '*') dp[i][j] = dp[i-1][j] || dp[i][j-1];\n            else if (p[j-1] == '?' || s[i-1] == p[j-1]) dp[i][j] = dp[i-1][j-1];\n        }\n    }\n    return dp[n][m];\n}",
+      "java": "public boolean solve(String s, String p) {\n    int n = s.length(), m = p.length();\n    boolean[][] dp = new boolean[n + 1][m + 1];\n    dp[0][0] = true;\n    for (int j = 1; j <= m; j++) if (p.charAt(j - 1) == '*') dp[0][j] = dp[0][j - 1];\n    for (int i = 1; i <= n; i++) {\n        for (int j = 1; j <= m; j++) {\n            if (p.charAt(j - 1) == '*') dp[i][j] = dp[i - 1][j] || dp[i][j - 1];\n            else if (p.charAt(j - 1) == '?' || s.charAt(i - 1) == p.charAt(j - 1)) dp[i][j] = dp[i - 1][j - 1];\n        }\n    }\n    return dp[n][m];\n}",
+      "javascript": "function solve(s, p) {\n    const n = s.length, m = p.length;\n    const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(false));\n    dp[0][0] = true;\n    for (let j = 1; j <= m; j++) if (p[j - 1] === '*') dp[0][j] = dp[0][j - 1];\n    for (let i = 1; i <= n; i++) {\n        for (let j = 1; j <= m; j++) {\n            if (p[j - 1] === '*') dp[i][j] = dp[i - 1][j] || dp[i][j - 1];\n            else if (p[j - 1] === '?' || s[i - 1] === p[j - 1]) dp[i][j] = dp[i - 1][j - 1];\n        }\n    }\n    return dp[n][m];\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Wildcard Matching\ndef solve(s, p):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Wildcard Matching\n#include <string>\n#include <vector>\nusing namespace std;\n\nbool solve(string s, string p) {\n    // Write your solution here\n    return false;\n}",
+      "java": "// Solution for Wildcard Matching\nclass Solution {\n    public boolean solve(String s, String p) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "javascript": "// Solution for Wildcard Matching\nfunction solve(s, p) {\n    // Write your solution here\n    return false;\n}"
+    }
+  },
+  {
+    "title": "Lexicographical Permutations of a String",
+    "category": "Strings",
+    "difficulty": "Medium",
+    "statement": "Generate all unique permutations of string s in lexicographically sorted order.",
+    "inputFormat": "s = <string>",
+    "outputFormat": "Array of strings",
+    "examples": [
+      {
+        "input": "s = \"ABC\"",
+        "output": "[\"ABC\", \"ACB\", \"BAC\", \"BCA\", \"CAB\", \"CBA\"]"
+      },
+      {
+        "input": "s = \"ABA\"",
+        "output": "[\"AAB\", \"ABA\", \"BAA\"]"
+      }
+    ],
+    "hint1": "Sort the characters initially.",
+    "hint2": "Use backtracking or next_permutation, and deduplicate identical branches.",
+    "solution": {
+      "python": "def solve(s):\n    res = []\n    chars = sorted(list(s))\n    used = [False] * len(chars)\n    def backtrack(path):\n        if len(path) == len(chars):\n            res.append(''.join(path))\n            return\n        for i in range(len(chars)):\n            if used[i]: continue\n            if i > 0 and chars[i] == chars[i-1] and not used[i-1]: continue\n            used[i] = True\n            path.append(chars[i])\n            backtrack(path)\n            path.pop()\n            used[i] = False\n    backtrack([])\n    return res",
+      "cpp": "vector<string> solve(string s) {\n    vector<string> res;\n    sort(s.begin(), s.end());\n    do {\n        res.push_back(s);\n    } while (next_permutation(s.begin(), s.end()));\n    return res;\n}",
+      "java": "public List<String> solve(String s) {\n    List<String> res = new ArrayList<>();\n    char[] chars = s.toCharArray();\n    Arrays.sort(chars);\n    boolean[] used = new boolean[chars.length];\n    backtrack(chars, used, new StringBuilder(), res);\n    return res;\n}\nprivate void backtrack(char[] chars, boolean[] used, StringBuilder sb, List<String> res) {\n    if (sb.length() == chars.length) { res.add(sb.toString()); return; }\n    for (int i = 0; i < chars.length; i++) {\n        if (used[i]) continue;\n        if (i > 0 && chars[i] == chars[i - 1] && !used[i - 1]) continue;\n        used[i] = true;\n        sb.append(chars[i]);\n        backtrack(chars, used, sb, res);\n        sb.deleteCharAt(sb.length() - 1);\n        used[i] = false;\n    }\n}",
+      "javascript": "function solve(s) {\n    const chars = s.split('').sort();\n    const res = [];\n    const used = new Array(chars.length).fill(false);\n    function backtrack(path) {\n        if (path.length === chars.length) { res.push(path.join('')); return; }\n        for (let i = 0; i < chars.length; i++) {\n            if (used[i]) continue;\n            if (i > 0 && chars[i] === chars[i - 1] && !used[i - 1]) continue;\n            used[i] = true;\n            path.push(chars[i]);\n            backtrack(path);\n            path.pop();\n            used[i] = false;\n        }\n    }\n    backtrack([]);\n    return res;\n}"
+    },
+    "boilerplate": {
+      "python": "# Solution for Lexicographical Permutations of a String\ndef solve(s):\n    # Write your solution here\n    pass",
+      "cpp": "// Solution for Lexicographical Permutations of a String\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nvector<string> solve(string s) {\n    // Write your solution here\n    return {};\n}",
+      "java": "// Solution for Lexicographical Permutations of a String\nimport java.util.*;\nclass Solution {\n    public List<String> solve(String s) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "javascript": "// Solution for Lexicographical Permutations of a String\nfunction solve(s) {\n    // Write your solution here\n    return [];\n}"
+    }
+  }
+]

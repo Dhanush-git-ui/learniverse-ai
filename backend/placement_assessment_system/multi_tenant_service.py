@@ -648,3 +648,60 @@ def heartbeat_candidate_session(db, test_id: str, roll_number: str, student_name
 
     return {"status": "ok"}
 
+
+def bulk_assign_to_test(db, test_id: str, identifiers: List[str], branch: str = "CSE", role: str = "Technology Intern") -> Dict[str, Any]:
+    """Bulk assign candidates to a test roster by email or roll numbers."""
+    init_multi_tenant_tables(db)
+    
+    # Verify test exists
+    db.execute("SELECT id, test_name FROM assessment_tests WHERE id = %s;", (test_id,))
+    t_row = db.fetchone()
+    if not t_row:
+        # Fallback to first test
+        db.execute("SELECT id, test_name FROM assessment_tests LIMIT 1;")
+        t_row = db.fetchone()
+        if not t_row:
+            return {"status": "error", "message": "No assessment test found"}
+        test_id = t_row["id"]
+        
+    assigned_count = 0
+    skipped_count = 0
+    assigned_list = []
+    
+    for raw in identifiers:
+        val = str(raw or "").strip()
+        if not val:
+            continue
+            
+        is_email = "@" in val
+        email = val.lower() if is_email else f"{val.lower()}@hitam.org"
+        roll = val.split("@")[0].upper() if is_email else val.upper()
+        # Clean roll number
+        roll = re.sub(r'[^A-Z0-9]', '', roll)
+        if len(roll) < 2:
+            continue
+            
+        # Check if already enrolled in this test
+        db.execute("SELECT id FROM test_rosters WHERE test_id = %s AND (roll_number = %s OR email = %s);", (test_id, roll, email))
+        if db.fetchone():
+            skipped_count += 1
+            continue
+            
+        r_id = f"roster_{uuid.uuid4().hex[:12]}"
+        db.execute("""
+            INSERT INTO test_rosters (id, test_id, full_name, roll_number, email, branch, attempt_status)
+            VALUES (%s, %s, %s, %s, %s, %s, 'NOT_ATTEMPTED');
+        """, (r_id, test_id, f"Candidate {roll}", roll, email, branch or "CSE"))
+        assigned_count += 1
+        assigned_list.append({"roll": roll, "email": email})
+        
+    return {
+        "status": "success",
+        "test_id": test_id,
+        "assigned": assigned_count,
+        "skipped": skipped_count,
+        "total": assigned_count + skipped_count,
+        "message": f"Successfully enrolled {assigned_count} candidates into {t_row.get('test_name', 'test')} ({skipped_count} already enrolled)."
+    }
+
+

@@ -28,7 +28,7 @@ class Settings:
         
         # Database
         self.DATABASE_URL = os.environ.get("DATABASE_URL")
-        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "2"))
+        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "5"))
         self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "50"))
         
         # RAG Configuration

@@ -14,6 +14,36 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 from decimal import Decimal
+from difflib import SequenceMatcher
+
+def check_code_plagiarism(submission_code: str, existing_submissions: List[str]) -> Dict[str, Any]:
+    """
+    Computes code similarity ratio against other candidate submissions for the same problem.
+    Similarity >= 70% is flagged for recruiter / proctor review.
+    """
+    if not submission_code or len(submission_code.strip()) < 30 or not existing_submissions:
+        return {"score": 0.0, "flagged": False, "warning": ""}
+    
+    clean_sub = re.sub(r'#.*|//.*|/\*[\s\S]*?\*/|\s+', ' ', submission_code).strip()
+    max_similarity = 0.0
+    
+    for other in existing_submissions:
+        if not other or len(other.strip()) < 30:
+            continue
+        clean_other = re.sub(r'#.*|//.*|/\*[\s\S]*?\*/|\s+', ' ', other).strip()
+        ratio = SequenceMatcher(None, clean_sub, clean_other).ratio() * 100.0
+        if ratio > max_similarity:
+            max_similarity = ratio
+            
+    max_similarity = round(max_similarity, 1)
+    flagged = max_similarity >= 70.0
+    warning = f"Code similarity: {max_similarity}% (possible plagiarism detected)" if flagged else ""
+    return {
+        "score": max_similarity,
+        "flagged": flagged,
+        "warning": warning
+    }
+
 def _make_json_serializable(obj):
     """Recursively convert Decimal objects to float/int for psycopg2 Json, sqlite3 and json.dumps compatibility."""
     if isinstance(obj, Decimal):
@@ -380,7 +410,7 @@ class SQLiteCursorAdapter:
         self.description = None
         self._last_returning = None
 
-    def execute(self, query: str, params: tuple = None):
+    def execute(self, query: str, params: Optional[tuple] = None):
         clean_q = query.strip()
         # Strip Postgres type casts (::text, ::jsonb)
         clean_q = re.sub(r'::[a-zA-Z0-9_]+', '', clean_q)
@@ -650,7 +680,7 @@ class PostgresCursorAdapter:
         self.conn = conn
         self.connection = conn
 
-    def execute(self, query: str, params: tuple = None):
+    def execute(self, query: str, params: Optional[tuple] = None):
         if params is not None:
             from psycopg2.extras import Json
             adapted = []
@@ -719,10 +749,11 @@ def get_db_cursor():
             except Exception:
                 pass
             broken = is_broken or conn.closed != 0
-            try:
-                pool.putconn(conn, close=broken)
-            except Exception:
-                pass
+            if pool:
+                try:
+                    pool.putconn(conn, close=broken)
+                except Exception:
+                    pass
     else:
         # Fallback to local SQLite database
         _init_sqlite_db()
@@ -906,7 +937,7 @@ def reload_questions_cache(cur=None):
     return _get_all_questions_cached(cur)
 
 
-def _sample_questions_by_difficulty(questions_pool: List[Dict], category: str, count: int, easy_ratio: float = 0.65, exclude_ids: set = None) -> List[Dict]:
+def _sample_questions_by_difficulty(questions_pool: List[Dict], category: str, count: int, easy_ratio: float = 0.65, exclude_ids: Optional[set] = None) -> List[Dict]:
     if exclude_ids is None:
         exclude_ids = set()
 
@@ -919,7 +950,7 @@ def _sample_questions_by_difficulty(questions_pool: List[Dict], category: str, c
     easy_ids = {q.get("id") for q in easy_qs}
     hard_qs = [q for q in cat_qs if q.get("id") not in easy_ids]
     
-    target_easy = int(round(count * easy_ratio))
+    target_easy = round(count * easy_ratio)
     target_hard = count - target_easy
     
     selected_easy = []
@@ -960,7 +991,7 @@ BANNED_FILLER_PATTERNS = [
 ]
 
 def _is_filler_option(opt_str: str) -> bool:
-    s = str(opt_str).strip().lower()
+    s = opt_str.strip().lower()
     return any(re.search(pat, s) for pat in BANNED_FILLER_PATTERNS)
 
 def _clean_and_generate_tricky_distractors(q: Dict) -> Dict:
@@ -1014,9 +1045,9 @@ def _clean_and_generate_tricky_distractors(q: Dict) -> Dict:
             if is_int:
                 v_int = int(val)
                 diffs = [
-                    int(round(v_int * 0.9)),
-                    int(round(v_int * 1.1)),
-                    int(round(v_int * 1.25)),
+                    round(v_int * 0.9),
+                    round(v_int * 1.1),
+                    round(v_int * 1.25),
                     v_int - 2, v_int + 2
                 ]
                 synth_opts = [f"{d:,} {unit}".strip() if "," in correct_text else f"{d} {unit}".strip() for d in diffs if d != v_int and d > 0]
@@ -1549,7 +1580,8 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
         coding_meta = {}
 
         if is_coding:
-            is_attempted = bool(sub_coding.get("code") and sub_coding.get("code").strip())
+            user_code = sub_coding.get("code", "")
+            is_attempted = bool(user_code and user_code.strip())
             passed = sub_coding.get("passed_cases", 0)
             total = sub_coding.get("total_cases", 1)
             is_correct = (passed == total and total > 0)
@@ -1560,13 +1592,40 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
             except Exception:
                 sols = {}
 
+            # Plagiarism check against other candidate submissions
+            other_codes = []
+            if is_attempted:
+                try:
+                    db.execute("""
+                        SELECT coding_submissions FROM test_sessions 
+                        WHERE session_id::text != %s AND coding_submissions IS NOT NULL
+                        LIMIT 50;
+                    """, (str(session.get("session_id")),))
+                    for prev_sess in (db.fetchall() or []):
+                        cs = prev_sess.get("coding_submissions")
+                        if isinstance(cs, str):
+                            try: cs = json.loads(cs)
+                            except Exception: cs = {}
+                        if isinstance(cs, dict) and q_id in cs:
+                            c_item = cs[q_id]
+                            c_str = c_item.get("code") if isinstance(c_item, dict) else str(c_item)
+                            if c_str:
+                                other_codes.append(str(c_str))
+                except Exception:
+                    pass
+
+            plag_info = check_code_plagiarism(user_code, other_codes)
+
             coding_meta = {
-                "user_code": sub_coding.get("code", ""),
+                "user_code": user_code,
                 "optimal_code": sols.get("optimal_code", ""),
                 "brute_code": sols.get("brute_code", ""),
                 "time_complexity": sols.get("time_complexity", "O(N)"),
                 "passed_cases": passed,
-                "total_cases": total
+                "total_cases": total,
+                "plagiarism_score": plag_info["score"],
+                "plagiarism_flag": plag_info["flagged"],
+                "plagiarism_warning": plag_info["warning"]
             }
         elif is_scenario:
             ans_str = str(user_ans or "").strip()
@@ -1897,7 +1956,7 @@ def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: Bac
     total_q = req.total_questions or len(req.question_answers or []) or 20
     
     sub_record = {
-        "session_id": str(sess_id),
+        "session_id": sess_id,
         "student_name": req.student_name,
         "roll_number": req.roll_number.strip().upper(),
         "role": req.role or "Mobile App Developer Intern",
@@ -2220,7 +2279,8 @@ class CreateTestRequest(BaseModel):
 @router.post("/admin/tests")
 def create_test_assessment(payload: CreateTestRequest, db=Depends(get_db_cursor)):
     """Creates a new assessment test for a startup, with roster candidates and questions."""
-    return multi_tenant_service.create_assessment_test(db, payload.dict())
+    data = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
+    return multi_tenant_service.create_assessment_test(db, data)
 
 class ResetCandidateRequest(BaseModel):
     roll_number: str
@@ -2241,7 +2301,23 @@ class HeartbeatRequest(BaseModel):
 @router.post("/heartbeat")
 def candidate_heartbeat(req: HeartbeatRequest, db=Depends(get_db_cursor)):
     """Live heartbeat from candidate browser during assessment."""
+    test_id = req.test_id or "default"
+    student_name = req.student_name or "Candidate"
+    session_id = req.session_id or ""
     return multi_tenant_service.heartbeat_candidate_session(
-        db, req.test_id, req.roll_number, req.student_name, req.session_id, req.current_question, req.violations
+        db, test_id, req.roll_number, student_name, session_id, req.current_question, req.violations
     )
+
+class BulkAssignRequest(BaseModel):
+    emails_or_rolls: List[str]
+    branch: Optional[str] = "CSE"
+    role: Optional[str] = "Technology Intern"
+
+@router.post("/admin/tests/{test_id}/bulk-assign")
+def bulk_assign_candidates_endpoint(test_id: str, payload: BulkAssignRequest, db=Depends(get_db_cursor)):
+    """Bulk enrolls candidates into a test roster by email or roll numbers."""
+    return multi_tenant_service.bulk_assign_to_test(
+        db, test_id, payload.emails_or_rolls, payload.branch or "CSE", payload.role or "Technology Intern"
+    )
+
 

@@ -9,14 +9,14 @@ import pandas as pd
 from datetime import datetime
 
 # Ensure Windows console encoding safety
-if sys.stdout is not None:
+if hasattr(sys.stdout, 'reconfigure'):
     try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        getattr(sys.stdout, 'reconfigure')(encoding='utf-8', errors='replace')
     except Exception:
         pass
-if sys.stderr is not None:
+if hasattr(sys.stderr, 'reconfigure'):
     try:
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+        getattr(sys.stderr, 'reconfigure')(encoding='utf-8', errors='replace')
     except Exception:
         pass
 
@@ -99,14 +99,19 @@ def run_sync():
     roster_file = os.path.join(TECHHASH_DIR, 'Source_Documents', 'TeccHash Pvt. Ltd. - Internship Application Form (Responses).xlsx')
     roster_map = {}
     roster_df = pd.DataFrame()
+    name_col = 'Full Name'
+    roll_col = 'Roll Number '
+    role_col = 'Internship Role Applying For'
+    branch_col = 'Branch / Department'
+    phone_col = 'Phone Number / WhatsApp Number'
     if os.path.exists(roster_file):
         try:
             roster_df = pd.read_excel(roster_file)
-            name_col = next((c for c in roster_df.columns if 'name' in c.lower()), 'Full Name')
-            roll_col = next((c for c in roster_df.columns if 'roll' in c.lower()), 'Roll Number ')
-            role_col = next((c for c in roster_df.columns if 'role' in c.lower()), 'Internship Role Applying For')
-            branch_col = next((c for c in roster_df.columns if 'branch' in c.lower()), 'Branch / Department')
-            phone_col = next((c for c in roster_df.columns if 'phone' in c.lower() or 'whatsapp' in c.lower()), 'Phone Number / WhatsApp Number')
+            name_col = next((c for c in roster_df.columns if 'name' in c.lower()), name_col)
+            roll_col = next((c for c in roster_df.columns if 'roll' in c.lower()), roll_col)
+            role_col = next((c for c in roster_df.columns if 'role' in c.lower()), role_col)
+            branch_col = next((c for c in roster_df.columns if 'branch' in c.lower()), branch_col)
+            phone_col = next((c for c in roster_df.columns if 'phone' in c.lower() or 'whatsapp' in c.lower()), phone_col)
 
             for _, row in roster_df.iterrows():
                 r_num = str(row.get(roll_col, '')).strip().upper()

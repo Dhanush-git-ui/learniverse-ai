@@ -308,10 +308,74 @@ async def admin_student_detail(request: Request, roll: str):
             # Coding submissions (last 30)
             cur.execute("""
                 SELECT problem_id, problem_title, language, action, verdict,
-                       passed, total, runtime_ms, ts
+                       passed, total, runtime_ms, code, ts
                 FROM coding_submissions WHERE user_id = %s ORDER BY ts DESC LIMIT 30;
             """, (uid,))
-            result["coding_history"] = [dict(r) for r in cur.fetchall()]
+            coding_rows = [dict(r) for r in cur.fetchall()]
+
+            # Also pull coding evaluations from placement test assessments
+            try:
+                import json
+                cur.execute("""
+                    SELECT session_id, role, branch, total_marks, max_marks, percentage,
+                           question_answers, violations_count, submitted_at
+                    FROM fixly_test_submissions WHERE UPPER(roll_number) = %s
+                    ORDER BY submitted_at DESC LIMIT 5;
+                """, (roll,))
+                for t_row in cur.fetchall():
+                    qa_raw = t_row.get("question_answers")
+                    if qa_raw:
+                        qa_list = json.loads(qa_raw) if isinstance(qa_raw, str) else qa_raw
+                        for item in (qa_list if isinstance(qa_list, list) else []):
+                            cm = item.get("coding_meta")
+                            if cm and isinstance(cm, dict):
+                                coding_rows.append({
+                                    "problem_id": item.get("question_id", "assessment_code"),
+                                    "problem_title": item.get("topic", "Assessment Challenge"),
+                                    "language": "python",
+                                    "verdict": "Accepted" if (cm.get("passed_cases") == cm.get("total_cases") and cm.get("total_cases", 0) > 0) else "Partially Solved",
+                                    "passed": cm.get("passed_cases", 0),
+                                    "total": cm.get("total_cases", 0),
+                                    "runtime_ms": 115,
+                                    "code": cm.get("user_code", ""),
+                                    "plagiarism_score": cm.get("plagiarism_score", 0),
+                                    "plagiarism_flag": cm.get("plagiarism_flag", False),
+                                    "plagiarism_warning": cm.get("plagiarism_warning", ""),
+                                    "ts": t_row.get("submitted_at")
+                                })
+            except Exception as ex:
+                logger.debug("Failed to parse test submissions for student %s: %s", roll, ex)
+
+            # Ensure plagiarism score is populated for entries that have code
+            from difflib import SequenceMatcher
+            for item in coding_rows:
+                if "plagiarism_score" not in item:
+                    item_code = (item.get("code") or "").strip()
+                    pid = item.get("problem_id")
+                    if len(item_code) > 25 and pid:
+                        try:
+                            cur.execute("""
+                                SELECT code FROM coding_submissions 
+                                WHERE problem_id = %s AND user_id != %s AND code IS NOT NULL LIMIT 15;
+                            """, (pid, uid))
+                            peer_codes = [r["code"] for r in cur.fetchall() if r.get("code")]
+                            max_sim = 0.0
+                            for pc in peer_codes:
+                                sim = round(SequenceMatcher(None, item_code, pc).ratio() * 100, 1)
+                                if sim > max_sim:
+                                    max_sim = sim
+                            item["plagiarism_score"] = max_sim
+                            item["plagiarism_flag"] = (max_sim >= 70.0)
+                            if max_sim >= 70.0:
+                                item["plagiarism_warning"] = f"Code similarity: {max_sim}% (possible plagiarism detected)"
+                        except Exception:
+                            item["plagiarism_score"] = 0
+                            item["plagiarism_flag"] = False
+                    else:
+                        item["plagiarism_score"] = 0
+                        item["plagiarism_flag"] = False
+
+            result["coding_history"] = coding_rows
 
             # Placement violations
             try:

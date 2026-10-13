@@ -29,7 +29,10 @@ try:
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Questions"
+    if ws is None:
+        ws = wb.create_sheet(title="Questions")
+    else:
+        ws.title = "Questions"
 
     # Write header
     ws.append(header)

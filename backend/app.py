@@ -6,7 +6,7 @@ import requests
 import re
 import ast
 from datetime import datetime, timezone
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
 # Ensure backend directory is in sys.path
 backend_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +30,7 @@ if os.path.exists(env_path):
     load_dotenv(env_path)
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import FastAPI, HTTPException, Query, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse, Response
@@ -171,7 +171,11 @@ def get_rate_limit_key(request: Request) -> str:
 
 limiter = Limiter(key_func=get_rate_limit_key)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+def rate_limit_handler(request: Request, exc: Exception) -> Response:
+    return _rate_limit_exceeded_handler(request, exc)
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 # Auto-bootstrap: ensure ChromaDB persistent folder exists to avoid silent failures
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
@@ -187,7 +191,7 @@ if not os.path.exists(CHROMA_DIR):
 def _normalize_output_text(s: str) -> str:
     if s is None:
         return ""
-    s = str(s).replace('\r\n', '\n').strip()
+    s = s.replace('\r\n', '\n').strip()
     s = re.sub(r"\s+", " ", s)
     return s
 
@@ -362,6 +366,42 @@ app.include_router(auth_router)
 from analytics_api import analytics_router
 app.include_router(analytics_router)
 
+# ---------------------------------------------------------------------------
+# REAL-TIME WEBSOCKET COMMAND CENTER MONITOR
+# ---------------------------------------------------------------------------
+@app.websocket("/ws/test-monitor/{test_id}")
+async def websocket_test_monitor(websocket: WebSocket, test_id: str):
+    """
+    Real-time push channel for the assessment live command center.
+    Streams active student heartbeat, time-remaining, roster status, and violations every 1s.
+    """
+    await websocket.accept()
+    logger.info("[WS MONITOR] Live monitoring connected for test: %s", test_id)
+    try:
+        from placement_assessment_system.api import get_db_cursor
+        from placement_assessment_system import multi_tenant_service
+        while True:
+            live_data = None
+            try:
+                for db in get_db_cursor():
+                    live_data = multi_tenant_service.get_test_live_monitor(db, test_id)
+                    break
+            except Exception as db_err:
+                logger.warning("[WS MONITOR] DB fetch error for test %s: %s", test_id, db_err)
+
+            if live_data:
+                await websocket.send_json(live_data)
+            
+            await asyncio.sleep(1.0)
+    except WebSocketDisconnect:
+        logger.info("[WS MONITOR] Live monitoring disconnected for test: %s", test_id)
+    except Exception as e:
+        logger.warning("[WS MONITOR] WebSocket session terminated: %s", e)
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -408,8 +448,8 @@ async def chat(request: Request, chat_req: ChatRequest):
         
         # Ensure all required keys exist and return ChatResponse compatible format
         return ChatResponse(
-            teacher_answer=response_bundle.get("teacher_answer", ""),
-            peer_answer=response_bundle.get("peer_answer", ""),
+            teacher_answer=str(response_bundle.get("teacher_answer", "")),
+            peer_answer=str(response_bundle.get("peer_answer", "")),
             sources=[
                 SourceInfo(
                     book=src.get("book", "Unknown"),
@@ -474,7 +514,7 @@ def get_portfolio(roll_number: str):
     """Public, read-only portfolio endpoint. Designed to be embedded into external sites
     (e.g., cdc-hitam.onrender.com) to display a student's verified assessment & DSA progress."""
     roll = roll_number.strip().upper()
-    stats = {
+    stats: Dict[str, Any] = {
         "roll_number": roll,
         "student_name": "Candidate",
         "branch": "CSE",
@@ -508,7 +548,7 @@ def get_portfolio(roll_number: str):
             stats["verified_at"] = str(sub.get("submitted_at"))
             
             # Compute Placement Tier and Mastery
-            tier_info = determine_placement_tier(stats["percentage"], int(sub.get("violations_count", 0)), stats["assessment_status"])
+            tier_info = determine_placement_tier(float(stats["percentage"] or 0.0), int(sub.get("violations_count", 0)), str(stats["assessment_status"] or "completed"))
             stats["placement_tier"] = tier_info["tier"]
             stats["tier_band"] = tier_info["band"]
             mastery = calculate_topic_mastery(sub)
@@ -757,7 +797,7 @@ async def get_topic_overview(request: Request, topic: str = Query(...)):
 @limiter.limit("5/minute")
 async def evaluate_answer(request: Request, evaluation_req: EvaluationRequest):
     # Sanitize student answer against delimiter breakout and prompt injection
-    raw_answer = str(evaluation_req.user_answer or "")[:4000]
+    raw_answer = (evaluation_req.user_answer or "")[:4000]
     sanitized_answer = re.sub(r'</?student_answer>', '', raw_answer, flags=re.IGNORECASE).strip()
 
     prompt = f"""
@@ -1513,7 +1553,7 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
             }
         }
 
-def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> dict:
+def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Optional[dict]:
     import requests
     import base64
     import os
@@ -1591,7 +1631,7 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> dict:
         logger.error("[JUDGE0] Exception occurred: %s", e)
         return None
 
-def execute_code_via_piston_api(language: str, code: str, stdin: str = "") -> dict:
+def execute_code_via_piston_api(language: str, code: str, stdin: str = "") -> Optional[dict]:
     import requests
     lang_map = {
         "python": "python",
@@ -1640,7 +1680,7 @@ def execute_code_via_piston_api(language: str, code: str, stdin: str = "") -> di
         logger.error("[PISTON API] Exception occurred: %s", e)
         return None
 
-def execute_code_via_piston(language: str, code: str, stdin: str = "") -> dict:
+def execute_code_via_piston(language: str, code: str, stdin: str = "") -> Optional[dict]:
     from config import settings
     # 1. Prefer Judge0 whenever it is configured
     judge0_res = execute_code_via_judge0(language, code, stdin)
@@ -1786,12 +1826,13 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
             db_conn = None
             try:
                 db_conn = get_db_conn()
-                db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
-                db_cur.execute("SELECT examples FROM questions WHERE id = %s", (code_req.problemId,))
-                row = db_cur.fetchone()
-                db_cur.close()
-                if row and row["examples"]:
-                    return json.loads(row["examples"]) if isinstance(row["examples"], str) else row["examples"]
+                if db_conn:
+                    db_cur = db_conn.cursor(cursor_factory=RealDictCursor)
+                    db_cur.execute("SELECT examples FROM questions WHERE id = %s", (code_req.problemId,))
+                    row = db_cur.fetchone()
+                    db_cur.close()
+                    if row and row["examples"]:
+                        return json.loads(row["examples"]) if isinstance(row["examples"], str) else row["examples"]
             except Exception as e:
                 print("[ERROR] Database check in run_user_code:", e)
             finally:
@@ -1806,17 +1847,19 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
         test_cases, _, _ = get_test_cases_for_problem(code_req.problemId)
         
     if not test_cases or code_req.problemId in ["free_run", "playground", "general", "free"]:
+        sem = get_code_execution_semaphore()
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+            await asyncio.wait_for(sem.acquire(), timeout=30.0)
             execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, "")
         except Exception as exec_err:
             execution_result = {"run": {"stdout": "", "stderr": str(exec_err), "code": 1}}
         finally:
-            _code_execution_semaphore.release()
+            sem.release()
             
-        stdout = execution_result.get("run", {}).get("stdout", "").strip() if execution_result else ""
-        stderr = execution_result.get("run", {}).get("stderr", "").strip() if execution_result else "Execution service unavailable"
-        code = execution_result.get("run", {}).get("code", 0) if execution_result else 1
+        run_data = execution_result.get("run", {}) if isinstance(execution_result, dict) else {}
+        stdout = str(run_data.get("stdout", "") or "").strip()
+        stderr = str(run_data.get("stderr", "") or "").strip() if execution_result else "Execution service unavailable"
+        code = run_data.get("code", 0) if execution_result else 1
         
         passed = (code == 0 and not stderr)
         return {
@@ -1836,15 +1879,17 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
         passed_cases = 0
         total_cases = len(test_cases)
         
+        sem = get_code_execution_semaphore()
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+            await asyncio.wait_for(sem.acquire(), timeout=30.0)
             for idx, tc in enumerate(test_cases):
                 stdin_data = format_stdin_adapter(tc)
                 out_type = tc.get("outputType") or tc.get("output_type") or "auto"
                 execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, stdin_data)
-                stdout = execution_result.get("run", {}).get("stdout", "").strip() if execution_result else ""
-                stderr = execution_result.get("run", {}).get("stderr", "").strip() if execution_result else ""
-                code = execution_result.get("run", {}).get("code", 0) if execution_result else 1
+                run_data = execution_result.get("run", {}) if isinstance(execution_result, dict) else {}
+                stdout = str(run_data.get("stdout", "") or "").strip()
+                stderr = str(run_data.get("stderr", "") or "").strip()
+                code = run_data.get("code", 0) if execution_result else 1
                 
                 if code != 0 or stderr:
                     error_msg = stderr if stderr else f"Execution failed with exit code {code}"
@@ -1871,7 +1916,7 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
                         "passed": passed
                     })
         finally:
-            _code_execution_semaphore.release()
+            sem.release()
             
         all_passed = (passed_cases == total_cases and total_cases > 0)
         return {
@@ -1883,14 +1928,15 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
     # For standard function-style topic questions, use the legacy wrapper harness
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
+    sem = get_code_execution_semaphore()
     try:
-        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+        await asyncio.wait_for(sem.acquire(), timeout=30.0)
     except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
         execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
-        _code_execution_semaphore.release()
+        sem.release()
         
     if not execution_result:
         return {
@@ -1899,9 +1945,10 @@ async def run_user_code(request: Request, code_req: CodeRunRequest):
             "results": [{"testcase": "Sandbox check", "expected": "Compiler response", "actual": "Code execution server offline. Please try again.", "passed": False}]
         }
         
-    stdout = execution_result.get("run", {}).get("stdout", "").strip()
-    stderr = execution_result.get("run", {}).get("stderr", "").strip()
-    code = execution_result.get("run", {}).get("code", 0)
+    run_data = execution_result.get("run", {}) if isinstance(execution_result, dict) else {}
+    stdout = str(run_data.get("stdout", "") or "").strip()
+    stderr = str(run_data.get("stderr", "") or "").strip()
+    code = run_data.get("code", 0)
     
     if code != 0 or stderr:
         error_msg = stderr if stderr else f"Execution failed with exit code {code}"
@@ -2006,8 +2053,9 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
     is_io_mode = code_req.problemId.startswith("code_") or detect_io_mode(code_req.code, code_req.language)
     if is_io_mode:
         start_time = time.perf_counter()
+        sem = get_code_execution_semaphore()
         try:
-            await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+            await asyncio.wait_for(sem.acquire(), timeout=30.0)
         except asyncio.TimeoutError:
             raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
         try:
@@ -2015,16 +2063,17 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
                 stdin_data = format_stdin_adapter(tc)
                 out_type = tc.get("outputType") or tc.get("output_type") or "auto"
                 execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, code_req.code, stdin_data)
-                stdout = execution_result.get("run", {}).get("stdout", "").strip() if execution_result else ""
-                stderr = execution_result.get("run", {}).get("stderr", "").strip() if execution_result else ""
-                code = execution_result.get("run", {}).get("code", 0) if execution_result else 1
+                run_data = execution_result.get("run", {}) if isinstance(execution_result, dict) else {}
+                stdout = str(run_data.get("stdout", "") or "").strip()
+                stderr = str(run_data.get("stderr", "") or "").strip()
+                code = run_data.get("code", 0) if execution_result else 1
                 
                 if code == 0 and not stderr:
                     passed = type_aware_compare(tc["expected"], stdout, out_type)
                     if passed:
                         passed_cases += 1
         finally:
-            _code_execution_semaphore.release()
+            sem.release()
             
         elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
         run_time_str = f"{elapsed_ms}ms"
@@ -2032,7 +2081,7 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
         review = await generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
         
         all_passed = (passed_cases == total_cases and total_cases > 0)
-        is_live_assessment = str(code_req.problemId).startswith("code_") or str(code_req.problemId).startswith("exam_")
+        is_live_assessment = code_req.problemId.startswith("code_") or code_req.problemId.startswith("exam_")
 
         return {
             "passed_cases": passed_cases,
@@ -2049,23 +2098,25 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
     harness_code = build_harness(code_req.code, code_req.language, test_cases)
     
     start_time = time.perf_counter()
+    sem = get_code_execution_semaphore()
     try:
-        await asyncio.wait_for(_code_execution_semaphore.acquire(), timeout=30.0)
+        await asyncio.wait_for(sem.acquire(), timeout=30.0)
     except asyncio.TimeoutError:
         raise HTTPException(status_code=429, detail="Too many concurrent submissions. Please retry in 30 seconds.")
     try:
         execution_result = await run_in_threadpool(execute_code_via_piston, code_req.language, harness_code)
     finally:
-        _code_execution_semaphore.release()
+        sem.release()
         
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
     run_time_str = f"{elapsed_ms}ms"
     
     stdout = ""
     if execution_result:
-        stdout = execution_result.get("run", {}).get("stdout", "").strip()
-        stderr = execution_result.get("run", {}).get("stderr", "").strip()
-        code = execution_result.get("run", {}).get("code", 0)
+        run_data = execution_result.get("run", {}) if isinstance(execution_result, dict) else {}
+        stdout = str(run_data.get("stdout", "") or "").strip()
+        stderr = str(run_data.get("stderr", "") or "").strip()
+        code = run_data.get("code", 0)
         if code == 0 and not stderr:
             try:
                 results = json.loads(stdout)
@@ -2078,7 +2129,7 @@ async def submit_user_code(request: Request, code_req: CodeRunRequest):
     review = await generate_code_review(code_req.problemId, code_req.code, code_req.language, passed_cases, total_cases)
     
     all_passed = (passed_cases == total_cases and total_cases > 0)
-    is_live_assessment = str(code_req.problemId).startswith("code_") or str(code_req.problemId).startswith("exam_")
+    is_live_assessment = code_req.problemId.startswith("code_") or code_req.problemId.startswith("exam_")
 
     return {
         "passed_cases": passed_cases,

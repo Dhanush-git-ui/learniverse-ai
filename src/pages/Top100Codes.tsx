@@ -26,7 +26,8 @@ import {
   Lock,
   Clock,
   Building2,
-  Filter
+  Filter,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
@@ -34,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TOP_100_QUESTIONS, Top100Question } from '@/data/top100Data';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import AlgorithmStepPanel from '@/components/coding/AlgorithmStepPanel';
+import { PATTERN_BLUEPRINTS, formatExampleOutput, getQuestionTutorial } from '@/data/top100Tutorials';
 
 export default function Top100Codes() {
   const { toast } = useToast();
@@ -57,6 +59,10 @@ export default function Top100Codes() {
   
   // UI Panels / tabs
   const [activeLeftTab, setActiveLeftTab] = useState<'description' | 'hints' | 'solution'>('description');
+  
+  // Multi-Method Tutorial and Pattern Blueprint
+  const tutorial = getQuestionTutorial(selectedQuestion.title, selectedQuestion.category);
+  const patternInfo = PATTERN_BLUEPRINTS[selectedQuestion.title];
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     "Getting Started": true,
     "Working with Numbers": false,
@@ -81,7 +87,7 @@ export default function Top100Codes() {
   const [spaceComplexity, setSpaceComplexity] = useState('');
 
   // Categories list
-  const categories = ["Getting Started", "Working with Numbers", "Arrays", "Matrix", "Pattern Printing"];
+  const categories = ["Getting Started", "Working with Numbers", "Recursion", "Arrays", "Strings", "Advanced Arrays", "Matrix", "Pattern Printing"];
 
   // Toggle categories
   const toggleCategory = (cat: string) => {
@@ -469,13 +475,13 @@ export default function Top100Codes() {
                 <div className="flex">
                   <button
                     onClick={() => setActiveLeftTab('description')}
-                    className={`flex items-center space-x-2 py-3 px-4 border-b-2 font-bold transition-all ${
+                    className={`flex items-center space-x-2 py-3 px-3.5 border-b-2 font-bold transition-all text-xs cursor-pointer ${
                       activeLeftTab === 'description' 
                         ? 'border-emerald-500 text-emerald-700 bg-emerald-50' 
                         : 'border-transparent text-slate-500 hover:text-slate-800'
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-emerald-600" />
+                    <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Problem</span>
                   </button>
                   
@@ -554,6 +560,7 @@ export default function Top100Codes() {
                     </div>
 
                     <AlgorithmStepPanel
+                      key={selectedQuestion.id}
                       algorithmText={algorithmText}
                       setAlgorithmText={setAlgorithmText}
                       timeComplexity={timeComplexity}
@@ -562,10 +569,60 @@ export default function Top100Codes() {
                       setSpaceComplexity={setSpaceComplexity}
                     />
 
+                    {/* Visual Pattern Blueprint for Pattern Printing */}
+                    {patternInfo && (
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-white shadow-md space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-emerald-400 font-bold text-sm">
+                            <Sparkles className="w-4 h-4 text-emerald-400" />
+                            <span>Visual Pattern Blueprint</span>
+                          </div>
+                          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            Geometry Shape
+                          </span>
+                        </div>
+                        <pre className="font-mono text-xs text-emerald-300 bg-slate-950 p-4 rounded-xl border border-slate-800 whitespace-pre leading-relaxed overflow-x-auto shadow-inner">
+                          {patternInfo.shapeDiagram}
+                        </pre>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono text-slate-300">
+                          <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                            <span className="text-slate-400 text-[10px] uppercase block font-bold mb-0.5">Row Loop (i):</span>
+                            {patternInfo.rowRule}
+                          </div>
+                          <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/60">
+                            <span className="text-slate-400 text-[10px] uppercase block font-bold mb-0.5">Star / Content Rule:</span>
+                            {patternInfo.contentRule}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Problem Statement Card */}
                     <div className="text-slate-700 text-base leading-relaxed whitespace-pre-line bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                       {selectedQuestion.statement}
                     </div>
+
+                    {/* Multi-Method Quick Link Banner */}
+                    <button
+                      type="button"
+                      onClick={() => setActiveLeftTab('solution')}
+                      className="w-full text-left bg-gradient-to-r from-sky-50 via-indigo-50 to-blue-50 border border-sky-200/80 rounded-xl p-3.5 flex items-center justify-between group hover:border-sky-300 transition-all cursor-pointer shadow-xs"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-sky-700 flex-shrink-0">
+                          <Eye className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-sky-900 block group-hover:text-sky-700">
+                            Optimal Solution & Alternative Approaches Available
+                          </span>
+                          <span className="text-[11px] text-sky-600 block">
+                            Explore Brute Force, Optimal, and Mathematical approaches with Big-O complexity breakdown
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
                     
                     {/* Input / Output Format */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -583,23 +640,46 @@ export default function Top100Codes() {
                     <div className="space-y-3">
                       <h4 className="font-bold text-sm uppercase tracking-wider text-slate-500">Examples & Test Cases</h4>
                       <div className="space-y-3">
-                        {selectedQuestion.examples.map((ex, idx) => (
-                          <div key={idx} className="p-4 bg-white border border-slate-200 rounded-xl space-y-2 text-sm font-mono">
-                            <div className="flex">
-                              <span className="text-slate-400 w-16 select-none">Input:</span>
-                              <span className="text-slate-700">{ex.input}</span>
+                        {selectedQuestion.examples.map((ex, idx) => {
+                          const fmt = formatExampleOutput(ex.output);
+                          return (
+                            <div key={idx} className="p-4 bg-white border border-slate-200 rounded-xl space-y-2 text-sm font-mono shadow-xs">
+                              <div className="flex">
+                                <span className="text-slate-400 w-16 select-none font-bold">Input:</span>
+                                <span className="text-slate-800">{ex.input}</span>
+                              </div>
+                              {fmt.isMultiline ? (
+                                <div className="space-y-1.5 pt-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-slate-400 font-bold select-none text-xs">Output (Visual Shape):</span>
+                                    <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-mono font-semibold border border-emerald-200">
+                                      Multi-line Pattern
+                                    </span>
+                                  </div>
+                                  <pre className="font-mono text-xs bg-slate-900 text-emerald-400 p-3.5 rounded-xl whitespace-pre leading-relaxed border border-slate-800 overflow-x-auto shadow-inner">
+                                    {fmt.text}
+                                  </pre>
+                                </div>
+                              ) : (
+                                <div className="flex">
+                                  <span className="text-slate-400 w-16 select-none font-bold">Output:</span>
+                                  <span className="text-emerald-600 font-bold">{ex.output}</span>
+                                </div>
+                              )}
+                              {ex.explanation && (
+                                <div className="text-xs font-sans text-slate-500 pt-1 border-t border-slate-100 flex items-start gap-1.5">
+                                  <Info className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                                  <span>{ex.explanation}</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex">
-                              <span className="text-slate-400 w-16 select-none">Output:</span>
-                              <span className="text-emerald-600 font-bold">{ex.output}</span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
                 )}
-                
+
                 {activeLeftTab === 'hints' && (
                   <div className="space-y-6 animate-fade-in">
                     <div className="flex items-center space-x-2.5">
@@ -664,17 +744,26 @@ export default function Top100Codes() {
                 )}
                 
                 {activeLeftTab === 'solution' && (
-                  <div className="space-y-4 animate-fade-in">
-                    <div className="flex items-start space-x-3 text-amber-600 bg-amber-50 p-4 rounded-xl border border-amber-200">
-                      <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs leading-relaxed text-amber-700">
-                        <strong>Optimal Solution:</strong> Review this solution to understand space/time optimal logic and best code styling after you finish your execution attempts.
-                      </span>
+                  <div className="space-y-6 animate-fade-in">
+                    {/* Optimal Solution Banner */}
+                    <div className="flex items-start space-x-3 text-sky-800 bg-sky-50 p-4 rounded-xl border border-sky-200">
+                      <Sparkles className="w-5 h-5 flex-shrink-0 mt-0.5 text-sky-600" />
+                      <div className="text-xs leading-relaxed">
+                        <strong className="block text-sky-950 text-sm font-semibold mb-0.5">Optimal Solution & Deep-Dive Guide</strong>
+                        Review the optimal implementation below, then explore the underlying mathematical concepts, visual logic diagrams, and step-by-step algorithms across all alternative approaches.
+                      </div>
                     </div>
                     
+                    {/* Code Implementation Box */}
                     <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
                       <div className="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex justify-between items-center text-xs">
-                        <span className="font-mono text-slate-500 capitalize">{selectedLang} Implementation</span>
+                        <div className="flex items-center space-x-2">
+                          <Code className="w-4 h-4 text-slate-500" />
+                          <span className="font-mono text-slate-700 font-bold capitalize">{selectedLang} Implementation</span>
+                        </div>
+                        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+                          Optimal Time: {selectedQuestion.time_complexity}
+                        </span>
                       </div>
                       <div className="p-5 overflow-x-auto max-h-[480px] custom-scrollbar bg-slate-900">
                         <pre className="font-mono text-sm text-slate-200 whitespace-pre">
@@ -682,6 +771,113 @@ export default function Top100Codes() {
                         </pre>
                       </div>
                     </div>
+
+                    {/* Concept Overview Card */}
+                    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl shadow-md space-y-2 border border-slate-800">
+                      <div className="flex items-center space-x-2 text-indigo-300 font-bold text-xs uppercase tracking-wider">
+                        <BookOpen className="w-4 h-4" />
+                        <span>Core Concept & Mathematical Logic</span>
+                      </div>
+                      <h3 className="text-lg font-bold tracking-tight text-white">
+                        {tutorial.conceptTitle}
+                      </h3>
+                      <p className="text-sm text-slate-200 leading-relaxed font-sans">
+                        {tutorial.conceptExplanation}
+                      </p>
+                    </div>
+
+                    {/* Concept Visual / Diagram if available */}
+                    {tutorial.conceptVisual && (
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
+                        <div className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Visual Logic & Concept Diagram</span>
+                        </div>
+                        <pre className="font-mono text-xs text-emerald-300 bg-slate-950 p-4 rounded-xl border border-slate-800/80 whitespace-pre overflow-x-auto leading-relaxed shadow-inner">
+                          {tutorial.conceptVisual}
+                        </pre>
+                      </div>
+                    )}
+
+                    {/* Multiple Methods Breakdown */}
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <span>Solution Approaches & Step-by-Step Algorithms ({tutorial.methods.length})</span>
+                      </h4>
+
+                      {tutorial.methods.map((method, mIdx) => (
+                        <div key={mIdx} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <h5 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold font-mono">
+                                {mIdx + 1}
+                              </span>
+                              <span>{method.name}</span>
+                            </h5>
+                            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                              {method.badge}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                            {method.summary}
+                          </p>
+
+                          {/* Step-by-step algorithm list */}
+                          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-1.5">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block font-mono">
+                              Step-by-Step Algorithm:
+                            </span>
+                            <ol className="list-decimal list-inside text-xs text-slate-700 space-y-1 font-sans">
+                              {method.algorithm.map((step, sIdx) => (
+                                <li key={sIdx} className="leading-relaxed">{step}</li>
+                              ))}
+                            </ol>
+                          </div>
+
+                          {/* Complexities */}
+                          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-mono">
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200">
+                              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Time: {method.timeComplexity}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-800 rounded-lg border border-blue-200">
+                              <Terminal className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Space: {method.spaceComplexity}</span>
+                            </div>
+                          </div>
+
+                          {/* Optional Code Snippet */}
+                          {method.codeSnippet && (
+                            <div className="pt-2">
+                              <div className="bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+                                <div className="bg-slate-800/80 px-3 py-1.5 text-[11px] font-mono text-slate-400 flex items-center justify-between border-b border-slate-700">
+                                  <span>{method.name} Snippet (Python)</span>
+                                </div>
+                                <pre className="p-3 text-xs font-mono text-emerald-300 whitespace-pre overflow-x-auto">
+                                  {method.codeSnippet.python}
+                                </pre>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Interview Tips Card */}
+                    {tutorial.interviewTips && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4.5 text-xs text-amber-900 space-y-1.5 flex items-start gap-3">
+                        <Award className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold block text-amber-950 uppercase tracking-wider text-[11px]">
+                            Technical Interview & Recruiter Insight:
+                          </span>
+                          <p className="leading-relaxed text-amber-800">
+                            {tutorial.interviewTips}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
