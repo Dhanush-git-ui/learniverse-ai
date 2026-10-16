@@ -1,14 +1,15 @@
 import React from 'react';
-import { Terminal, CheckCircle2, XCircle } from 'lucide-react';
+import { Terminal, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 interface OutputConsolePanelProps {
   result: any;
   activeTab: 'testcases' | 'output' | 'aiFeedback';
   setActiveTab: (tab: 'testcases' | 'output' | 'aiFeedback') => void;
   challenge: any;
+  isRunning?: boolean;
 }
 
-export default function OutputConsolePanel({ result, activeTab, setActiveTab, challenge }: OutputConsolePanelProps) {
+export default function OutputConsolePanel({ result, activeTab, setActiveTab, challenge, isRunning }: OutputConsolePanelProps) {
   const isAccepted = result?.passed_cases !== undefined && result.passed_cases === result.total_cases;
 
   return (
@@ -66,7 +67,12 @@ export default function OutputConsolePanel({ result, activeTab, setActiveTab, ch
 
         {activeTab === 'output' && (
           <div className="space-y-4">
-            {!result ? (
+            {isRunning ? (
+              <div className="flex flex-col items-center justify-center py-10 space-y-3">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                <span className="text-slate-400 font-sans text-xs">Executing code against test cases...</span>
+              </div>
+            ) : !result ? (
               <div className="text-slate-500 flex items-center gap-2 py-4">
                 <Terminal className="w-4 h-4" />
                 <span>Console empty. Click Run to evaluate code.</span>

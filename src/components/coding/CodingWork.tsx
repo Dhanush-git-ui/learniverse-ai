@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import WorkspaceHeader from './WorkspaceHeader';
 import ProblemDescriptionPanel from './ProblemDescriptionPanel';
@@ -14,6 +14,7 @@ interface CodingWorkspaceProps {
   setUserCode: (code: string) => void;
   compilationResult: any;
   submittingCode: boolean;
+  runningCode?: boolean;
   handleRunCode: () => void;
   handleSubmitCode: () => void;
   codingHintMode: 'teacher' | 'peer';
@@ -33,6 +34,23 @@ interface CodingWorkspaceProps {
 export default function CodingWorkspace(props: CodingWorkspaceProps) {
   const [activeConsoleTab, setActiveConsoleTab] = useState<'testcases' | 'output' | 'aiFeedback'>('testcases');
   const [aiPanelOpen, setAiPanelOpen] = useState(true);
+
+  // Automatically navigate to Run Output tab whenever code starts running or a new result arrives
+  useEffect(() => {
+    if (props.compilationResult || props.runningCode || props.submittingCode) {
+      setActiveConsoleTab('output');
+    }
+  }, [props.compilationResult, props.runningCode, props.submittingCode]);
+
+  const onRunCode = () => {
+    setActiveConsoleTab('output');
+    props.handleRunCode();
+  };
+
+  const onSubmitCode = () => {
+    setActiveConsoleTab('output');
+    props.handleSubmitCode();
+  };
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-md">
@@ -76,9 +94,10 @@ export default function CodingWorkspace(props: CodingWorkspaceProps) {
                     setUserCode={props.setUserCode}
                     selectedLang={props.selectedLang}
                     setSelectedLang={props.setSelectedLang}
-                    handleRunCode={props.handleRunCode}
-                    handleSubmitCode={props.handleSubmitCode}
+                    handleRunCode={onRunCode}
+                    handleSubmitCode={onSubmitCode}
                     submittingCode={props.submittingCode}
+                    runningCode={props.runningCode}
                   />
                 </div>
               </Panel>
@@ -93,6 +112,7 @@ export default function CodingWorkspace(props: CodingWorkspaceProps) {
                     activeTab={activeConsoleTab}
                     setActiveTab={setActiveConsoleTab}
                     challenge={props.challenge}
+                    isRunning={props.runningCode || props.submittingCode}
                   />
                 </div>
               </Panel>

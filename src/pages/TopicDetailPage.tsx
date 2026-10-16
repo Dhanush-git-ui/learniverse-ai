@@ -80,6 +80,7 @@ const TopicDetailPage = () => {
   const [userCode, setUserCode] = useState('');
   const [compilationResult, setCompilationResult] = useState<any>(null);
   const [submittingCode, setSubmittingCode] = useState(false);
+  const [runningCode, setRunningCode] = useState(false);
   const [codingHintMode, setCodingHintMode] = useState<'teacher' | 'peer'>('teacher');
   const [revealCodingHint1, setRevealCodingHint1] = useState(false);
   const [revealCodingHint2, setRevealCodingHint2] = useState(false);
@@ -350,20 +351,34 @@ const TopicDetailPage = () => {
     setHintsUsedForCurrentQuestion(prev => prev + 1);
   };
 
-  // Run code via Piston (quick run — first example input only)
+  // Run code via Piston / Judge0 (quick run — evaluates against example test cases)
   const handleRunCode = async () => {
+    setRunningCode(true);
     setCompilationResult(null);
     const challenge = codingChallenges[selectedProblemIdx];
-    if (!challenge) return;
+    if (!challenge) {
+      setRunningCode(false);
+      return;
+    }
     try {
       const result = await runAndEvaluate(userCode, selectedLang, challenge.examples ?? []);
       setCompilationResult(result);
+      const allPassed = result.passed_cases !== undefined && result.passed_cases === result.total_cases;
+      toast({
+        title: allPassed ? '✅ All Example Tests Passed!' : '❌ Some Tests Failed',
+        description: result.passed_cases !== undefined
+          ? `${result.passed_cases} / ${result.total_cases} test cases passed in ${result.runtime}`
+          : 'Check the output console for details.',
+        variant: allPassed ? 'default' : 'destructive',
+      });
     } catch (err: any) {
       toast({
         title: 'Run Error',
-        description: err?.message ?? 'Piston execution failed.',
+        description: err?.message ?? 'Code execution failed.',
         variant: 'destructive',
       });
+    } finally {
+      setRunningCode(false);
     }
   };
 
@@ -875,6 +890,7 @@ const TopicDetailPage = () => {
                         setUserCode={setUserCode}
                         compilationResult={compilationResult}
                         submittingCode={submittingCode}
+                        runningCode={runningCode}
                         handleRunCode={handleRunCode}
                         handleSubmitCode={handleSubmitCode}
                         codingHintMode={codingHintMode}

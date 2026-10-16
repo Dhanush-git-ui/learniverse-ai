@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, Send } from 'lucide-react';
+import { Play, Send, Loader2 } from 'lucide-react';
 
 interface CodeEditorPanelProps {
   userCode: string;
@@ -10,6 +10,7 @@ interface CodeEditorPanelProps {
   handleRunCode: () => void;
   handleSubmitCode: () => void;
   submittingCode: boolean;
+  runningCode?: boolean;
 }
 
 function useIsDarkMode() {
@@ -58,6 +59,13 @@ export default function CodeEditorPanel(props: CodeEditorPanelProps) {
           theme={editorTheme}
           value={props.userCode}
           onChange={(v) => props.setUserCode(v || '')}
+          onMount={(editor, monaco) => {
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+              if (!props.runningCode && !props.submittingCode) {
+                props.handleRunCode();
+              }
+            });
+          }}
           options={{
             minimap: { enabled: false },
             fontSize: 13,
@@ -77,18 +85,37 @@ export default function CodeEditorPanel(props: CodeEditorPanelProps) {
         <div className="flex items-center space-x-2">
           <button 
             onClick={props.handleRunCode} 
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 transition-all active:scale-[0.98]"
+            disabled={props.runningCode || props.submittingCode}
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 transition-all active:scale-[0.98] disabled:opacity-50"
           >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Run</span>
+            {props.runningCode ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                <span>Running...</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Run</span>
+              </>
+            )}
           </button>
           <button 
             onClick={props.handleSubmitCode} 
-            disabled={props.submittingCode}
+            disabled={props.submittingCode || props.runningCode}
             className="flex items-center space-x-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all active:scale-[0.98] disabled:opacity-50 shadow-[0_0_10px_rgba(37,99,235,0.15)]"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{props.submittingCode ? 'Submitting...' : 'Submit'}</span>
+            {props.submittingCode ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Submitting...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-3.5 h-3.5" />
+                <span>Submit</span>
+              </>
+            )}
           </button>
         </div>
       </div>
