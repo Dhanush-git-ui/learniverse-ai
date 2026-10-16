@@ -135,8 +135,9 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
       const payload = JSON.parse(atob(payloadBase64));
       const email = (payload.email || "").toLowerCase().trim();
 
-      // Client-side domain check
-      if (!email.endsWith("@hitam.org")) {
+      // Client-side domain check: allow @hitam.org or configured admin emails
+      const isAllowedAdmin = email === "dhanushgopavaram06@gmail.com" || email === "admin@hitam.org" || email === "admin@learniverse.ai";
+      if (!email.endsWith("@hitam.org") && !isAllowedAdmin) {
         setErrorMsg(`Access Denied: ${email} is not an authorized @hitam.org college email.`);
         setIsLoading(false);
         return;

@@ -14,8 +14,16 @@ logger = logging.getLogger("learniverse.auth")
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-GOOGLE_CLIENT_IDS = [os.environ.get("GOOGLE_CLIENT_ID", "").strip()]
-GOOGLE_CLIENT_IDS = [client_id for client_id in GOOGLE_CLIENT_IDS if client_id]
+DEFAULT_GOOGLE_CLIENT_ID = "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com"
+
+def _resolve_google_client_ids() -> list[str]:
+    c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+    ids = [c_id] if c_id else []
+    if DEFAULT_GOOGLE_CLIENT_ID not in ids:
+        ids.append(DEFAULT_GOOGLE_CLIENT_ID)
+    return [client_id for client_id in ids if client_id]
+
+GOOGLE_CLIENT_IDS = _resolve_google_client_ids()
 
 
 def _configured_admins(env_name: str) -> set[str]:
@@ -111,7 +119,9 @@ def _verified_student_for_email(email: str) -> Optional[Dict[str, Any]]:
 
 def verify_google_id_token(token_str: str) -> Dict[str, Any]:
     """Verify a Google ID token against an explicitly configured client ID."""
-    for client_id in GOOGLE_CLIENT_IDS:
+    active_ids = GOOGLE_CLIENT_IDS if GOOGLE_CLIENT_IDS else _resolve_google_client_ids()
+    last_err = None
+    for client_id in active_ids:
         try:
             idinfo = id_token.verify_oauth2_token(
                 token_str,
@@ -119,9 +129,10 @@ def verify_google_id_token(token_str: str) -> Dict[str, Any]:
                 client_id
             )
             return idinfo
-        except Exception:
+        except Exception as e:
+            last_err = e
             pass
-    logger.warning("Google token verification failed or no client ID is configured")
+    logger.warning("Google token verification failed or no client ID is configured: %s", last_err)
     raise HTTPException(status_code=401, detail="Invalid Google OAuth credential.")
 
 def is_admin_email(email: str) -> bool:
@@ -228,6 +239,15 @@ def google_login_endpoint(request: Request, payload: GoogleLoginRequest):
             raise HTTPException(status_code=401, detail="Google identity has no subject.")
     else:
         student_record = _verified_student_for_email(email)
+        if not student_record and email.endswith("@hitam.org"):
+            demographics = parse_student_credentials(email)
+            if demographics.get("isValid") and demographics.get("rollNumber"):
+                student_record = {
+                    "roll_number": demographics.get("rollNumber"),
+                    "name": name,
+                    "branch": demographics.get("branchName", "Engineering"),
+                    "email": email
+                }
         if not student_record:
             raise HTTPException(status_code=403, detail="This verified Google account is not enrolled.")
         user_id = str(student_record.get("roll_number") or "").strip().upper()
