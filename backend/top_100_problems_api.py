@@ -321,18 +321,35 @@ async def execute_test_case(code: str, language: str, test_case: dict, problem: 
         result = None
 
         if language.lower() in ["python", "py"]:
-            result = execute_python(code, test_case, problem)
+            try:
+                result = execute_python(code, test_case, problem)
+            except Exception:
+                result = None
         elif language.lower() in ["javascript", "js"]:
-            result = execute_javascript(code, test_case, problem)
+            try:
+                result = execute_javascript(code, test_case, problem)
+            except Exception:
+                result = None
         elif language.lower() in ["java"]:
-            result = execute_java(code, test_case, problem)
+            try:
+                result = execute_java(code, test_case, problem)
+            except Exception:
+                result = None
         elif language.lower() in ["cpp", "c++"]:
-            result = execute_cpp(code, test_case, problem)
-        else:
+            try:
+                result = execute_cpp(code, test_case, problem)
+            except Exception:
+                result = None
+
+        if result is None:
             # Fallback to Judge0
             from app import execute_code_via_judge0
-            result = execute_code_via_judge0(language, code, test_case["input"])
-            if result is None:
+            j0_res = execute_code_via_judge0(language, code, test_case["input"])
+            if j0_res and "run" in j0_res:
+                result = j0_res["run"]
+            elif j0_res:
+                result = j0_res
+            else:
                 raise Exception("Execution service unavailable")
 
         execution_time_ms = (time.time() - start_time) * 1000

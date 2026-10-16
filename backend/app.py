@@ -141,23 +141,7 @@ app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
 # Compression for API responses (reduces bandwidth and speeds up transfer)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-def get_rate_limit_key(request: Request) -> str:
-    # Authenticated traffic is bucketed by a fully validated application JWT.
-    auth_header = request.headers.get("authorization")
-    if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split(" ", 1)[1].strip()
-        try:
-            from auth import _decode_access_token
-            return f"user:{_decode_access_token(token)['sub']}"
-        except Exception:
-            pass
-
-    # Forwarding headers are attacker-controlled unless a trusted-proxy chain
-    # has explicitly been configured. Use the ASGI peer address by default.
-    return request.client.host if request.client else "127.0.0.1"
-
-
-limiter = Limiter(key_func=get_rate_limit_key)
+from rate_limiter import limiter, get_rate_limit_key
 app.state.limiter = limiter
 
 def rate_limit_handler(request: Request, exc: Exception) -> Response:
@@ -1600,14 +1584,17 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
             "stdin": stdin_b64
         }
 
-        if url:
+        is_rapidapi = not url or "rapidapi.com" in url
+        if is_rapidapi:
+            base_url = url.rstrip('/') if url else "https://judge0-ce.p.rapidapi.com"
+            endpoint = f"{base_url}/submissions?base64_encoded=true&wait=true"
+            if api_key:
+                headers["x-rapidapi-key"] = api_key
+            headers["x-rapidapi-host"] = "judge0-ce.p.rapidapi.com"
+        else:
             endpoint = f"{url.rstrip('/')}/submissions?base64_encoded=true&wait=true"
             if api_key:
                 headers["X-Auth-Token"] = api_key
-        else:
-            endpoint = "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true"
-            headers["x-rapidapi-key"] = api_key
-            headers["x-rapidapi-host"] = "judge0-ce.p.rapidapi.com"
 
         resp = requests.post(endpoint, json=payload, headers=headers, timeout=10)
         if resp.status_code in [200, 201]:

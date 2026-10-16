@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from auth import create_access_token
-from app import limiter
+from rate_limiter import limiter
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 

@@ -83,6 +83,21 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(call.kwargs["headers"]["X-Auth-Token"], "synthetic-judge0-token")
         self.assertNotIn("x-rapidapi-key", call.kwargs["headers"])
 
+    @patch.dict(os.environ, {"JUDGE0_URL": "https://judge0-ce.p.rapidapi.com", "JUDGE0_API_KEY": "test-rapidapi-key"}, clear=False)
+    @patch("requests.post")
+    def test_rapidapi_judge0_uses_rapidapi_headers(self, mock_post):
+        mock_post.return_value.status_code = 201
+        mock_post.return_value.json.return_value = {"status": {"id": 3}, "stdout": None}
+
+        result = execute_code_via_judge0("python", "print('ok')", "")
+
+        self.assertEqual(result["run"]["code"], 0)
+        call = mock_post.call_args
+        self.assertEqual(call.args[0], "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true")
+        self.assertEqual(call.kwargs["headers"]["x-rapidapi-key"], "test-rapidapi-key")
+        self.assertEqual(call.kwargs["headers"]["x-rapidapi-host"], "judge0-ce.p.rapidapi.com")
+        self.assertNotIn("X-Auth-Token", call.kwargs["headers"])
+
     @patch.dict(os.environ, {"API_SECRET_KEY": "runtime-secret"}, clear=False)
     def test_verify_api_key_uses_runtime_env(self):
         """API key validation should read the current environment value."""
