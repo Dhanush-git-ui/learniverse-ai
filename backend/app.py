@@ -68,23 +68,48 @@ def get_db_conn():
     global _db_pool
     if not DB_URL:
         return None
-    try:
-        if _db_pool is None or _db_pool.closed:
-            _db_pool = ThreadedConnectionPool(
-                minconn=DB_POOL_MIN_CONNS,
-                maxconn=DB_POOL_MAX_CONNS,
-                dsn=DB_URL
-            )
-        return _db_pool.getconn()
-    except Exception as e:
-        logger.warning("[DB POOL] Could not acquire connection: %s", e)
-        return None
+    for attempt in range(3):
+        try:
+            if _db_pool is None or _db_pool.closed:
+                _db_pool = ThreadedConnectionPool(
+                    minconn=DB_POOL_MIN_CONNS,
+                    maxconn=DB_POOL_MAX_CONNS,
+                    dsn=DB_URL
+                )
+            conn = _db_pool.getconn()
+            if getattr(conn, "closed", 0) != 0:
+                try:
+                    _db_pool.putconn(conn, close=True)
+                except Exception:
+                    pass
+                continue
+            # Validate connection health against Neon timeout/SSL drops
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1;")
+                return conn
+            except Exception:
+                try:
+                    _db_pool.putconn(conn, close=True)
+                except Exception:
+                    pass
+                continue
+        except Exception as e:
+            logger.warning("[DB POOL] Could not acquire connection (attempt %s): %s", attempt + 1, e)
+            try:
+                if _db_pool and not _db_pool.closed:
+                    _db_pool.closeall()
+                _db_pool = None
+            except Exception:
+                pass
+    return None
 
-def release_db_conn(conn):
+def release_db_conn(conn, close=False):
     global _db_pool
     if _db_pool and conn:
         try:
-            _db_pool.putconn(conn)
+            is_bad = close or getattr(conn, "closed", 0) != 0
+            _db_pool.putconn(conn, close=is_bad)
         except Exception:
             pass
 
@@ -557,6 +582,36 @@ def get_portfolio(roll_number: str):
     except Exception as e:
         logger.warning("[PORTFOLIO] %s", e)
     return stats
+
+
+@app.get("/api/student/dashboard/{roll_number}")
+def get_student_dashboard_endpoint(roll_number: str):
+    """Returns assessment metrics and fallback summary for student dashboard."""
+    roll = roll_number.strip().upper()
+    data = {
+        "status": "ok",
+        "roll_number": roll,
+        "total_marks": 0,
+        "max_marks": 20,
+        "percentage": 0,
+        "test_status": "not_started",
+        "student_name": "HITAM Student",
+        "branch": "Engineering"
+    }
+    try:
+        from cdc_integration import _fetch_submission_from_sources
+        sub = _fetch_submission_from_sources(roll)
+        if sub:
+            data["total_marks"] = sub.get("total_marks", 0)
+            data["max_marks"] = sub.get("max_marks", 20)
+            data["percentage"] = sub.get("percentage", 0)
+            data["test_status"] = sub.get("status", "completed")
+            data["student_name"] = sub.get("student_name", data["student_name"])
+            data["branch"] = sub.get("branch", data["branch"])
+            data["submitted_at"] = str(sub.get("submitted_at", ""))
+    except Exception as e:
+        logger.warning("[STUDENT DASHBOARD ENDPOINT] %s", e)
+    return data
 
 
 @app.get("/u/{roll_number}")

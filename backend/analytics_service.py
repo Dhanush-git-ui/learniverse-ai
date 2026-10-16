@@ -24,10 +24,10 @@ def _conn():
         return None
 
 
-def _release(conn):
+def _release(conn, close: bool = False):
     try:
         from app import release_db_conn
-        release_db_conn(conn)
+        release_db_conn(conn, close=close)
     except Exception:
         pass
 
@@ -229,6 +229,7 @@ def get_dashboard_summary(user_id: str) -> dict:
     conn = _conn()
     if not conn:
         return {}
+    failed = False
     try:
         from psycopg2.extras import RealDictCursor
         cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -295,7 +296,8 @@ def get_dashboard_summary(user_id: str) -> dict:
         cur.close()
         return result
     except Exception as e:
+        failed = True
         logger.warning("[ANALYTICS get_dashboard_summary] %s", e)
         return {}
     finally:
-        _release(conn)
+        _release(conn, close=failed)
