@@ -18,14 +18,19 @@ import sqlite3
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 import requests
-from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Query, BackgroundTasks, Depends
+from auth import require_admin
 from pydantic import BaseModel
 
 from config import settings
 
 logger = logging.getLogger("learniverse.cdc_integration")
 
-cdc_router = APIRouter(prefix="/api/cdc", tags=["CDC HITAM Integration"])
+cdc_router = APIRouter(
+    prefix="/api/cdc",
+    tags=["CDC HITAM Integration"],
+    dependencies=[Depends(require_admin)],
+)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 SQLITE_DB_PATH = os.path.join(os.path.dirname(__file__), "placement_assessment_system", "assessment_local.db")
@@ -38,6 +43,7 @@ def _fetch_submission_from_sources(roll_number: str) -> Optional[dict]:
 
     # 1. PostgreSQL (Neon DB)
     db_url = settings.DATABASE_URL
+    postgres_available = False
     if db_url:
         try:
             import psycopg2
@@ -54,10 +60,16 @@ def _fetch_submission_from_sources(roll_number: str) -> Optional[dict]:
             )
             row = cur.fetchone()
             conn.close()
+            postgres_available = True
             if row:
                 return dict(row)
         except Exception as e:
             logger.warning("[CDC_INTEGRATION] Neon DB lookup error: %s", e)
+
+    if not settings.IS_DEV:
+        if not db_url or not postgres_available:
+            raise HTTPException(status_code=503, detail="CDC database is unavailable")
+        return None
 
     # 2. Local SQLite database
     if os.path.exists(SQLITE_DB_PATH):
@@ -100,6 +112,7 @@ def _fetch_all_submissions_from_sources() -> List[dict]:
 
     # 1. Neon PostgreSQL
     db_url = settings.DATABASE_URL
+    postgres_available = False
     if db_url:
         try:
             import psycopg2
@@ -109,12 +122,18 @@ def _fetch_all_submissions_from_sources() -> List[dict]:
             cur.execute("SELECT * FROM fixly_test_submissions ORDER BY submitted_at DESC;")
             rows = cur.fetchall() or []
             conn.close()
+            postgres_available = True
             for r in rows:
                 roll = str(r.get("roll_number", "")).strip().upper()
                 if roll and roll not in results_map:
                     results_map[roll] = dict(r)
         except Exception as e:
             logger.warning("[CDC_INTEGRATION] Neon DB fetch all error: %s", e)
+
+    if not settings.IS_DEV:
+        if not db_url or not postgres_available:
+            raise HTTPException(status_code=503, detail="CDC database is unavailable")
+        return list(results_map.values())
 
     # 2. Local SQLite
     if os.path.exists(SQLITE_DB_PATH):
@@ -821,6 +840,9 @@ def save_to_bulk_test_table(sub_record: dict, test_date: Optional[str] = None, b
         except Exception as e:
             logger.warning("[BULK TEST TABLE] Neon DB insert error: %s", e)
 
+    if not settings.IS_DEV:
+        return False
+
     # 2. Local SQLite fallback
     if os.path.exists(SQLITE_DB_PATH):
         try:
@@ -949,6 +971,9 @@ def submit_bulk_tests_endpoint(req: BulkTestSubmitRequest, background_tasks: Bac
         # Queue CDC HITAM real-time sync for each student
         background_tasks.add_task(dispatch_to_cdc_hitam_sync, sub)
 
+    if not settings.IS_DEV and saved_count != len(req.submissions):
+        raise HTTPException(status_code=503, detail="One or more bulk results could not be persisted")
+
     return {
         "status": "success",
         "saved_count": saved_count,
@@ -1050,6 +1075,9 @@ def get_bulk_tests(
         except Exception as e:
             logger.warning("[BULK TESTS QUERY ERROR] %s", e)
 
+    if not settings.IS_DEV:
+        raise HTTPException(status_code=503, detail="CDC database is unavailable")
+
     # SQLite fallback
     if os.path.exists(SQLITE_DB_PATH):
         try:
@@ -1120,6 +1148,9 @@ def get_bulk_tests_daily_summary(
             }
         except Exception as e:
             logger.warning("[BULK SUMMARY VIEW ERROR] %s", e)
+
+    if not settings.IS_DEV:
+        raise HTTPException(status_code=503, detail="CDC database view is unavailable")
 
     return {
         "status": "not_available",

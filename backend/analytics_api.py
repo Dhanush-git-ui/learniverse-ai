@@ -26,16 +26,11 @@ def _get_token_payload(request: Request) -> dict:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Missing or invalid Authorization header.")
     token = auth.split(" ", 1)[1].strip()
     try:
-        from jose import jwt, JWTError
-        import os
-        secret = os.environ.get("API_SECRET_KEY", "")
-        if not secret:
-            from config import settings
-            secret = settings.API_SECRET_KEY
-        payload = jwt.decode(token, secret, algorithms=["HS256"])
+        from auth import _decode_access_token
+        payload = _decode_access_token(token)
         return payload
     except Exception as e:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {e}")
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid authentication token.")
 
 
 def _require_student(request: Request) -> dict:

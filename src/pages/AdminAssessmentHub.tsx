@@ -1,0 +1,408 @@
+import React, { useState, useEffect } from 'react';
+import { AdminNavbar } from '../components/admin/AdminNavbar';
+import { MyAssessmentsDashboard } from '../components/admin/MyAssessmentsDashboard';
+import { CreationModeModal } from '../components/admin/CreationModeModal';
+import { RoleCatalogSelector } from '../components/admin/RoleCatalogSelector';
+import { SectionStepperWizard } from '../components/admin/SectionStepperWizard';
+import { SectionTypeModal } from '../components/admin/SectionTypeModal';
+import { SectionDetailsView } from '../components/admin/SectionDetailsView';
+import { QuestionPickerModal } from '../components/admin/QuestionPickerModal';
+import { AIPoweredModal } from '../components/admin/AIPoweredModal';
+import { FinalReviewPublish } from '../components/admin/FinalReviewPublish';
+import { MyQuestionsManager } from '../components/admin/MyQuestionsManager';
+
+import { 
+  AdminAssessment, 
+  AssessmentSection, 
+  RoleTemplate, 
+  SectionType,
+  QuestionBreakdownItem,
+  QuestionItem
+} from '../types/adminAssessment';
+import { INITIAL_ASSESSMENTS, ROLE_TEMPLATES, INITIAL_MY_QUESTIONS } from '../data/mockAdminData';
+
+export const AdminAssessmentHub: React.FC = () => {
+  // Master Assessments List stored in localStorage
+  const [assessments, setAssessments] = useState<AdminAssessment[]>(() => {
+    try {
+      const saved = localStorage.getItem('learniverse_admin_assessments');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return INITIAL_ASSESSMENTS;
+  });
+
+  // Custom Authored Questions stored in localStorage
+  const [myQuestions, setMyQuestions] = useState<QuestionItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('learniverse_admin_my_questions');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return INITIAL_MY_QUESTIONS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('learniverse_admin_assessments', JSON.stringify(assessments));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [assessments]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('learniverse_admin_my_questions', JSON.stringify(myQuestions));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [myQuestions]);
+
+  // Dynamic user detection from localStorage session
+  const [adminUser] = useState<string>(() => {
+    try {
+      const savedUser = localStorage.getItem('learniverse_user');
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        if (u.name) return u.name;
+        if (u.full_name) return u.full_name;
+        if (u.username) return u.username;
+      }
+      const savedStudent = localStorage.getItem('learniverse_student');
+      if (savedStudent) {
+        const s = JSON.parse(savedStudent);
+        if (s.name) return s.name;
+        if (s.fullName) return s.fullName;
+      }
+    } catch {
+      // Fall back to the generic admin label if browser storage is malformed.
+    }
+    return 'Admin';
+  });
+
+  // Navbar Active Tab ('home' | 'questions')
+  const [activeNav, setActiveNav] = useState<'home' | 'questions'>('home');
+
+  // Main Screen Navigation State
+  // 'dashboard' | 'role-catalog' | 'wizard' | 'section-details' | 'review-publish'
+  const [currentView, setCurrentView] = useState<'dashboard' | 'role-catalog' | 'wizard' | 'section-details' | 'review-publish'>('dashboard');
+
+  // Active Assessment being created or edited
+  const [activeRoleTitle, setActiveRoleTitle] = useState('Full Stack Developer');
+  const [activeSections, setActiveSections] = useState<AssessmentSection[]>([]);
+  const [editingAssessmentId, setEditingAssessmentId] = useState<string | null>(null);
+
+  // Modals Visibility
+  const [isCreationModeOpen, setIsCreationModeOpen] = useState(false);
+  const [isSectionTypeModalOpen, setIsSectionTypeModalOpen] = useState(false);
+  const [isAIPoweredModalOpen, setIsAIPoweredModalOpen] = useState(false);
+  const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
+
+  // Section Editing State (for Screenshot 6 drilldown)
+  const [editingSection, setEditingSection] = useState<AssessmentSection | null>(null);
+
+  // 1. Create Assessment Click -> Opens Creation Mode Modal (Screenshot 2)
+  const handleOpenCreateModal = () => {
+    setIsCreationModeOpen(true);
+  };
+
+  // 2. Select Role-Based Mode -> Goes to Role Catalog (Screenshot 3)
+  const handleSelectRoleBased = () => {
+    setIsCreationModeOpen(false);
+    setActiveNav('home');
+    setCurrentView('role-catalog');
+  };
+
+  // 3. Select AI-Powered Mode -> Opens AI Modal (Screenshot 10)
+  const handleSelectAIPowered = () => {
+    setIsCreationModeOpen(false);
+    setIsAIPoweredModalOpen(true);
+  };
+
+  // 4. Select Custom Mode -> Directly opens wizard with empty/default custom section
+  const handleSelectCustom = () => {
+    setIsCreationModeOpen(false);
+    setActiveNav('home');
+    setActiveRoleTitle('Custom Assessment');
+    setActiveSections([
+      {
+        id: `sec-custom-${Date.now()}`,
+        name: 'Technical Competency Assessment',
+        type: 'MCQ',
+        timeLimit: 30,
+        questionsCount: 20,
+        score: 40,
+        questionBreakdown: [
+          { id: 'qb-c1', topic: 'CS Fundamentals', subTopic: 'Syntax & Logic', difficulty: 'Easy', tags: 'CORE', count: 20 }
+        ]
+      }
+    ]);
+    setEditingAssessmentId(null);
+    setCurrentView('wizard');
+  };
+
+  // 5. Role Catalog Selection -> Loads selected role sections & goes to wizard (Screenshot 4 & 5)
+  const handleRoleSelected = (role: RoleTemplate) => {
+    setActiveRoleTitle(role.title);
+    setActiveSections(role.sections);
+    setEditingAssessmentId(null);
+    setCurrentView('wizard');
+  };
+
+  // 6. AI Generation Result -> Loads generated sections & goes to wizard
+  const handleAIGeneratedRole = (generatedRole: RoleTemplate) => {
+    setActiveRoleTitle(generatedRole.title);
+    setActiveSections(generatedRole.sections);
+    setEditingAssessmentId(null);
+    setCurrentView('wizard');
+  };
+
+  // 7. Add New Section of chosen type (Screenshot 11)
+  const handleSectionTypeChosen = (type: SectionType) => {
+    const newSec: AssessmentSection = {
+      id: `sec-${Date.now()}`,
+      name: `New ${type} Assessment Section`,
+      type,
+      timeLimit: 25,
+      questionsCount: 10,
+      score: 20,
+      questionBreakdown: [
+        { id: `qb-${Date.now()}`, topic: 'DSA', subTopic: 'Basics', difficulty: 'Medium', tags: '-', count: 10 }
+      ]
+    };
+    const updated = [...activeSections, newSec];
+    setActiveSections(updated);
+    // Directly drill down to edit this section
+    setEditingSection(newSec);
+    setCurrentView('section-details');
+  };
+
+  // 8. Edit Section Details (Screenshot 6 Dedicated View)
+  const handleEditSection = (section: AssessmentSection) => {
+    setEditingSection(section);
+    setCurrentView('section-details');
+  };
+
+  const handleSaveSection = (updatedSection: AssessmentSection) => {
+    setActiveSections(activeSections.map(s => s.id === updatedSection.id ? updatedSection : s));
+    setEditingSection(updatedSection);
+  };
+
+  // 9. Add Question from Question Picker into current editing section (Screenshots 7, 8, 9)
+  const handleAddQuestionToSection = (question: any) => {
+    if (!editingSection) return;
+
+    const currentSelected = editingSection.selectedQuestionIds || [];
+    const isAlreadyAdded = currentSelected.includes(question.id);
+
+    const updatedIds = isAlreadyAdded
+      ? currentSelected.filter(id => id !== question.id)
+      : [...currentSelected, question.id];
+
+    // Update question breakdown item count dynamically
+    const existingBreakdown = [...editingSection.questionBreakdown];
+    const matchTopicIdx = existingBreakdown.findIndex(
+      b => b.topic.toLowerCase() === question.topic.toLowerCase() && b.difficulty === question.difficulty
+    );
+
+    if (matchTopicIdx >= 0) {
+      existingBreakdown[matchTopicIdx] = {
+        ...existingBreakdown[matchTopicIdx],
+        count: isAlreadyAdded 
+          ? Math.max(1, existingBreakdown[matchTopicIdx].count - 1)
+          : existingBreakdown[matchTopicIdx].count + 1
+      };
+    } else if (!isAlreadyAdded) {
+      existingBreakdown.push({
+        id: `qb-${Date.now()}`,
+        topic: question.topic,
+        subTopic: question.subTopic || 'Core',
+        difficulty: question.difficulty || 'Medium',
+        tags: question.tags || '-',
+        count: 1
+      });
+    }
+
+    const totalQuestions = existingBreakdown.reduce((sum, b) => sum + b.count, 0);
+
+    const updatedSection: AssessmentSection = {
+      ...editingSection,
+      selectedQuestionIds: updatedIds,
+      questionBreakdown: existingBreakdown,
+      questionsCount: totalQuestions,
+      score: totalQuestions
+    };
+
+    setEditingSection(updatedSection);
+    handleSaveSection(updatedSection);
+  };
+
+  // 10. Edit an existing assessment from the dashboard
+  const handleEditExistingAssessment = (asmt: AdminAssessment) => {
+    setEditingAssessmentId(asmt.id);
+    setActiveRoleTitle(asmt.title);
+    setActiveSections(asmt.sections || []);
+    setCurrentView('wizard');
+  };
+
+  // 11. Delete an assessment
+  const handleDeleteAssessment = (id: string) => {
+    setAssessments(assessments.filter(a => a.id !== id));
+  };
+
+  // 12. Final Publish Complete
+  const handlePublishComplete = (publishedAssessment: AdminAssessment) => {
+    if (editingAssessmentId) {
+      setAssessments(assessments.map(a => a.id === editingAssessmentId ? { ...publishedAssessment, id: editingAssessmentId } : a));
+    } else {
+      setAssessments([publishedAssessment, ...assessments]);
+    }
+    setCurrentView('dashboard');
+  };
+
+  // 13. Custom Question Authoring
+  const handleAddCustomQuestion = (newQ: QuestionItem) => {
+    setMyQuestions([newQ, ...myQuestions]);
+  };
+
+  const handleDeleteCustomQuestion = (id: string) => {
+    setMyQuestions(myQuestions.filter(q => q.id !== id));
+  };
+
+  const handleUpdateCustomQuestion = (updatedQ: QuestionItem) => {
+    setMyQuestions(myQuestions.map(q => q.id === updatedQ.id ? updatedQ : q));
+  };
+
+  // 14. Reset to default sample assessments
+  const handleRefreshAssessments = () => {
+    setAssessments(INITIAL_ASSESSMENTS);
+    localStorage.setItem('learniverse_admin_assessments', JSON.stringify(INITIAL_ASSESSMENTS));
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50/60 font-sans text-slate-900 flex flex-col">
+      {/* Top Navbar with Learniverse AI Branding */}
+      <AdminNavbar 
+        userName={adminUser} 
+        activeNav={activeNav}
+        onNavChange={(tab) => {
+          setActiveNav(tab);
+          if (tab === 'home' && currentView === 'section-details') {
+            setCurrentView('wizard');
+          }
+        }}
+        onNavigateHome={() => {
+          setActiveNav('home');
+          setCurrentView('dashboard');
+        }}
+      />
+
+      {/* Main Screen Router */}
+      <main className="flex-1">
+        {/* If 'My Questions' tab is active, show Question Bank Manager */}
+        {activeNav === 'questions' ? (
+          <MyQuestionsManager
+            questions={myQuestions}
+            onAddQuestion={handleAddCustomQuestion}
+            onDeleteQuestion={handleDeleteCustomQuestion}
+            onUpdateQuestion={handleUpdateCustomQuestion}
+          />
+        ) : (
+          <>
+            {/* VIEW 1: My Assessments Dashboard (Screenshot 1) */}
+            {currentView === 'dashboard' && (
+              <MyAssessmentsDashboard
+                userName={adminUser}
+                assessments={assessments}
+                onCreateClick={handleOpenCreateModal}
+                onEditAssessment={handleEditExistingAssessment}
+                onDeleteAssessment={handleDeleteAssessment}
+                onRefresh={handleRefreshAssessments}
+              />
+            )}
+
+            {/* VIEW 2: Role-Based Catalog Selector (Screenshot 3) */}
+            {currentView === 'role-catalog' && (
+              <RoleCatalogSelector
+                onBack={() => setCurrentView('dashboard')}
+                onSelectRole={handleRoleSelected}
+              />
+            )}
+
+            {/* VIEW 3: Assessment Stepper Wizard - Step 1: Section Details (Screenshot 4 & 5) */}
+            {currentView === 'wizard' && (
+              <SectionStepperWizard
+                roleTitle={activeRoleTitle}
+                sections={activeSections}
+                onBack={() => setCurrentView(editingAssessmentId ? 'dashboard' : 'role-catalog')}
+                onUpdateSections={setActiveSections}
+                onOpenCreateSectionType={() => setIsSectionTypeModalOpen(true)}
+                onEditSection={handleEditSection}
+                onProceedToReview={() => setCurrentView('review-publish')}
+              />
+            )}
+
+            {/* VIEW 4: Dedicated Section Details Screen (Screenshot 6) */}
+            {currentView === 'section-details' && editingSection && (
+              <SectionDetailsView
+                section={editingSection}
+                onBack={() => setCurrentView('wizard')}
+                onSave={handleSaveSection}
+                onOpenQuestionPicker={() => setIsQuestionPickerOpen(true)}
+              />
+            )}
+
+            {/* VIEW 5: Final Review & Publish - Steps 2 & 3 */}
+            {currentView === 'review-publish' && (
+              <FinalReviewPublish
+                roleTitle={activeRoleTitle}
+                sections={activeSections}
+                onBackToSections={() => setCurrentView('wizard')}
+                onPublishComplete={handlePublishComplete}
+              />
+            )}
+          </>
+        )}
+      </main>
+
+      {/* MODAL 1: Creation Mode Modal (Screenshot 2) */}
+      <CreationModeModal
+        isOpen={isCreationModeOpen}
+        onClose={() => setIsCreationModeOpen(false)}
+        onSelectRoleBased={handleSelectRoleBased}
+        onSelectAIPowered={handleSelectAIPowered}
+        onSelectCustom={handleSelectCustom}
+      />
+
+      {/* MODAL 2: Section Type Selector with 8 types (Screenshot 11) */}
+      <SectionTypeModal
+        isOpen={isSectionTypeModalOpen}
+        onClose={() => setIsSectionTypeModalOpen(false)}
+        onSelectType={handleSectionTypeChosen}
+      />
+
+      {/* MODAL 3: Question Picker Modal with filters & library (Screenshots 7, 8, 9) */}
+      {editingSection && (
+        <QuestionPickerModal
+          isOpen={isQuestionPickerOpen}
+          onClose={() => setIsQuestionPickerOpen(false)}
+          sectionTitle={editingSection.name}
+          onAddQuestion={handleAddQuestionToSection}
+          selectedQuestionIds={editingSection.selectedQuestionIds || []}
+          myQuestions={myQuestions}
+        />
+      )}
+
+      {/* MODAL 4: AI-Powered Assessment Modal with JD parser (Screenshot 10) */}
+      <AIPoweredModal
+        isOpen={isAIPoweredModalOpen}
+        onClose={() => setIsAIPoweredModalOpen(false)}
+        onGenerate={handleAIGeneratedRole}
+      />
+    </div>
+  );
+};
+
+export default AdminAssessmentHub;

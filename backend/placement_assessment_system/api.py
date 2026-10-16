@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, BackgroundTasks
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
+from config import settings
 from decimal import Decimal
 from difflib import SequenceMatcher
 
@@ -55,6 +56,13 @@ def _make_json_serializable(obj):
     elif isinstance(obj, tuple):
         return tuple(_make_json_serializable(v) for v in obj)
     return obj
+
+
+def _score_coding_submission(submission: dict):
+    """Return no authoritative score until coding results are produced by a server grader."""
+    code = submission.get("code", "") if isinstance(submission, dict) else ""
+    attempted = bool(isinstance(code, str) and code.strip())
+    return attempted, 0, 0, False, 0.0
 
 def _save_submission_file_backup(record: dict):
     """Fail-proof disk backup for candidate submissions (JSON + CSV + Excel)."""
@@ -105,7 +113,7 @@ def _save_submission_file_backup(record: dict):
         print(f"[FILE BACKUP WARNING] {e}")
 
 
-from auth import verify_api_key as require_api_key
+from auth import User, get_current_user, require_admin, verify_api_key as require_api_key
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 load_dotenv()
@@ -116,6 +124,23 @@ DB_URL = os.environ.get("DATABASE_URL")
 SQLITE_DB_PATH = os.path.join(os.path.dirname(__file__), "assessment_local.db")
 
 _db_pool = None
+
+
+def _normalized_candidate_identity(value: str) -> str:
+    return re.sub(r"[^A-Z0-9]", "", (value or "").strip().upper())
+
+
+def _assert_candidate_identity(user: User, candidate_identity: str) -> None:
+    """Bind candidate operations to the JWT identity; admins may act across candidates."""
+    if user.role == "admin":
+        return
+    allowed = {_normalized_candidate_identity(user.id)}
+    if _normalized_candidate_identity(candidate_identity) not in allowed:
+        raise HTTPException(status_code=403, detail="Cannot access another candidate's assessment")
+
+
+def _assert_session_owner(user: User, session: dict) -> None:
+    _assert_candidate_identity(user, str(session.get("student_roll_number") or ""))
 
 _RETRYABLE_PG_FRAGMENTS = (
     "ssl connection has been closed",
@@ -139,9 +164,10 @@ def _get_roster():
     return []
 
 @router.get("/student-lookup")
-def lookup_student(roll_number: str):
+def lookup_student(roll_number: str, current_user: User = Depends(get_current_user)):
     import re
     raw = (roll_number or "").strip().upper()
+    _assert_candidate_identity(current_user, raw)
     clean = re.sub(r'[^A-Z0-9]', '', raw)
     if not clean:
         return {"found": False}
@@ -150,7 +176,7 @@ def lookup_student(roll_number: str):
     # 1. Exact or clean match
     student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == clean), None)
     if student:
-        return {"found": True, "student": student}
+        return {"found": True, "student": {key: student.get(key) for key in ("roll_number", "name", "branch", "role")}}
 
     # 2. Match with missing 'E' (e.g. 2451A6766 -> 24E51A6766)
     m_missing_e = re.match(r'^(\d{2})([0-9])([0-9A-Z]{5,8})$', clean)
@@ -158,7 +184,7 @@ def lookup_student(roll_number: str):
         cand_with_e = f"{m_missing_e.group(1)}E{m_missing_e.group(2)}{m_missing_e.group(3)}"
         student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_with_e), None)
         if student:
-            return {"found": True, "student": student}
+            return {"found": True, "student": {key: student.get(key) for key in ("roll_number", "name", "branch", "role")}}
 
     # 3. Match with extra 'E' (e.g. 24E51A... -> 2451A...)
     m_with_e = re.match(r'^(\d{2})E([0-9A-Z]{6,9})$', clean)
@@ -166,20 +192,20 @@ def lookup_student(roll_number: str):
         cand_without_e = f"{m_with_e.group(1)}{m_with_e.group(2)}"
         student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_without_e), None)
         if student:
-            return {"found": True, "student": student}
+            return {"found": True, "student": {key: student.get(key) for key in ("roll_number", "name", "branch", "role")}}
 
     # 4. Typo in 2E55A0515 -> 25E55A0515
     if clean.startswith("2E55"):
         cand_fixed = "25" + clean[1:]
         student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()) == cand_fixed), None)
         if student:
-            return {"found": True, "student": student}
+            return {"found": True, "student": {key: student.get(key) for key in ("roll_number", "name", "branch", "role")}}
 
     # 5. Prefix or substring matching if at least 6 characters
     if len(clean) >= 6:
         student = next((s for s in roster if re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper()).startswith(clean) or clean in re.sub(r'[^A-Z0-9]', '', s.get("roll_number", "").upper())), None)
         if student:
-            return {"found": True, "student": student}
+            return {"found": True, "student": {key: student.get(key) for key in ("roll_number", "name", "branch", "role")}}
 
     return {"found": False}
 
@@ -208,7 +234,7 @@ def _get_pool():
                 dsn=DB_URL,
             )
         except Exception as e:
-            print(f"[DB POOL] Could not connect to PostgreSQL: {e}. Falling back to SQLite.")
+            print(f"[DB POOL] Could not connect to PostgreSQL: {e}.")
             _db_pool = None
     return _db_pool
 
@@ -516,19 +542,24 @@ def _safe_execute_values(db, sql: str, rows: list):
             target_cur = db.cur if hasattr(db, "cur") else db
             execute_values(target_cur, sql, rows)
         except Exception as e:
-            print(f"[BATCH INSERT ERROR] {e}")
+            raise RuntimeError("Could not persist assessment response rows") from e
 
 
 def ensure_schema():
-    """Run DDL migrations at startup to establish tables and indexes."""
-    _init_sqlite_db()
+    """Create assessment tables without allowing production SQLite fallback."""
+    if settings.IS_DEV:
+        _init_sqlite_db()
     pool = _get_pool()
     if not pool:
+        if not settings.IS_DEV:
+            raise RuntimeError("Assessment PostgreSQL database is unavailable")
         return
     conn = None
     try:
         conn = _get_live_conn(pool)
         if not conn:
+            if not settings.IS_DEV:
+                raise RuntimeError("Could not acquire an assessment PostgreSQL connection")
             return
         cur = conn.cursor()
         cur.execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
@@ -665,7 +696,9 @@ def ensure_schema():
                 conn.rollback()
             except Exception:
                 pass
-        print(f"[MIGRATION WARNING] PostgreSQL ensure_schema fallback: {e}")
+        if not settings.IS_DEV:
+            raise RuntimeError("Assessment PostgreSQL schema initialization failed") from e
+        print(f"[SCHEMA WARNING] PostgreSQL schema initialization failed: {e}")
     finally:
         if conn:
             try:
@@ -715,6 +748,14 @@ class PostgresCursorAdapter:
     def description(self):
         return self.cur.description
 
+    @property
+    def rowcount(self):
+        return self.cur.rowcount
+
+    @property
+    def rowcount(self):
+        return self.cur.rowcount
+
 
 def get_db_cursor():
     """Yields a database cursor: PostgreSQL pool if online, otherwise local SQLite."""
@@ -755,7 +796,9 @@ def get_db_cursor():
                 except Exception:
                     pass
     else:
-        # Fallback to local SQLite database
+        if not settings.IS_DEV:
+            raise HTTPException(status_code=503, detail="Assessment database is unavailable")
+        # Local SQLite is an explicit development-only fallback.
         _init_sqlite_db()
         sqlite_conn = sqlite3.connect(SQLITE_DB_PATH)
         sqlite_conn.row_factory = sqlite3.Row
@@ -1188,7 +1231,9 @@ SubmitTestRequest = SubmitAttemptRequest
 
 
 @router.post("/reset")
-def reset_attempts(req: ResetAttemptsRequest, db=Depends(get_db_cursor)):
+def reset_attempts(req: ResetAttemptsRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    _assert_candidate_identity(current_user, req.user_id)
+
     db.execute(
         "DELETE FROM test_sessions WHERE student_roll_number = %s OR student_roll_number = %s",
         (req.user_id, req.user_id)
@@ -1201,7 +1246,7 @@ def reset_attempts(req: ResetAttemptsRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/start")
-def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
+def start_attempt(req: StartAttemptRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
     raw_roll = req.roll_number or req.user_id or ""
     clean_roll = raw_roll.strip().upper()
     
@@ -1216,6 +1261,8 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
             status_code=400,
             detail="Invalid Roll Number format. Expected format e.g.: 23E51A0561, 24E51A66E1"
         )
+
+    _assert_candidate_identity(current_user, clean_roll)
 
     # Check for active 'started' session in test_sessions
     db.execute(
@@ -1342,7 +1389,8 @@ def start_attempt(req: StartAttemptRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/resume")
-def resume_attempt(req: ResumeAttemptRequest, db=Depends(get_db_cursor)):
+def resume_attempt(req: ResumeAttemptRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    _assert_candidate_identity(current_user, req.user_id)
     clean_roll = req.user_id.strip().upper()
     db.execute(
         """
@@ -1393,7 +1441,18 @@ def resume_attempt(req: ResumeAttemptRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/log-violation")
-def log_violation(req: LogViolationRequest, db=Depends(get_db_cursor)):
+def log_violation(req: LogViolationRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    db.execute(
+        "SELECT session_id, student_roll_number, status FROM test_sessions WHERE session_id::text = %s",
+        (req.attempt_id,),
+    )
+    session = db.fetchone()
+    if not session:
+        raise HTTPException(status_code=404, detail="Assessment session not found")
+    _assert_session_owner(current_user, session)
+    if session.get("status") != "started" and current_user.role != "admin":
+        raise HTTPException(status_code=409, detail="Assessment session is not active")
+
     db.execute(
         "INSERT INTO violations (attempt_id, type, details) VALUES (%s, %s, %s)",
         (req.attempt_id, req.violation_type, req.details)
@@ -1453,7 +1512,18 @@ def log_violation(req: LogViolationRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/autosave")
-def auto_save(req: AutoSaveRequest, db=Depends(get_db_cursor)):
+def auto_save(req: AutoSaveRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    db.execute(
+        "SELECT session_id, student_roll_number, status FROM test_sessions WHERE session_id::text = %s",
+        (req.attempt_id,),
+    )
+    session = db.fetchone()
+    if not session:
+        raise HTTPException(status_code=404, detail="Assessment session not found")
+    _assert_session_owner(current_user, session)
+    if session.get("status") != "started" and current_user.role != "admin":
+        raise HTTPException(status_code=409, detail="Assessment session is not active")
+
     db.execute(
         """
         UPDATE test_sessions
@@ -1471,18 +1541,21 @@ def auto_save(req: AutoSaveRequest, db=Depends(get_db_cursor)):
 
 
 @router.post("/submit")
-def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=Depends(get_db_cursor)):
+def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    lock_clause = " FOR UPDATE" if hasattr(db, "connection") else ""
     db.execute(
-        """
+        f"""
         SELECT session_id, student_roll_number, student_name, branch, year, start_time, status, questions
         FROM test_sessions
-        WHERE session_id::text = %s;
+        WHERE session_id::text = %s{lock_clause};
         """,
         (req.attempt_id,)
     )
     session = db.fetchone()
 
     if not session:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=404, detail="Assessment session not found")
         # Gracefully handle client-side or offline-initiated attempt IDs
         roll_match = re.search(r'session_([A-Z0-9]+)_', req.attempt_id, re.IGNORECASE)
         student_roll = roll_match.group(1).upper() if roll_match else "CANDIDATE"
@@ -1529,8 +1602,11 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
         except Exception:
             pass
 
-    if session["status"] == "completed":
-        pass  # allow resubmission to overwrite/finalize gracefully
+    else:
+        _assert_session_owner(current_user, session)
+
+    if session["status"] != "started" and current_user.role != "admin":
+        raise HTTPException(status_code=409, detail="Assessment session is not active")
 
     # Server-side assessment duration check (Max duration 7200s + 300s grace period)
     start_t = session.get("start_time")
@@ -1581,11 +1657,10 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
 
         if is_coding:
             user_code = sub_coding.get("code", "")
-            is_attempted = bool(user_code and user_code.strip())
-            passed = sub_coding.get("passed_cases", 0)
-            total = sub_coding.get("total_cases", 1)
-            is_correct = (passed == total and total > 0)
-            marks_awarded = float(q_meta.get("marks", 10)) if is_correct else 0.0
+            # Browser-provided test counts/verdicts are not trustworthy. Until a
+            # server-side grader is integrated, code is retained for review but
+            # cannot influence the authoritative score.
+            is_attempted, passed, total, is_correct, marks_awarded = _score_coding_submission(sub_coding)
             
             try:
                 sols = json.loads(q_meta["answer"]) if isinstance(q_meta.get("answer"), str) else (q_meta.get("answer") or {})
@@ -1595,24 +1670,21 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
             # Plagiarism check against other candidate submissions
             other_codes = []
             if is_attempted:
-                try:
-                    db.execute("""
-                        SELECT coding_submissions FROM test_sessions 
-                        WHERE session_id::text != %s AND coding_submissions IS NOT NULL
-                        LIMIT 50;
-                    """, (str(session.get("session_id")),))
-                    for prev_sess in (db.fetchall() or []):
-                        cs = prev_sess.get("coding_submissions")
-                        if isinstance(cs, str):
-                            try: cs = json.loads(cs)
-                            except Exception: cs = {}
-                        if isinstance(cs, dict) and q_id in cs:
-                            c_item = cs[q_id]
-                            c_str = c_item.get("code") if isinstance(c_item, dict) else str(c_item)
-                            if c_str:
-                                other_codes.append(str(c_str))
-                except Exception:
-                    pass
+                db.execute("""
+                    SELECT coding_submissions FROM test_sessions
+                    WHERE session_id::text != %s AND coding_submissions IS NOT NULL
+                    LIMIT 50;
+                """, (str(session.get("session_id")),))
+                for prev_sess in (db.fetchall() or []):
+                    cs = prev_sess.get("coding_submissions")
+                    if isinstance(cs, str):
+                        try: cs = json.loads(cs)
+                        except Exception: cs = {}
+                    if isinstance(cs, dict) and q_id in cs:
+                        c_item = cs[q_id]
+                        c_str = c_item.get("code") if isinstance(c_item, dict) else str(c_item)
+                        if c_str:
+                            other_codes.append(str(c_str))
 
             plag_info = check_code_plagiarism(user_code, other_codes)
 
@@ -1727,7 +1799,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                 unanswered = %s,
                 total_marks = %s,
                 percentage = %s
-            WHERE session_id::text = %s;
+            WHERE session_id::text = %s AND status = 'started';
             """,
             (
                 final_status,
@@ -1742,8 +1814,12 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                 str(session["session_id"])
             )
         )
+        if db.rowcount != 1:
+            raise HTTPException(status_code=409, detail="Assessment submission was already processed.")
     except Exception as e:
-        print(f"[TEST SESSIONS UPDATE WARNING] {e}")
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=503, detail="Assessment submission could not be persisted.") from e
 
     # Save section_results
     try:
@@ -1768,7 +1844,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                     )
                 )
     except Exception as e:
-        print(f"[SECTION RESULTS WARNING] {e}")
+        raise HTTPException(status_code=503, detail="Assessment results could not be persisted.") from e
 
     # Save question_responses
     try:
@@ -1787,20 +1863,17 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
                 response_rows
             )
     except Exception as e:
-        print(f"[QUESTION RESPONSES WARNING] {e}")
+        raise HTTPException(status_code=503, detail="Assessment responses could not be persisted.") from e
 
     # ── Record in dedicated fixly_test_submissions table & file backup ──
     try:
         # 1. Fetch violations logged for this session
         v_rows = []
-        try:
-            db.execute(
-                "SELECT type, details, created_at FROM violations WHERE attempt_id = %s ORDER BY created_at ASC;",
-                (str(session["session_id"]),)
-            )
-            v_rows = db.fetchall() or []
-        except Exception:
-            pass
+        db.execute(
+            "SELECT type, details, created_at FROM violations WHERE attempt_id = %s ORDER BY created_at ASC;",
+            (str(session["session_id"]),)
+        )
+        v_rows = db.fetchall() or []
 
         v_list = [
             {"type": v.get("type"), "details": v.get("details"), "time": str(v.get("created_at"))}
@@ -1894,7 +1967,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
         except Exception as _cdce:
             print(f"[CDC DISPATCH WARNING] {_cdce}")
     except Exception as e:
-        print(f"[FIXLY DB WARNING] Could not insert into fixly_test_submissions: {e}")
+        raise HTTPException(status_code=503, detail="Assessment result record could not be persisted.") from e
 
     return {
         "status": "success",
@@ -1911,7 +1984,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, db=De
 
 
 @router.get("/fixly/submissions")
-def get_fixly_submissions(role: Optional[str] = None, roll_number: Optional[str] = None, db=Depends(get_db_cursor)):
+def get_fixly_submissions(role: Optional[str] = None, roll_number: Optional[str] = None, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     query = """
         SELECT id, session_id, student_name, roll_number, role, branch,
                total_marks, max_marks, percentage, total_questions, attempted,
@@ -1935,7 +2008,7 @@ def get_fixly_submissions(role: Optional[str] = None, roll_number: Optional[str]
 
 
 @router.get("/fixly/submissions/{submission_id}")
-def get_fixly_submission_detail(submission_id: str, db=Depends(get_db_cursor)):
+def get_fixly_submission_detail(submission_id: str, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     db.execute(
         """
         SELECT * FROM fixly_test_submissions 
@@ -1951,7 +2024,7 @@ def get_fixly_submission_detail(submission_id: str, db=Depends(get_db_cursor)):
 
 
 @router.post("/fixly/submit-direct")
-def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: BackgroundTasks, db=Depends(get_db_cursor)):
+def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: BackgroundTasks, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     sess_id = req.session_id or str(uuid.uuid4())
     total_q = req.total_questions or len(req.question_answers or []) or 20
     
@@ -2037,7 +2110,7 @@ def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: Bac
 
 
 @router.get("/fixly/export-excel")
-def export_fixly_excel_endpoint():
+def export_fixly_excel_endpoint(_admin=Depends(require_admin)):
     """Download the complete candidate test submissions directly as an Excel file (.xlsx)"""
     import sys
     backend_path = os.path.join(os.path.dirname(__file__), "..")
@@ -2056,7 +2129,21 @@ def export_fixly_excel_endpoint():
 
 
 @router.post("/feedback")
-def submit_candidate_feedback(req: CandidateFeedbackRequest, db=Depends(get_db_cursor)):
+def submit_candidate_feedback(req: CandidateFeedbackRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
+    candidate_roll = (req.roll_number or "").strip()
+    if req.attempt_id:
+        db.execute(
+            "SELECT session_id, student_roll_number FROM test_sessions WHERE session_id::text = %s",
+            (req.attempt_id,),
+        )
+        feedback_session = db.fetchone()
+        if not feedback_session:
+            raise HTTPException(status_code=404, detail="Assessment session not found")
+        _assert_session_owner(current_user, feedback_session)
+        candidate_roll = str(feedback_session.get("student_roll_number") or "")
+    if not candidate_roll:
+        raise HTTPException(status_code=400, detail="An owned assessment session is required")
+    _assert_candidate_identity(current_user, candidate_roll)
     data_dir = os.path.join(os.path.dirname(__file__), "../data")
     os.makedirs(data_dir, exist_ok=True)
     fb_file = os.path.join(data_dir, "candidate_feedback.json")
@@ -2095,7 +2182,7 @@ def submit_candidate_feedback(req: CandidateFeedbackRequest, db=Depends(get_db_c
 # ------------------------------------------------------------
 
 @router.get("/analytics/{session_id}")
-def get_session_analytics(session_id: str, db=Depends(get_db_cursor)):
+def get_session_analytics(session_id: str, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
     """Fetch comprehensive post-assessment analytics."""
     db.execute(
         """
@@ -2110,6 +2197,7 @@ def get_session_analytics(session_id: str, db=Depends(get_db_cursor)):
     session = db.fetchone()
     if not session:
         raise HTTPException(status_code=404, detail="Session analytics not found")
+    _assert_session_owner(current_user, session)
 
     db.execute(
         """
@@ -2150,7 +2238,8 @@ def get_admin_sessions(
     search: Optional[str] = None,
     status: Optional[str] = None,
     branch: Optional[str] = None,
-    db=Depends(get_db_cursor)
+    _admin=Depends(require_admin),
+    db=Depends(get_db_cursor),
 ):
     """Admin search & filter interface across test sessions."""
     query = """
@@ -2178,7 +2267,7 @@ def get_admin_sessions(
 
 
 @router.get("/admin/session/{session_id}")
-def get_admin_session_detail(session_id: str, db=Depends(get_db_cursor)):
+def get_admin_session_detail(session_id: str, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Timeline audit replay & detailed response breakdown for proctors."""
     db.execute("SELECT * FROM test_sessions WHERE session_id::text = %s;", (session_id,))
     session = db.fetchone()
@@ -2196,7 +2285,7 @@ def get_admin_session_detail(session_id: str, db=Depends(get_db_cursor)):
 
 
 @router.get("/admin/export")
-def export_admin_sessions_csv(db=Depends(get_db_cursor)):
+def export_admin_sessions_csv(_admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Export student assessment results to CSV."""
     db.execute(
         """
@@ -2254,12 +2343,13 @@ def get_assessment_catalog(db=Depends(get_db_cursor)):
     return multi_tenant_service.get_all_tests_catalog(db)
 
 @router.get("/lookup-candidate")
-def lookup_candidate(identifier: str = Query(...), db=Depends(get_db_cursor)):
+def lookup_candidate(identifier: str = Query(...), current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
     """Validates candidate eligibility by Roll Number or Email, checking timing and test status."""
+    _assert_candidate_identity(current_user, identifier)
     return multi_tenant_service.lookup_candidate_assessment(db, identifier)
 
 @router.get("/admin/tests/{test_id}/live")
-def get_test_live_monitoring(test_id: str, db=Depends(get_db_cursor)):
+def get_test_live_monitoring(test_id: str, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Full real-time command center: in-progress, completed, not started, live timer & violations."""
     return multi_tenant_service.get_test_live_monitor(db, test_id)
 
@@ -2277,7 +2367,7 @@ class CreateTestRequest(BaseModel):
     questions: List[Dict[str, Any]] = []
 
 @router.post("/admin/tests")
-def create_test_assessment(payload: CreateTestRequest, db=Depends(get_db_cursor)):
+def create_test_assessment(payload: CreateTestRequest, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Creates a new assessment test for a startup, with roster candidates and questions."""
     data = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
     return multi_tenant_service.create_assessment_test(db, data)
@@ -2286,7 +2376,7 @@ class ResetCandidateRequest(BaseModel):
     roll_number: str
 
 @router.post("/admin/tests/{test_id}/candidate-reset")
-def reset_candidate_attempt(test_id: str, req: ResetCandidateRequest, db=Depends(get_db_cursor)):
+def reset_candidate_attempt(test_id: str, req: ResetCandidateRequest, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Resets candidate attempt to allow re-entry in case of system disconnection."""
     return multi_tenant_service.reset_candidate_session(db, test_id, req.roll_number)
 
@@ -2299,8 +2389,9 @@ class HeartbeatRequest(BaseModel):
     violations: int = 0
 
 @router.post("/heartbeat")
-def candidate_heartbeat(req: HeartbeatRequest, db=Depends(get_db_cursor)):
+def candidate_heartbeat(req: HeartbeatRequest, current_user: User = Depends(get_current_user), db=Depends(get_db_cursor)):
     """Live heartbeat from candidate browser during assessment."""
+    _assert_candidate_identity(current_user, req.roll_number)
     test_id = req.test_id or "default"
     student_name = req.student_name or "Candidate"
     session_id = req.session_id or ""
@@ -2314,7 +2405,7 @@ class BulkAssignRequest(BaseModel):
     role: Optional[str] = "Technology Intern"
 
 @router.post("/admin/tests/{test_id}/bulk-assign")
-def bulk_assign_candidates_endpoint(test_id: str, payload: BulkAssignRequest, db=Depends(get_db_cursor)):
+def bulk_assign_candidates_endpoint(test_id: str, payload: BulkAssignRequest, _admin=Depends(require_admin), db=Depends(get_db_cursor)):
     """Bulk enrolls candidates into a test roster by email or roll numbers."""
     return multi_tenant_service.bulk_assign_to_test(
         db, test_id, payload.emails_or_rolls, payload.branch or "CSE", payload.role or "Technology Intern"

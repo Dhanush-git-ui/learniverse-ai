@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.production
 backend/.env
 
 # Python
@@ -76,6 +77,12 @@ backend/local_learniverse.db
 .eslintcache
 .vite/
 .parcel-cache
+
+# Local assessment exports and SQLite sidecar files
+backend/reports/
+*.db-shm
+*.db-wal
+scripts/qa_results.json
 
 # Agents & Rules
 .agents/rules/

@@ -10,6 +10,20 @@ jobs:
   backend-tests:
     name: Backend Security & Unit Tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: learniverse_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d learniverse_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     defaults:
       run:
         working-directory: ./backend
@@ -34,6 +48,7 @@ jobs:
           ENV: development
           API_SECRET_KEY: test-ci-secret-key-1234567890
           GEMINI_API_KEY: mock-test-key
+          TEST_POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/learniverse_test
         run: |
           pytest -v
 
@@ -53,5 +68,30 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci
 
-      - name: Type Check & Production Build
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npm run type-check
+
+      - name: Frontend Unit Tests
+        run: npm test -- --reporter=dot
+
+      - name: Production Build
         run: npm run build
+
+  deployment-config:
+    name: Deployment Configuration Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Compose Configuration
+        env:
+          POSTGRES_PASSWORD: ci-postgres-password-not-for-deployment
+          REDIS_PASSWORD: ci-redis-password-not-for-deployment
+          SECRET_KEY_BASE: ci-secret-key-base-not-for-deployment
+          JUDGE0_AUTH_TOKEN: ci-judge0-token-not-for-deployment
+          JUDGE0_ALLOWED_ORIGIN: https://frontend.example.invalid
+        run: docker compose -f docker-compose.prod.yml config --quiet

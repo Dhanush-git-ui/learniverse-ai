@@ -2,7 +2,7 @@ import asyncio
 import sys
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 # Ensure backend directory is in sys.path
 backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -10,7 +10,7 @@ if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 from fastapi.testclient import TestClient
-from app import app, execute_code_locally
+from app import app, execute_code_locally, execute_code_via_judge0
 from auth import verify_api_key
 
 class TestAPI(unittest.TestCase):
@@ -22,6 +22,23 @@ class TestAPI(unittest.TestCase):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"message": "Learniverse Backend Running"})
+
+    def test_production_readiness_requires_database_configuration(self):
+        with patch("app.DB_URL", None), patch("config.settings.IS_DEV", False):
+            response = self.client.get("/readiness")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["checks"]["database"], "unconfigured")
+
+    def test_production_readiness_checks_database_connection(self):
+        connection = MagicMock()
+        with patch("app.DB_URL", "postgresql://synthetic"), \
+             patch("config.settings.IS_DEV", False), \
+             patch("app.get_db_conn", return_value=connection), \
+             patch("app.release_db_conn"):
+            response = self.client.get("/readiness")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["checks"]["database"], "ok")
+        connection.cursor.return_value.execute.assert_called_once_with("SELECT 1")
 
     @patch("rag.retriever.get_chroma_collection")
     def test_health(self, mock_get_chroma):
@@ -51,6 +68,20 @@ class TestAPI(unittest.TestCase):
         result = execute_code_locally("python", "print('hello')", "")
         self.assertEqual(result["run"]["code"], 1)
         self.assertIn("disabled", result["run"]["stderr"].lower())
+
+    @patch.dict(os.environ, {"JUDGE0_URL": "http://127.0.0.1:2358", "JUDGE0_API_KEY": "synthetic-judge0-token"}, clear=False)
+    @patch("requests.post")
+    def test_self_hosted_judge0_uses_authentication_header(self, mock_post):
+        mock_post.return_value.status_code = 201
+        mock_post.return_value.json.return_value = {"status": {"id": 3}, "stdout": None}
+
+        result = execute_code_via_judge0("python", "print('ok')", "")
+
+        self.assertEqual(result["run"]["code"], 0)
+        call = mock_post.call_args
+        self.assertEqual(call.args[0], "http://127.0.0.1:2358/submissions?base64_encoded=true&wait=true")
+        self.assertEqual(call.kwargs["headers"]["X-Auth-Token"], "synthetic-judge0-token")
+        self.assertNotIn("x-rapidapi-key", call.kwargs["headers"])
 
     @patch.dict(os.environ, {"API_SECRET_KEY": "runtime-secret"}, clear=False)
     def test_verify_api_key_uses_runtime_env(self):

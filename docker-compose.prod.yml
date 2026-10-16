@@ -1,0 +1,114 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the deployment environment}"
+      POSTGRES_DB: judge0
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0 -d judge0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [judge0_network]
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [judge0_network]
+    restart: unless-stopped
+
+  judge0_server:
+    image: judge0/judge0:1.13.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: &judge0_environment
+      RAILS_ENV: production
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE:?Set SECRET_KEY_BASE in the deployment environment}"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the deployment environment}"
+      POSTGRES_DB: judge0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: "${REDIS_PASSWORD:?Set REDIS_PASSWORD in the deployment environment}"
+      AUTHN_HEADER: X-Auth-Token
+      AUTHN_TOKEN: "${JUDGE0_AUTH_TOKEN:?Set JUDGE0_AUTH_TOKEN in the deployment environment}"
+      ALLOW_ORIGIN: "${JUDGE0_ALLOWED_ORIGIN:?Set JUDGE0_ALLOWED_ORIGIN to the application origin}"
+      MAX_QUEUE_SIZE: 1000
+      ENABLE_COMMAND_LINE_ARGUMENTS: "false"
+      ENABLE_ADDITIONAL_FILES: "false"
+      ENABLE_NETWORK: "false"
+    ports:
+      - "127.0.0.1:2358:2358"
+    privileged: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -H \"X-Auth-Token: $$AUTHN_TOKEN\" http://localhost:2358/system_info >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks: [judge0_network]
+    restart: unless-stopped
+
+  judge0_worker_1:
+    image: judge0/judge0:1.13.0
+    command: ["./scripts/workers"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *judge0_environment
+    privileged: true
+    networks: [judge0_network]
+    restart: unless-stopped
+
+  judge0_worker_2:
+    image: judge0/judge0:1.13.0
+    command: ["./scripts/workers"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *judge0_environment
+    privileged: true
+    networks: [judge0_network]
+    restart: unless-stopped
+
+  judge0_worker_3:
+    image: judge0/judge0:1.13.0
+    command: ["./scripts/workers"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *judge0_environment
+    privileged: true
+    networks: [judge0_network]
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  judge0_network:
+    driver: bridge

@@ -83,7 +83,9 @@ export default function StudentDashboard() {
         try {
           const u = JSON.parse(rawUser);
           if (u.role === "admin" || u.is_admin) isAdminUser = true;
-        } catch {}
+        } catch {
+          // Malformed local user data cannot establish an admin session.
+        }
       }
       if (rawStudent) {
         try {
@@ -91,7 +93,9 @@ export default function StudentDashboard() {
           if (s.role === "admin" || s.is_admin || s.roll_number === "ADMIN" || s.rollNumber === "ADMIN") {
             isAdminUser = true;
           }
-        } catch {}
+        } catch {
+          // Malformed local student data falls through to the normal route guard.
+        }
       }
 
       // If user is Admin, redirect directly to the Admin Assessment & Command Center
@@ -128,10 +132,14 @@ export default function StudentDashboard() {
             .then((data) => {
               if (data) setDashboardData(data);
             })
-            .catch(() => {});
+            .catch(() => {
+              // A missing dashboard endpoint should leave the cached view intact.
+            });
         }
       }
-    } catch {}
+    } catch {
+      // The dashboard remains usable if optional analytics cannot be loaded.
+    }
   }, [navigate]);
 
   // 3. Download PDF Report function

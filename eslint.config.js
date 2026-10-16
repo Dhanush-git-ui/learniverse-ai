@@ -23,6 +23,9 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      // Existing UI modules use explicit `any`; report these for migration
+      // without blocking deploys. The app TypeScript check still runs in strict mode.
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "off",
     },
   }

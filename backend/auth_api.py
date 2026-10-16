@@ -1,12 +1,12 @@
 import os
 import re
-import json
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from auth import create_access_token
+from app import limiter
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
@@ -14,28 +14,17 @@ logger = logging.getLogger("learniverse.auth")
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-GOOGLE_CLIENT_IDS = [
-    "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com",
-    os.environ.get("GOOGLE_CLIENT_ID", "")
-]
-GOOGLE_CLIENT_IDS = [cid for cid in GOOGLE_CLIENT_IDS if cid]
+GOOGLE_CLIENT_IDS = [os.environ.get("GOOGLE_CLIENT_ID", "").strip()]
+GOOGLE_CLIENT_IDS = [client_id for client_id in GOOGLE_CLIENT_IDS if client_id]
 
-ADMIN_WHITELIST = {
-    "dhanush",
-    "admin@2026",
-    "admin2026",
-    "admin@hitam.org",
-    "placement@hitam.org",
-    "principal@hitam.org",
-    "director@hitam.org",
-    "examcell@hitam.org"
-}
-# Append env admins if defined
-_env_admins = os.environ.get("ADMIN_EMAILS", "")
-if _env_admins:
-    for e in _env_admins.split(","):
-        if e.strip():
-            ADMIN_WHITELIST.add(e.strip().lower())
+
+def _configured_admins(env_name: str) -> set[str]:
+    """Return exact, normalized administrator identifiers from configuration."""
+    return {
+        value.strip().lower()
+        for value in os.environ.get(env_name, "").split(",")
+        if value.strip()
+    }
 
 BRANCH_MAP: Dict[str, str] = {
     "02": "Electrical & Electronics Engineering (EEE)",
@@ -102,9 +91,26 @@ def parse_student_credentials(input_val: str) -> Dict[str, Any]:
         "seatNumber": seat
     }
 
+
+def _verified_student_for_email(email: str) -> Optional[Dict[str, Any]]:
+    """Resolve a verified Google identity to an exact, provisioned roster record."""
+    normalized = (email or "").strip().casefold()
+    if not normalized or "@" not in normalized:
+        return None
+    roster_path = os.path.join(os.path.dirname(__file__), "data", "students_roster.json")
+    try:
+        import json
+        with open(roster_path, "r", encoding="utf-8") as roster_file:
+            records = json.load(roster_file)
+    except (OSError, ValueError, TypeError):
+        logger.error("Student roster unavailable; refusing student authentication")
+        return None
+    if not isinstance(records, list):
+        return None
+    return next((record for record in records if isinstance(record, dict) and str(record.get("email") or "").strip().casefold() == normalized), None)
+
 def verify_google_id_token(token_str: str) -> Dict[str, Any]:
-    """Verifies a Google ID token with signature checking, with dev decode fallback."""
-    # 1. Attempt official Google token verification
+    """Verify a Google ID token against an explicitly configured client ID."""
     for client_id in GOOGLE_CLIENT_IDS:
         try:
             idinfo = id_token.verify_oauth2_token(
@@ -115,34 +121,12 @@ def verify_google_id_token(token_str: str) -> Dict[str, Any]:
             return idinfo
         except Exception:
             pass
-
-    # 2. Try verification without specifying client_id (verifies signature and issuer)
-    try:
-        idinfo = id_token.verify_oauth2_token(token_str, google_requests.Request())
-        return idinfo
-    except Exception as e:
-        logger.warning(f"Google token verification failed: {e}")
-
-    # 3. If running in dev/preview or token unverified fallback
-    try:
-        import base64
-        parts = token_str.split(".")
-        if len(parts) >= 2:
-            payload_b64 = parts[1]
-            padded = payload_b64 + "=" * ((4 - len(payload_b64) % 4) % 4)
-            decoded = json.loads(base64.urlsafe_b64decode(padded.encode()).decode())
-            if "email" in decoded:
-                return decoded
-    except Exception as parse_err:
-        logger.error(f"Fallback payload decode failed: {parse_err}")
-
+    logger.warning("Google token verification failed or no client ID is configured")
     raise HTTPException(status_code=401, detail="Invalid Google OAuth credential.")
 
 def is_admin_email(email: str) -> bool:
     e = (email or "").strip().lower()
-    if any(adm in e for adm in ADMIN_WHITELIST):
-        return True
-    return False
+    return bool(e) and e in _configured_admins("ADMIN_EMAILS")
 
 
 class GoogleLoginRequest(BaseModel):
@@ -160,44 +144,36 @@ class AdminLoginRequest(BaseModel):
 
 
 import bcrypt
-import hmac
-
 def verify_admin_password(password: str) -> bool:
-    """Securely verify admin password using bcrypt hash or timing-safe fallback."""
+    """Verify the configured administrator password hash; fail closed if absent."""
     env_hash = os.environ.get("ADMIN_PASSWORD_HASH")
-    if env_hash:
-        try:
-            clean_hash = env_hash.strip().strip('"').strip("'")
-            if bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8")):
-                return True
-        except Exception as e:
-            logger.warning("[ADMIN AUTH] Bcrypt verification error: %s", e)
-    
-    # Timing-safe fallback for development passwords
-    valid_passwords = ["password@123", "password123", "admin2026", "admin@2026"]
-    for valid_pwd in valid_passwords:
-        if hmac.compare_digest(password, valid_pwd):
-            return True
-    return False
+    if not env_hash:
+        return False
+    try:
+        clean_hash = env_hash.strip().strip('"').strip("'")
+        return bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8"))
+    except Exception as exc:
+        logger.warning("[ADMIN AUTH] Configured password hash could not be verified: %s", exc)
+        return False
 
 
 @auth_router.post("/admin-login")
-def admin_login_endpoint(payload: AdminLoginRequest):
+@limiter.limit("5/minute")
+def admin_login_endpoint(request: Request, payload: AdminLoginRequest):
     """
     Dedicated Admin Login endpoint with bcrypt password verification.
     """
-    username = payload.username.strip()
+    username = payload.username.strip().lower()
     password = payload.password.strip()
+    valid_usernames = _configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")
 
-    valid_usernames = ["admin@2026", "admin2026", "admin@hitam.org", "dhanush", "admin"]
-
-    if username.lower() not in valid_usernames or not verify_admin_password(password):
+    if username not in valid_usernames or not verify_admin_password(password):
         raise HTTPException(
             status_code=401, 
             detail="Invalid admin credentials. Access denied."
         )
 
-    jwt_token = create_access_token(user_id="admin_2026", email=username.lower(), role="admin", expires_hours=72)
+    jwt_token = create_access_token(user_id=username.lower(), email=username.lower(), role="admin", expires_hours=8)
 
     admin_profile = {
         "roll_number": "ADMIN",
@@ -216,7 +192,7 @@ def admin_login_endpoint(payload: AdminLoginRequest):
         "token": jwt_token,
         "student": admin_profile,
         "user": {
-            "id": "admin_2026",
+            "id": username.lower(),
             "email": username.lower(),
             "name": "Super Administrator",
             "role": "admin",
@@ -228,33 +204,47 @@ def admin_login_endpoint(payload: AdminLoginRequest):
 
 @auth_router.post("/google-hitam-login")
 @auth_router.post("/google-login")
-def google_login_endpoint(payload: GoogleLoginRequest):
+@limiter.limit("10/minute")
+def google_login_endpoint(request: Request, payload: GoogleLoginRequest):
     """Universal Google OAuth login endpoint for both HITAM students and Admins."""
     raw_token = payload.token or payload.credential
     if not raw_token:
         raise HTTPException(status_code=400, detail="Missing Google credential/token.")
 
     idinfo = verify_google_id_token(raw_token)
-    email = (idinfo.get("email") or payload.email or "").strip().lower()
+    email = (idinfo.get("email") or "").strip().lower()
+    if not email or idinfo.get("email_verified") is not True:
+        raise HTTPException(status_code=401, detail="Google account email is not verified.")
     name = idinfo.get("name") or idinfo.get("given_name") or email.split("@")[0]
 
-    # Determine role
+    # A student must control a verified Google account that exactly matches a
+    # provisioned roster email. Roll numbers and email claims alone are not proof.
     is_admin = is_admin_email(email)
     role = "admin" if is_admin else "student"
+    student_record = None
+    if is_admin:
+        user_id = str(idinfo.get("sub") or "").strip()
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Google identity has no subject.")
+    else:
+        student_record = _verified_student_for_email(email)
+        if not student_record:
+            raise HTTPException(status_code=403, detail="This verified Google account is not enrolled.")
+        user_id = str(student_record.get("roll_number") or "").strip().upper()
+        if not user_id:
+            raise HTTPException(status_code=403, detail="Roster record has no student identity.")
 
-    # Demographics
     demographics = parse_student_credentials(email)
-    roll_number = demographics.get("rollNumber") or email.split("@")[0].upper()
-
-    user_id = idinfo.get("sub") or email
-    jwt_token = create_access_token(user_id=user_id, email=email, role=role, expires_hours=48)
+    roll_number = str(student_record.get("roll_number")).strip().upper() if student_record else "ADMIN"
+    display_name = (student_record.get("name") if student_record else None) or name
+    jwt_token = create_access_token(user_id=user_id, email=email, role=role, expires_hours=8)
 
     student_data = {
         "roll_number": roll_number,
         "rollNumber": roll_number,
-        "name": name,
+        "name": display_name,
         "email": email,
-        "branch": demographics.get("branch", "Computer Science & Engineering (CSE)"),
+        "branch": (student_record.get("branch") if student_record else None) or demographics.get("branch", "Computer Science & Engineering (CSE)"),
         "currentStudyYear": demographics.get("currentStudyYear", "Undergraduate"),
         "collegeName": demographics.get("collegeName", "HITAM Hyderabad"),
         "is_admin": is_admin
@@ -266,26 +256,26 @@ def google_login_endpoint(payload: GoogleLoginRequest):
         "user": {
             "id": user_id,
             "email": email,
-            "name": name,
+            "name": display_name,
             "role": role
         }
     }
 
 
 @auth_router.post("/hitam-login")
-def manual_hitam_login_endpoint(payload: ManualLoginRequest):
+@limiter.limit("5/minute")
+def manual_hitam_login_endpoint(request: Request, payload: ManualLoginRequest):
     """Manual Roll Number or Email login for HITAM students and admins."""
     identifier = payload.identifier.strip()
     if not identifier:
         raise HTTPException(status_code=400, detail="Identifier is required.")
 
     # Check if this is an admin attempting login via the general identifier field
-    if identifier.lower() in ["admin@2026", "admin2026", "admin@hitam.org", "dhanush"]:
-        # If password supplied, verify it
-        if payload.password and payload.password.strip() not in ["password@123", "password123", "admin2026", "admin@2026"]:
+    if identifier.lower() in (_configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")):
+        if not payload.password or not verify_admin_password(payload.password.strip()):
             raise HTTPException(status_code=401, detail="Invalid admin password.")
 
-        jwt_token = create_access_token(user_id="admin_2026", email=identifier.lower(), role="admin", expires_hours=72)
+        jwt_token = create_access_token(user_id=identifier.lower(), email=identifier.lower(), role="admin", expires_hours=8)
         admin_profile = {
             "roll_number": "ADMIN",
             "rollNumber": "ADMIN",
@@ -301,7 +291,7 @@ def manual_hitam_login_endpoint(payload: ManualLoginRequest):
             "token": jwt_token,
             "student": admin_profile,
             "user": {
-                "id": "admin_2026",
+                "id": identifier.lower(),
                 "email": identifier.lower(),
                 "name": "Super Administrator",
                 "role": "admin",
@@ -310,34 +300,6 @@ def manual_hitam_login_endpoint(payload: ManualLoginRequest):
             "redirect_url": "/assessment?admin=true"
         }
 
-    demographics = parse_student_credentials(identifier)
-    roll = demographics.get("rollNumber") or identifier.upper()
-    email = demographics.get("email") or f"{roll.lower()}@hitam.org"
-
-    is_admin = is_admin_email(email) or is_admin_email(identifier)
-    role = "admin" if is_admin else "student"
-
-    jwt_token = create_access_token(user_id=roll, email=email, role=role, expires_hours=48)
-
-    student_data = {
-        "roll_number": roll,
-        "rollNumber": roll,
-        "name": f"Student {roll}",
-        "email": email,
-        "branch": demographics.get("branch", "Engineering"),
-        "currentStudyYear": demographics.get("currentStudyYear", "Undergraduate"),
-        "collegeName": demographics.get("collegeName", "HITAM Hyderabad"),
-        "is_admin": is_admin
-    }
-
-    return {
-        "token": jwt_token,
-        "student": student_data,
-        "user": {
-            "id": roll,
-            "email": email,
-            "name": f"Student {roll}",
-            "role": role
-        }
-    }
+    # A supplied roll number/email is not proof of account ownership.
+    raise HTTPException(status_code=401, detail="Student sign-in requires verified Google authentication.")
 

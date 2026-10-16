@@ -99,6 +99,7 @@ const TopicDetailPage = () => {
     averageTime: 0
   });
   const [mcqSummary, setMcqSummary] = useState<{ strong: string[]; improve: string[] } | null>(null);
+  const [genealogyResult, setGenealogyResult] = useState<any>(null);
 
   const topic = getTopicBySlug(slug || '');
 
@@ -315,8 +316,6 @@ const TopicDetailPage = () => {
     const accuracy = solutionKeywords.length > 0 ? matchCount / solutionKeywords.length : 0;
     return accuracy > 0.4;
   };
-
-  const [genealogyResult, setGenealogyResult] = useState<any>(null);
 
   const _handleSubmitAnswer = (answer: string) => {
     const endTime = new Date();

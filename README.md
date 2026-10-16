@@ -34,26 +34,32 @@ Powered by a **Dual-Persona Retrieval-Augmented Generation (RAG)** pipeline, Lea
 
 ```
 learniverse-ai/
-├── src/                    # React Frontend
-│   ├── components/         # Reusable UI & Layout Components
-│   │   ├── ConversationBox.tsx  # Chatbox interface with AI mentors
-│   │   ├── QuestionCard.tsx     # Problem-solving card
-│   │   └── ui/             # Shadcn UI primitives
-│   ├── pages/              # App Pages (Dashboard, Detail, About)
-│   ├── services/           # Data & Topic Fetching Services
-│   └── App.tsx             # React Router configuration
-├── backend/                # FastAPI Backend
-│   ├── app.py              # FastAPI Router & Endpoint Server
-│   ├── chroma_db/          # Persistent Vector DB files
-│   ├── requirements.txt    # Python dependencies
-│   ├── scraper/            # Web Crawlers & parsers for textbooks
-│   └── rag/                # RAG Pipeline Logic
-│       ├── retriever.py    # ChromaDB context retriever
-│       ├── generator.py    # Dual-persona prompt engineering & Gemini API
-│       └── rag_pipeline.py # Core RAG orchestrator
-├── vite.config.ts          # Vite Configuration with API reverse proxy
-└── README.md
+├── src/                    # Main React/Vite application
+│   ├── components/         # Shared UI, layout, and assessment components
+│   ├── pages/              # Route-level views
+│   ├── services/           # API clients and browser-side services
+│   ├── data/               # Static learning and assessment content
+│   └── test/               # Frontend unit tests and setup
+├── backend/                # FastAPI application and Python services
+│   ├── app.py               # Application composition and shared middleware
+│   ├── auth*.py             # Identity verification and authentication routes
+│   ├── placement_assessment_system/ # Assessment API, persistence, and scoring
+│   ├── rag/                 # Retrieval-augmented generation pipeline
+│   ├── scraper/             # Source ingestion utilities
+│   ├── tests/               # Backend regression and security tests
+│   ├── migrations/          # Database migration notes and scripts
+│   └── requirements.txt     # Backend dependencies
+├── frontend/src/            # Standalone Top 100 problem component sources
+├── docs/                    # Audit, deployment, and user/developer guides
+├── public/                  # Static assets served by Vite
+├── .github/workflows/       # CI workflows
+├── package.json              # Frontend scripts and dependencies
+└── vite.config.ts            # Vite development/build configuration
 ```
+
+### Documentation
+
+Start at [`docs/README.md`](docs/README.md) for the documentation index. Audit records, deployment runbooks, and feature guides live in separate folders under `docs/`.
 
 ---
 

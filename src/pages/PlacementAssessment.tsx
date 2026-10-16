@@ -8,6 +8,7 @@ import { runAndEvaluate } from '@/services/codeExecutionService';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { lookupStudentLocally } from '@/data/studentsRoster';
 import { getLocalQuestionsForRole, getNormalPlacementTestQuestions } from '@/data/assessmentQuestions';
+import AdminAssessmentHub from './AdminAssessmentHub';
 
 interface Question {
   id: string;
@@ -22,7 +23,7 @@ interface Question {
   company_tags?: string[];
   companyTags?: string[];
   examples?: { input: string; output: string; explanation?: string; expected?: string }[];
-  correct_option?: string;
+  correct_option?: string | null;
   case_image?: string;
   diagram_url?: string;
   image_url?: string;
@@ -383,7 +384,9 @@ export default function PlacementAssessment() {
           comments: feedbackComments.trim(),
           date: new Date().toISOString()
         }));
-      } catch (_) {}
+      } catch (_) {
+        // Feedback is already submitted; local persistence is best-effort.
+      }
     }
   };
 
@@ -419,7 +422,9 @@ export default function PlacementAssessment() {
         } else {
           try {
             addIfValid(JSON.parse(val));
-          } catch (_) {}
+          } catch (_) {
+            // Ignore malformed legacy company tags and continue with other values.
+          }
         }
       }
     };
@@ -661,7 +666,7 @@ export default function PlacementAssessment() {
     }
   };
 
-  const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor' | 'students' | 'leaderboard'>('catalog');
+  const [catalogSubTab, setCatalogSubTab] = useState<'catalog' | 'builder' | 'live_monitor' | 'students' | 'leaderboard' | 'topin_suite' | 'legacy_builder'>('topin_suite');
   const [catalogCategory, setCatalogCategory] = useState<'ongoing' | 'upcoming' | 'past'>('ongoing');
   const [catalogData, setCatalogData] = useState<any>(null);
   const [catalogLoading, setCatalogLoading] = useState<boolean>(false);
@@ -1079,7 +1084,11 @@ export default function PlacementAssessment() {
 
     return () => {
       if (ws) {
-        try { ws.close(); } catch {}
+        try {
+          ws.close();
+        } catch {
+          // The socket may already be closed during component teardown.
+        }
       }
       if (fallbackPoll) clearInterval(fallbackPoll);
       clearInterval(catInterval);
@@ -1440,7 +1449,9 @@ export default function PlacementAssessment() {
     if (streamRef.current) {
       try {
         streamRef.current.getTracks().forEach((track) => track.stop());
-      } catch (err) {}
+      } catch (err) {
+        console.debug('Could not stop assessment camera tracks cleanly.', err);
+      }
     }
 
     // Separate coding answers from MCQ answers
@@ -1499,7 +1510,9 @@ export default function PlacementAssessment() {
     if (document.fullscreenElement) {
       try {
         await document.exitFullscreen();
-      } catch (err) {}
+      } catch (err) {
+        console.debug('Could not leave browser fullscreen after submission.', err);
+      }
     }
 
     // ── Calculate final question elapsed time ──────────────────────────────
@@ -1582,8 +1595,12 @@ export default function PlacementAssessment() {
           violations_log: [],
           status: violations >= 3 ? 'disqualified' : 'completed'
         })
-      }).catch(() => {});
-    } catch (_) {}
+      }).catch((error) => {
+        console.warn('Could not persist optional Fixly submission history.', error);
+      });
+    } catch (error) {
+      console.warn('Could not persist optional Fixly submission history.', error);
+    }
   };
 
   // 1. Log violations to backend
@@ -1800,7 +1817,6 @@ export default function PlacementAssessment() {
     if (step !== 'test' || !videoRef.current) return;
 
     let isMounted = true;
-    let checkInterval: any;
     let consecutiveMissingCount = 0;
 
     const detectWebcamFrame = async () => {
@@ -1836,7 +1852,7 @@ export default function PlacementAssessment() {
       }
     };
 
-    checkInterval = setInterval(detectWebcamFrame, 1500);
+    const checkInterval = setInterval(detectWebcamFrame, 1500);
     return () => {
       isMounted = false;
       clearInterval(checkInterval);
@@ -2312,6 +2328,18 @@ export default function PlacementAssessment() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
                   <div className="flex items-center gap-2">
                     <button
+                      onClick={() => setCatalogSubTab('topin_suite')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        catalogSubTab === 'topin_suite' || catalogSubTab === 'builder'
+                          ? 'bg-blue-600 text-white shadow-sm border border-blue-600 ring-2 ring-blue-500/20'
+                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Assessment Hub</span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-white text-blue-700 text-[9px] font-black uppercase">NEW</span>
+                    </button>
+                    <button
                       onClick={() => setCatalogSubTab('catalog')}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                         catalogSubTab === 'catalog'
@@ -2335,17 +2363,6 @@ export default function PlacementAssessment() {
                       <span>📡 Live Command Center</span>
                       <span className={`w-2 h-2 rounded-full ${isWsConnected ? 'bg-emerald-400' : 'bg-blue-500 animate-ping'}`} />
                       {isWsConnected && <span className="text-[9px] bg-emerald-500/20 text-emerald-700 font-mono font-bold px-1 rounded">WS</span>}
-                    </button>
-                    <button
-                      onClick={() => setCatalogSubTab('builder')}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'builder'
-                          ? 'bg-black text-white shadow-sm border border-black'
-                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Create New Drive</span>
                     </button>
                     <button
                       onClick={() => {
@@ -2685,8 +2702,15 @@ export default function PlacementAssessment() {
                   </div>
                 )}
 
-                {/* SubTab 3: Test Builder */}
-                {catalogSubTab === 'builder' && (
+                {/* SubTab 3: Topin Modern Assessment Hub & Builder */}
+                {(catalogSubTab === 'topin_suite' || catalogSubTab === 'builder') && (
+                  <div className="bg-white border border-slate-200/90 rounded-3xl shadow-xs overflow-hidden animate-fade-in p-1 md:p-3">
+                    <AdminAssessmentHub />
+                  </div>
+                )}
+
+                {/* Legacy Builder (Archived) */}
+                {catalogSubTab === 'legacy_builder' && (
                   <div className="space-y-4 bg-slate-50 border border-slate-200 p-6 rounded-2xl shadow-sm animate-fade-in">
                     <div>
                       <h3 className="text-sm font-extrabold text-slate-900">Create New Assessment Drive</h3>

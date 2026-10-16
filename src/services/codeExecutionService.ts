@@ -493,7 +493,7 @@ function buildJavaHarness(
   pfx_e = PFX_E
 ): string {
   let targetFuncName = 'solve';
-  const mFunc = code.match(/public\s+([\w\[\]]+)\s+(\w+)\s*\(/);
+  const mFunc = code.match(/public\s+([\w\x5B\x5D]+)\s+(\w+)\s*\(/);
   if (mFunc && mFunc[2] !== 'main') {
     targetFuncName = mFunc[2];
   }

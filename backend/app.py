@@ -33,7 +33,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, Query, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 from typing import List
@@ -142,30 +142,18 @@ app = FastAPI(title="Learniverse AI RAG Backend", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 def get_rate_limit_key(request: Request) -> str:
-    # 1. Prefer authenticated user/token subject if available (tamper-proof)
+    # Authenticated traffic is bucketed by a fully validated application JWT.
     auth_header = request.headers.get("authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ", 1)[1].strip()
         try:
-            from jose import jwt
-            from config import settings
-            active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
-            payload = jwt.decode(token, active_key, algorithms=["HS256"])
-            sub = payload.get("sub")
-            if sub:
-                return f"user:{sub}"
+            from auth import _decode_access_token
+            return f"user:{_decode_access_token(token)['sub']}"
         except Exception:
             pass
 
-    # 2. Prefer Cloudflare Connecting IP header if present
-    cf_ip = request.headers.get("cf-connecting-ip")
-    if cf_ip:
-        return cf_ip.strip()
-
-    # 3. Fall back to client IP from proxy
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    # Forwarding headers are attacker-controlled unless a trusted-proxy chain
+    # has explicitly been configured. Use the ASGI peer address by default.
     return request.client.host if request.client else "127.0.0.1"
 
 
@@ -746,8 +734,30 @@ def health():
 
 @app.get("/readiness")
 def readiness():
-    """Lightweight liveness check for load balancers — just confirms the process is alive."""
-    return {"status": "ok"}
+    """Signal ready only when production's configured database is reachable."""
+    if settings.IS_DEV and not DB_URL:
+        return {"status": "ok", "checks": {"database": "not-required-in-development"}}
+    if not DB_URL:
+        return JSONResponse(
+            content={"status": "not_ready", "checks": {"database": "unconfigured"}},
+            status_code=503,
+        )
+    try:
+        with get_db_connection() as conn:
+            if not conn:
+                raise RuntimeError("Database pool is unavailable")
+            cursor = conn.cursor()
+            try:
+                cursor.execute("SELECT 1")
+            finally:
+                cursor.close()
+    except Exception:
+        logger.warning("Readiness check failed because the database is unavailable")
+        return JSONResponse(
+            content={"status": "not_ready", "checks": {"database": "unavailable"}},
+            status_code=503,
+        )
+    return {"status": "ready", "checks": {"database": "ok"}}
 
 
 @app.get("/api/topics")
@@ -1590,12 +1600,14 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
             "stdin": stdin_b64
         }
 
-        if api_key:
-            endpoint = url or "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true"
+        if url:
+            endpoint = f"{url.rstrip('/')}/submissions?base64_encoded=true&wait=true"
+            if api_key:
+                headers["X-Auth-Token"] = api_key
+        else:
+            endpoint = "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true"
             headers["x-rapidapi-key"] = api_key
             headers["x-rapidapi-host"] = "judge0-ce.p.rapidapi.com"
-        else:
-            endpoint = f"{url.rstrip('/')}/submissions?base64_encoded=true&wait=true"
 
         resp = requests.post(endpoint, json=payload, headers=headers, timeout=10)
         if resp.status_code in [200, 201]:

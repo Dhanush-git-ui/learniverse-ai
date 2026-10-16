@@ -134,9 +134,13 @@ export default function Top100Codes() {
             setUserProgress(d.progress);
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Progress sync is optional; keep any previously loaded state.
+        });
       }
-    } catch {}
+    } catch {
+      // Browser storage can be disabled; progress remains unavailable in that case.
+    }
   }, []);
 
   // Reset states when selected question changes
@@ -239,9 +243,13 @@ export default function Top100Codes() {
               runtime_ms: 100,
               memory_kb: 0
             })
-          }).catch(() => {});
+          }).catch(() => {
+            // Execution feedback is already shown; recording progress is best-effort.
+          });
         }
-      } catch {}
+      } catch {
+        // The compiler failure is surfaced through the execution result below.
+      }
 
       toast({
         title: allPassed ? '🎉 All Test Cases Passed!' : '❌ Some Test Cases Failed',
@@ -432,9 +440,9 @@ export default function Top100Codes() {
                                 }`}
                               >
                                 {isSolved ? (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" title="Solved" />
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-label="Solved" />
                                 ) : isAttempted ? (
-                                  <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" title="Attempted" />
+                                  <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" aria-label="Attempted" />
                                 ) : (
                                   <span className="w-3.5 h-3.5 shrink-0" />
                                 )}
@@ -762,7 +770,7 @@ export default function Top100Codes() {
                           <span className="font-mono text-slate-700 font-bold capitalize">{selectedLang} Implementation</span>
                         </div>
                         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
-                          Optimal Time: {selectedQuestion.time_complexity}
+                          Optimal approach
                         </span>
                       </div>
                       <div className="p-5 overflow-x-auto max-h-[480px] custom-scrollbar bg-slate-900">

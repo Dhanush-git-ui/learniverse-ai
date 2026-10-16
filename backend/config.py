@@ -19,7 +19,7 @@ class Settings:
             if not self.IS_DEV:
                 raise RuntimeError("FATAL: API_SECRET_KEY must be set to a secure value in production.")
             api_key = secrets.token_urlsafe(32)
-            print(f"[SECURITY] Auto-generated dev API_SECRET_KEY: {api_key}")
+            print("[SECURITY] Generated a temporary development API_SECRET_KEY.")
         self.API_SECRET_KEY = api_key
         
         # APIs

@@ -1585,9 +1585,26 @@ export const GROWTH_INTERN_QUESTIONS = [
   }
 ];
 
-export function getLocalQuestionsForRole(role: string) {
+export interface LocalRoleQuestion {
+  id: string;
+  category: string;
+  role?: string;
+  topic: string;
+  difficulty: string;
+  question: string;
+  options?: string[];
+  correct_option?: string | null;
+  explanation?: string;
+  tags?: string | string[];
+  marks: number;
+  negative_marks?: number;
+  question_type?: string;
+  rubrics?: { dimension: string; marks: number; criteria: string }[];
+}
+
+export function getLocalQuestionsForRole(role: string): LocalRoleQuestion[] {
   const r = (role || '').toLowerCase();
-  let pool = REACT_NATIVE_QUESTIONS;
+  let pool: LocalRoleQuestion[] = REACT_NATIVE_QUESTIONS;
   if (r.includes('ai') || r.includes('artificial')) {
     pool = AI_ENGINEER_QUESTIONS;
   } else if (r.includes('backend') || r.includes('full stack') || r.includes('fullstack') || r.includes('front-end') || r.includes('frontend')) {
@@ -1602,8 +1619,10 @@ export function getLocalQuestionsForRole(role: string) {
   const scenarios = pool.filter(q => q.category === 'Real-World Scenarios');
   
   // Return shuffled MCQs followed by the real-world scenarios
-  const shuffledMcqs = JSON.parse(JSON.stringify(mcqs)).sort(() => Math.random() - 0.5);
-  return [...shuffledMcqs, ...JSON.parse(JSON.stringify(scenarios))];
+  const shuffledMcqs = (JSON.parse(JSON.stringify(mcqs)) as LocalRoleQuestion[])
+    .sort(() => Math.random() - 0.5);
+  const copiedScenarios = JSON.parse(JSON.stringify(scenarios)) as LocalRoleQuestion[];
+  return [...shuffledMcqs, ...copiedScenarios];
 }
 
 // ============================================================================
@@ -4608,8 +4627,9 @@ export const NORMAL_COMPUTER_FUNDAMENTALS_QUESTIONS = [
  * - 2 Hands-on Coding Problems (TCS CodeVita / Infosys HackWithInfy challenges)
  * Total: 62 Questions • 120 Minutes
  */
-export function getNormalPlacementTestQuestions() {
-  const shuffle = <T>(arr: T[]): T[] => JSON.parse(JSON.stringify(arr)).sort(() => Math.random() - 0.5);
+export function getNormalPlacementTestQuestions(): LocalRoleQuestion[] {
+  const shuffle = <T>(arr: T[]): T[] =>
+    (JSON.parse(JSON.stringify(arr)) as T[]).sort(() => Math.random() - 0.5);
 
   const selectedApt = shuffle(NORMAL_APTITUDE_QUESTIONS).slice(0, 20);
   const selectedVer = shuffle(NORMAL_VERBAL_QUESTIONS).slice(0, 20);
