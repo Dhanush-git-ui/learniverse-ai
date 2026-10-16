@@ -114,7 +114,9 @@ def log_chat_message(user_id: str, topic_slug: str, mode: str,
 # ──────────────────────────────────────────────────────────────────────────────
 def log_mcq_attempt(user_id: str, topic_slug: str, question_id: str,
                     selected_idx: int, correct_idx: int, is_correct: bool,
-                    time_taken_s: int = 0, hint_used: bool = False):
+                    time_taken_s: int = 0, hint_used: bool = False,
+                    selected_answer: str = "", correct_answer: str = "",
+                    question_text: str = "", explanation: str = ""):
     conn = _conn()
     if not conn:
         return
@@ -123,10 +125,12 @@ def log_mcq_attempt(user_id: str, topic_slug: str, question_id: str,
         cur.execute("""
             INSERT INTO mcq_attempts
                 (user_id, topic_slug, question_id, selected_idx, correct_idx,
-                 is_correct, time_taken_s, hint_used)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                 is_correct, time_taken_s, hint_used, selected_answer, correct_answer, question_text, explanation)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (user_id, topic_slug, question_id, selected_idx, correct_idx,
-              is_correct, time_taken_s, hint_used))
+              is_correct, time_taken_s, hint_used,
+              (selected_answer or "")[:2000], (correct_answer or "")[:2000],
+              (question_text or "")[:4000], (explanation or "")[:4000]))
         conn.commit()
         cur.close()
     except Exception as e:
@@ -261,13 +265,60 @@ def get_dashboard_summary(user_id: str) -> dict:
 
         # Recent coding submissions
         cur.execute("""
-            SELECT problem_id, problem_title, language, verdict, passed, total, ts
+            SELECT problem_id, problem_title, language, verdict, passed, total, ts, runtime_ms
             FROM coding_submissions
-            WHERE user_id = %s AND action = 'submit'
+            WHERE user_id = %s
             ORDER BY ts DESC
             LIMIT 10;
         """, (user_id,))
         result["recent_submissions"] = [dict(r) for r in cur.fetchall()]
+
+        # Recent MCQ attempts (questions and answers)
+        try:
+            cur.execute("""
+                SELECT topic_slug, question_id, is_correct, selected_answer, correct_answer, question_text, explanation, ts
+                FROM mcq_attempts
+                WHERE user_id = %s
+                ORDER BY ts DESC
+                LIMIT 10;
+            """, (user_id,))
+            result["recent_mcq_attempts"] = [dict(r) for r in cur.fetchall()]
+        except Exception:
+            result["recent_mcq_attempts"] = []
+
+        # Top 100 Codes breakdown
+        try:
+            cur.execute("""
+                SELECT 
+                    COUNT(*) FILTER (WHERE status = 'solved') as solved_total,
+                    COUNT(*) as attempted_total,
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Easy' AND status = 'solved') as easy_solved,
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Medium' AND status = 'solved') as medium_solved,
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Hard' AND status = 'solved') as hard_solved
+                FROM top100_progress
+                WHERE user_id = %s;
+            """, (user_id,))
+            trow = cur.fetchone()
+            result["top100_summary"] = dict(trow) if trow else {
+                "solved_total": 0, "attempted_total": 0, "easy_solved": 0, "medium_solved": 0, "hard_solved": 0
+            }
+        except Exception:
+            result["top100_summary"] = {
+                "solved_total": 0, "attempted_total": 0, "easy_solved": 0, "medium_solved": 0, "hard_solved": 0
+            }
+
+        # Recent topics visited
+        try:
+            cur.execute("""
+                SELECT topic_slug, topic_name, tab, duration_seconds, started_at
+                FROM topic_views
+                WHERE user_id = %s
+                ORDER BY started_at DESC
+                LIMIT 8;
+            """, (user_id,))
+            result["recent_topics_visited"] = [dict(r) for r in cur.fetchall()]
+        except Exception:
+            result["recent_topics_visited"] = []
 
         # Streak: days with at least one topic view in last 30 days
         cur.execute("""
@@ -281,17 +332,74 @@ def get_dashboard_summary(user_id: str) -> dict:
         # Placement score (from fixly_test_submissions)
         try:
             cur.execute("""
-                SELECT total_marks, max_marks, percentage, status, submitted_at
+                SELECT id, session_id, student_name, roll_number, role, branch,
+                       total_marks, max_marks, percentage, total_questions, attempted,
+                       correct_count, wrong_count, unanswered_count, violations_count,
+                       status, submitted_at, question_answers
                 FROM fixly_test_submissions
-                WHERE UPPER(roll_number) = (
-                    SELECT UPPER(roll_number) FROM users WHERE id = %s LIMIT 1
-                )
+                WHERE UPPER(TRIM(roll_number)) = UPPER(TRIM(%s))
+                   OR UPPER(TRIM(roll_number)) = (SELECT UPPER(TRIM(roll_number)) FROM users WHERE id = %s LIMIT 1)
                 ORDER BY submitted_at DESC LIMIT 1;
-            """, (user_id,))
+            """, (user_id, user_id))
             prow = cur.fetchone()
-            result["placement"] = dict(prow) if prow else None
-        except Exception:
+            if prow:
+                p_dict = dict(prow)
+                pct = float(p_dict.get("percentage") or 0.0)
+                v_count = int(p_dict.get("violations_count") or 0)
+                
+                if pct >= 80 and v_count < 3:
+                    tier = "Tier 1: Super Dream (12+ LPA)"
+                    band = "Product & AI High-Frequency Engineering"
+                    recruiters = ["Google", "Microsoft", "Amazon", "Directi", "Goldman Sachs", "ServiceNow"]
+                elif pct >= 65 and v_count < 3:
+                    tier = "Tier 2: Dream (7 - 12 LPA)"
+                    band = "Specialized Product & FinTech"
+                    recruiters = ["TCS Digital", "Infosys DSE", "Cognizant GenC Next", "Accenture Advanced", "Oracle"]
+                elif pct >= 45:
+                    tier = "Tier 3: Service & Core (4.5 - 7 LPA)"
+                    band = "Enterprise Application Engineering"
+                    recruiters = ["TCS Ninja", "Infosys SE", "Wipro Elite", "Cognizant GenC", "Capgemini"]
+                else:
+                    tier = "Foundation Remedial Training (< 4.5 LPA)"
+                    band = "Intensive Skill Bootcamps Required"
+                    recruiters = ["Intensive Placement Bootcamp", "Core DSA Remedial", "Assessment Re-attempt"]
+
+                p_dict["placement_tier"] = tier
+                p_dict["readiness_band"] = band
+                p_dict["target_recruiters"] = recruiters
+                p_dict["proctoring_clearance"] = "PASSED" if v_count == 0 else ("FLAGGED" if v_count < 3 else "DISQUALIFIED")
+                result["placement"] = p_dict
+            else:
+                result["placement"] = None
+        except Exception as e:
+            logger.debug("[ANALYTICS placement lookup] %s", e)
             result["placement"] = None
+
+        # Generate personalized AI recommendations
+        recs = []
+        weak = result.get("weak_topics", [])
+        if weak:
+            top_weak = weak[0].get("topic_slug", "").replace("-", " ").title()
+            recs.append(f"Strengthen {top_weak}: Your accuracy is under 60%. Review peer debates and interactive step panels.")
+        
+        top100 = result.get("top100_summary", {})
+        solved_count = top100.get("solved_total", 0)
+        if solved_count < 15:
+            recs.append(f"Top 100 Codes: {solved_count}/100 completed. Target 5 more Easy problems to build algorithmic muscle memory.")
+        elif top100.get("medium_solved", 0) < 10:
+            recs.append("Interview Readiness: Solve 5 more Medium Top 100 codes to unlock the 7+ LPA technical assessment tier.")
+
+        placement = result.get("placement")
+        if placement:
+            pct = float(placement.get("percentage") or 0)
+            if pct < 50:
+                recs.append("Diagnostic Assessment: Score below 50%. Focus on foundational DSA and Aptitude modules before your placement drive.")
+            else:
+                recs.append(f"Placement Clearance: Verified score of {pct:.1f}%. High readiness for product and service interviews.")
+        else:
+            recs.append("Take the Diagnostic Placement Assessment to benchmark your company readiness band and generate your proctored CDC report.")
+
+        result["ai_recommendations"] = recs
 
         cur.close()
         return result

@@ -257,27 +257,52 @@ def google_login_endpoint(request: Request, payload: GoogleLoginRequest):
     demographics = parse_student_credentials(email)
     roll_number = str(student_record.get("roll_number")).strip().upper() if student_record else "ADMIN"
     display_name = (student_record.get("name") if student_record else None) or name
-    jwt_token = create_access_token(user_id=user_id, email=email, role=role, expires_hours=8)
-
+    branch = (student_record.get("branch") if student_record else None) or demographics.get("branch", "Computer Science & Engineering (CSE)")
     student_data = {
         "roll_number": roll_number,
         "rollNumber": roll_number,
         "name": display_name,
         "email": email,
-        "branch": (student_record.get("branch") if student_record else None) or demographics.get("branch", "Computer Science & Engineering (CSE)"),
+        "branch": branch,
         "currentStudyYear": demographics.get("currentStudyYear", "Undergraduate"),
         "collegeName": demographics.get("collegeName", "HITAM Hyderabad"),
         "is_admin": is_admin
     }
+
+    jwt_token = create_access_token(
+        user_id=user_id,
+        email=email,
+        role=role,
+        expires_hours=8,
+        roll_number=roll_number,
+        name=display_name,
+        branch=branch
+    )
+
+    try:
+        from analytics_service import upsert_user
+        upsert_user(
+            user_id=user_id,
+            roll_number=roll_number,
+            name=display_name,
+            email=email,
+            role=role,
+            branch=branch,
+            college=student_data.get("collegeName", "HITAM Hyderabad")
+        )
+    except Exception as e:
+        logger.debug("[AUTH UPSERT USER] %s", e)
 
     return {
         "token": jwt_token,
         "student": student_data,
         "user": {
             "id": user_id,
+            "roll_number": roll_number,
             "email": email,
             "name": display_name,
-            "role": role
+            "role": role,
+            "branch": branch
         }
     }
 

@@ -68,7 +68,7 @@ async def verify_api_key(
     # Reject invalid keys immediately. No more free passes.
     raise HTTPException(status_code=401, detail="Invalid or missing API Key")
 
-def create_access_token(user_id: str, email: str = "", role: str = "student", expires_hours: int = 24) -> str:
+def create_access_token(user_id: str, email: str = "", role: str = "student", expires_hours: int = 24, **kwargs) -> str:
     """Create a signed JWT access token for students/admins."""
     active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
     now = datetime.now(timezone.utc)
@@ -81,6 +81,7 @@ def create_access_token(user_id: str, email: str = "", role: str = "student", ex
         "iss": TOKEN_ISSUER,
         "aud": TOKEN_AUDIENCE,
         "jti": str(uuid4()),
+        **kwargs
     }
     return jwt.encode(payload, active_key, algorithm="HS256")
 

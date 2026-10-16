@@ -248,11 +248,14 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
       data.redirect_url?.includes("admin=true")
     );
 
+    const studentWithToken = { ...(data.student || {}), token: data.token };
     if (data.user) {
-      localStorage.setItem("learniverse_user", JSON.stringify(data.user));
+      localStorage.setItem("learniverse_user", JSON.stringify({ ...data.user, token: data.token }));
     }
-    localStorage.setItem("learniverse_student", JSON.stringify(data.student));
-    localStorage.setItem("learniverse_roll_number", data.student.roll_number);
+    localStorage.setItem("learniverse_student", JSON.stringify(studentWithToken));
+    if (data.student?.roll_number) {
+      localStorage.setItem("learniverse_roll_number", data.student.roll_number);
+    }
     window.dispatchEvent(new Event("learniverse_auth_change"));
 
     if (onLoginSuccess) {

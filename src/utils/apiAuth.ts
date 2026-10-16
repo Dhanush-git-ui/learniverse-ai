@@ -4,12 +4,32 @@
  * and passes X-API-Key if explicitly configured (for dev/automation).
  */
 
+export function getAuthToken(): string | null {
+  try {
+    const direct = localStorage.getItem('learniverse_token');
+    if (direct) return direct;
+    const studentRaw = localStorage.getItem('learniverse_student');
+    if (studentRaw) {
+      const parsed = JSON.parse(studentRaw);
+      if (parsed?.token) return parsed.token;
+    }
+    const userRaw = localStorage.getItem('learniverse_user');
+    if (userRaw) {
+      const parsed = JSON.parse(userRaw);
+      if (parsed?.token) return parsed.token;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export function getAuthHeaders(extraHeaders: Record<string, string> = {}): Record<string, string> {
   const headers: Record<string, string> = { ...extraHeaders };
 
   // 1. Attach JWT Bearer token if present
   try {
-    const token = localStorage.getItem('learniverse_token');
+    const token = getAuthToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

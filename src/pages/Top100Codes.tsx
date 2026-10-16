@@ -36,6 +36,7 @@ import { TOP_100_QUESTIONS, Top100Question } from '@/data/top100Data';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import AlgorithmStepPanel from '@/components/coding/AlgorithmStepPanel';
 import { PATTERN_BLUEPRINTS, formatExampleOutput, getQuestionTutorial } from '@/data/top100Tutorials';
+import { getAuthHeaders, getAuthToken } from '@/utils/apiAuth';
 
 export default function Top100Codes() {
   const { toast } = useToast();
@@ -122,11 +123,10 @@ export default function Top100Codes() {
   // Load user's Top 100 progress from Neon
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('learniverse_student');
-      const token = raw ? JSON.parse(raw).token : null;
+      const token = getAuthToken();
       if (token) {
         fetch('/api/analytics/top100-progress', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: getAuthHeaders()
         })
         .then(r => r.ok ? r.json() : null)
         .then(d => {
@@ -212,12 +212,11 @@ export default function Top100Codes() {
 
       // Persist to Neon
       try {
-        const raw = localStorage.getItem('learniverse_student');
-        const token = raw ? JSON.parse(raw).token : null;
+        const token = getAuthToken();
         if (token) {
           fetch('/api/analytics/top100-progress', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
               problem_id: String(selectedQuestion.id),
               problem_title: selectedQuestion.title,
@@ -229,7 +228,7 @@ export default function Top100Codes() {
 
           fetch('/api/analytics/code-submit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
               problem_id: `top100_${selectedQuestion.id}`,
               problem_title: selectedQuestion.title,
@@ -240,7 +239,7 @@ export default function Top100Codes() {
               verdict: allPassed ? 'Accepted' : 'Wrong Answer',
               passed: result.passed_cases || 0,
               total: result.total_cases || testCases.length,
-              runtime_ms: 100,
+              runtime_ms: parseInt(result.runtime) || 100,
               memory_kb: 0
             })
           }).catch(() => {

@@ -107,30 +107,39 @@ const TopicDetailPage = () => {
   // ── Analytics: fire-and-forget helper ────────────────────────────────────
   const logAnalytics = (path: string, body: object) => {
     try {
-      const token = (() => { try { const s = localStorage.getItem('learniverse_student'); return s ? JSON.parse(s).token : null; } catch { return null; } })();
-      if (!token) return;
+      const headers = getAuthHeaders({ 'Content-Type': 'application/json' });
+      if (!headers['Authorization']) return;
       fetch(path, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers,
         body: JSON.stringify(body),
         keepalive: true,
       }).catch(() => {/* silent */});
     } catch { /* silent */ }
   };
 
-  // Log topic view when tab changes
+  // Log topic view when loaded and when tab changes
   useEffect(() => {
     if (!topic || !activeTab) return;
+    // Immediate visit entry
+    logAnalytics('/api/analytics/topic-view', {
+      topic_slug: slug || '',
+      topic_name: topic.title,
+      tab: activeTab,
+      duration_seconds: 1,
+    });
+
     const t = Date.now();
     return () => {
+      const elapsed = Math.max(1, Math.round((Date.now() - t) / 1000));
       logAnalytics('/api/analytics/topic-view', {
         topic_slug: slug || '',
         topic_name: topic.title,
         tab: activeTab,
-        duration_seconds: Math.round((Date.now() - t) / 1000),
+        duration_seconds: elapsed,
       });
     };
-  }, [activeTab, slug]);
+  }, [activeTab, slug, topic?.title]);
 
   const normalize = (s: string | undefined | null) => {
     if (!s) return '';
@@ -787,6 +796,8 @@ const TopicDetailPage = () => {
                                       // Log MCQ attempt to analytics
                                       const correctIdx = q.options?.findIndex((o: string) => normalize(o) === normalize(q.answer)) ?? -1;
                                       const selectedIdx = q.options?.findIndex((o: string) => o === selectedAnswers[q.id]) ?? -1;
+                                      const selAnswer = selectedAnswers[q.id] || '';
+                                      const corrAnswer = q.answer || (correctIdx >= 0 ? q.options?.[correctIdx] : '');
                                       logAnalytics('/api/analytics/mcq-attempt', {
                                         topic_slug: slug || '',
                                         question_id: q.id || `q${idx}`,
@@ -794,6 +805,10 @@ const TopicDetailPage = () => {
                                         correct_idx: correctIdx,
                                         is_correct: isCorrect,
                                         hint_used: !!mcqRevealHint[q.id],
+                                        selected_answer: selAnswer,
+                                        correct_answer: corrAnswer,
+                                        question_text: q.question || '',
+                                        explanation: q.explanation || '',
                                       });
                                     }}
                                     disabled={!selectedAnswers[q.id]}

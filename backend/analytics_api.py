@@ -68,6 +68,10 @@ class McqAttemptEvent(BaseModel):
     is_correct:   bool = False
     time_taken_s: int  = Field(0, ge=0)
     hint_used:    bool = False
+    selected_answer: str = Field("", max_length=2000)
+    correct_answer:  str = Field("", max_length=2000)
+    question_text:   str = Field("", max_length=4000)
+    explanation:     str = Field("", max_length=4000)
 
 class CodeSubmitEvent(BaseModel):
     problem_id:    str  = Field(..., max_length=200)
@@ -132,7 +136,9 @@ async def post_mcq_attempt(request: Request, body: McqAttemptEvent):
         from analytics_service import log_mcq_attempt
         log_mcq_attempt(user_id, body.topic_slug, body.question_id,
                         body.selected_idx, body.correct_idx, body.is_correct,
-                        body.time_taken_s, body.hint_used)
+                        body.time_taken_s, body.hint_used,
+                        body.selected_answer, body.correct_answer,
+                        body.question_text, body.explanation)
     except Exception as e:
         logger.warning("[analytics/mcq-attempt] %s", e)
     return {"status": "ok"}
@@ -398,11 +404,23 @@ async def admin_student_detail(request: Request, roll: str):
 def _ensure_user(payload: dict):
     try:
         from analytics_service import upsert_user
+        from auth_api import parse_student_credentials
         user_id = payload.get("sub") or payload.get("user_id", "")
         email = payload.get("email", "")
         name = payload.get("name", "")
         role = payload.get("role", "student")
-        roll = payload.get("roll_number", user_id)
-        upsert_user(user_id, roll, name, email, role)
+        roll = payload.get("roll_number")
+        if not roll or roll == user_id:
+            parsed = parse_student_credentials(email or user_id)
+            if parsed.get("isValid") and parsed.get("rollNumber"):
+                roll = parsed["rollNumber"]
+            else:
+                roll = user_id
+        parsed_demo = parse_student_credentials(roll or email)
+        branch = payload.get("branch") or parsed_demo.get("branchName", "Engineering")
+        if not name:
+            name = (email.split("@")[0] if email else roll)
+        college = parsed_demo.get("collegeName", "HITAM Hyderabad")
+        upsert_user(user_id, roll, name, email, role, branch, college)
     except Exception as e:
         logger.debug("[_ensure_user] %s", e)
