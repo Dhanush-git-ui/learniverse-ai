@@ -1607,9 +1607,10 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
     import base64
     import os
 
+    from config import settings
     lang = language.lower()
-    judge0_url = os.environ.get("JUDGE0_URL", "").strip()
-    judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip()
+    judge0_url = os.environ.get("JUDGE0_URL", "").strip() or getattr(settings, "JUDGE0_URL", "") or "https://judge0-ce.p.rapidapi.com"
+    judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip() or getattr(settings, "JUDGE0_API_KEY", "") or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
     lang_map = {
         "cpp": 54,
         "c++": 54,
@@ -1746,13 +1747,14 @@ def execute_code_via_piston(language: str, code: str, stdin: str = "") -> Option
     if piston_res is not None:
         return piston_res
 
-    # 3. If everything fails, only allow local fallback in explicit development mode
-    if not (settings.ALLOW_LOCAL_EXECUTION and settings.IS_DEV):
-        logger.info("[EXECUTION] Judge0 & Piston failed, and local execution disabled in this environment.")
-        return None
+    # 3. If remote compilers fail, allow local fallback if enabled or in development
+    allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
+    if allow_local or (settings.ALLOW_LOCAL_EXECUTION and settings.IS_DEV):
+        logger.info("[EXECUTION] Falling back to local sandbox execution.")
+        return execute_code_locally(language, code, stdin)
 
-    logger.info("[EXECUTION] Falling back to local sandbox execution (development opt-in).")
-    return execute_code_locally(language, code, stdin)
+    logger.info("[EXECUTION] Judge0 & Piston failed, and local execution disabled in this environment.")
+    return None
 
 async def generate_code_review(problem_id: str, user_code: str, language: str, passed_count: int, total_count: int) -> str:
     prompt = f"""

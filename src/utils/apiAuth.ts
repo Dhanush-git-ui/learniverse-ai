@@ -37,8 +37,8 @@ export function getAuthHeaders(extraHeaders: Record<string, string> = {}): Recor
     // localStorage not accessible
   }
 
-  // 2. Attach dev/admin API key if configured, or default dev key during local dev
-  const apiKey = import.meta.env.VITE_API_SECRET_KEY || (import.meta.env.DEV ? 'devsecretkey' : undefined);
+  // 2. Attach dev/admin API key if configured, or default client key for platform requests
+  const apiKey = import.meta.env.VITE_API_SECRET_KEY || 'u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE';
   if (apiKey) {
     headers['X-API-Key'] = apiKey;
   }

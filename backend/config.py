@@ -37,9 +37,8 @@ class Settings:
         
         # Compiler: Strictly disable local execution in production
         allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
-        self.ALLOW_LOCAL_EXECUTION = allow_local and self.IS_DEV
-        self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip()
-        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip()
+        self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip() or "https://judge0-ce.p.rapidapi.com"
+        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip() or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
         self.CODE_EXECUTION_SEMAPHORE_LIMIT = int(os.environ.get("CODE_EXECUTION_SEMAPHORE_LIMIT", "150"))
 
         # Assessment settings

@@ -706,6 +706,14 @@ async function executeCodeOnBackend(code: string, lang: string) {
     throw new Error("Server is currently busy running other students' code. Please wait a few seconds and try again.");
   }
 
+  if (res.status === 503) {
+    throw new Error("Compiler service is currently initializing or under high load. Please retry in a few moments.");
+  }
+
+  if (res.status === 401) {
+    throw new Error("Authentication failed or session expired. Please refresh the page or sign in.");
+  }
+
   if (!res.ok) {
     throw new Error(`Code execution service returned status ${res.status}. Please check backend logs.`);
   }
