@@ -68,14 +68,25 @@ function inferJavaType(name: string, value: string): string {
   return 'int';
 }
 
+export function cleanExpectedOutput(output: string): string {
+  if (!output) return '';
+  const trimmed = output.trim();
+  const match = trimmed.match(/^[\w$]+\s*=\s*(.+)$/s);
+  if (match) {
+    return match[1].trim();
+  }
+  return trimmed;
+}
+
 // ─── Value Converters (input string → language literal) ───────────────────────
 
 function toPythonValue(value: string): string {
   if (value === 'true')  return 'True';
   if (value === 'false') return 'False';
   if (value === 'null')  return 'None';
-  const v = value?.trim();
+  let v = value?.trim();
   if (!v) return "''";
+  v = cleanExpectedOutput(v);
   // Already a list/object literal or quoted string or Python None/True/False
   if (v.startsWith('[') || v.startsWith('{') || v.startsWith('"') || v.startsWith("'") || v === 'None' || v === 'True' || v === 'False') return v;
   // Numeric literal? leave as-is
@@ -172,13 +183,49 @@ function buildPythonHarness(
     targetFuncName = m[1];
   }
 
+  // Auto-dedent if the code starts with leading indentation and lacks a class statement
+  let cleanedCode = code;
+  const linesOfCode = code.split('\n');
+  const nonBlank = linesOfCode.filter(l => l.trim().length > 0);
+  if (nonBlank.length > 0 && /^\s+/.test(nonBlank[0]) && !code.includes('class ')) {
+    const minIndent = Math.min(...nonBlank.map(l => l.match(/^(\s*)/)![1].length));
+    if (minIndent > 0) {
+      cleanedCode = linesOfCode.map(l => l.slice(minIndent)).join('\n');
+    }
+  }
+
   const lines: string[] = [
-    code,
+    'from typing import *',
+    'import collections, heapq, bisect, math, sys',
+    '',
+    cleanedCode,
     '',
     '# ── LeetCode-style Test Runner (auto-generated) ──────────────────',
-    'try:',
-    `    solve = ${targetFuncName}`,
-    'except NameError:',
+    'import inspect',
+    `target_func = "${targetFuncName}"`,
+    'solve = None',
+    'if "Solution" in globals() and isinstance(globals()["Solution"], type):',
+    '    try:',
+    '        _sol_obj = globals()["Solution"]()',
+    '        solve = getattr(_sol_obj, target_func, None) or getattr(_sol_obj, "solve", None)',
+    '    except Exception:',
+    '        pass',
+    '',
+    'if solve is None:',
+    '    solve = globals().get(target_func) or globals().get("solve")',
+    '',
+    'if callable(solve):',
+    '    try:',
+    '        sig = inspect.signature(solve)',
+    '        params = list(sig.parameters.keys())',
+    '        if params and params[0] == "self" and not (hasattr(solve, "__self__") and solve.__self__ is not None):',
+    '            _orig_solve = solve',
+    '            class _Dummy: pass',
+    '            solve = lambda *args, **kwargs: _orig_solve(_Dummy(), *args, **kwargs)',
+    '    except Exception:',
+    '        pass',
+    '',
+    'if solve is None:',
     '    def solve(*args, **kwargs): return None',
     '',
     'class ListNode:',
@@ -241,7 +288,7 @@ function buildPythonHarness(
     lines.push(`__out_${i} = solve(${params || 'None'})`);
     lines.push(`if isinstance(__out_${i}, ListNode):`);
     lines.push(`    __out_${i} = __linked_list_to_list(__out_${i})`);
-    lines.push(`__exp_${i} = ${toPythonValue(ex.output)}`);
+    lines.push(`__exp_${i} = ${toPythonValue(cleanExpectedOutput(ex.output))}`);
     lines.push(`__pass_${i} = __normalize(__out_${i}) == __normalize(__exp_${i})`);
     lines.push(`print("${pfx_i}" + str(${i}))`);
     lines.push(`print("${pfx_p}" + str(__pass_${i}).lower())`);
@@ -680,19 +727,24 @@ export async function runAndEvaluate(
 ): Promise<any> {
   const t0 = performance.now();
 
+  const sanitizedExamples = (examples || []).map(ex => ({
+    input: ex.input,
+    output: cleanExpectedOutput(ex.output),
+  }));
+
   const runId = Math.random().toString(36).substring(2, 10);
   const pfx_i = `__CODE_I_${runId}__`;
   const pfx_p = `__CODE_P_${runId}__`;
   const pfx_a = `__CODE_A_${runId}__`;
   const pfx_e = `__CODE_E_${runId}__`;
 
-  const builders: Record<string, (c: string, e: typeof examples, pi: string, pp: string, pa: string, pe: string) => string> = {
+  const builders: Record<string, (c: string, e: typeof sanitizedExamples, pi: string, pp: string, pa: string, pe: string) => string> = {
     python:     buildPythonHarness,
     javascript: buildJavaScriptHarness,
     cpp:        buildCppHarness,
     java:       buildJavaHarness,
   };
-  const fullCode = (builders[lang] ?? buildPythonHarness)(code, examples, pfx_i, pfx_p, pfx_a, pfx_e);
+  const fullCode = (builders[lang] ?? buildPythonHarness)(code, sanitizedExamples, pfx_i, pfx_p, pfx_a, pfx_e);
 
   const { stdout, stderr, compile } = await executeCodeOnBackend(fullCode, lang);
   const runtime = ((performance.now() - t0) / 1000).toFixed(2) + 's';
@@ -705,7 +757,7 @@ export async function runAndEvaluate(
     };
   }
 
-  const caseResults = parseHarnessOutput(stdout, examples, pfx_i, pfx_p, pfx_a, pfx_e);
+  const caseResults = parseHarnessOutput(stdout, sanitizedExamples, pfx_i, pfx_p, pfx_a, pfx_e);
 
   if (caseResults.length === 0) {
     const errorMsg = stderr?.trim() || stdout?.trim() || 'No output produced. Check your solve() function.';
