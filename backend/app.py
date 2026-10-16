@@ -1624,7 +1624,7 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
                 }
             }
         else:
-            logger.info("[JUDGE0] API call returned status {resp.status_code}")
+            logger.info(f"[JUDGE0] API call returned status {resp.status_code}: {resp.text[:200]}")
             return None
     except Exception as e:
         logger.error("[JUDGE0] Exception occurred: %s", e)
