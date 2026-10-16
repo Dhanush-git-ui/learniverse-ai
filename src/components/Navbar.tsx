@@ -17,8 +17,7 @@ import {
   Award,
   Building2,
   ShieldCheck,
-  ChevronDown,
-  Layers
+  ChevronDown
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { HitamLoginModal } from './auth/HitamLoginModal';
@@ -347,19 +346,6 @@ const Navbar = () => {
                 >
                   <Award className="w-4 h-4 text-blue-600" />
                   <span>Placement Test</span>
-                </Link>
-
-                <Link
-                  to="/admin"
-                  className={`px-3 py-2 rounded-xl text-xs lg:text-sm font-bold transition-all flex items-center gap-1.5 ${
-                    isActive('/admin')
-                      ? 'text-white bg-blue-600 shadow-xs'
-                      : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200'
-                  }`}
-                  title="Learniverse Assessment Admin Suite"
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Admin Suite</span>
                 </Link>
               </>
             )}
