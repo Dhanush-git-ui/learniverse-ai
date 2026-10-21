@@ -1,14 +1,14 @@
-
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import FeaturesSection from '@/components/home/FeaturesSection';
-import DemoSection from '@/components/home/DemoSection';
-import PopularTopicsSection from '@/components/home/PopularTopicsSection';
-import Footer from '@/components/Footer';
+﻿
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import FeaturesSection from "@/components/home/FeaturesSection";
+import DemoSection from "@/components/home/DemoSection";
+import PopularTopicsSection from "@/components/home/PopularTopicsSection";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 font-sans">
       <Navbar />
       <Hero />
       <FeaturesSection />
