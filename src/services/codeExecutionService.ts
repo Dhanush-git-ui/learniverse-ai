@@ -70,10 +70,17 @@ function inferJavaType(name: string, value: string): string {
 
 export function cleanExpectedOutput(output: string): string {
   if (!output) return '';
-  const trimmed = output.trim();
+  let trimmed = output.trim();
   const match = trimmed.match(/^[\w$]+\s*=\s*(.+)$/s);
   if (match) {
-    return match[1].trim();
+    trimmed = match[1].trim();
+  }
+  // Strip outer matching quotes if present (e.g. "\"Positive\"" or "'Positive'")
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'") && trimmed.length >= 2)
+  ) {
+    trimmed = trimmed.slice(1, -1).trim();
   }
   return trimmed;
 }
@@ -177,31 +184,58 @@ function buildPythonHarness(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): string {
-  let targetFuncName = 'solve';
-  const m = code.match(/def\s+(\w+)\s*\(/);
-  if (m && m[1] !== '__normalize') {
-    targetFuncName = m[1];
-  }
-
-  // Auto-dedent if the code starts with leading indentation and lacks a class statement
-  let cleanedCode = code;
   const linesOfCode = code.split('\n');
-  const nonBlank = linesOfCode.filter(l => l.trim().length > 0);
-  if (nonBlank.length > 0 && /^\s+/.test(nonBlank[0]) && !code.includes('class ')) {
-    const minIndent = Math.min(...nonBlank.map(l => l.match(/^(\s*)/)![1].length));
-    if (minIndent > 0) {
-      cleanedCode = linesOfCode.map(l => l.slice(minIndent)).join('\n');
+  const hasDefOrClass = linesOfCode.some(l => /^\s*(?:def\s+\w+|class\s+\w+)/.test(l.replace(/#.*$/, '')));
+
+  let cleanedCode = code;
+  let targetFuncName = 'solve';
+
+  // If user wrote top-level code (without def or class), auto-wrap into def solve(...)
+  if (!hasDefOrClass) {
+    const firstEx = examples[0];
+    const firstPairs = firstEx ? parseInputPairs(firstEx.input) : [];
+    const paramNames = firstPairs.length > 0
+      ? firstPairs.map(p => p.name).join(', ')
+      : '*args, **kwargs';
+
+    // Auto-indent user script lines so any top-level return or prints execute inside solve()
+    const indented = linesOfCode.map(l => (l.trim().length > 0 ? '    ' + l : l)).join('\n');
+    cleanedCode = `def solve(${paramNames}):\n${indented}\n`;
+    targetFuncName = 'solve';
+  } else {
+    const m = code.match(/def\s+(\w+)\s*\(/);
+    if (m && m[1] !== '__normalize') {
+      targetFuncName = m[1];
+    }
+
+    // Auto-dedent if the code starts with leading indentation and lacks a class statement
+    const nonBlank = linesOfCode.filter(l => l.trim().length > 0);
+    if (nonBlank.length > 0 && /^\s+/.test(nonBlank[0]) && !code.includes('class ')) {
+      const minIndent = Math.min(...nonBlank.map(l => l.match(/^(\s*)/)![1].length));
+      if (minIndent > 0) {
+        cleanedCode = linesOfCode.map(l => l.slice(minIndent)).join('\n');
+      }
     }
   }
 
   const lines: string[] = [
     'from typing import *',
-    'import collections, heapq, bisect, math, sys',
+    'import collections, heapq, bisect, math, sys, io, inspect, json',
+    '',
+    '# Mock input so competitive programming code using input() works automatically',
+    '__input_queue = []',
+    'def __mock_input(prompt=""):',
+    '    global __input_queue',
+    '    if __input_queue:',
+    '        return str(__input_queue.pop(0))',
+    '    return ""',
+    '',
+    'import builtins',
+    'builtins.input = __mock_input',
     '',
     cleanedCode,
     '',
-    '# ── LeetCode-style Test Runner (auto-generated) ──────────────────',
-    'import inspect',
+    '# ── Dual-Evaluation Test Runner (auto-generated) ──────────────────',
     `target_func = "${targetFuncName}"`,
     'solve = None',
     'if "Solution" in globals() and isinstance(globals()["Solution"], type):',
@@ -256,12 +290,19 @@ function buildPythonHarness(
     '    return lst',
     '',
     'def __normalize(v):',
-    '    import json',
+    '    if v is None:',
+    '        return "none"',
     '    if isinstance(v, ListNode):',
     '        v = __linked_list_to_list(v)',
-    '    s = str(v).strip().replace(\' \', \'\')',
-    '    try: return json.dumps(json.loads(s), separators=(",", ":"))',
-    '    except: return s.lower()',
+    '    s = str(v).strip()',
+    '    if (s.startswith(\'"\') and s.endswith(\'"\') and len(s) >= 2) or (s.startswith("\'") and s.endswith("\'") and len(s) >= 2):',
+    '        s = s[1:-1].strip()',
+    '    s_compact = "".join(s.split())',
+    '    try:',
+    '        parsed = json.loads(s_compact)',
+    '        return json.dumps(parsed, separators=(",", ":")).lower()',
+    '    except Exception:',
+    '        return s_compact.lower()',
     '',
   ];
 
@@ -285,14 +326,40 @@ function buildPythonHarness(
     });
 
     const params = pairs.map(p => p.name).join(', ');
-    lines.push(`__out_${i} = solve(${params || 'None'})`);
+    const inputValList = pairs.map(p => toPythonValue(p.value)).join(', ');
+
+    lines.push(`__input_queue = [${inputValList}]`);
+    lines.push(`__stdout_buf_${i} = io.StringIO()`);
+    lines.push(`__real_stdout_${i} = sys.stdout`);
+    lines.push(`sys.stdout = __stdout_buf_${i}`);
+    lines.push(`__out_${i} = None`);
+    lines.push(`__err_${i} = None`);
+    lines.push(`try:`);
+    lines.push(`    __out_${i} = solve(${params || 'None'})`);
+    lines.push(`except Exception as _ex:`);
+    lines.push(`    __err_${i} = str(_ex)`);
+    lines.push(`finally:`);
+    lines.push(`    sys.stdout = __real_stdout_${i}`);
+    lines.push(`__printed_${i} = __stdout_buf_${i}.getvalue().strip()`);
     lines.push(`if isinstance(__out_${i}, ListNode):`);
     lines.push(`    __out_${i} = __linked_list_to_list(__out_${i})`);
     lines.push(`__exp_${i} = ${toPythonValue(cleanExpectedOutput(ex.output))}`);
-    lines.push(`__pass_${i} = __normalize(__out_${i}) == __normalize(__exp_${i})`);
+    lines.push(`__pass_ret_${i} = (__out_${i} is not None) and (__normalize(__out_${i}) == __normalize(__exp_${i}))`);
+    lines.push(`__pass_print_${i} = bool(__printed_${i}) and (__normalize(__printed_${i}) == __normalize(__exp_${i}))`);
+    lines.push(`__pass_${i} = __pass_ret_${i} or __pass_print_${i}`);
+    lines.push(`if __pass_print_${i} and not __pass_ret_${i}:`);
+    lines.push(`    __display_${i} = __printed_${i}`);
+    lines.push(`elif __out_${i} is not None:`);
+    lines.push(`    __display_${i} = str(__out_${i})`);
+    lines.push(`elif __printed_${i}:`);
+    lines.push(`    __display_${i} = __printed_${i}`);
+    lines.push(`elif __err_${i}:`);
+    lines.push(`    __display_${i} = f"Runtime Error: {__err_${i}}"`);
+    lines.push(`else:`);
+    lines.push(`    __display_${i} = 'None'`);
     lines.push(`print("${pfx_i}" + str(${i}))`);
     lines.push(`print("${pfx_p}" + str(__pass_${i}).lower())`);
-    lines.push(`print("${pfx_a}" + str(__out_${i}))`);
+    lines.push(`print("${pfx_a}" + str(__display_${i}))`);
     lines.push(`print("${pfx_e}" + str(__exp_${i}))`);
     lines.push('');
   });
@@ -308,14 +375,30 @@ function buildJavaScriptHarness(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): string {
+  const linesOfCode = code.split('\n');
+  const hasFuncOrClass = linesOfCode.some(l => 
+    /^\s*(?:function\s+\w+|class\s+\w+|(?:const|let|var)\s+\w+\s*=\s*(?:function|\([^)]*\)\s*=>))/.test(l.replace(/\/\/.*$/, ''))
+  );
+
+  let cleanedCode = code;
   let targetFuncName = 'solve';
-  const m = code.match(/function\s+(\w+)\s*\(/) || code.match(/(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>)/);
-  if (m && m[1] !== '__normalize') {
-    targetFuncName = m[1];
+
+  // If user wrote top-level code (without function or class), auto-wrap into function solve(...)
+  if (!hasFuncOrClass) {
+    const firstEx = examples[0];
+    const firstPairs = firstEx ? parseInputPairs(firstEx.input) : [];
+    const paramNames = firstPairs.length > 0 ? firstPairs.map(p => p.name).join(', ') : '...args';
+    cleanedCode = `function solve(${paramNames}) {\n${code}\n}`;
+    targetFuncName = 'solve';
+  } else {
+    const m = code.match(/function\s+(\w+)\s*\(/) || code.match(/(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>)/);
+    if (m && m[1] !== '__normalize') {
+      targetFuncName = m[1];
+    }
   }
 
   const lines: string[] = [
-    code,
+    cleanedCode,
     '',
     'let __solve_harness = () => null;',
     'try {',
@@ -355,12 +438,17 @@ function buildJavaScriptHarness(
     '  return lst;',
     '}',
     '',
-    '// ── LeetCode-style Test Runner (auto-generated) ─────────────────',
+    '// ── Dual-Evaluation Test Runner (auto-generated) ─────────────────',
     'function __normalize(v) {',
+    '  if (v === null || v === undefined) return "none";',
     '  if (v instanceof ListNode) v = __linkedListToList(v);',
-    '  const s = (typeof v === "object" ? JSON.stringify(v) : String(v)).replace(/\\s/g,"");',
-    '  try { return JSON.stringify(JSON.parse(s), null, 0); }',
-    '  catch { return s.toLowerCase(); }',
+    '  let s = (typeof v === "object" ? JSON.stringify(v) : String(v)).trim();',
+    '  if ((s.startsWith(\'"\') && s.endsWith(\'"\') && s.length >= 2) || (s.startsWith("\'") && s.endsWith("\'") && s.length >= 2)) {',
+    '    s = s.slice(1, -1).trim();',
+    '  }',
+    '  const compact = s.replace(/\\s+/g, "");',
+    '  try { return JSON.stringify(JSON.parse(compact), null, 0).toLowerCase(); }',
+    '  catch { return compact.toLowerCase(); }',
     '}',
     '',
   ];
@@ -385,15 +473,41 @@ function buildJavaScriptHarness(
     });
 
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
-    lines.push(`let __out_${i} = solve(${params});`);
+    lines.push(`const __origLog_${i} = console.log;`);
+    lines.push(`const __captured_${i} = [];`);
+    lines.push(`console.log = (...args) => {`);
+    lines.push(`  __captured_${i}.push(args.map(a => typeof a === "object" ? JSON.stringify(a) : String(a)).join(" "));`);
+    lines.push(`};`);
+    lines.push(`let __out_${i} = undefined;`);
+    lines.push(`let __err_${i} = null;`);
+    lines.push(`try {`);
+    lines.push(`  __out_${i} = solve(${params});`);
+    lines.push(`} catch (e) {`);
+    lines.push(`  __err_${i} = String(e?.message || e);`);
+    lines.push(`} finally {`);
+    lines.push(`  console.log = __origLog_${i};`);
+    lines.push(`}`);
+    lines.push(`const __printed_${i} = __captured_${i}.join("\\n").trim();`);
     lines.push(`if (__out_${i} instanceof ListNode) { __out_${i} = __linkedListToList(__out_${i}); }`);
-    lines.push(`const __exp_${i} = ${toJSValue(ex.output)};`);
-    lines.push(`const __outStr_${i} = typeof __out_${i} === "object" ? JSON.stringify(__out_${i}) : String(__out_${i});`);
+    lines.push(`const __exp_${i} = ${toJSValue(cleanExpectedOutput(ex.output))};`);
+    lines.push(`const __outStr_${i} = __out_${i} !== undefined ? (typeof __out_${i} === "object" ? JSON.stringify(__out_${i}) : String(__out_${i})) : null;`);
     lines.push(`const __expStr_${i} = typeof __exp_${i} === "object" ? JSON.stringify(__exp_${i}) : String(__exp_${i});`);
-    lines.push(`const __pass_${i} = __normalize(__outStr_${i}) === __normalize(__expStr_${i});`);
+    lines.push(`const __pass_ret_${i} = __outStr_${i} !== null && __normalize(__outStr_${i}) === __normalize(__expStr_${i});`);
+    lines.push(`const __pass_print_${i} = Boolean(__printed_${i}) && __normalize(__printed_${i}) === __normalize(__expStr_${i});`);
+    lines.push(`const __pass_${i} = __pass_ret_${i} || __pass_print_${i};`);
+    lines.push(`let __display_${i} = 'None';`);
+    lines.push(`if (__pass_print_${i} && !__pass_ret_${i}) {`);
+    lines.push(`  __display_${i} = __printed_${i};`);
+    lines.push(`} else if (__outStr_${i} !== null) {`);
+    lines.push(`  __display_${i} = __outStr_${i};`);
+    lines.push(`} else if (__printed_${i}) {`);
+    lines.push(`  __display_${i} = __printed_${i};`);
+    lines.push(`} else if (__err_${i}) {`);
+    lines.push(`  __display_${i} = 'Runtime Error: ' + __err_${i};`);
+    lines.push(`}`);
     lines.push(`console.log("${pfx_i}" + ${i});`);
     lines.push(`console.log("${pfx_p}" + __pass_${i});`);
-    lines.push(`console.log("${pfx_a}" + __outStr_${i});`);
+    lines.push(`console.log("${pfx_a}" + __display_${i});`);
     lines.push(`console.log("${pfx_e}" + __expStr_${i});`);
     lines.push('');
   });
@@ -409,14 +523,17 @@ function buildCppHarness(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): string {
+  // If user defined main(), rename it to __user_main so there's no duplicate main() conflict
+  let modifiedCode = code.replace(/\bint\s+main\s*\(/g, 'int __user_main(').replace(/\bvoid\s+main\s*\(/g, 'void __user_main(');
+
   let targetFuncName = 'solve';
-  const mFunc = code.match(/([\w<>,\s*]+?)\s+(\w+)\s*\(/);
-  if (mFunc && mFunc[2] !== 'main' && mFunc[2] !== 'solve' && mFunc[2] !== '__normalize' && mFunc[2] !== '__list_to_linked_list' && mFunc[2] !== '__linked_list_to_list') {
+  const mFunc = modifiedCode.match(/([\w<>,\s*]+?)\s+(\w+)\s*\(/);
+  if (mFunc && mFunc[2] !== '__user_main' && mFunc[2] !== 'main' && mFunc[2] !== 'solve' && mFunc[2] !== '__normalize' && mFunc[2] !== '__list_to_linked_list' && mFunc[2] !== '__linked_list_to_list') {
     targetFuncName = mFunc[2];
   }
 
   let returnType = 'int';
-  if (mFunc) {
+  if (mFunc && mFunc[2] !== '__user_main') {
     returnType = mFunc[1].trim().replace(/\s+/g, ' ');
   }
 
@@ -429,10 +546,14 @@ function buildCppHarness(
       return `${cppType} ${p.name}`;
     }).join(', ');
     const paramNames = pairs.map(p => p.name).join(', ');
-    wrapper = `\n${returnType} solve(${paramDefs}) {\n    return ${targetFuncName}(${paramNames});\n}\n`;
+    if (returnType === 'void') {
+      wrapper = `\nvoid solve(${paramDefs}) {\n    ${targetFuncName}(${paramNames});\n}\n`;
+    } else {
+      wrapper = `\n${returnType} solve(${paramDefs}) {\n    return ${targetFuncName}(${paramNames});\n}\n`;
+    }
   }
 
-  const strippedCode = code
+  const strippedCode = modifiedCode
     .replace(/#include\s*<[^>]+>/g, '')
     .replace(/using\s+namespace\s+std\s*;/g, '')
     .trim();
@@ -443,6 +564,7 @@ function buildCppHarness(
     '#include <string>',
     '#include <algorithm>',
     '#include <cctype>',
+    '#include <sstream>',
     'using namespace std;',
     '',
     'struct ListNode {',
@@ -482,10 +604,16 @@ function buildCppHarness(
   ].join('\n');
 
   const helpers = [
-    '// ── LeetCode-style Test Runner (auto-generated) ─────────────────',
+    '// ── Dual-Evaluation Test Runner (auto-generated) ─────────────────',
     'string __normalize(const string& s) {',
     '  string r;',
-    '  for (char c : s) if (c != \' \') r += (char)tolower(c);',
+    '  string trimmed = s;',
+    '  while (!trimmed.empty() && isspace((unsigned char)trimmed.front())) trimmed.erase(trimmed.begin());',
+    '  while (!trimmed.empty() && isspace((unsigned char)trimmed.back())) trimmed.pop_back();',
+    '  if (trimmed.size() >= 2 && ((trimmed.front() == \'"\' && trimmed.back() == \'"\') || (trimmed.front() == \'\\\'\' && trimmed.back() == \'\\\'\'))) {',
+    '    trimmed = trimmed.substr(1, trimmed.size() - 2);',
+    '  }',
+    '  for (char c : trimmed) if (!isspace((unsigned char)c)) r += (char)tolower((unsigned char)c);',
     '  return r;',
     '}',
     '',
@@ -511,16 +639,33 @@ function buildCppHarness(
     });
 
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
-    mainLines.push(`  auto __out_${i} = solve(${params});`);
 
-    cppSerializerLines(returnType, i).forEach(l => mainLines.push('  ' + l));
+    mainLines.push(`  stringstream __ss_${i};`);
+    mainLines.push(`  streambuf* __old_cout_${i} = cout.rdbuf(__ss_${i}.rdbuf());`);
 
-    const expEsc = ex.output.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    if (returnType === 'void') {
+      mainLines.push(`  solve(${params});`);
+      mainLines.push(`  cout.rdbuf(__old_cout_${i});`);
+      mainLines.push(`  string __printed_${i} = __ss_${i}.str();`);
+      mainLines.push(`  string __actual_${i} = __printed_${i};`);
+    } else {
+      mainLines.push(`  auto __out_${i} = solve(${params});`);
+      mainLines.push(`  cout.rdbuf(__old_cout_${i});`);
+      mainLines.push(`  string __printed_${i} = __ss_${i}.str();`);
+      cppSerializerLines(returnType, i).forEach(l => mainLines.push('  ' + l));
+    }
+
+    const expCleaned = cleanExpectedOutput(ex.output);
+    const expEsc = expCleaned.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     mainLines.push(`  string __exp_${i} = "${expEsc}";`);
-    mainLines.push(`  bool __pass_${i} = __normalize(__actual_${i}) == __normalize(__exp_${i});`);
+    mainLines.push(`  bool __pass_ret_${i} = __normalize(__actual_${i}) == __normalize(__exp_${i});`);
+    mainLines.push(`  bool __pass_print_${i} = !__printed_${i}.empty() && (__normalize(__printed_${i}) == __normalize(__exp_${i}));`);
+    mainLines.push(`  bool __pass_${i} = __pass_ret_${i} || __pass_print_${i};`);
+    mainLines.push(`  string __display_${i} = (__pass_print_${i} && !__pass_ret_${i}) ? __printed_${i} : (__actual_${i}.empty() ? __printed_${i} : __actual_${i});`);
+    mainLines.push(`  if (__display_${i}.empty()) __display_${i} = "None";`);
     mainLines.push(`  cout << "${pfx_i}" << ${i} << "\\n";`);
     mainLines.push(`  cout << "${pfx_p}" << (__pass_${i} ? "true" : "false") << "\\n";`);
-    mainLines.push(`  cout << "${pfx_a}" << __actual_${i} << "\\n";`);
+    mainLines.push(`  cout << "${pfx_a}" << __display_${i} << "\\n";`);
     mainLines.push(`  cout << "${pfx_e}" << __exp_${i} << "\\n";`);
     mainLines.push('');
   });
@@ -539,8 +684,17 @@ function buildJavaHarness(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): string {
+  let cleanedCode = code;
+  if (!code.includes('class Solution')) {
+    if (code.includes('public class Main') || code.includes('class Main')) {
+      cleanedCode = code.replace(/\b(?:public\s+)?class\s+Main\b/, 'class Solution');
+    } else {
+      cleanedCode = `class Solution {\n${code}\n}`;
+    }
+  }
+
   let targetFuncName = 'solve';
-  const mFunc = code.match(/public\s+([\w\x5B\x5D]+)\s+(\w+)\s*\(/);
+  const mFunc = cleanedCode.match(/public\s+([\w\x5B\x5D]+)\s+(\w+)\s*\(/);
   if (mFunc && mFunc[2] !== 'main') {
     targetFuncName = mFunc[2];
   }
@@ -559,14 +713,18 @@ function buildJavaHarness(
       return `${javaType} ${p.name}`;
     }).join(', ');
     const paramNames = pairs.map(p => p.name).join(', ');
-    wrapper = `\n    public ${returnType} solve(${paramDefs}) {\n        return ${targetFuncName}(${paramNames});\n    }\n`;
+    if (returnType === 'void') {
+      wrapper = `\n    public void solve(${paramDefs}) {\n        ${targetFuncName}(${paramNames});\n    }\n`;
+    } else {
+      wrapper = `\n    public ${returnType} solve(${paramDefs}) {\n        return ${targetFuncName}(${paramNames});\n    }\n`;
+    }
   }
 
-  const lastBrace = code.lastIndexOf('}');
-  const classBody = code.substring(0, lastBrace) + wrapper;
+  const lastBrace = cleanedCode.lastIndexOf('}');
+  const classBody = cleanedCode.substring(0, lastBrace) + wrapper;
 
   const mainLines: string[] = [
-    '  // ── LeetCode-style Test Runner (auto-generated) ─────────────────',
+    '  // ── Dual-Evaluation Test Runner (auto-generated) ─────────────────',
     '  static class ListNode {',
     '      int val;',
     '      ListNode next;',
@@ -603,9 +761,15 @@ function buildJavaHarness(
     '      return arr;',
     '  }',
     '  static String __normalize(String s) {',
-    '    return s.replace(" ", "").toLowerCase();',
+    '    if (s == null) return "none";',
+    '    String trimmed = s.trim();',
+    '    if ((trimmed.startsWith("\\\"") && trimmed.endsWith("\\\"") && trimmed.length() >= 2) || (trimmed.startsWith("\'") && trimmed.endsWith("\'") && trimmed.length() >= 2)) {',
+    '      trimmed = trimmed.substring(1, trimmed.length() - 1).trim();',
+    '    }',
+    '    return trimmed.replace(" ", "").toLowerCase();',
     '  }',
     '  static String __serialize(Object v) {',
+    '    if (v == null) return "None";',
     '    if (v instanceof int[])     return java.util.Arrays.toString((int[])v).replace(", ",",");',
     '    if (v instanceof boolean[]) return java.util.Arrays.toString((boolean[])v).replace(", ",",");',
     '    if (v instanceof String[])  return java.util.Arrays.toString((String[])v).replace(", ",",");',
@@ -634,14 +798,33 @@ function buildJavaHarness(
       }
     });
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
-    mainLines.push(`    Object __out_${i} = sol.solve(${params});`);
-    mainLines.push(`    String __actual_${i} = __serialize(__out_${i});`);
-    const expEsc = ex.output.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+    mainLines.push(`    java.io.ByteArrayOutputStream __baos_${i} = new java.io.ByteArrayOutputStream();`);
+    mainLines.push(`    java.io.PrintStream __oldOut_${i} = System.out;`);
+    mainLines.push(`    System.setOut(new java.io.PrintStream(__baos_${i}));`);
+
+    if (returnType === 'void') {
+      mainLines.push(`    sol.solve(${params});`);
+      mainLines.push(`    System.setOut(__oldOut_${i});`);
+      mainLines.push(`    String __printed_${i} = __baos_${i}.toString().trim();`);
+      mainLines.push(`    String __actual_${i} = __printed_${i};`);
+    } else {
+      mainLines.push(`    Object __out_${i} = sol.solve(${params});`);
+      mainLines.push(`    System.setOut(__oldOut_${i});`);
+      mainLines.push(`    String __printed_${i} = __baos_${i}.toString().trim();`);
+      mainLines.push(`    String __actual_${i} = __serialize(__out_${i});`);
+    }
+
+    const expCleaned = cleanExpectedOutput(ex.output);
+    const expEsc = expCleaned.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     mainLines.push(`    String __exp_${i} = "${expEsc}";`);
-    mainLines.push(`    boolean __pass_${i} = __normalize(__actual_${i}).equals(__normalize(__exp_${i}));`);
+    mainLines.push(`    boolean __pass_ret_${i} = !__actual_${i}.equals("None") && __normalize(__actual_${i}).equals(__normalize(__exp_${i}));`);
+    mainLines.push(`    boolean __pass_print_${i} = !__printed_${i}.isEmpty() && __normalize(__printed_${i}).equals(__normalize(__exp_${i}));`);
+    mainLines.push(`    boolean __pass_${i} = __pass_ret_${i} || __pass_print_${i};`);
+    mainLines.push(`    String __display_${i} = (__pass_print_${i} && !__pass_ret_${i}) ? __printed_${i} : (!__actual_${i}.equals("None") ? __actual_${i} : (!__printed_${i}.isEmpty() ? __printed_${i} : "None"));`);
     mainLines.push(`    System.out.println("${pfx_i}" + ${i});`);
     mainLines.push(`    System.out.println("${pfx_p}" + __pass_${i});`);
-    mainLines.push(`    System.out.println("${pfx_a}" + __actual_${i});`);
+    mainLines.push(`    System.out.println("${pfx_a}" + __display_${i});`);
     mainLines.push(`    System.out.println("${pfx_e}" + __exp_${i});`);
   });
 

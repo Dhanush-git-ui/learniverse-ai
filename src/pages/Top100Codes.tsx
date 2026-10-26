@@ -1060,7 +1060,7 @@ export default function Top100Codes() {
                                 </div>
                                 <div>
                                   <h4 className="font-bold text-xs text-emerald-800 uppercase tracking-wider">Perfect Evaluation!</h4>
-                                  <p className="text-[11px] text-slate-600 mt-0.5">All examples match the optimal return solution format successfully.</p>
+                                  <p className="text-[11px] text-slate-600 mt-0.5">All test cases passed successfully!</p>
                                 </div>
                               </div>
                             )}
@@ -1089,7 +1089,7 @@ export default function Top100Codes() {
                               <div className="space-y-3">
                                 <div className="text-slate-400 text-xs uppercase font-bold tracking-wider">Individual Case Evaluation:</div>
                                 {compilationResult.results.map((c: any, idx: number) => (
-                                  <div key={idx} className={`p-4 rounded-xl border transition-all ${c.passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} space-y-2`}>
+                                  <div key={idx} className={`p-4 rounded-xl border transition-all ${c.passed ? 'bg-emerald-50/70 border-emerald-200' : 'bg-red-50/70 border-red-200'} space-y-2`}>
                                     <div className="flex items-center justify-between">
                                       <span className="font-bold text-xs text-slate-800">Case {idx + 1}</span>
                                       {c.passed ? (
@@ -1098,16 +1098,16 @@ export default function Top100Codes() {
                                           <span>PASSED</span>
                                         </span>
                                       ) : (
-                                        <span className="flex items-center space-x-1.5 text-red-400 text-[10px] font-bold bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
+                                        <span className="flex items-center space-x-1.5 text-red-600 text-[10px] font-bold bg-red-100 px-2.5 py-0.5 rounded-full border border-red-200">
                                           <XCircle className="w-3.5 h-3.5" />
                                           <span>FAILED</span>
                                         </span>
                                       )}
                                     </div>
-                                    <div className="text-[11px] text-slate-300 space-y-1">
-                                      <div>Input: <code className="text-amber-400 bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800">{c.input}</code></div>
-                                      <div>Expected: <code className="text-emerald-400 bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800">{c.expected}</code></div>
-                                      <div>Returned: <code className={`${c.passed ? 'text-green-400' : 'text-red-400'} bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800`}>{c.actual || 'None'}</code></div>
+                                    <div className="text-[11px] text-slate-600 space-y-1.5">
+                                      <div>Input: <code className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">{c.input}</code></div>
+                                      <div>Expected: <code className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">{c.expected}</code></div>
+                                      <div>Output: <code className={`${c.passed ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200'} px-1.5 py-0.5 rounded border font-semibold`}>{c.actual !== undefined && c.actual !== '' ? String(c.actual) : 'None'}</code></div>
                                     </div>
                                   </div>
                                 ))}

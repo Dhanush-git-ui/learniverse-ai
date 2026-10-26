@@ -146,7 +146,7 @@ export default function OutputConsolePanel({ result, activeTab, setActiveTab, ch
                           <p><span className="text-slate-400">Input:    </span><span className="text-slate-200">{r.input || r.stdin || '(none)'}</span></p>
                           <p><span className="text-slate-400">Expected: </span><span className="text-emerald-400">{r.expected || '(none)'}</span></p>
                           {!isErr && (
-                            <p><span className="text-slate-400">Returned: </span><span className={isPass ? 'text-emerald-400' : 'text-rose-400'}>{r.actual || '(no output)'}</span></p>
+                            <p><span className="text-slate-400">Output:   </span><span className={isPass ? 'text-emerald-400' : 'text-rose-400'}>{r.actual || '(no output)'}</span></p>
                           )}
                           {isErr && (
                             <div className="mt-1 p-2 bg-rose-950/40 border border-rose-800/50 rounded text-rose-300 whitespace-pre-wrap text-[10px]">
