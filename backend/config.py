@@ -15,7 +15,7 @@ class Settings:
         
         # Security: Enforce API_SECRET_KEY in production, generate temp key for local dev
         api_key = os.environ.get("API_SECRET_KEY")
-        if not api_key or api_key == "devsecretkey":
+        if not api_key:
             if not self.IS_DEV:
                 raise RuntimeError("FATAL: API_SECRET_KEY must be set to a secure value in production.")
             api_key = secrets.token_urlsafe(32)
@@ -35,10 +35,10 @@ class Settings:
         self.SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))
         self.RAG_NUM_RESULTS = 4
         
-        # Compiler: Strictly disable local execution in production
+    # Compiler: Strictly disable local execution in production
         allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
-        self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip() or "https://judge0-ce.p.rapidapi.com"
-        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip() or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
+        self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip()
+        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip()
         self.CODE_EXECUTION_SEMAPHORE_LIMIT = int(os.environ.get("CODE_EXECUTION_SEMAPHORE_LIMIT", "150"))
 
         # Assessment settings

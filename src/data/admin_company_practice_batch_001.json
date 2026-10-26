@@ -1,0 +1,970 @@
+{
+  "metadata": {
+    "batch_id": "company-practice-001",
+    "accepted_count": 20,
+    "review_status": "Pending Review",
+    "historical_questions": 0
+  },
+  "questions": [
+    {
+      "id": "company-practice-001",
+      "prompt": "A placement portal receives the same payment callback twice after a timeout. Which API design prevents duplicate charges?",
+      "options": [
+        "Make the callback idempotent with a stable transaction key",
+        "Retry every callback without storing its ID",
+        "Use GET for all payment changes",
+        "Disable server-side transaction checks"
+      ],
+      "correctAnswer": "A",
+      "answer": "Make the callback idempotent with a stable transaction key",
+      "explanation": "An idempotency key lets the server recognize retries and return the original result without applying the payment twice.",
+      "optionExplanations": [
+        "Correct: a stable idempotency key makes retries safe.",
+        "Incorrect: blind retries can apply the payment twice.",
+        "Incorrect: GET should be safe and must not perform payment mutations.",
+        "Incorrect: server-side transaction checks are required to prevent duplicate effects."
+      ],
+      "category": "Computer Networks",
+      "topic": "HTTP APIs",
+      "subTopic": "HTTP APIs",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "tcs"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "TCS",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Screening",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-002",
+      "prompt": "A report repeatedly filters a large Orders table by customer_id and sorts by created_at. Which change is the most targeted first step?",
+      "options": [
+        "Add a composite index beginning with customer_id and including created_at",
+        "Add an index to an unrelated display-name column",
+        "Remove the primary key",
+        "Convert the table to an unordered text file"
+      ],
+      "correctAnswer": "A",
+      "answer": "Add a composite index beginning with customer_id and including created_at",
+      "explanation": "A composite index that matches the equality filter followed by the sort can reduce scanned and sorted rows; confirm it with the query plan.",
+      "optionExplanations": [
+        "Correct: the index aligns with the filter and ordering columns.",
+        "Incorrect: an unrelated index does not support this predicate or sort.",
+        "Incorrect: removing the primary key weakens integrity and does not optimize this query.",
+        "Incorrect: an unordered text file removes database indexing and query capabilities."
+      ],
+      "category": "DBMS and SQL",
+      "topic": "Indexing",
+      "subTopic": "Indexing",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "infosys"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Infosys",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-003",
+      "prompt": "A long-running service's resident memory rises after each request, while request objects should become unreachable. Which investigation best tests for a memory leak?",
+      "options": [
+        "Capture heap snapshots over time and compare retained object paths",
+        "Increase the log level and assume the leak is fixed",
+        "Restart after every request",
+        "Disable garbage collection permanently"
+      ],
+      "correctAnswer": "A",
+      "answer": "Capture heap snapshots over time and compare retained object paths",
+      "explanation": "Heap snapshots reveal objects retained across request cycles and the references preventing their collection.",
+      "optionExplanations": [
+        "Correct: retained-object comparisons can expose leaked references.",
+        "Incorrect: logging level alone does not identify object retention.",
+        "Incorrect: restarting masks symptoms and destroys evidence rather than locating the leak.",
+        "Incorrect: disabling garbage collection generally increases memory pressure."
+      ],
+      "category": "Operating Systems",
+      "topic": "Memory Management",
+      "subTopic": "Memory Management",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "wipro"
+      ],
+      "role": "Software Engineer",
+      "associations": [
+        {
+          "company": "Wipro",
+          "role": "Software Engineer",
+          "recruitmentStage": "Technical Screening",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-004",
+      "prompt": "A mobile app calls a backend that must authorize access to a user's records. Where should the authorization decision be enforced?",
+      "options": [
+        "On the backend for each protected operation",
+        "Only in the mobile app's hidden button state",
+        "Only in a client-side URL parameter",
+        "Only in a database name chosen by the user"
+      ],
+      "correctAnswer": "A",
+      "answer": "On the backend for each protected operation",
+      "explanation": "The backend is trusted to authenticate the request and authorize each protected resource operation; client UI checks are not security controls.",
+      "optionExplanations": [
+        "Correct: enforce access at the trusted server boundary for every operation.",
+        "Incorrect: users can alter client code and invoke endpoints directly.",
+        "Incorrect: URL parameters are user-controlled and cannot establish permission.",
+        "Incorrect: a user-selected database name does not prove identity or access rights."
+      ],
+      "category": "Cybersecurity",
+      "topic": "OAuth and API Security",
+      "subTopic": "OAuth and API Security",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "accenture"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Accenture",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-005",
+      "prompt": "An order update must decrement inventory and create an order row together. What property is needed if either write fails?",
+      "options": [
+        "Atomicity",
+        "Denormalization",
+        "Sharding",
+        "Eventual consistency only"
+      ],
+      "correctAnswer": "A",
+      "answer": "Atomicity",
+      "explanation": "Atomicity makes the grouped writes commit together or roll back together, preventing a partially applied order.",
+      "optionExplanations": [
+        "Correct: atomicity provides all-or-nothing transaction behavior.",
+        "Incorrect: denormalization changes data layout, not transaction completeness.",
+        "Incorrect: sharding distributes data and does not make these writes atomic.",
+        "Incorrect: eventual consistency alone does not guarantee all-or-nothing updates."
+      ],
+      "category": "DBMS and SQL",
+      "topic": "Transactions",
+      "subTopic": "Transactions",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "cognizant"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Cognizant",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-006",
+      "prompt": "A deployment pipeline should stop before production when a critical test fails. Which pipeline behavior implements this safely?",
+      "options": [
+        "Fail the pipeline stage and block promotion of that build",
+        "Ignore the test result and deploy anyway",
+        "Delete the test report after deployment",
+        "Run tests only after all users receive the build"
+      ],
+      "correctAnswer": "A",
+      "answer": "Fail the pipeline stage and block promotion of that build",
+      "explanation": "A failing quality gate should prevent the artifact from being promoted to production.",
+      "optionExplanations": [
+        "Correct: blocking promotion prevents known failing builds from reaching production.",
+        "Incorrect: ignoring a critical failure defeats the quality gate.",
+        "Incorrect: deleting a report hides evidence but does not fix the defect.",
+        "Incorrect: post-deployment testing exposes users before detecting the failure."
+      ],
+      "category": "Software Engineering",
+      "topic": "CI/CD",
+      "subTopic": "CI/CD",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "capgemini"
+      ],
+      "role": "Full-Stack Developer",
+      "associations": [
+        {
+          "company": "Capgemini",
+          "role": "Full-Stack Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-007",
+      "prompt": "A Kubernetes container starts quickly, but its application needs 40 seconds to load a model before serving requests. Which probe avoids premature restarts during startup?",
+      "options": [
+        "Configure a startup probe with a suitable failure window",
+        "Set liveness to fail immediately during model loading",
+        "Use readiness as a command to restart the process",
+        "Remove all probes and assume every start succeeds"
+      ],
+      "correctAnswer": "A",
+      "answer": "Configure a startup probe with a suitable failure window",
+      "explanation": "A startup probe grants initialization time before liveness checks begin; readiness can then control when traffic is sent.",
+      "optionExplanations": [
+        "Correct: startup probes protect slow initialization from premature liveness failures.",
+        "Incorrect: an immediate liveness failure can restart the app while it is healthy but initializing.",
+        "Incorrect: readiness controls traffic eligibility; it is not a restart command.",
+        "Incorrect: removing health checks can route traffic to an unready container."
+      ],
+      "category": "Cloud Computing and DevOps",
+      "topic": "Kubernetes Probes",
+      "subTopic": "Kubernetes Probes",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "hcltech"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "HCLTech",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-008",
+      "prompt": "A team needs 50 usable IPv4 host addresses in one subnet. Which smallest conventional subnet size provides enough usable hosts?",
+      "options": [
+        "/26",
+        "/27",
+        "/28",
+        "/29"
+      ],
+      "correctAnswer": "A",
+      "answer": "/26",
+      "explanation": "A /26 has 64 addresses and normally 62 usable host addresses, which covers 50; /27 has only 30 usable.",
+      "optionExplanations": [
+        "Correct: /26 supplies 62 usable addresses under conventional network/broadcast rules.",
+        "Incorrect: /27 supplies only 30 usable addresses.",
+        "Incorrect: /28 supplies only 14 usable addresses.",
+        "Incorrect: /29 supplies only 6 usable addresses."
+      ],
+      "category": "Computer Networks",
+      "topic": "Subnetting",
+      "subTopic": "Subnetting",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "tech mahindra"
+      ],
+      "role": "Software Engineer",
+      "associations": [
+        {
+          "company": "Tech Mahindra",
+          "role": "Software Engineer",
+          "recruitmentStage": "Technical Screening",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-009",
+      "prompt": "A SQL query should include records where a nullable score is either missing or below 50. Which predicate expresses that condition?",
+      "options": [
+        "score IS NULL OR score < 50",
+        "score = NULL OR score < 50",
+        "score <> NULL AND score < 50",
+        "score BETWEEN NULL AND 50"
+      ],
+      "correctAnswer": "A",
+      "answer": "score IS NULL OR score < 50",
+      "explanation": "SQL NULL is tested with IS NULL; ordinary equality comparisons with NULL evaluate to UNKNOWN.",
+      "optionExplanations": [
+        "Correct: IS NULL tests absence, and OR includes low non-null scores.",
+        "Incorrect: score = NULL does not test NULL in SQL's three-valued logic.",
+        "Incorrect: <> NULL is also UNKNOWN, and AND would exclude missing values.",
+        "Incorrect: BETWEEN with a NULL bound does not test for missing values."
+      ],
+      "category": "DBMS and SQL",
+      "topic": "NULL Semantics",
+      "subTopic": "NULL Semantics",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "deloitte"
+      ],
+      "role": "Data Analyst",
+      "associations": [
+        {
+          "company": "Deloitte",
+          "role": "Data Analyst",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-010",
+      "prompt": "A consumer may crash after processing a message but before acknowledging it. What should a robust consumer do when that message is delivered again?",
+      "options": [
+        "Make processing idempotent or deduplicate by message ID",
+        "Assume delivery is exactly once without checking the broker",
+        "Acknowledge before performing any work",
+        "Discard every redelivered message"
+      ],
+      "correctAnswer": "A",
+      "answer": "Make processing idempotent or deduplicate by message ID",
+      "explanation": "At-least-once delivery can repeat a message, so idempotent effects or deduplication prevent duplicate business actions.",
+      "optionExplanations": [
+        "Correct: idempotence or deduplication handles legitimate redelivery.",
+        "Incorrect: exactly-once behavior is not safe to assume across arbitrary side effects.",
+        "Incorrect: acknowledging first can lose work if the consumer crashes before processing.",
+        "Incorrect: redelivery may be the only copy that completes the work."
+      ],
+      "category": "Cloud Computing and DevOps",
+      "topic": "Message Queues",
+      "subTopic": "Message Queues",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "ibm"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "IBM",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-011",
+      "prompt": "A daily ETL job should process only records added or changed since its last successful run. Which approach is most appropriate?",
+      "options": [
+        "Persist a reliable watermark such as the last processed change timestamp",
+        "Reload an arbitrary random subset each day",
+        "Use the current wall-clock time without recording it",
+        "Skip all records with null values"
+      ],
+      "correctAnswer": "A",
+      "answer": "Persist a reliable watermark such as the last processed change timestamp",
+      "explanation": "A persisted watermark defines a reproducible incremental boundary; the job must handle late-arriving changes as part of its design.",
+      "optionExplanations": [
+        "Correct: a stored watermark supports repeatable incremental extraction.",
+        "Incorrect: random subsets can omit or repeat records unpredictably.",
+        "Incorrect: an unpersisted clock boundary can create gaps or duplicates after failure.",
+        "Incorrect: null field values are not a valid general criterion for change detection."
+      ],
+      "category": "Data Structures and Algorithms",
+      "topic": "Data Pipelines",
+      "subTopic": "Data Pipelines",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "ltimindtree"
+      ],
+      "role": "Data Analyst",
+      "associations": [
+        {
+          "company": "LTIMindtree",
+          "role": "Data Analyst",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-012",
+      "prompt": "A read-heavy product catalog experiences repeated identical lookups. Which design can reduce database load while keeping a bounded staleness window?",
+      "options": [
+        "Use a cache with a defined TTL and invalidation strategy",
+        "Send every read to a separate write transaction",
+        "Disable database indexes",
+        "Cache responses forever without invalidation"
+      ],
+      "correctAnswer": "A",
+      "answer": "Use a cache with a defined TTL and invalidation strategy",
+      "explanation": "A bounded TTL limits staleness, while invalidation handles known updates and reduces repeated reads.",
+      "optionExplanations": [
+        "Correct: TTL plus invalidation balances load reduction and freshness.",
+        "Incorrect: write transactions add overhead and do not reduce read load.",
+        "Incorrect: removing indexes usually makes database reads slower.",
+        "Incorrect: permanent caching can serve stale catalog data indefinitely."
+      ],
+      "category": "System Design",
+      "topic": "Scalability",
+      "subTopic": "Scalability",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "amazon"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Amazon",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-013",
+      "prompt": "A web form shows an error only by turning a field border red. What change most improves accessibility?",
+      "options": [
+        "Associate a textual error with the field and expose its invalid state",
+        "Change the border to a darker red only",
+        "Move the error text into an image with no alternative text",
+        "Remove the field label"
+      ],
+      "correctAnswer": "A",
+      "answer": "Associate a textual error with the field and expose its invalid state",
+      "explanation": "Text and programmatic relationships communicate the error to screen readers and users who cannot distinguish color alone.",
+      "optionExplanations": [
+        "Correct: text plus programmatic association communicates both meaning and affected field.",
+        "Incorrect: color-only feedback remains inaccessible to many users.",
+        "Incorrect: an image without alternative text hides the error from assistive technology.",
+        "Incorrect: removing the label makes the field harder to identify."
+      ],
+      "category": "Web Development",
+      "topic": "Accessibility",
+      "subTopic": "Accessibility",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "microsoft"
+      ],
+      "role": "Frontend Developer",
+      "associations": [
+        {
+          "company": "Microsoft",
+          "role": "Frontend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-014",
+      "prompt": "A stateless web service runs on several instances behind a load balancer. One instance fails health checks. What should the load balancer do?",
+      "options": [
+        "Stop routing new requests to the unhealthy instance",
+        "Continue sending requests evenly to all instances",
+        "Route only write requests to the failed instance",
+        "Disable health checks"
+      ],
+      "correctAnswer": "A",
+      "answer": "Stop routing new requests to the unhealthy instance",
+      "explanation": "Health-based routing removes an unhealthy target from service while healthy instances continue handling requests.",
+      "optionExplanations": [
+        "Correct: traffic should avoid an instance that fails health checks.",
+        "Incorrect: equal routing ignores the known failure and increases errors.",
+        "Incorrect: write requests are especially unsafe to send to an unhealthy target.",
+        "Incorrect: disabling checks removes the mechanism that detects the failure."
+      ],
+      "category": "System Design",
+      "topic": "Load Balancing",
+      "subTopic": "Load Balancing",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "google"
+      ],
+      "role": "Software Engineer",
+      "associations": [
+        {
+          "company": "Google",
+          "role": "Software Engineer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-015",
+      "prompt": "Two concurrent transactions read the same inventory row; one updates it while the other relies on its earlier value. Which protection most directly prevents a lost update?",
+      "options": [
+        "Use an appropriate locking or version-check strategy during the update",
+        "Read the row once and never validate the update",
+        "Disable transaction boundaries",
+        "Store the quantity only in a client-side cache"
+      ],
+      "correctAnswer": "A",
+      "answer": "Use an appropriate locking or version-check strategy during the update",
+      "explanation": "A lock or optimistic version check detects concurrent changes before committing a stale write.",
+      "optionExplanations": [
+        "Correct: locking or version checks prevent overwriting a concurrent update unnoticed.",
+        "Incorrect: a stale read followed by an unconditional write can cause the lost update.",
+        "Incorrect: removing transactions weakens coordination further.",
+        "Incorrect: client-side state cannot coordinate concurrent server-side writers."
+      ],
+      "category": "DBMS and SQL",
+      "topic": "Isolation Levels",
+      "subTopic": "Isolation Levels",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "oracle"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Oracle",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-016",
+      "prompt": "A SaaS endpoint serves data for many customer organizations. What is the safest way to scope a query?",
+      "options": [
+        "Derive the tenant from the authenticated identity and enforce it in the server-side query",
+        "Accept any tenant_id supplied by the browser without checking it",
+        "Filter tenants only in the UI after returning all rows",
+        "Use a hidden form field as authorization"
+      ],
+      "correctAnswer": "A",
+      "answer": "Derive the tenant from the authenticated identity and enforce it in the server-side query",
+      "explanation": "Tenant identity must be trusted and enforced on the server so one customer cannot read another customer's rows.",
+      "optionExplanations": [
+        "Correct: authenticated tenant context plus server-side filtering enforces isolation.",
+        "Incorrect: a client can tamper with the submitted tenant ID.",
+        "Incorrect: returning other tenants' rows already exposes the data.",
+        "Incorrect: hidden fields are still client-controlled and are not authorization."
+      ],
+      "category": "Web Development",
+      "topic": "Multi-Tenant SaaS",
+      "subTopic": "Multi-Tenant SaaS",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "salesforce"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Salesforce",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-017",
+      "prompt": "Two checkout requests compete for the last unit of an item. Which database operation prevents both from successfully reserving it?",
+      "options": [
+        "An atomic conditional decrement that succeeds only when stock is positive",
+        "Read stock in the client and decrement it later",
+        "Allow negative inventory and repair it nightly",
+        "Cache the stock value indefinitely"
+      ],
+      "correctAnswer": "A",
+      "answer": "An atomic conditional decrement that succeeds only when stock is positive",
+      "explanation": "A conditional atomic update serializes the stock check and decrement so only one reservation can consume the final unit.",
+      "optionExplanations": [
+        "Correct: the condition and decrement happen atomically in the database.",
+        "Incorrect: separate client reads race and can both observe the same unit.",
+        "Incorrect: accepting negative stock permits overselling before repair.",
+        "Incorrect: stale cache values cannot safely arbitrate concurrent reservations."
+      ],
+      "category": "System Design",
+      "topic": "Inventory Consistency",
+      "subTopic": "Inventory Consistency",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "walmart global tech"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Walmart Global Tech",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-018",
+      "prompt": "A shopping-cart page optimistically updates its quantity before the server responds. The server rejects the update. What should the UI do?",
+      "options": [
+        "Reconcile with the server response and restore or display the confirmed quantity",
+        "Keep the optimistic value permanently",
+        "Repeat the request without a limit",
+        "Delete the entire cart"
+      ],
+      "correctAnswer": "A",
+      "answer": "Reconcile with the server response and restore or display the confirmed quantity",
+      "explanation": "Optimistic UI must reconcile failed mutations with authoritative server state and clearly show the failure.",
+      "optionExplanations": [
+        "Correct: server-confirmed state should replace the failed optimistic change.",
+        "Incorrect: this leaves the UI inconsistent with persisted cart state.",
+        "Incorrect: unlimited retries can overload the service and repeat failed actions.",
+        "Incorrect: deleting unrelated cart items is not a valid recovery."
+      ],
+      "category": "Web Development",
+      "topic": "Client State",
+      "subTopic": "Client State",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "flipkart"
+      ],
+      "role": "Frontend Developer",
+      "associations": [
+        {
+          "company": "Flipkart",
+          "role": "Frontend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-019",
+      "prompt": "A CRM endpoint returns customer records in pages while new records may be inserted during browsing. Which pagination method is generally more stable for large changing datasets?",
+      "options": [
+        "Keyset pagination using a stable ordered key",
+        "Offset pagination with an ever-growing offset only",
+        "Return every record in one response",
+        "Sort by a non-unique random value"
+      ],
+      "correctAnswer": "A",
+      "answer": "Keyset pagination using a stable ordered key",
+      "explanation": "Keyset pagination continues from the last seen ordered key and is less sensitive to inserts before the current offset.",
+      "optionExplanations": [
+        "Correct: stable keyset cursors avoid many offset-shift problems.",
+        "Incorrect: inserts can shift offset pages and cause duplicates or skips.",
+        "Incorrect: unbounded responses increase latency and memory use.",
+        "Incorrect: a non-unique random order cannot provide stable continuation."
+      ],
+      "category": "Software Engineering",
+      "topic": "API Pagination",
+      "subTopic": "API Pagination",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "zoho"
+      ],
+      "role": "Full-Stack Developer",
+      "associations": [
+        {
+          "company": "Zoho",
+          "role": "Full-Stack Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    },
+    {
+      "id": "company-practice-020",
+      "prompt": "A public support API is being abused by one client. Which control limits request volume without blocking every other customer?",
+      "options": [
+        "Apply a per-client rate limit with a clear retry policy",
+        "Disable the entire API for all customers",
+        "Trust a client-supplied user name as the rate-limit identity",
+        "Increase the server timeout indefinitely"
+      ],
+      "correctAnswer": "A",
+      "answer": "Apply a per-client rate limit with a clear retry policy",
+      "explanation": "Per-client limits contain noisy consumers while a retry policy communicates when the client can try again.",
+      "optionExplanations": [
+        "Correct: scoped limits protect the service while preserving other customers' access.",
+        "Incorrect: global shutdown affects legitimate users too.",
+        "Incorrect: an untrusted client-supplied identity can be spoofed.",
+        "Incorrect: longer timeouts do not control request rate and can worsen resource exhaustion."
+      ],
+      "category": "Cybersecurity",
+      "topic": "Rate Limiting",
+      "subTopic": "Rate Limiting",
+      "difficulty": "Medium",
+      "questionType": "MCQ",
+      "tags": [
+        "company-style",
+        "practice",
+        "freshworks"
+      ],
+      "role": "Backend Developer",
+      "associations": [
+        {
+          "company": "Freshworks",
+          "role": "Backend Developer",
+          "recruitmentStage": "Technical Interview",
+          "provenance": "Company-Style Practice Question",
+          "source": "AI-authored preparation scenario; not a verified historical company question"
+        }
+      ],
+      "provenance": "Company-Style Practice Question",
+      "source": null,
+      "verificationStatus": "Answer and distractors require independent review; not a historical question",
+      "reviewStatus": "Pending Review",
+      "structuralStatus": "Structurally Validated",
+      "answerStatus": "Unverified",
+      "sourceStatus": "No External Source",
+      "expertReviewStatus": "Pending",
+      "verificationEvidence": "Four distinct options and one designated answer; technical correctness remains pending independent review."
+    }
+  ]
+}

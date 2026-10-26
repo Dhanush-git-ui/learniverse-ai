@@ -161,6 +161,9 @@ export default {
 				'bounce-light': 'bounce-light 2s infinite',
 				'pulse-light': 'pulse-light 2s infinite',
 				'float': 'float 3s ease-in-out infinite',
+			},
+			boxShadow: {
+				'2xs': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
 			}
 		}
 	},

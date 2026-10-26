@@ -20,9 +20,8 @@ import {
   EyeOff
 } from "lucide-react";
 
-const GOOGLE_CLIENT_ID = 
-  import.meta.env.VITE_GOOGLE_CLIENT_ID || 
-  "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID =
+  import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 interface HitamLoginModalProps {
   isOpen: boolean;

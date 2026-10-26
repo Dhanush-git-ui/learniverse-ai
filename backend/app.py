@@ -354,6 +354,9 @@ async def request_timing_middleware(request: Request, call_next):
 from placement_assessment_system.api import router as assessment_router
 app.include_router(assessment_router)
 
+from placement_assessment_system.question_bank_admin import router as admin_question_bank_router
+app.include_router(admin_question_bank_router)
+
 from cdc_integration import cdc_router
 app.include_router(cdc_router)
 
@@ -1609,8 +1612,8 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
 
     from config import settings
     lang = language.lower()
-    judge0_url = os.environ.get("JUDGE0_URL", "").strip() or getattr(settings, "JUDGE0_URL", "") or "https://judge0-ce.p.rapidapi.com"
-    judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip() or getattr(settings, "JUDGE0_API_KEY", "") or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
+    judge0_url = os.environ.get("JUDGE0_URL", "").strip() or getattr(settings, "JUDGE0_URL", "")
+    judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip() or getattr(settings, "JUDGE0_API_KEY", "")
     lang_map = {
         "cpp": 54,
         "c++": 54,
@@ -1785,15 +1788,17 @@ class RawExecuteRequest(BaseModel):
     stdin: str = ""
 
 @app.post("/api/code/execute-raw")
-@limiter.limit("20/minute")
-def execute_raw_code(request: Request, req: RawExecuteRequest, _=Depends(verify_api_key)):
+@limiter.limit("5/minute")
+async def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: str = Depends(verify_api_key)):
     # Basic payload protections: limit file content size to avoid memory abuse.
     code = ""
     if req.files:
         code = req.files[0].get("content", "")
         if code and len(code) > 20000:
+            logger.warning(f"Code execution payload too large: user={user_id}, code_len={len(code)}")
             raise HTTPException(status_code=413, detail="Payload too large")
 
+    logger.info(f"Code execution: user={user_id}, lang={req.language}, code_len={len(code)}")
     execution_result = execute_code_via_piston(req.language, code, req.stdin)
     if execution_result is None:
         # Execution service not available (Judge0 missing and local execution disabled)

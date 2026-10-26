@@ -4,19 +4,62 @@
  * and passes X-API-Key if explicitly configured (for dev/automation).
  */
 
+export function isTokenExpired(token: string | null): boolean {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (payload.exp && typeof payload.exp === 'number') {
+      return Date.now() >= payload.exp * 1000;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function getAuthToken(): string | null {
   try {
     const direct = localStorage.getItem('learniverse_token');
-    if (direct) return direct;
+    if (direct) {
+      if (isTokenExpired(direct)) {
+        localStorage.removeItem('learniverse_token');
+      } else {
+        return direct;
+      }
+    }
     const studentRaw = localStorage.getItem('learniverse_student');
     if (studentRaw) {
       const parsed = JSON.parse(studentRaw);
-      if (parsed?.token) return parsed.token;
+      if (parsed?.token) {
+        if (isTokenExpired(parsed.token)) {
+          delete parsed.token;
+          localStorage.setItem('learniverse_student', JSON.stringify(parsed));
+        } else {
+          return parsed.token;
+        }
+      }
     }
     const userRaw = localStorage.getItem('learniverse_user');
     if (userRaw) {
       const parsed = JSON.parse(userRaw);
-      if (parsed?.token) return parsed.token;
+      if (parsed?.token) {
+        if (isTokenExpired(parsed.token)) {
+          delete parsed.token;
+          localStorage.setItem('learniverse_user', JSON.stringify(parsed));
+        } else {
+          return parsed.token;
+        }
+      }
     }
   } catch {
     return null;

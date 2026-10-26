@@ -167,8 +167,8 @@ export const MyAssessmentsDashboard: React.FC<MyAssessmentsDashboardProps> = ({
             </div>
 
             {isFilterDropdownOpen && (
-              <div 
-                className="absolute right-0 top-8 w-44 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
+              <div
+                className="absolute right-0 top-8 w-44 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-30 text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setIsFilterDropdownOpen(false)}
               >
                 {['Created by me', 'Created by others', 'All Assessments'].map((opt) => (
@@ -276,8 +276,8 @@ export const MyAssessmentsDashboard: React.FC<MyAssessmentsDashboardProps> = ({
 
                     {/* Dropdown Menu */}
                     {openMenuId === asmt.id && (
-                      <div 
-                        className="absolute right-6 top-10 w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1.5 z-30 text-left text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
+                      <div
+                        className="absolute right-6 top-10 w-48 bg-white border border-slate-200 rounded-lg shadow-2xs py-1.5 z-30 text-left text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
                         onMouseLeave={() => setOpenMenuId(null)}
                       >
                         <button

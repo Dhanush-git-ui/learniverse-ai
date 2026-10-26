@@ -1,0 +1,373 @@
+{
+  "persisted_question_count": 2058,
+  "unique_id_count": 2058,
+  "exact_duplicate_groups": [],
+  "near_duplicate_candidates_threshold_0_80": [
+    {
+      "question_ids": [
+        "computer-fundamentals-basic-algorithms-0050",
+        "computer-fundamentals-intermediate-programming-fundamentals-0011"
+      ],
+      "three_word_shingle_jaccard": 0.923,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "computer-fundamentals-basic-programming-fundamentals-0015",
+        "computer-fundamentals-intermediate-programming-fundamentals-0015"
+      ],
+      "three_word_shingle_jaccard": 0.917,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "data-interpretation-basic-pie-chart-based-questions-0041",
+        "data-interpretation-basic-pie-chart-based-questions-0048"
+      ],
+      "three_word_shingle_jaccard": 0.917,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "abstract-reasoning-basic-number-sequence-questions-0002",
+        "logical-reasoning-basic-series-0002"
+      ],
+      "three_word_shingle_jaccard": 0.857,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "abstract-reasoning-basic-number-sequence-questions-0005",
+        "logical-reasoning-basic-series-0006"
+      ],
+      "three_word_shingle_jaccard": 0.857,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "data-interpretation-basic-pie-chart-based-questions-0051",
+        "data-interpretation-basic-pie-chart-based-questions-0052"
+      ],
+      "three_word_shingle_jaccard": 0.852,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "data-interpretation-basic-pie-chart-based-questions-0051",
+        "data-interpretation-basic-pie-chart-based-questions-0058"
+      ],
+      "three_word_shingle_jaccard": 0.852,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "data-interpretation-basic-pie-chart-based-questions-0052",
+        "data-interpretation-basic-pie-chart-based-questions-0058"
+      ],
+      "three_word_shingle_jaccard": 0.852,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "data-interpretation-basic-line-graph-based-questions-0066",
+        "data-interpretation-basic-line-graph-based-questions-0076"
+      ],
+      "three_word_shingle_jaccard": 0.818,
+      "review_status": "Pending Review"
+    },
+    {
+      "question_ids": [
+        "abstract-reasoning-basic-odd-one-out-questions-0084",
+        "abstract-reasoning-intermediate-odd-one-out-questions-0088"
+      ],
+      "three_word_shingle_jaccard": 0.8,
+      "review_status": "Pending Review"
+    }
+  ],
+  "mcq_records_passing_structural_checks": 1943,
+  "coding_records_with_all_required_fields": 15,
+  "questions_by_category": {
+    "Artificial Intelligence and Machine Learning": 50,
+    "Cloud Computing and DevOps": 22,
+    "Computer Networks": 72,
+    "Cybersecurity": 2,
+    "DBMS and SQL": 114,
+    "Data Structures and Algorithms": 201,
+    "Logical Reasoning": 589,
+    "Mobile Development": 20,
+    "Operating Systems": 71,
+    "Programming and Coding": 155,
+    "Quantitative Aptitude": 599,
+    "Software Engineering": 2,
+    "System Design": 3,
+    "Verbal Ability": 145,
+    "Web Development": 13
+  },
+  "questions_by_topic": {
+    "Artificial Intelligence and Machine Learning / AI/ML Foundations": 30,
+    "Artificial Intelligence and Machine Learning / Machine Learning & Applied AI": 10,
+    "Artificial Intelligence and Machine Learning / Practical AI & LLM Systems": 10,
+    "Cloud Computing and DevOps / Automation": 1,
+    "Cloud Computing and DevOps / Cloud Computing": 1,
+    "Cloud Computing and DevOps / Continuous Delivery": 1,
+    "Cloud Computing and DevOps / Continuous Integration": 1,
+    "Cloud Computing and DevOps / DNS": 1,
+    "Cloud Computing and DevOps / Data Interpretation": 1,
+    "Cloud Computing and DevOps / Docker": 1,
+    "Cloud Computing and DevOps / Git": 1,
+    "Cloud Computing and DevOps / Infrastructure as Code": 1,
+    "Cloud Computing and DevOps / Kubernetes Basics": 1,
+    "Cloud Computing and DevOps / Kubernetes Probes": 1,
+    "Cloud Computing and DevOps / Least Privilege": 1,
+    "Cloud Computing and DevOps / Linux": 1,
+    "Cloud Computing and DevOps / Load Balancing": 1,
+    "Cloud Computing and DevOps / Logical Ordering": 1,
+    "Cloud Computing and DevOps / Message Queues": 1,
+    "Cloud Computing and DevOps / Monitoring and Logging": 1,
+    "Cloud Computing and DevOps / Number Pattern": 1,
+    "Cloud Computing and DevOps / Percentage Arithmetic": 1,
+    "Cloud Computing and DevOps / Rollback": 1,
+    "Cloud Computing and DevOps / Secrets": 1,
+    "Cloud Computing and DevOps / Time and Work": 1,
+    "Computer Networks / Computer Networks": 30,
+    "Computer Networks / HTTP APIs": 1,
+    "Computer Networks / IPv4 Addressing": 40,
+    "Computer Networks / Subnetting": 1,
+    "Cybersecurity / OAuth and API Security": 1,
+    "Cybersecurity / Rate Limiting": 1,
+    "DBMS and SQL / AVG Semantics": 20,
+    "DBMS and SQL / Aggregate Filters": 20,
+    "DBMS and SQL / COUNT Semantics": 20,
+    "DBMS and SQL / Database Basics": 30,
+    "DBMS and SQL / Indexing": 1,
+    "DBMS and SQL / Isolation Levels": 1,
+    "DBMS and SQL / MAX Semantics": 20,
+    "DBMS and SQL / NULL Semantics": 1,
+    "DBMS and SQL / Transactions": 1,
+    "Data Structures and Algorithms / Algorithms": 60,
+    "Data Structures and Algorithms / Binary Search": 20,
+    "Data Structures and Algorithms / Data Pipelines": 1,
+    "Data Structures and Algorithms / Data Structures": 60,
+    "Data Structures and Algorithms / Hashing": 20,
+    "Data Structures and Algorithms / Kadane's Algorithm": 20,
+    "Data Structures and Algorithms / Queues": 20,
+    "Logical Reasoning / Additional Basic Questions": 10,
+    "Logical Reasoning / Analogies": 30,
+    "Logical Reasoning / Analogy Questions": 60,
+    "Logical Reasoning / Blood Relations": 30,
+    "Logical Reasoning / Coding-Decoding": 30,
+    "Logical Reasoning / Critical Reasoning": 20,
+    "Logical Reasoning / Data Sufficiency": 30,
+    "Logical Reasoning / Directions": 30,
+    "Logical Reasoning / Matrix Pattern Questions": 51,
+    "Logical Reasoning / Non-Verbal Reasoning": 30,
+    "Logical Reasoning / Number Sequence Questions": 60,
+    "Logical Reasoning / Odd One Out Questions": 58,
+    "Logical Reasoning / Puzzles": 30,
+    "Logical Reasoning / Series": 30,
+    "Logical Reasoning / Shape Pattern Questions": 60,
+    "Logical Reasoning / Syllogisms": 30,
+    "Mobile Development / API Connectivity": 1,
+    "Mobile Development / API Reliability": 1,
+    "Mobile Development / Arithmetic": 1,
+    "Mobile Development / Authentication Security": 1,
+    "Mobile Development / Data Update Flow": 1,
+    "Mobile Development / Database Selection": 1,
+    "Mobile Development / Direction Sense": 1,
+    "Mobile Development / Distributed Systems": 1,
+    "Mobile Development / Full-Stack Technologies": 1,
+    "Mobile Development / Logical Deduction": 1,
+    "Mobile Development / Mobile App Architecture": 1,
+    "Mobile Development / Network Debugging": 1,
+    "Mobile Development / Number Pattern": 1,
+    "Mobile Development / Offline Architecture": 1,
+    "Mobile Development / Ordering": 1,
+    "Mobile Development / Performance Troubleshooting": 1,
+    "Mobile Development / Real-Time Communication": 1,
+    "Mobile Development / Security and Architecture": 1,
+    "Mobile Development / System Components": 1,
+    "Mobile Development / System Scalability": 1,
+    "Operating Systems / CPU Scheduling": 20,
+    "Operating Systems / Memory Management": 21,
+    "Operating Systems / Operating Systems": 30,
+    "Programming and Coding / Codu and Sum Love": 1,
+    "Programming and Coding / Dictionaries and Iteration": 20,
+    "Programming and Coding / Discount Voucher Selection": 1,
+    "Programming and Coding / Generator Expressions": 20,
+    "Programming and Coding / List Comprehensions": 20,
+    "Programming and Coding / Max Subarray Sum with Negations": 1,
+    "Programming and Coding / Maximum Subarray Sum with Single Subsegment Zeroing": 1,
+    "Programming and Coding / Obstacle Game": 1,
+    "Programming and Coding / On A Cube": 1,
+    "Programming and Coding / Programming Fundamentals": 60,
+    "Programming and Coding / Resource Extraction with Diminishing Yields": 1,
+    "Programming and Coding / Sequence Slicing": 20,
+    "Programming and Coding / Server Load Balancing": 1,
+    "Programming and Coding / Sorting Boxes": 1,
+    "Programming and Coding / Sport Stadium": 1,
+    "Programming and Coding / Square Free Numbers": 1,
+    "Programming and Coding / Subarray Sum Maximization with Range Inversion": 1,
+    "Programming and Coding / Subsegment Sum Maximization with Cyclic Shifts": 1,
+    "Programming and Coding / Task Energy Optimization": 1,
+    "Programming and Coding / Water Cistern": 1,
+    "Quantitative Aptitude / Averages": 30,
+    "Quantitative Aptitude / Bar Graph-Based Questions": 40,
+    "Quantitative Aptitude / Caselet-Based Questions": 60,
+    "Quantitative Aptitude / Combination Chart-Based Questions": 20,
+    "Quantitative Aptitude / Line Graph-Based Questions": 40,
+    "Quantitative Aptitude / Miscellaneous": 19,
+    "Quantitative Aptitude / Multiple Table-Based Questions": 20,
+    "Quantitative Aptitude / Number Systems": 30,
+    "Quantitative Aptitude / Percentages": 30,
+    "Quantitative Aptitude / Permutations and Combinations": 20,
+    "Quantitative Aptitude / Pie Chart with Secondary Data-Based Questions": 20,
+    "Quantitative Aptitude / Pie Chart-Based Questions": 40,
+    "Quantitative Aptitude / Probability": 20,
+    "Quantitative Aptitude / Profit and Loss": 30,
+    "Quantitative Aptitude / Ratios and Proportions": 30,
+    "Quantitative Aptitude / Simple Interest": 10,
+    "Quantitative Aptitude / Simple and Compound Interest": 20,
+    "Quantitative Aptitude / Stacked Bar Graph-Based Questions": 20,
+    "Quantitative Aptitude / Table-Based Questions": 40,
+    "Quantitative Aptitude / Time and Distance": 30,
+    "Quantitative Aptitude / Time and Work": 30,
+    "Software Engineering / API Pagination": 1,
+    "Software Engineering / CI/CD": 1,
+    "System Design / Inventory Consistency": 1,
+    "System Design / Load Balancing": 1,
+    "System Design / Scalability": 1,
+    "Verbal Ability / Antonyms": 10,
+    "Verbal Ability / Jumbled Sentences": 30,
+    "Verbal Ability / Reading Comprehension": 30,
+    "Verbal Ability / Sentence Completion": 10,
+    "Verbal Ability / Spotting Errors": 30,
+    "Verbal Ability / Synonyms": 10,
+    "Verbal Ability / Verbal Analogies": 25,
+    "Web Development / Accessibility": 1,
+    "Web Development / Authentication & Security": 1,
+    "Web Development / Caching / Cache-Aside": 1,
+    "Web Development / Client State": 1,
+    "Web Development / Composite Index": 1,
+    "Web Development / Container Orchestration": 1,
+    "Web Development / Database Access Patterns": 1,
+    "Web Development / Distributed Systems / CAP": 1,
+    "Web Development / HTTP Semantics": 1,
+    "Web Development / Multi-Tenant SaaS": 1,
+    "Web Development / Node.js Runtime Performance": 1,
+    "Web Development / Rate Limiting": 1,
+    "Web Development / Transaction Isolation": 1
+  },
+  "questions_by_company": {
+    "Accenture": 1,
+    "Amazon": 1,
+    "Capgemini": 1,
+    "Cognizant": 1,
+    "Deloitte": 1,
+    "Flipkart": 1,
+    "Freshworks": 1,
+    "Google": 1,
+    "HCLTech": 1,
+    "IBM": 1,
+    "Infosys": 9,
+    "LTIMindtree": 1,
+    "Microsoft": 1,
+    "Oracle": 1,
+    "Salesforce": 1,
+    "TCS": 8,
+    "Tech Mahindra": 1,
+    "Walmart Global Tech": 1,
+    "Wipro": 1,
+    "Zoho": 1
+  },
+  "questions_by_role": {
+    "AI/ML Engineer": 30,
+    "Backend Developer": 81,
+    "Data Analyst": 42,
+    "Frontend Developer": 22,
+    "Full-Stack Developer": 2,
+    "Graduate Engineer Trainee": 60,
+    "Mobile App Developer": 20,
+    "Software Engineer": 148
+  },
+  "questions_by_review_status": {
+    "Pending Review": 2058
+  },
+  "questions_by_type": {
+    "coding": 15,
+    "mcq": 2043
+  },
+  "questions_by_difficulty": {
+    "Easy": 696,
+    "Hard": 656,
+    "Medium": 703,
+    "Very Hard": 3
+  },
+  "questions_by_structural_status": {
+    "Needs Revision": 100,
+    "Pending Validation": 15,
+    "Structurally Validated": 1943
+  },
+  "questions_by_answer_status": {
+    "Deterministically Verified": 320,
+    "Unverified": 1738
+  },
+  "questions_by_source_status": {
+    "No External Source": 340,
+    "Repository Source Recorded": 1718
+  },
+  "questions_by_expert_review_status": {
+    "Pending": 2058
+  },
+  "import_batches": [
+    {
+      "batch_id": "admin-question-bank-main-v1",
+      "source": "questions.json",
+      "attempted_count": 1769,
+      "upserted_count": 1603,
+      "review_status": "Pending Review",
+      "imported_at": "2026-10-26 18:13:50"
+    },
+    {
+      "batch_id": "coding_question_bank-v1",
+      "source": "backend\\data\\placement_coding_questions.json",
+      "attempted_count": 19,
+      "upserted_count": 15,
+      "review_status": "Pending Review",
+      "imported_at": "2026-10-26 18:13:50"
+    },
+    {
+      "batch_id": "company-practice-001",
+      "source": "admin_company_practice_batch_001.json",
+      "attempted_count": 20,
+      "upserted_count": 20,
+      "review_status": "Pending Review",
+      "imported_at": "2026-10-26 18:13:50"
+    },
+    {
+      "batch_id": "generated-practice-001",
+      "source": "admin_generated_batch_001.json",
+      "attempted_count": 320,
+      "upserted_count": 320,
+      "review_status": "Pending Review",
+      "imported_at": "2026-10-26 18:13:50"
+    },
+    {
+      "batch_id": "supplemental_question_bank-v1",
+      "source": "src\\data\\assessmentQuestions.ts",
+      "attempted_count": 213,
+      "upserted_count": 100,
+      "review_status": "Pending Review",
+      "imported_at": "2026-10-26 18:13:50"
+    }
+  ],
+  "approved_for_test_use": 0,
+  "questions_with_nonempty_source_metadata": 1718,
+  "questions_with_independently_verified_external_sources": 0,
+  "company_role_link_count": 35,
+  "reference_solutions_executed_by_this_audit": 0,
+  "notes": [
+    "Structural checks do not prove factual correctness.",
+    "Near-duplicate pairs are candidates for human review and were not deleted automatically.",
+    "All imported records remain Pending Review until an authorized reviewer checks them."
+  ]
+}

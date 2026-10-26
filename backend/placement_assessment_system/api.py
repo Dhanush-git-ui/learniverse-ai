@@ -509,6 +509,10 @@ class SQLiteCursorAdapter:
     def close(self):
         self.cur.close()
 
+    @property
+    def rowcount(self):
+        return self.cur.rowcount
+
 
 def _safe_execute_values(db, sql: str, rows: list):
     """Execute batch inserts for both PostgreSQL and SQLite."""

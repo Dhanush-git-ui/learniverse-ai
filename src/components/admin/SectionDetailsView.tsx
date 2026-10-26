@@ -208,8 +208,8 @@ export const SectionDetailsView: React.FC<SectionDetailsViewProps> = ({
                     </button>
 
                     {openMenuRowId === row.id && (
-                      <div 
-                        className="absolute right-6 top-8 w-36 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-20 text-left text-xs font-medium text-slate-700"
+                      <div
+                        className="absolute right-6 top-8 w-36 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-20 text-left text-xs font-medium text-slate-700"
                         onMouseLeave={() => setOpenMenuRowId(null)}
                       >
                         <button

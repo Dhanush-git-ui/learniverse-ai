@@ -253,8 +253,8 @@ export const SectionStepperWizard: React.FC<SectionStepperWizardProps> = ({
 
                     {/* Popover Action Menu */}
                     {activeMenuSectionId === sec.id && (
-                      <div 
-                        className="absolute right-2 top-8 w-44 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 text-left text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
+                      <div
+                        className="absolute right-2 top-8 w-44 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-30 text-left text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
                         onMouseLeave={() => setActiveMenuSectionId(null)}
                       >
                         <button

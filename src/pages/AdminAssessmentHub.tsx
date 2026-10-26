@@ -19,19 +19,12 @@ import {
   QuestionBreakdownItem,
   QuestionItem
 } from '../types/adminAssessment';
-import { INITIAL_ASSESSMENTS, ROLE_TEMPLATES, INITIAL_MY_QUESTIONS } from '../data/mockAdminData';
+import { ROLE_TEMPLATES, INITIAL_MY_QUESTIONS } from '../data/mockAdminData';
+import { deleteTrainerTest, listTrainerTests, saveTrainerTest } from '../services/adminQuestionBankService';
 
 export const AdminAssessmentHub: React.FC = () => {
-  // Master Assessments List stored in localStorage
-  const [assessments, setAssessments] = useState<AdminAssessment[]>(() => {
-    try {
-      const saved = localStorage.getItem('learniverse_admin_assessments');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error(e);
-    }
-    return INITIAL_ASSESSMENTS;
-  });
+  const [assessments, setAssessments] = useState<AdminAssessment[]>([]);
+  const [assessmentStorageError, setAssessmentStorageError] = useState('');
 
   // Custom Authored Questions stored in localStorage
   const [myQuestions, setMyQuestions] = useState<QuestionItem[]>(() => {
@@ -45,12 +38,44 @@ export const AdminAssessmentHub: React.FC = () => {
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('learniverse_admin_assessments', JSON.stringify(assessments));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [assessments]);
+    let cancelled = false;
+    const loadPersistentAssessments = async () => {
+      let legacy: AdminAssessment[] = [];
+      try {
+        const cached = localStorage.getItem('learniverse_admin_assessments');
+        if (cached) legacy = JSON.parse(cached);
+      } catch {
+        legacy = [];
+      }
+      try {
+        const result = await listTrainerTests();
+        if (cancelled) return;
+        if (result.items.length) {
+          setAssessments(result.items);
+          if (legacy.length) localStorage.removeItem('learniverse_admin_assessments');
+          return;
+        }
+        if (legacy.length) {
+          for (const test of legacy) await saveTrainerTest(test);
+          if (cancelled) return;
+          setAssessments(legacy);
+          localStorage.removeItem('learniverse_admin_assessments');
+          return;
+        }
+        setAssessments([]);
+      } catch (error) {
+        if (cancelled) return;
+        if (legacy.length) {
+          setAssessments(legacy);
+          setAssessmentStorageError('Could not reach the database. Existing browser-saved tests are shown as a temporary fallback and have not been synchronized.');
+        } else {
+          setAssessmentStorageError(error instanceof Error ? error.message : 'Could not load trainer tests from the database.');
+        }
+      }
+    };
+    void loadPersistentAssessments();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     try {
@@ -248,18 +273,35 @@ export const AdminAssessmentHub: React.FC = () => {
   };
 
   // 11. Delete an assessment
-  const handleDeleteAssessment = (id: string) => {
-    setAssessments(assessments.filter(a => a.id !== id));
+  const handleDeleteAssessment = async (id: string) => {
+    try {
+      await deleteTrainerTest(id);
+      setAssessments(current => current.filter(a => a.id !== id));
+      setAssessmentStorageError('');
+    } catch (error) {
+      setAssessmentStorageError(error instanceof Error ? error.message : 'Could not delete the saved test.');
+    }
   };
 
   // 12. Final Publish Complete
-  const handlePublishComplete = (publishedAssessment: AdminAssessment) => {
-    if (editingAssessmentId) {
-      setAssessments(assessments.map(a => a.id === editingAssessmentId ? { ...publishedAssessment, id: editingAssessmentId } : a));
-    } else {
-      setAssessments([publishedAssessment, ...assessments]);
+  const persistAssessment = async (assessment: AdminAssessment): Promise<boolean> => {
+    const savedAssessment = {
+      ...assessment,
+      id: editingAssessmentId || assessment.id || crypto.randomUUID(),
+    };
+    try {
+      await saveTrainerTest(savedAssessment);
+      setAssessments(current => {
+        const exists = current.some(a => a.id === savedAssessment.id);
+        return exists ? current.map(a => a.id === savedAssessment.id ? savedAssessment : a) : [savedAssessment, ...current];
+      });
+      setAssessmentStorageError('');
+      setCurrentView('dashboard');
+      return true;
+    } catch (error) {
+      setAssessmentStorageError(error instanceof Error ? error.message : 'The test could not be saved to the database.');
+      return false;
     }
-    setCurrentView('dashboard');
   };
 
   // 13. Custom Question Authoring
@@ -275,10 +317,15 @@ export const AdminAssessmentHub: React.FC = () => {
     setMyQuestions(myQuestions.map(q => q.id === updatedQ.id ? updatedQ : q));
   };
 
-  // 14. Reset to default sample assessments
-  const handleRefreshAssessments = () => {
-    setAssessments(INITIAL_ASSESSMENTS);
-    localStorage.setItem('learniverse_admin_assessments', JSON.stringify(INITIAL_ASSESSMENTS));
+  // Refresh from the shared database rather than restoring a browser-only sample list.
+  const handleRefreshAssessments = async () => {
+    try {
+      const result = await listTrainerTests();
+      setAssessments(result.items);
+      setAssessmentStorageError('');
+    } catch (error) {
+      setAssessmentStorageError(error instanceof Error ? error.message : 'Could not refresh tests from the database.');
+    }
   };
 
   return (
@@ -301,6 +348,7 @@ export const AdminAssessmentHub: React.FC = () => {
 
       {/* Main Screen Router */}
       <main className="flex-1">
+        {assessmentStorageError && <div role="alert" className="mx-auto mt-4 max-w-7xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Database status: {assessmentStorageError}</div>}
         {/* If 'My Questions' tab is active, show Question Bank Manager */}
         {activeNav === 'questions' ? (
           <MyQuestionsManager
@@ -360,7 +408,8 @@ export const AdminAssessmentHub: React.FC = () => {
                 roleTitle={activeRoleTitle}
                 sections={activeSections}
                 onBackToSections={() => setCurrentView('wizard')}
-                onPublishComplete={handlePublishComplete}
+                onPublishComplete={persistAssessment}
+                onSaveDraft={persistAssessment}
               />
             )}
           </>

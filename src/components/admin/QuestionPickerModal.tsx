@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   X, 
   ChevronDown, 
@@ -11,9 +11,9 @@ import {
   Sparkles,
   Shuffle
 } from 'lucide-react';
-import { LEARNIVERSE_SAMPLE_QUESTIONS, INITIAL_MY_QUESTIONS } from '../../data/mockAdminData';
-import { REACT_NATIVE_QUESTIONS } from '../../data/assessmentQuestions';
+import { INITIAL_MY_QUESTIONS } from '../../data/mockAdminData';
 import { QuestionItem } from '../../types/adminAssessment';
+import { getAdminQuestionPage, getQuestionBankFacets, QuestionBankFacets, reviewQuestion, saveQuestionCollection } from '../../services/adminQuestionBankService';
 
 interface QuestionPickerModalProps {
   isOpen: boolean;
@@ -35,101 +35,140 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
   const [questionLibrary, setQuestionLibrary] = useState<'Learniverse Question Bank' | 'My Questions'>('Learniverse Question Bank');
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
+  const [category, setCategory] = useState<string>('');
   const [selectedTopic, setSelectedTopic] = useState<string>('');
   const [isTopicOpen, setIsTopicOpen] = useState(false);
-
   const [difficulty, setDifficulty] = useState<string>('');
   const [isDifficultyOpen, setIsDifficultyOpen] = useState(false);
-
-  const [subTopic, setSubTopic] = useState<string>('');
   const [tags, setTags] = useState<string>('');
+  const [questionType, setQuestionType] = useState('');
+  const [company, setCompany] = useState('');
+  const [role, setRole] = useState('');
+  const [includePendingReview, setIncludePendingReview] = useState(false);
+  const [bankQuestions, setBankQuestions] = useState<QuestionItem[]>([]);
+  const [bankTotal, setBankTotal] = useState(0);
+  const [facets, setFacets] = useState<QuestionBankFacets>({ categories: [], topics: [], question_types: [], companies: [], roles: [] });
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [reviewBusyId, setReviewBusyId] = useState<string | null>(null);
+  const [collectionMessage, setCollectionMessage] = useState('');
   const [pickRandomly, setPickRandomly] = useState(false);
   const [randomCount, setRandomCount] = useState(5);
 
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Available topics matching Screenshot 9
-  const TOPIC_LIST = [
-    'DSA',
-    'Java',
-    'CS Fundamentals',
-    'Javascript',
-    'SQL',
-    'HTML and CSS',
-    'React',
-    'Node.js',
-    'Python'
-  ];
+  const TOPIC_LIST = useMemo(() => facets.topics.map(item => item.value), [facets.topics]);
 
-  // Combine learniverse sample questions + real assessment questions into large pool
-  const learniversePool = useMemo(() => {
-    const fromQuestions = REACT_NATIVE_QUESTIONS.slice(0, 150).map((q, idx) => ({
-      id: q.id || `rn-${idx}`,
-      prompt: q.question,
-      topic: q.topic?.includes('Architecture') ? 'CS Fundamentals' : (q.topic || 'DSA'),
-      subTopic: q.category || 'Core',
-      difficulty: (q.difficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
-      tags: q.tags || 'CORE',
-      options: q.options || [],
-      correctAnswer: q.correct_option || 'A',
-      explanation: q.explanation || '',
-      library: 'Learniverse Question Bank' as const
-    }));
+  useEffect(() => {
+    if (!isOpen || questionLibrary !== 'Learniverse Question Bank') return;
+    let cancelled = false;
+    setLoading(true);
+    setLoadError('');
+    getAdminQuestionPage({
+      search: tags,
+      category,
+      topic: selectedTopic,
+      difficulty,
+      questionType,
+      company,
+      role,
+      status: includePendingReview ? 'Pending Review' : 'Approved',
+      page: currentPage,
+      pageSize: 20,
+    }).then((result) => {
+      if (cancelled) return;
+      setBankQuestions(result.items);
+      setBankTotal(result.total);
+    }).catch((error: unknown) => {
+      if (!cancelled) setLoadError(error instanceof Error ? error.message : 'Could not load the question bank.');
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [isOpen, questionLibrary, tags, category, selectedTopic, difficulty, questionType, company, role, includePendingReview, currentPage]);
 
-    return [
-      ...LEARNIVERSE_SAMPLE_QUESTIONS.map(q => ({ ...q, library: 'Learniverse Question Bank' as const })),
-      ...fromQuestions
-    ];
-  }, []);
+  useEffect(() => {
+    if (!isOpen) return;
+    getQuestionBankFacets().then(setFacets).catch((error: unknown) => {
+      setLoadError(error instanceof Error ? error.message : 'Could not load question filters.');
+    });
+  }, [isOpen]);
 
-  // Filter pool based on selected library (Screenshot 8)
-  const activePool = questionLibrary === 'Learniverse Question Bank' ? learniversePool : myQuestions;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [questionLibrary, tags, category, selectedTopic, difficulty, questionType, company, role, includePendingReview]);
 
-  // Apply filters
-  const filteredQuestions = useMemo(() => {
-    return activePool.filter((q) => {
+  // My Questions remain browser-local; the shared Learniverse bank is paged from the backend.
+  const filteredQuestions = useMemo<QuestionItem[]>(() => {
+    if (questionLibrary === 'Learniverse Question Bank') return bankQuestions;
+    return myQuestions.filter((q) => {
       if (selectedTopic && !q.topic.toLowerCase().includes(selectedTopic.toLowerCase())) {
         return false;
       }
       if (difficulty && q.difficulty.toLowerCase() !== difficulty.toLowerCase()) {
         return false;
       }
-      if (subTopic && !q.subTopic.toLowerCase().includes(subTopic.toLowerCase())) {
-        return false;
-      }
-      if (tags && !q.tags.toLowerCase().includes(tags.toLowerCase())) {
+      if (tags && !`${q.tags} ${q.prompt} ${q.topic} ${q.subTopic}`.toLowerCase().includes(tags.toLowerCase())) {
         return false;
       }
       return true;
     });
-  }, [activePool, selectedTopic, difficulty, subTopic, tags]);
+  }, [questionLibrary, bankQuestions, myQuestions, selectedTopic, difficulty, tags]);
 
   if (!isOpen) return null;
 
   // Handle Pick Randomly
   const handleApplyRandomPick = () => {
-    const unselected = filteredQuestions.filter(q => !selectedQuestionIds.includes(q.id));
+    const unselected = filteredQuestions.filter(q => (q.library !== 'Learniverse Question Bank' || q.reviewStatus === 'Approved') && !selectedQuestionIds.includes(q.id));
     const shuffled = [...unselected].sort(() => 0.5 - Math.random());
     const toPick = shuffled.slice(0, randomCount);
     toPick.forEach(q => onAddQuestion(q));
   };
 
-  const pageSize = 5;
-  const totalDisplayCount = questionLibrary === 'Learniverse Question Bank' && !selectedTopic && !difficulty && !tags 
-    ? 40377 
-    : filteredQuestions.length;
-  
-  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize));
-  const paginatedQuestions = filteredQuestions.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const pageSize = questionLibrary === 'Learniverse Question Bank' ? 20 : 5;
+  const totalDisplayCount = questionLibrary === 'Learniverse Question Bank' ? bankTotal : filteredQuestions.length;
+  const totalPages = Math.max(1, Math.ceil(totalDisplayCount / pageSize));
+  const firstVisiblePage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+  const pageNumbers = Array.from({ length: Math.min(5, totalPages) }, (_, index) => firstVisiblePage + index);
+  const paginatedQuestions = questionLibrary === 'Learniverse Question Bank' ? filteredQuestions : filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleReview = async (question: QuestionItem, status: 'Approved' | 'Rejected') => {
+    const note = window.prompt(status === 'Approved' ? 'Record what you verified before approval:' : 'Why are you rejecting this question:');
+    if (!note?.trim()) return;
+    const evidence = status === 'Approved'
+      ? window.prompt('Record the independent answer check or reliable source used (at least 20 characters):')
+      : undefined;
+    if (status === 'Approved' && (!evidence || evidence.trim().length < 20)) return;
+    setReviewBusyId(question.id);
+    try {
+      await reviewQuestion(question.id, status, note.trim(), evidence?.trim());
+      setCollectionMessage(`Question ${status.toLowerCase()}.`);
+      setBankQuestions(current => current.filter(item => item.id !== question.id));
+      setBankTotal(current => Math.max(0, current - 1));
+      setCollectionMessage(`Question ${status.toLowerCase()}.`);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Could not save the review.');
+    } finally {
+      setReviewBusyId(null);
+    }
+  };
+
+  const handleSaveCollection = async () => {
+    const name = window.prompt('Name this approved question collection:');
+    if (!name?.trim()) return;
+    try {
+      await saveQuestionCollection(name.trim(), selectedQuestionIds);
+      setCollectionMessage('Collection saved to the database.');
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Could not save the collection.');
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div 
-        className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative flex flex-col max-h-[90vh]"
+      <div
+        className="bg-white w-full max-w-5xl rounded-2xl shadow-2xs border border-slate-200 overflow-hidden relative flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header matching Screenshot 7 & 8 */}
@@ -172,7 +211,7 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
               </div>
 
               {isLibraryOpen && (
-                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
                   <div 
                     onClick={() => { 
                       setQuestionLibrary('Learniverse Question Bank'); 
@@ -196,6 +235,35 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                 </div>
               )}
             </div>
+
+            {questionLibrary === 'Learniverse Question Bank' && (
+              <>
+                <label className="block text-slate-700 font-semibold">Category
+                  <select value={category} onChange={e => setCategory(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal">
+                    <option value="">All categories</option>
+                    {facets.categories.map(item => <option key={item.value} value={item.value}>{item.value}</option>)}
+                  </select>
+                </label>
+                <label className="block text-slate-700 font-semibold">Question type
+                  <select value={questionType} onChange={e => setQuestionType(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal">
+                    <option value="">All types</option>
+                    {facets.question_types.map(item => <option key={item.value} value={item.value}>{item.value}</option>)}
+                  </select>
+                </label>
+                <label className="block text-slate-700 font-semibold">Company
+                  <select value={company} onChange={e => setCompany(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal">
+                    <option value="">All companies</option>
+                    {facets.companies.map(item => <option key={item.value} value={item.value}>{item.name}</option>)}
+                  </select>
+                </label>
+                <label className="block text-slate-700 font-semibold">Role
+                  <select value={role} onChange={e => setRole(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal">
+                    <option value="">All roles</option>
+                    {facets.roles.map(item => <option key={item.value} value={item.value}>{item.name}</option>)}
+                  </select>
+                </label>
+              </>
+            )}
 
             {/* 2. Topic Dropdown with clear 'x' matching Screenshot 9 */}
             <div className="relative">
@@ -229,7 +297,7 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
               </div>
 
               {isTopicOpen && (
-                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 max-h-52 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-30 max-h-52 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
                   {TOPIC_LIST.map((topicName) => (
                     <div 
                       key={topicName}
@@ -280,7 +348,7 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
               </div>
 
               {isDifficultyOpen && (
-                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[68px] left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-2xs py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
                   {['Easy', 'Medium', 'Hard'].map((diff) => (
                     <div 
                       key={diff}
@@ -299,34 +367,17 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
               )}
             </div>
 
-            {/* 4. Sub Topic */}
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1.5">
-                Sub Topic
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Tags, Variables, Text, OOP"
-                value={subTopic}
-                onChange={(e) => {
-                  setSubTopic(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
-              />
-            </div>
-
-            {/* 5. Exclusive Tags (Optional) with info icon */}
+            {/* 4. Search question text and tags */}
             <div>
               <label className="block text-slate-700 font-semibold mb-1.5 flex items-center gap-1">
-                <span>Exclusive Tags (Optional)</span>
+                <span>Search Questions and Tags</span>
                 <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
               </label>
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Add Tags"
+                  placeholder="Search keywords or tags"
                   value={tags}
                   onChange={(e) => {
                     setTags(e.target.value);
@@ -336,6 +387,23 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                 />
               </div>
             </div>
+
+            {questionLibrary === 'Learniverse Question Bank' && (
+              <label className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={includePendingReview}
+                  onChange={(event) => {
+                    setIncludePendingReview(event.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  className="mt-0.5"
+                />
+                <span>
+                  Show pending-review questions. Review each answer and record your reason before approval.
+                </span>
+              </label>
+            )}
 
             {/* 6. Pick Questions Randomly Toggle (Screenshot 7 & 8) */}
             <div className="p-3.5 bg-blue-50/60 border border-blue-200/60 rounded-xl space-y-3 mt-2">
@@ -391,19 +459,28 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
               </div>
               <div className="text-xs text-slate-500 font-medium">
                 <span className="text-blue-600 font-bold">{selectedQuestionIds.length}</span> Added to Section
+                {selectedQuestionIds.length > 0 && questionLibrary === 'Learniverse Question Bank' && (
+                  <button onClick={() => void handleSaveCollection()} className="ml-3 rounded border border-blue-200 px-2 py-1 text-blue-700 hover:bg-blue-50">
+                    Save as Collection
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Questions list with "See More >" and "+ Add" */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {loadError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">{loadError}</div>}
+              {collectionMessage && <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">{collectionMessage}</div>}
+              {loading && <div className="p-4 text-center text-xs text-slate-500">Loading questions…</div>}
               {paginatedQuestions.length === 0 ? (
                 <div className="p-12 text-center text-slate-400 text-xs">
-                  No questions found matching your filter criteria. Try clearing some filters.
+                  {loading ? 'Loading questions…' : loadError ? 'Question bank unavailable. Check that the backend is running and you are signed in as an admin.' : 'No questions found matching your filters.'}
                 </div>
               ) : (
                 paginatedQuestions.map((q) => {
                   const isSelected = selectedQuestionIds.includes(q.id);
                   const isExpanded = expandedQuestionId === q.id;
+                  const isApproved = q.library !== 'Learniverse Question Bank' || q.reviewStatus === 'Approved';
 
                   return (
                     <div 
@@ -412,18 +489,29 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                     >
                       <div>
                         <div className="flex items-start justify-between gap-4">
-                          <p className="text-sm font-medium text-slate-800 leading-relaxed whitespace-pre-line">
-                            {q.prompt}
-                          </p>
+                          <div>
+                            <p className="text-sm font-medium text-slate-800 leading-relaxed whitespace-pre-line">
+                              {q.prompt}
+                            </p>
+                            {q.library === 'Learniverse Question Bank' && (
+                              <span className={`mt-2 inline-block rounded-full px-2 py-1 text-[10px] font-semibold ${isApproved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>
+                                {isApproved ? 'Approved' : 'Pending Review'}
+                              </span>
+                            )}
+                          </div>
                           <button
-                            onClick={() => onAddQuestion(q)}
-                            className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                            onClick={() => onAddQuestion(q.library === 'Learniverse Question Bank' ? { ...q, reviewStatus: 'Approved' } : q)}
+                            disabled={!isApproved}
+                            title={!isApproved ? 'Approve this question before adding it to a test.' : undefined}
+                            className={`shrink-0 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${!isApproved ? 'cursor-not-allowed bg-slate-100 text-slate-400 border border-slate-200' : 'cursor-pointer ' + (
                               isSelected
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
                                 : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-2xs hover:shadow-xs'
-                            }`}
+                            )}`}
                           >
-                            {isSelected ? (
+                            {!isApproved ? (
+                              <span>Review first</span>
+                            ) : isSelected ? (
                               <>
                                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                                 <span>Added</span>
@@ -472,12 +560,55 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                                 {q.explanation}
                               </div>
                             )}
+                            {q.optionExplanations && (
+                              <details className="rounded border border-slate-200 bg-white p-2 text-slate-600">
+                                <summary className="cursor-pointer font-semibold text-slate-700">Option explanations</summary>
+                                <ul className="mt-2 space-y-1">
+                                  {q.optionExplanations.map((item, index) => <li key={index}><strong>{String.fromCharCode(65 + index)}.</strong> {item}</li>)}
+                                </ul>
+                              </details>
+                            )}
+                            {q.source && (
+                              <div className="text-slate-500">Source: <span className="break-all">{q.source}</span></div>
+                            )}
+                            {q.verificationStatus && (
+                              <div className="text-amber-800">Verification: {q.verificationStatus}</div>
+                            )}
+                            <div className="text-slate-600">Review evidence — Structure: {q.structuralStatus || 'Not Checked'} · Answer: {q.answerStatus || 'Unverified'} · Source: {q.sourceStatus || 'Unverified'} · Expert: {q.expertReviewStatus || 'Pending'}</div>
+                            {q.verificationEvidence && <div className="text-slate-500">Evidence: {q.verificationEvidence}</div>}
+                            {q.library === 'Learniverse Question Bank' && !isApproved && (
+                              <div className="flex gap-2">
+                                <button type="button" disabled={reviewBusyId === q.id} onClick={() => void handleReview(q, 'Approved')} className="rounded-lg bg-emerald-600 px-3 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
+                                  {reviewBusyId === q.id ? 'Saving…' : 'Approve after review'}
+                                </button>
+                                <button type="button" disabled={reviewBusyId === q.id} onClick={() => void handleReview(q, 'Rejected')} className="rounded-lg border border-red-200 bg-white px-3 py-2 font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                            {q.provenance && <div className="text-slate-500">Provenance: {q.provenance}</div>}
+                            {q.company && <div className="text-slate-500">Company: {q.company}</div>}
+                            {q.role && <div className="text-slate-500">Role: {q.role}</div>}
+                            {q.questionType === 'coding' && (
+                              <div className="space-y-2 rounded border border-indigo-100 bg-white p-3 text-slate-700">
+                                {q.inputFormat && <div><strong>Input:</strong> {q.inputFormat}</div>}
+                                {q.outputFormat && <div><strong>Output:</strong> {q.outputFormat}</div>}
+                                {q.constraints && <div><strong>Constraints:</strong> {q.constraints}</div>}
+                                {q.sampleExplanation && <div><strong>Sample explanation:</strong> {q.sampleExplanation}</div>}
+                                {q.examples && <pre className="overflow-auto whitespace-pre-wrap">{JSON.stringify(q.examples, null, 2)}</pre>}
+                                {q.testCases && <pre className="overflow-auto whitespace-pre-wrap">Test cases: {JSON.stringify(q.testCases, null, 2)}</pre>}
+                                {q.referenceSolution && <details><summary className="cursor-pointer font-semibold">Reference solution (admin)</summary><pre className="mt-2 overflow-auto whitespace-pre-wrap">{q.referenceSolution}</pre></details>}
+                                {(q.timeComplexity || q.spaceComplexity) && <div>{q.timeComplexity && `Time: ${q.timeComplexity}`} {q.spaceComplexity && ` · Space: ${q.spaceComplexity}`}</div>}
+                                {q.supportedLanguages && <div>Languages: {q.supportedLanguages.join(', ')}</div>}
+                              </div>
+                            )}
                             <div className="flex items-center gap-3 mt-2 pt-2 border-t border-slate-200/60 text-[11px] text-slate-500">
                               <span>Topic: <strong className="text-slate-700">{q.topic}</strong></span>
                               <span>•</span>
                               <span>Sub Topic: <strong className="text-slate-700">{q.subTopic}</strong></span>
                               <span>•</span>
                               <span>Difficulty: <strong className="text-slate-700">{q.difficulty}</strong></span>
+                              {q.questionType && <><span>•</span><span>Type: <strong className="text-slate-700">{q.questionType}</strong></span></>}
                             </div>
                           </div>
                         )}
@@ -491,7 +622,7 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
             {/* Pagination Controls matching Screenshot 7 & 8 */}
             <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 bg-slate-50/50">
               <span>
-                1 to {paginatedQuestions.length} of {totalDisplayCount}
+                {filteredQuestions.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {(currentPage - 1) * pageSize + paginatedQuestions.length} of {totalDisplayCount}
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -501,7 +632,7 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
-                {[1, 2, 3, 4, 5].map((pageNum) => (
+                {pageNumbers.map((pageNum) => (
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
@@ -514,13 +645,15 @@ export const QuestionPickerModal: React.FC<QuestionPickerModalProps> = ({
                     {pageNum}
                   </button>
                 ))}
-                <span>...</span>
-                <button
-                  onClick={() => setCurrentPage(totalPages)}
-                  className="px-2 py-1 rounded border border-slate-200 hover:bg-white text-slate-700 font-semibold cursor-pointer"
-                >
-                  {totalPages > 5 ? totalPages : 4038}
-                </button>
+                {totalPages > firstVisiblePage + pageNumbers.length - 1 && <span>…</span>}
+                {totalPages > firstVisiblePage + pageNumbers.length - 1 && (
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="px-2 py-1 rounded border border-slate-200 hover:bg-white text-slate-700 font-semibold cursor-pointer"
+                  >
+                    {totalPages}
+                  </button>
+                )}
                 <button
                   disabled={currentPage >= totalPages}
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}

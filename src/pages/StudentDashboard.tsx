@@ -84,38 +84,10 @@ export default function StudentDashboard() {
     }
   };
 
-  // 2. Load real student session & analytics from Neon (with Admin guard)
+  // 2. Load real student session & analytics from Neon
   useEffect(() => {
     try {
-      const rawUser = localStorage.getItem("learniverse_user");
       const rawStudent = localStorage.getItem("learniverse_student");
-      
-      let isAdminUser = false;
-      if (rawUser) {
-        try {
-          const u = JSON.parse(rawUser);
-          if (u.role === "admin" || u.is_admin) isAdminUser = true;
-        } catch {
-          // Malformed local user data cannot establish an admin session.
-        }
-      }
-      if (rawStudent) {
-        try {
-          const s = JSON.parse(rawStudent);
-          if (s.role === "admin" || s.is_admin || s.roll_number === "ADMIN" || s.rollNumber === "ADMIN") {
-            isAdminUser = true;
-          }
-        } catch {
-          // Malformed local student data falls through to the normal route guard.
-        }
-      }
-
-      // If user is Admin, redirect directly to the Admin Assessment & Command Center
-      if (isAdminUser) {
-        navigate("/assessment?admin=true", { replace: true });
-        return;
-      }
-
       if (rawStudent) {
         const parsed = JSON.parse(rawStudent);
         setStudent(parsed);

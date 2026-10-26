@@ -14,13 +14,10 @@ logger = logging.getLogger("learniverse.auth")
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-DEFAULT_GOOGLE_CLIENT_ID = "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com"
-
+# Google client ID resolved from environment variable only
 def _resolve_google_client_ids() -> list[str]:
     c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
     ids = [c_id] if c_id else []
-    if DEFAULT_GOOGLE_CLIENT_ID not in ids:
-        ids.append(DEFAULT_GOOGLE_CLIENT_ID)
     return [client_id for client_id in ids if client_id]
 
 GOOGLE_CLIENT_IDS = _resolve_google_client_ids()

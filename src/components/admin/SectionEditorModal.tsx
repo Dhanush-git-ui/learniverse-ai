@@ -54,8 +54,8 @@ export const SectionEditorModal: React.FC<SectionEditorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div 
-        className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative flex flex-col max-h-[90vh]"
+      <div
+        className="bg-white w-full max-w-4xl rounded-2xl shadow-2xs border border-slate-200 overflow-hidden relative flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}

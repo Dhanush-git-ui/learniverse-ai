@@ -128,7 +128,7 @@ class TestAPI(unittest.TestCase):
             "category": "DSA",
             "history": []
         }
-        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "devsecretkey")}
+        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "")}
         
         response = self.client.post("/api/chat", json=payload, headers=headers)
         self.assertEqual(response.status_code, 200)
@@ -153,7 +153,7 @@ class TestAPI(unittest.TestCase):
             "category": "DSA",
             "history": []
         }
-        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "devsecretkey")}
+        headers = {"X-API-Key": os.environ.get("API_SECRET_KEY", "")}
         
         response = self.client.post("/api/chat", json=payload, headers=headers)
         # Status code should be 500

@@ -224,6 +224,14 @@ export default function Top100Codes() {
               status,
               best_verdict: verdict,
             })
+          }).then(r => {
+            if (r.status === 401) {
+              toast({
+                title: "Session Expired",
+                description: "Please log in again to sync your progress to your account.",
+                variant: "destructive"
+              });
+            }
           }).catch(() => {});
 
           fetch('/api/analytics/code-submit', {
@@ -1047,13 +1055,13 @@ export default function Top100Codes() {
                                     ? `${compilationResult.passed_cases} / ${compilationResult.total_cases} Passed` 
                                     : 'Finished'}
                                 </span>
-                                <div className="text-[10px] text-slate-400 mt-0.5">Tested using Judge0 Engine fallback logic</div>
+                                <div className="text-[10px] text-slate-400 mt-0.5">Evaluated against test cases via Sandboxed Compiler Engine</div>
                               </div>
                               <span className="text-slate-500 text-sm font-mono font-medium">Time: {compilationResult.runtime ?? 'N/A'}</span>
                             </div>
                             
                             {/* Victory Card */}
-                            {compilationResult.passed_cases === compilationResult.total_cases && (
+                            {compilationResult.passed_cases !== undefined && compilationResult.passed_cases > 0 && compilationResult.passed_cases === compilationResult.total_cases && (
                               <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center space-x-3.5 animate-bounce-subtle">
                                 <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center border border-emerald-200">
                                   <Award className="w-5.5 h-5.5 text-emerald-600" />

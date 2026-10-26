@@ -88,4 +88,5 @@ scripts/qa_results.json
 .agents/rules/
 .cursor/rules/
 AGENTS.md
+dev.pid
 

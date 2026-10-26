@@ -20,8 +20,8 @@ export const CreationModeModal: React.FC<CreationModeModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-      <div 
-        className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden relative p-8 md:p-10"
+      <div
+        className="bg-white w-full max-w-4xl rounded-2xl shadow-2xs border border-slate-200/90 overflow-hidden relative p-8 md:p-10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button matching Screenshot 2 */}

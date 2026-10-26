@@ -112,8 +112,8 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({
             </div>
 
             {isProfileMenuOpen && (
-              <div 
-                className="absolute right-0 top-10 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
+              <div
+                className="absolute right-0 top-10 w-56 bg-white border border-slate-200 rounded-xl shadow-2xs py-1.5 z-50 text-xs font-medium text-slate-700 animate-in fade-in zoom-in-95 duration-100"
                 onMouseLeave={() => setIsProfileMenuOpen(false)}
               >
                 <div className="px-4 py-2.5 border-b border-slate-100 mb-1">
@@ -158,7 +158,7 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({
       {/* Help Modal */}
       {isHelpModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xs border border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <Lightbulb className="w-5 h-5 text-blue-600" />

@@ -236,31 +236,28 @@ function buildPythonHarness(
     cleanedCode,
     '',
     '# ── Dual-Evaluation Test Runner (auto-generated) ──────────────────',
-    `target_func = "${targetFuncName}"`,
-    'solve = None',
+    `_target_func_name = "${targetFuncName}"`,
+    '_user_entry_func = globals().get(_target_func_name) or globals().get("solve")',
     'if "Solution" in globals() and isinstance(globals()["Solution"], type):',
     '    try:',
     '        _sol_obj = globals()["Solution"]()',
-    '        solve = getattr(_sol_obj, target_func, None) or getattr(_sol_obj, "solve", None)',
+    '        _user_entry_func = getattr(_sol_obj, _target_func_name, None) or getattr(_sol_obj, "solve", None) or _user_entry_func',
     '    except Exception:',
     '        pass',
     '',
-    'if solve is None:',
-    '    solve = globals().get(target_func) or globals().get("solve")',
-    '',
-    'if callable(solve):',
+    'if callable(_user_entry_func):',
     '    try:',
-    '        sig = inspect.signature(solve)',
+    '        sig = inspect.signature(_user_entry_func)',
     '        params = list(sig.parameters.keys())',
-    '        if params and params[0] == "self" and not (hasattr(solve, "__self__") and solve.__self__ is not None):',
-    '            _orig_solve = solve',
+    '        if params and params[0] == "self" and not (hasattr(_user_entry_func, "__self__") and _user_entry_func.__self__ is not None):',
+    '            _orig_solve = _user_entry_func',
     '            class _Dummy: pass',
-    '            solve = lambda *args, **kwargs: _orig_solve(_Dummy(), *args, **kwargs)',
+    '            _user_entry_func = lambda *args, **kwargs: _orig_solve(_Dummy(), *args, **kwargs)',
     '    except Exception:',
     '        pass',
     '',
-    'if solve is None:',
-    '    def solve(*args, **kwargs): return None',
+    'if _user_entry_func is None or not callable(_user_entry_func):',
+    '    def _user_entry_func(*args, **kwargs): return None',
     '',
     'class ListNode:',
     '    def __init__(self, val=0, next=None):',
@@ -335,7 +332,7 @@ function buildPythonHarness(
     lines.push(`__out_${i} = None`);
     lines.push(`__err_${i} = None`);
     lines.push(`try:`);
-    lines.push(`    __out_${i} = solve(${params || 'None'})`);
+    lines.push(`    __out_${i} = _user_entry_func(${params || 'None'})`);
     lines.push(`except Exception as _ex:`);
     lines.push(`    __err_${i} = str(_ex)`);
     lines.push(`finally:`);
@@ -400,11 +397,14 @@ function buildJavaScriptHarness(
   const lines: string[] = [
     cleanedCode,
     '',
-    'let __solve_harness = () => null;',
+    'let __user_entry_func = () => null;',
     'try {',
-    `  __solve_harness = ${targetFuncName};`,
+    `  if (typeof ${targetFuncName} === "function") {`,
+    `    __user_entry_func = ${targetFuncName};`,
+    '  } else if (typeof solve === "function") {',
+    '    __user_entry_func = solve;',
+    '  }',
     '} catch (e) {}',
-    'const solve = __solve_harness;',
     '',
     'class ListNode {',
     '  constructor(val, next) {',
@@ -481,7 +481,7 @@ function buildJavaScriptHarness(
     lines.push(`let __out_${i} = undefined;`);
     lines.push(`let __err_${i} = null;`);
     lines.push(`try {`);
-    lines.push(`  __out_${i} = solve(${params});`);
+    lines.push(`  __out_${i} = __user_entry_func(${params});`);
     lines.push(`} catch (e) {`);
     lines.push(`  __err_${i} = String(e?.message || e);`);
     lines.push(`} finally {`);
@@ -684,46 +684,57 @@ function buildJavaHarness(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): string {
-  let cleanedCode = code;
-  if (!code.includes('class Solution')) {
-    if (code.includes('public class Main') || code.includes('class Main')) {
-      cleanedCode = code.replace(/\b(?:public\s+)?class\s+Main\b/, 'class Solution');
+  const importLines: string[] = ['import java.util.*;', 'import java.io.*;'];
+  const nonImportLines: string[] = [];
+
+  for (const line of code.split('\n')) {
+    if (/^\s*import\s+[\w.]+;/.test(line)) {
+      importLines.push(line.trim());
     } else {
-      cleanedCode = `class Solution {\n${code}\n}`;
+      nonImportLines.push(line);
     }
   }
 
+  let userCode = nonImportLines.join('\n').trim();
+
+  // Strip public keyword from any class declaration so only Main is public
+  userCode = userCode.replace(/\bpublic\s+class\s+/g, 'class ');
+
+  // If user class has main(String[] args), rename to userMain(String[] args)
+  userCode = userCode.replace(/\bvoid\s+main\s*\(\s*String\s*\[\s*\]/g, 'void userMain(String[]');
+
+  // Check if user already defined a class
+  const hasClass = /\bclass\s+\w+/.test(userCode);
+
+  let targetClassName = 'Solution';
+  if (hasClass) {
+    const classMatch = userCode.match(/\bclass\s+(\w+)/);
+    if (classMatch) {
+      targetClassName = classMatch[1];
+    }
+  } else {
+    // User wrote bare method(s) -> wrap in class Solution
+    userCode = `class Solution {\n${userCode}\n}`;
+    targetClassName = 'Solution';
+  }
+
+  // Detect method name
   let targetFuncName = 'solve';
-  const mFunc = cleanedCode.match(/public\s+([\w\x5B\x5D]+)\s+(\w+)\s*\(/);
-  if (mFunc && mFunc[2] !== 'main') {
+  const mFunc = userCode.match(/(?:public|private|protected)?\s*(?:static\s+)?([\w<>[\]]+)\s+(\w+)\s*\(/);
+  if (mFunc && mFunc[2] !== 'main' && mFunc[2] !== 'userMain' && mFunc[2] !== targetClassName) {
     targetFuncName = mFunc[2];
   }
 
   let returnType = 'int[]';
-  if (mFunc) {
+  if (mFunc && mFunc[2] !== 'main' && mFunc[2] !== 'userMain' && mFunc[2] !== targetClassName) {
     returnType = mFunc[1].trim();
   }
 
-  let wrapper = '';
-  if (targetFuncName !== 'solve') {
-    const firstEx = examples[0];
-    const pairs = firstEx ? parseInputPairs(firstEx.input) : [];
-    const paramDefs = pairs.map(p => {
-      const javaType = inferJavaType(p.name, p.value);
-      return `${javaType} ${p.name}`;
-    }).join(', ');
-    const paramNames = pairs.map(p => p.name).join(', ');
-    if (returnType === 'void') {
-      wrapper = `\n    public void solve(${paramDefs}) {\n        ${targetFuncName}(${paramNames});\n    }\n`;
-    } else {
-      wrapper = `\n    public ${returnType} solve(${paramDefs}) {\n        return ${targetFuncName}(${paramNames});\n    }\n`;
-    }
-  }
-
-  const lastBrace = cleanedCode.lastIndexOf('}');
-  const classBody = cleanedCode.substring(0, lastBrace) + wrapper;
+  // Check if user has solve method or userMain
+  const hasUserMain = userCode.includes('userMain(');
 
   const mainLines: string[] = [
+    'public class Main {',
     '  // ── Dual-Evaluation Test Runner (auto-generated) ─────────────────',
     '  static class ListNode {',
     '      int val;',
@@ -735,15 +746,9 @@ function buildJavaHarness(
     '  static ListNode __listToLinkedList(int[] lst, int pos) {',
     '      if (lst == null || lst.length == 0) return null;',
     '      ListNode[] nodes = new ListNode[lst.length];',
-    '      for (int i = 0; i < lst.length; i++) {',
-    '          nodes[i] = new ListNode(lst[i]);',
-    '      }',
-    '      for (int i = 0; i < nodes.length - 1; i++) {',
-    '          nodes[i].next = nodes[i+1];',
-    '      }',
-    '      if (pos >= 0 && pos < nodes.length) {',
-    '          nodes[nodes.length - 1].next = nodes[pos];',
-    '      }',
+    '      for (int i = 0; i < lst.length; i++) nodes[i] = new ListNode(lst[i]);',
+    '      for (int i = 0; i < nodes.length - 1; i++) nodes[i].next = nodes[i+1];',
+    '      if (pos >= 0 && pos < nodes.length) nodes[nodes.length - 1].next = nodes[pos];',
     '      return nodes[0];',
     '  }',
     '  static int[] __linkedListToArray(ListNode node) {',
@@ -778,8 +783,11 @@ function buildJavaHarness(
     '    return String.valueOf(v);',
     '  }',
     '  public static void main(String[] args) {',
-    '    Solution sol = new Solution();',
   ];
+
+  if (!hasUserMain) {
+    mainLines.push(`    ${targetClassName} sol = new ${targetClassName}();`);
+  }
 
   examples.forEach((ex, i) => {
     const pairs = parseInputPairs(ex.input);
@@ -798,19 +806,30 @@ function buildJavaHarness(
       }
     });
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
+    const inputStdin = pairs.map(p => p.value.replace(/^[\[{]/, '').replace(/[\]}]$/, '')).join(' ');
 
     mainLines.push(`    java.io.ByteArrayOutputStream __baos_${i} = new java.io.ByteArrayOutputStream();`);
     mainLines.push(`    java.io.PrintStream __oldOut_${i} = System.out;`);
+    mainLines.push(`    java.io.InputStream __oldIn_${i} = System.in;`);
     mainLines.push(`    System.setOut(new java.io.PrintStream(__baos_${i}));`);
+    mainLines.push(`    System.setIn(new java.io.ByteArrayInputStream("${inputStdin}\\n".getBytes()));`);
 
-    if (returnType === 'void') {
-      mainLines.push(`    sol.solve(${params});`);
+    if (hasUserMain) {
+      mainLines.push(`    try { ${targetClassName}.userMain(new String[0]); } catch (Exception e) {}`);
       mainLines.push(`    System.setOut(__oldOut_${i});`);
+      mainLines.push(`    System.setIn(__oldIn_${i});`);
+      mainLines.push(`    String __printed_${i} = __baos_${i}.toString().trim();`);
+      mainLines.push(`    String __actual_${i} = __printed_${i};`);
+    } else if (returnType === 'void') {
+      mainLines.push(`    sol.${targetFuncName}(${params});`);
+      mainLines.push(`    System.setOut(__oldOut_${i});`);
+      mainLines.push(`    System.setIn(__oldIn_${i});`);
       mainLines.push(`    String __printed_${i} = __baos_${i}.toString().trim();`);
       mainLines.push(`    String __actual_${i} = __printed_${i};`);
     } else {
-      mainLines.push(`    Object __out_${i} = sol.solve(${params});`);
+      mainLines.push(`    Object __out_${i} = sol.${targetFuncName}(${params});`);
       mainLines.push(`    System.setOut(__oldOut_${i});`);
+      mainLines.push(`    System.setIn(__oldIn_${i});`);
       mainLines.push(`    String __printed_${i} = __baos_${i}.toString().trim();`);
       mainLines.push(`    String __actual_${i} = __serialize(__out_${i});`);
     }
@@ -831,7 +850,8 @@ function buildJavaHarness(
   mainLines.push('  }');
   mainLines.push('}');
 
-  return classBody + '\n' + mainLines.join('\n');
+  const uniqueImports = Array.from(new Set(importLines)).join('\n');
+  return `${uniqueImports}\n\n${userCode}\n\n${mainLines.join('\n')}`;
 }
 
 // ─── Parsing Output ───────────────────────────────────────────────────────────
@@ -844,22 +864,39 @@ function parseHarnessOutput(
   pfx_a = PFX_A,
   pfx_e = PFX_E
 ): any[] {
-  const lines   = stdout.split('\n');
+  const lines = stdout.split('\n');
   const results: any[] = [];
-  let cur: any  = null;
+  let cur: any = null;
 
   for (const line of lines) {
     if (line.startsWith(pfx_i)) {
-      if (cur) results.push(cur);
-      const idx = parseInt(line.slice(pfx_i.length));
+      if (cur) {
+        // Only push completed results that have at least P, A, or E markers
+        if (cur.passed !== false || cur.actual !== '' || cur.expected !== '') {
+          results.push(cur);
+        }
+      }
+      const rawIdx = line.slice(pfx_i.length).trim().split('_')[0];
+      const idx = parseInt(rawIdx);
+      // Validate index is within valid bounds
+      if (isNaN(idx) || idx < 0 || idx >= examples.length) {
+        console.warn(`[HARNESS] Invalid test index: ${rawIdx}`);
+        cur = null; // Skip invalid entries
+        continue;
+      }
       cur = { idx, input: examples[idx]?.input ?? '', passed: false, actual: '', expected: '' };
     } else if (cur) {
-      if (line.startsWith(pfx_p)) cur.passed   = line.slice(pfx_p.length).trim() === 'true';
-      if (line.startsWith(pfx_a)) cur.actual   = line.slice(pfx_a.length).trim();
+      if (line.startsWith(pfx_p)) cur.passed = line.slice(pfx_p.length).trim() === 'true';
+      if (line.startsWith(pfx_a)) cur.actual = line.slice(pfx_a.length).trim();
       if (line.startsWith(pfx_e)) cur.expected = line.slice(pfx_e.length).trim();
     }
   }
-  if (cur) results.push(cur);
+  if (cur) {
+    // Only include final result if it has some parsed data
+    if (cur.passed !== false || cur.actual !== '' || cur.expected !== '') {
+      results.push(cur);
+    }
+  }
   return results;
 }
 
@@ -870,7 +907,7 @@ async function executeCodeOnBackend(code: string, lang: string) {
   if (!mapped) throw new Error(`Unsupported language: ${lang}`);
 
   const fileNames: Record<string, string> = {
-    python: 'solution.py', cpp: 'solution.cpp', java: 'Solution.java', javascript: 'solution.js',
+    python: 'solution.py', cpp: 'solution.cpp', java: 'Main.java', javascript: 'solution.js',
   };
 
   const payload = {

@@ -19,7 +19,8 @@ interface FinalReviewPublishProps {
   roleTitle: string;
   sections: AssessmentSection[];
   onBackToSections: () => void;
-  onPublishComplete: (assessment: AdminAssessment) => void;
+  onPublishComplete: (assessment: AdminAssessment) => Promise<boolean>;
+  onSaveDraft: (assessment: AdminAssessment) => Promise<boolean>;
 }
 
 export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
@@ -27,19 +28,22 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
   sections,
   onBackToSections,
   onPublishComplete,
+  onSaveDraft,
 }) => {
   const [currentStep, setCurrentStep] = useState<'review' | 'publish'>('review');
   const [copiedLink, setCopiedLink] = useState(false);
   const [studentEmails, setStudentEmails] = useState('');
   const [enableProctoring, setEnableProctoring] = useState(true);
   const [fullScreenLock, setFullScreenLock] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const totalSections = sections.length;
   const totalTime = sections.reduce((sum, s) => sum + s.timeLimit, 0);
   const totalScore = sections.reduce((sum, s) => sum + s.score, 0);
   const totalQuestions = sections.reduce((sum, s) => sum + s.questionsCount, 0);
 
-  const assessmentId = `drive-${Date.now().toString(36)}`;
+  const [assessmentId] = useState(() => `drive-${Date.now().toString(36)}`);
   const shareableUrl = `${window.location.origin}/assessment?drive=${assessmentId}`;
 
   const handleCopy = () => {
@@ -48,8 +52,7 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const handleFinalPublish = () => {
-    const newAssessment: AdminAssessment = {
+  const buildAssessment = (status: AdminAssessment['status']): AdminAssessment => ({
       id: assessmentId,
       title: roleTitle,
       publishedOn: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) + ', 03:00 PM',
@@ -57,11 +60,24 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
       endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) + ', 11:50 PM',
       totalScore,
       totalTime,
-      status: 'In Progress',
+      status,
       sections,
       createdBy: 'Learniverse Admin'
-    };
-    onPublishComplete(newAssessment);
+    });
+
+  const saveAssessment = async (status: AdminAssessment['status']) => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      const saved = status === 'Draft'
+        ? await onSaveDraft(buildAssessment(status))
+        : await onPublishComplete(buildAssessment(status));
+      if (!saved) setSaveError(`Could not save the ${status.toLowerCase()} assessment. Please try again.`);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Could not save this assessment.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -151,6 +167,7 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
           </div>
 
           {/* Navigation */}
+          {saveError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
           <div className="flex items-center justify-between pt-4">
             <button
               onClick={onBackToSections}
@@ -159,6 +176,10 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
               &larr; Back to Section Details
             </button>
 
+            <div className="flex items-center gap-3">
+            <button type="button" disabled={saving} onClick={() => void saveAssessment('Draft')} className="px-5 py-2.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+              {saving ? 'Saving…' : 'Save Draft'}
+            </button>
             <button
               onClick={() => setCurrentStep('publish')}
               className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all flex items-center gap-2"
@@ -166,6 +187,7 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
               <span>Continue to Publish & Invite</span>
               <span>&rarr;</span>
             </button>
+            </div>
           </div>
         </div>
       ) : (
@@ -252,6 +274,7 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
           </div>
 
           {/* Publish Actions */}
+          {saveError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
           <div className="flex items-center justify-between pt-4">
             <button
               onClick={() => setCurrentStep('review')}
@@ -261,11 +284,12 @@ export const FinalReviewPublish: React.FC<FinalReviewPublishProps> = ({
             </button>
 
             <button
-              onClick={handleFinalPublish}
-              className="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow-md hover:shadow-lg transition-all"
+              disabled={saving}
+              onClick={() => void saveAssessment('In Progress')}
+              className="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50"
             >
               <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-              <span>Publish & Launch Assessment</span>
+              <span>{saving ? 'Saving…' : 'Publish & Launch Assessment'}</span>
             </button>
           </div>
         </div>
