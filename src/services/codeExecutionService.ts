@@ -483,7 +483,7 @@ function buildJavaScriptHarness(
     lines.push(`try {`);
     lines.push(`  __out_${i} = __user_entry_func(${params});`);
     lines.push(`} catch (e) {`);
-    lines.push(`  __err_${i} = String(e?.message || e);`);
+    lines.push(`  __err_${i} = String((e && e.message) ? e.message : e);`);
     lines.push(`} finally {`);
     lines.push(`  console.log = __origLog_${i};`);
     lines.push(`}`);
@@ -807,12 +807,13 @@ function buildJavaHarness(
     });
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
     const inputStdin = pairs.map(p => p.value.replace(/^[\[{]/, '').replace(/[\]}]$/, '')).join(' ');
+    const safeInputStdin = inputStdin.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
     mainLines.push(`    java.io.ByteArrayOutputStream __baos_${i} = new java.io.ByteArrayOutputStream();`);
     mainLines.push(`    java.io.PrintStream __oldOut_${i} = System.out;`);
     mainLines.push(`    java.io.InputStream __oldIn_${i} = System.in;`);
     mainLines.push(`    System.setOut(new java.io.PrintStream(__baos_${i}));`);
-    mainLines.push(`    System.setIn(new java.io.ByteArrayInputStream("${inputStdin}\\n".getBytes()));`);
+    mainLines.push(`    System.setIn(new java.io.ByteArrayInputStream("${safeInputStdin}\\n".getBytes()));`);
 
     if (hasUserMain) {
       mainLines.push(`    try { ${targetClassName}.userMain(new String[0]); } catch (Exception e) {}`);

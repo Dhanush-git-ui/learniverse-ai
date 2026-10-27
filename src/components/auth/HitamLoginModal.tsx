@@ -21,7 +21,8 @@ import {
 } from "lucide-react";
 
 const GOOGLE_CLIENT_ID =
-  import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+  "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com";
 
 interface HitamLoginModalProps {
   isOpen: boolean;
@@ -83,6 +84,10 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
 
     const initGoogle = () => {
       if (!window.google) return;
+      if (!GOOGLE_CLIENT_ID) {
+        console.warn("Google Client ID is missing. Google Sign-In button will not be rendered.");
+        return;
+      }
 
       try {
         window.google.accounts.id.initialize({
@@ -347,7 +352,11 @@ export const HitamLoginModal: React.FC<HitamLoginModalProps> = ({
           <div className="space-y-4 pt-1">
             {/* Google OAuth Button */}
             <div className="flex flex-col items-center justify-center min-h-[50px] w-full">
-              {isLoading && !credUsername ? (
+              {!GOOGLE_CLIENT_ID ? (
+                <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-center w-full font-medium">
+                  Google Sign-In is unavailable (client ID not configured). Please sign in using your credentials below or the Roll Number tab.
+                </div>
+              ) : isLoading && !credUsername ? (
                 <div className="text-xs font-semibold text-slate-600 animate-pulse flex items-center gap-2 py-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping" />
                   Verifying Google account...

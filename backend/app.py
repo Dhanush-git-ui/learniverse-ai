@@ -1407,8 +1407,9 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
             f.write(code)
             temp_path = f.name
         try:
+            py_bin = sys.executable or "python"
             res = subprocess.run(
-                ["python", temp_path],
+                [py_bin, temp_path],
                 input=stdin,
                 capture_output=True,
                 text=True,
@@ -1486,7 +1487,7 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
                 ["g++", temp_path, "-o", exe_path],
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=12,
                 env=safe_env,
                 preexec_fn=preexec
             )
@@ -1498,6 +1499,24 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
                         "code": compile_res.returncode
                     }
                 }
+        except subprocess.TimeoutExpired:
+            return {
+                "run": {
+                    "stdout": "",
+                    "stderr": "Compilation Timed Out (g++ took > 12s)",
+                    "code": 124
+                }
+            }
+        except FileNotFoundError:
+            return {
+                "run": {
+                    "stdout": "",
+                    "stderr": "C++ compiler (g++) is not installed or not in PATH.",
+                    "code": 1
+                }
+            }
+
+        try:
             res = subprocess.run(
                 [exe_path],
                 input=stdin,
@@ -1514,10 +1533,6 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
             stdout = ""
             stderr = "Time Limit Exceeded (Timeout > 5s)"
             exit_code = 124
-        except FileNotFoundError:
-            stdout = ""
-            stderr = "C++ compiler (g++) is not installed or not in PATH."
-            exit_code = 1
         except Exception as e:
             stdout = ""
             stderr = f"Local C++ execution failed: {str(e)}"
@@ -1538,16 +1553,19 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
         }
     elif lang == "java":
         temp_dir = tempfile.mkdtemp()
-        java_file = os.path.join(temp_dir, "Solution.java")
+        import re
+        class_match = re.search(r'\bpublic\s+class\s+(\w+)', code)
+        class_name = class_match.group(1) if class_match else "Solution"
+        java_file = os.path.join(temp_dir, f"{class_name}.java")
         with open(java_file, "w", encoding="utf-8") as f:
             f.write(code)
         try:
             compile_res = subprocess.run(
-                ["javac", "Solution.java"],
+                ["javac", f"{class_name}.java"],
                 cwd=temp_dir,
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=10,
                 env=safe_env,
                 preexec_fn=preexec
             )
@@ -1560,7 +1578,7 @@ def execute_code_locally(language: str, code: str, stdin: str = "") -> dict:
                     }
                 }
             res = subprocess.run(
-                ["java", "Solution"],
+                ["java", class_name],
                 cwd=temp_dir,
                 input=stdin,
                 capture_output=True,
@@ -1655,7 +1673,7 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
             if api_key:
                 headers["X-Auth-Token"] = api_key
 
-        resp = requests.post(endpoint, json=payload, headers=headers, timeout=10)
+        resp = requests.post(endpoint, json=payload, headers=headers, timeout=25)
         if resp.status_code in [200, 201]:
             data = resp.json()
             stdout = ""
