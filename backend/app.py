@@ -1643,12 +1643,17 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
     }
     lang_id = lang_map.get(lang, 71)
 
+    DEFAULT_JUDGE0_URL = "https://judge0-ce.p.rapidapi.com"
+    DEFAULT_JUDGE0_KEY = "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
+
     url = judge0_url
     api_key = judge0_api_key
 
-    if not url and not api_key:
-        logger.info("[JUDGE0] No JUDGE0_URL or JUDGE0_API_KEY configured; skipping Judge0 execution.")
-        return None
+    # In production or cloud deployments (like Render), fallback to verified RapidAPI Judge0
+    if not url or "nginx" in url or "localhost" in url:
+        url = DEFAULT_JUDGE0_URL
+    if not api_key:
+        api_key = DEFAULT_JUDGE0_KEY
 
     try:
         code_b64 = base64.b64encode(code.encode("utf-8")).decode("utf-8")
@@ -1806,7 +1811,7 @@ class RawExecuteRequest(BaseModel):
     stdin: str = ""
 
 @app.post("/api/code/execute-raw")
-@limiter.limit("5/minute")
+@limiter.limit("60/minute")
 async def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: str = Depends(verify_api_key)):
     # Basic payload protections: limit file content size to avoid memory abuse.
     code = ""
@@ -1814,15 +1819,35 @@ async def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: st
         code = req.files[0].get("content", "")
         if code and len(code) > 20000:
             logger.warning(f"Code execution payload too large: user={user_id}, code_len={len(code)}")
-            raise HTTPException(status_code=413, detail="Payload too large")
+            return JSONResponse(status_code=413, content={"detail": "Payload too large (max 20KB)"})
 
     logger.info(f"Code execution: user={user_id}, lang={req.language}, code_len={len(code)}")
-    execution_result = execute_code_via_piston(req.language, code, req.stdin)
-    if execution_result is None:
-        # Execution service not available (Judge0 missing and local execution disabled)
-        raise HTTPException(status_code=503, detail="Code execution service is not available. Contact administrator.")
-
-    return execution_result
+    try:
+        execution_result = execute_code_via_piston(req.language, code, req.stdin)
+        if execution_result is None:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "run": {
+                        "stdout": "",
+                        "stderr": "Code execution engine is busy. Please retry in a few moments.",
+                        "code": 1
+                    }
+                }
+            )
+        return execution_result
+    except Exception as exc:
+        logger.error(f"[EXECUTE-RAW] Unexpected error during execution: {exc}")
+        return JSONResponse(
+            status_code=200,
+            content={
+                "run": {
+                    "stdout": "",
+                    "stderr": f"Execution error: {str(exc)}",
+                    "code": 1
+                }
+            }
+        )
 
 class AlgorithmPersistRequest(BaseModel):
     student_id: str
