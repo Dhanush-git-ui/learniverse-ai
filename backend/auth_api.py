@@ -10,13 +10,19 @@ from rate_limiter import limiter
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv()
+
 logger = logging.getLogger("learniverse.auth")
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-# Google client ID resolved from environment variable only
+DEFAULT_GOOGLE_CLIENT_ID = "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com"
+
+# Google client ID resolved from environment variable or default configuration
 def _resolve_google_client_ids() -> list[str]:
-    c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+    c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip() or DEFAULT_GOOGLE_CLIENT_ID
     ids = [c_id] if c_id else []
     return [client_id for client_id in ids if client_id]
 
@@ -117,20 +123,23 @@ def _verified_student_for_email(email: str) -> Optional[Dict[str, Any]]:
 def verify_google_id_token(token_str: str) -> Dict[str, Any]:
     """Verify a Google ID token against an explicitly configured client ID."""
     active_ids = GOOGLE_CLIENT_IDS if GOOGLE_CLIENT_IDS else _resolve_google_client_ids()
+    clean_token = (token_str or "").strip()
     last_err = None
     for client_id in active_ids:
         try:
             idinfo = id_token.verify_oauth2_token(
-                token_str,
+                clean_token,
                 google_requests.Request(),
-                client_id
+                client_id,
+                clock_skew_in_seconds=10
             )
             return idinfo
         except Exception as e:
             last_err = e
             pass
-    logger.warning("Google token verification failed or no client ID is configured: %s", last_err)
-    raise HTTPException(status_code=401, detail="Invalid Google OAuth credential.")
+    logger.warning("Google token verification failed (active_ids=%s): %s", active_ids, last_err)
+    detail_msg = f"Invalid Google OAuth credential: {last_err}" if os.environ.get("ENV") == "development" else "Invalid Google OAuth credential."
+    raise HTTPException(status_code=401, detail=detail_msg)
 
 def is_admin_email(email: str) -> bool:
     e = (email or "").strip().lower()
