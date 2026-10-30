@@ -16,6 +16,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     } catch {
       // Keep the status-based message when the backend does not return JSON.
     }
+    if (response.status === 401) {
+      localStorage.removeItem('learniverse_token');
+    }
     throw new Error(detail);
   }
   return response.json() as Promise<T>;

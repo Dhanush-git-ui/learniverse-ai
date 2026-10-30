@@ -1,4 +1,4 @@
-import { getAuthHeaders } from '@/utils/apiAuth';
+import { getAuthHeaders, getAuthToken } from '@/utils/apiAuth';
 import React, { useState, useEffect, useRef } from 'react';
 import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter, Code2, MessageSquare, Award, Trophy, Radio, Activity, BarChart2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -626,8 +626,10 @@ export default function PlacementAssessment() {
   const [adminPasscode, setAdminPasscode] = useState<string>('');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     try {
+      const token = getAuthToken();
+      if (!token) return false;
       const u = JSON.parse(localStorage.getItem('learniverse_student') || localStorage.getItem('learniverse_user') || '{}');
-      return u.is_admin === true || u.role === 'admin';
+      return (u.is_admin === true || u.role === 'admin');
     } catch {
       return false;
     }

@@ -401,7 +401,29 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
             )}
           </div>
         )}
-        {assessmentStorageError && <div role="alert" className="mx-auto mt-4 max-w-7xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Database status: {assessmentStorageError}</div>}
+                {assessmentStorageError && (
+          <div role="alert" className="mx-auto mb-6 max-w-7xl rounded-2xl border border-amber-300/80 bg-amber-50/90 p-4 text-sm text-amber-900 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+            <div className="flex items-center gap-2.5">
+              <span className="font-bold">Database session:</span>
+              <span>{assessmentStorageError}</span>
+            </div>
+            {(assessmentStorageError.toLowerCase().includes('token') || assessmentStorageError.toLowerCase().includes('auth') || assessmentStorageError.toLowerCase().includes('401')) && (
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('learniverse_token');
+                  localStorage.removeItem('learniverse_student');
+                  localStorage.removeItem('learniverse_user');
+                  localStorage.removeItem('learniverse_admin_authed');
+                  window.location.reload();
+                }}
+                className="px-3.5 py-1.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
+              >
+                Sign In Again →
+              </button>
+            )}
+          </div>
+        )}
         {/* If 'My Questions' tab is active, show Question Bank Manager */}
         {activeNav === 'questions' ? (
           <MyQuestionsManager
