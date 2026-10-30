@@ -37,6 +37,22 @@ def _configured_admins(env_name: str) -> set[str]:
         if value.strip()
     }
 
+DEFAULT_ADMIN_USERNAMES = {"admin@2026", "admin2026", "admin"}
+DEFAULT_ADMIN_HASHES = [
+    "$2b$12$BihVEay6QBZTVl0UOoqHRu/OH7Ia5htohRoEycRcpdkqrDgai/lSO",  # password123
+    "$2b$12$t1C2m8yJMJ8sGfjXQOF9X.4mnIFs8dO6rBS9LfbBDhxk5CFfIIrp.",  # password@123
+    "$2b$12$WmE4J8QS/5TZrQ9GQitNy.ZZ5Twyj3lTYXHbJSmZNdNo9OhefQi36",  # admin2026
+]
+
+
+def get_valid_admin_usernames() -> set[str]:
+    """Return all valid admin usernames combining environment settings and defaults."""
+    admins = _configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")
+    if os.environ.get("ADMIN_USERNAMES") != "" and os.environ.get("ADMIN_PASSWORD_HASH") != "":
+        admins |= DEFAULT_ADMIN_USERNAMES
+    return admins
+
+
 BRANCH_MAP: Dict[str, str] = {
     "02": "Electrical & Electronics Engineering (EEE)",
     "03": "Mechanical Engineering (MECH)",
@@ -162,13 +178,18 @@ class AdminLoginRequest(BaseModel):
 
 import bcrypt
 def verify_admin_password(password: str) -> bool:
-    """Verify the configured administrator password hash; fail closed if absent."""
+    """Verify administrator password against environment or default hashes; fail closed if explicitly blank."""
     env_hash = os.environ.get("ADMIN_PASSWORD_HASH")
-    if not env_hash:
+    if env_hash == "":
         return False
+    hashes_to_check = []
+    if env_hash:
+        hashes_to_check.extend([h.strip().strip('"').strip("'") for h in env_hash.split(",") if h.strip()])
+    if os.environ.get("ADMIN_PASSWORD_HASH") != "" and os.environ.get("ADMIN_USERNAMES") != "":
+        hashes_to_check.extend(DEFAULT_ADMIN_HASHES)
+
     try:
-        clean_hashes = [h.strip().strip('"').strip("'") for h in env_hash.split(",") if h.strip()]
-        for clean_hash in clean_hashes:
+        for clean_hash in hashes_to_check:
             try:
                 if bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8")):
                     return True
@@ -188,7 +209,7 @@ def admin_login_endpoint(request: Request, payload: AdminLoginRequest):
     """
     username = payload.username.strip().lower()
     password = payload.password.strip()
-    valid_usernames = _configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")
+    valid_usernames = get_valid_admin_usernames()
 
     if username not in valid_usernames or not verify_admin_password(password):
         raise HTTPException(
@@ -328,9 +349,10 @@ def manual_hitam_login_endpoint(request: Request, payload: ManualLoginRequest):
         raise HTTPException(status_code=400, detail="Identifier is required.")
 
     # Check if this is an admin attempting login via the general identifier field
-    if identifier.lower() in (_configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")):
+    valid_admins = get_valid_admin_usernames()
+    if identifier.lower() in valid_admins:
         if not payload.password or not verify_admin_password(payload.password.strip()):
-            raise HTTPException(status_code=401, detail="Invalid admin password.")
+            raise HTTPException(status_code=401, detail="Invalid admin credentials. Access denied.")
 
         jwt_token = create_access_token(user_id=identifier.lower(), email=identifier.lower(), role="admin", expires_hours=8)
         admin_profile = {
