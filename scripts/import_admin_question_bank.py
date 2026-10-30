@@ -40,83 +40,66 @@ def _json_or_none(value):
     return json.dumps(value, ensure_ascii=False) if value is not None else None
 
 
+def _execute_many(db, sql: str, rows: list[tuple], page_size: int = 100) -> None:
+    if not rows:
+        return
+    from placement_assessment_system.api import SQLiteCursorAdapter
+
+    if isinstance(db, SQLiteCursorAdapter):
+        for row in rows:
+            db.execute(sql, row)
+        return
+
+    from psycopg2.extras import execute_batch
+    execute_batch(db.cur, sql, rows, page_size=page_size)
+
+
 def import_bundle(db, bundle: dict, source_batches: list[dict] | None = None) -> tuple[int, int]:
     from placement_assessment_system.question_bank_admin import ensure_question_bank_schema
 
     ensure_question_bank_schema(db)
-    inserted_or_updated = 0
-    associations_added = 0
-    for category in CATEGORIES:
-        db.execute("INSERT INTO question_categories (name) VALUES (%s) ON CONFLICT(name) DO NOTHING", (category,))
     for batch in source_batches or []:
         db.execute(
             "INSERT INTO question_import_batches (batch_id, source, attempted_count, upserted_count, review_status, imported_at) VALUES (%s,%s,%s,%s,%s,CURRENT_TIMESTAMP) ON CONFLICT(batch_id) DO UPDATE SET source=excluded.source, attempted_count=excluded.attempted_count, upserted_count=excluded.upserted_count, review_status=excluded.review_status, imported_at=CURRENT_TIMESTAMP",
             (batch["batch_id"], batch["source"], batch["attempted_count"], batch["upserted_count"], batch["review_status"]),
         )
-    for company in COMPANIES:
-        db.execute("INSERT INTO question_companies (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", (slug(company), company))
-    for role in ROLES:
-        db.execute("INSERT INTO question_roles (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", (slug(role), role))
+
+    category_rows = {category: (category,) for category in CATEGORIES}
+    topic_rows = set()
+    company_rows = {slug(company): (slug(company), company) for company in COMPANIES}
+    role_rows = {slug(role): (slug(role), role) for role in ROLES}
+    question_rows = []
+    role_link_rows = set()
+    company_role_rows = set()
+
     for q in bundle["questions"]:
         category = str(q.get("category") or "General")
         topic = str(q.get("topic") or "General")
         tags = q.get("tags") or []
         if isinstance(tags, str):
             tags = [part.strip() for part in tags.split(",") if part.strip()]
-        db.execute("INSERT INTO question_categories (name) VALUES (%s) ON CONFLICT(name) DO NOTHING", (category,))
-        db.execute("INSERT INTO question_topics (category, topic) VALUES (%s, %s) ON CONFLICT(category, topic) DO NOTHING", (category, topic))
-        db.execute(
-            """INSERT INTO questions (
-                id, category, question_type, topic, subtopic, difficulty, question, options,
-                correct_option, answer, explanation, marks, negative_marks, estimated_time,
-                tags, generator_version, option_explanations, source, provenance,
-                verification_status, review_status, input_format, output_format,
-                constraints_text, sample_explanation, test_cases, reference_solution,
-                time_complexity, space_complexity, supported_languages, structural_status,
-                answer_status, source_status, expert_review_status, verification_evidence
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            ON CONFLICT(id) DO UPDATE SET
-                category=excluded.category, question_type=excluded.question_type, topic=excluded.topic,
-                subtopic=excluded.subtopic, difficulty=excluded.difficulty, question=excluded.question,
-                options=excluded.options, correct_option=excluded.correct_option, answer=excluded.answer,
-                explanation=excluded.explanation, tags=excluded.tags, option_explanations=excluded.option_explanations,
-                source=excluded.source, provenance=excluded.provenance, verification_status=excluded.verification_status,
-                review_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.review_status ELSE excluded.review_status END,
-                input_format=excluded.input_format, output_format=excluded.output_format,
-                constraints_text=excluded.constraints_text, sample_explanation=excluded.sample_explanation,
-                test_cases=excluded.test_cases, reference_solution=excluded.reference_solution,
-                time_complexity=excluded.time_complexity, space_complexity=excluded.space_complexity,
-                supported_languages=excluded.supported_languages, generator_version=excluded.generator_version,
-                structural_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.structural_status ELSE excluded.structural_status END,
-                answer_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.answer_status ELSE excluded.answer_status END,
-                source_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.source_status ELSE excluded.source_status END,
-                expert_review_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.expert_review_status ELSE excluded.expert_review_status END,
-                verification_evidence=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.verification_evidence ELSE excluded.verification_evidence END""",
-            (
-                q["id"], category, str(q.get("questionType") or "MCQ").casefold(), topic,
-                q.get("subTopic") or topic, q.get("difficulty") or "Medium", q["prompt"],
-                q.get("options") or [], q.get("correctAnswer"), q.get("answer"), q.get("explanation"),
-                int(q.get("marks") or 1), float(q.get("negativeMarks") or 0), int(q.get("estimatedTime") or 90),
-                tags, "admin-question-bank-v1", q.get("optionExplanations") or [], q.get("source"),
-                q.get("provenance") or "AI-Generated Practice Question", q.get("verificationStatus"),
-                q.get("reviewStatus") or "Pending Review", q.get("inputFormat"), q.get("outputFormat"),
-                q.get("constraints"), q.get("sampleExplanation"), _json_or_none(q.get("testCases")),
-                _json_or_none(q.get("referenceSolution")), q.get("timeComplexity"), q.get("spaceComplexity"),
-                _json_or_none(q.get("supportedLanguages")), q.get("structuralStatus") or "Not Checked",
-                q.get("answerStatus") or "Unverified", q.get("sourceStatus") or ("Repository Source Recorded" if q.get("source") else "Unverified"),
-                q.get("expertReviewStatus") or "Pending", q.get("verificationEvidence"),
-            ),
-        )
-        inserted_or_updated += 1
+        category_rows[category] = (category,)
+        topic_rows.add((category, topic))
+        question_rows.append((
+            q["id"], category, str(q.get("questionType") or "MCQ").casefold(), topic,
+            q.get("subTopic") or topic, q.get("difficulty") or "Medium", q["prompt"],
+            _json_or_none(q.get("options") or []), q.get("correctAnswer"), q.get("answer"), q.get("explanation"),
+            int(q.get("marks") or 1), float(q.get("negativeMarks") or 0), int(q.get("estimatedTime") or 90),
+            _json_or_none(tags), "admin-question-bank-v1", _json_or_none(q.get("optionExplanations") or []), q.get("source"),
+            q.get("provenance") or "AI-Generated Practice Question", q.get("verificationStatus"),
+            q.get("reviewStatus") or "Pending Review", q.get("inputFormat"), q.get("outputFormat"),
+            q.get("constraints"), q.get("sampleExplanation"), _json_or_none(q.get("testCases")),
+            _json_or_none(q.get("referenceSolution")), q.get("timeComplexity"), q.get("spaceComplexity"),
+            _json_or_none(q.get("supportedLanguages")), q.get("structuralStatus") or "Not Checked",
+            q.get("answerStatus") or "Unverified", q.get("sourceStatus") or ("Repository Source Recorded" if q.get("source") else "Unverified"),
+            q.get("expertReviewStatus") or "Pending", q.get("verificationEvidence"),
+        ))
 
         role_name = str(q.get("role") or "").strip()
         if role_name:
             role_slug = slug(role_name)
-            db.execute("INSERT INTO question_roles (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", (role_slug, role_name))
-            db.execute(
-                "INSERT INTO question_role_links (question_id, role_slug, provenance, source) VALUES (%s,%s,%s,%s) ON CONFLICT(question_id, role_slug) DO NOTHING",
-                (q["id"], role_slug, q.get("provenance") or "Source-Verified Practice Question", q.get("source")),
-            )
+            role_rows[role_slug] = (role_slug, role_name)
+            role_link_rows.add((q["id"], role_slug, q.get("provenance") or "Source-Verified Practice Question", q.get("source")))
 
         for assoc in q.get("associations") or []:
             company = str(assoc.get("company") or "").strip()
@@ -124,18 +107,49 @@ def import_bundle(db, bundle: dict, source_batches: list[dict] | None = None) ->
             if not company or not role:
                 continue
             company_slug, role_slug = slug(company), slug(role)
-            db.execute("INSERT INTO question_companies (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", (company_slug, company))
-            db.execute("INSERT INTO question_roles (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", (role_slug, role))
-            db.execute(
-                "INSERT INTO question_company_roles (question_id, company_slug, role_slug, recruitment_stage, provenance, source) VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT(question_id, company_slug, role_slug, recruitment_stage) DO NOTHING",
-                (q["id"], company_slug, role_slug, assoc.get("recruitmentStage") or "General Practice", assoc.get("provenance") or q.get("provenance") or "AI-Generated Practice Question", assoc.get("source") or q.get("source")),
-            )
-            associations_added += 1
+            company_rows[company_slug] = (company_slug, company)
+            role_rows[role_slug] = (role_slug, role)
+            company_role_rows.add((q["id"], company_slug, role_slug, assoc.get("recruitmentStage") or "General Practice", assoc.get("provenance") or q.get("provenance") or "AI-Generated Practice Question", assoc.get("source") or q.get("source")))
+
+    question_sql = """INSERT INTO questions (
+        id, category, question_type, topic, subtopic, difficulty, question, options,
+        correct_option, answer, explanation, marks, negative_marks, estimated_time,
+        tags, generator_version, option_explanations, source, provenance,
+        verification_status, review_status, input_format, output_format,
+        constraints_text, sample_explanation, test_cases, reference_solution,
+        time_complexity, space_complexity, supported_languages, structural_status,
+        answer_status, source_status, expert_review_status, verification_evidence
+    ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    ON CONFLICT(id) DO UPDATE SET
+        category=excluded.category, question_type=excluded.question_type, topic=excluded.topic,
+        subtopic=excluded.subtopic, difficulty=excluded.difficulty, question=excluded.question,
+        options=excluded.options, correct_option=excluded.correct_option, answer=excluded.answer,
+        explanation=excluded.explanation, tags=excluded.tags, option_explanations=excluded.option_explanations,
+        source=excluded.source, provenance=excluded.provenance, verification_status=excluded.verification_status,
+        review_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.review_status ELSE excluded.review_status END,
+        input_format=excluded.input_format, output_format=excluded.output_format,
+        constraints_text=excluded.constraints_text, sample_explanation=excluded.sample_explanation,
+        test_cases=excluded.test_cases, reference_solution=excluded.reference_solution,
+        time_complexity=excluded.time_complexity, space_complexity=excluded.space_complexity,
+        supported_languages=excluded.supported_languages, generator_version=excluded.generator_version,
+        structural_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.structural_status ELSE excluded.structural_status END,
+        answer_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.answer_status ELSE excluded.answer_status END,
+        source_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.source_status ELSE excluded.source_status END,
+        expert_review_status=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.expert_review_status ELSE excluded.expert_review_status END,
+        verification_evidence=CASE WHEN EXISTS (SELECT 1 FROM question_review_events ev WHERE ev.question_id=questions.id) THEN questions.verification_evidence ELSE excluded.verification_evidence END"""
+
+    _execute_many(db, "INSERT INTO question_categories (name) VALUES (%s) ON CONFLICT(name) DO NOTHING", list(category_rows.values()))
+    _execute_many(db, "INSERT INTO question_topics (category, topic) VALUES (%s,%s) ON CONFLICT(category, topic) DO NOTHING", sorted(topic_rows))
+    _execute_many(db, "INSERT INTO question_companies (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", list(company_rows.values()))
+    _execute_many(db, "INSERT INTO question_roles (slug, name) VALUES (%s,%s) ON CONFLICT(slug) DO NOTHING", list(role_rows.values()))
+    _execute_many(db, question_sql, question_rows)
+    _execute_many(db, "INSERT INTO question_role_links (question_id, role_slug, provenance, source) VALUES (%s,%s,%s,%s) ON CONFLICT(question_id, role_slug) DO NOTHING", sorted(role_link_rows))
+    _execute_many(db, "INSERT INTO question_company_roles (question_id, company_slug, role_slug, recruitment_stage, provenance, source) VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT(question_id, company_slug, role_slug, recruitment_stage) DO NOTHING", sorted(company_role_rows))
     db.execute("DELETE FROM question_topics WHERE NOT EXISTS (SELECT 1 FROM questions q WHERE q.category=question_topics.category AND q.topic=question_topics.topic)")
     db.execute("DELETE FROM question_categories WHERE NOT EXISTS (SELECT 1 FROM questions q WHERE q.category=question_categories.name)")
     for category in CATEGORIES:
         db.execute("INSERT INTO question_categories (name) VALUES (%s) ON CONFLICT(name) DO NOTHING", (category,))
-    return inserted_or_updated, associations_added
+    return len(question_rows), len(company_role_rows)
 
 
 def main() -> None:

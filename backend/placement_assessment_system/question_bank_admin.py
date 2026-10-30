@@ -57,6 +57,9 @@ def ensure_question_bank_schema(db) -> None:
                 db.execute(f"ALTER TABLE questions ADD COLUMN {name} {definition}")
     else:
         db.execute("ALTER TABLE questions ALTER COLUMN category TYPE TEXT")
+        # The legacy schema used VARCHAR(20), but current import identifiers
+        # and generator labels can exceed that limit.
+        db.execute("ALTER TABLE questions ALTER COLUMN generator_version TYPE TEXT")
         for name, definition in extra_columns.items():
             db.execute(f"ALTER TABLE questions ADD COLUMN IF NOT EXISTS {name} {definition}")
 
@@ -158,6 +161,15 @@ class TrainerTestRequest(BaseModel):
 @router.get("/facets")
 def get_question_bank_facets(db=Depends(get_db_cursor)):
     ensure_question_bank_schema(db)
+    # Older installations can already contain questions before the facet
+    # catalog tables were introduced. Derive any missing catalog values from
+    # those records so the category/topic dropdowns remain usable after deploy.
+    db.execute(
+        "INSERT INTO question_categories (name) SELECT DISTINCT category FROM questions WHERE category IS NOT NULL AND category <> '' ON CONFLICT(name) DO NOTHING"
+    )
+    db.execute(
+        "INSERT INTO question_topics (category, topic) SELECT DISTINCT category, topic FROM questions WHERE category IS NOT NULL AND category <> '' AND topic IS NOT NULL AND topic <> '' ON CONFLICT(category, topic) DO NOTHING"
+    )
     result = {}
     for name, sql in {
         "categories": "SELECT name AS value FROM question_categories ORDER BY name",

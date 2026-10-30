@@ -1,6 +1,6 @@
 import { getAuthHeaders } from '@/utils/apiAuth';
 import React, { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter, Code2, MessageSquare, Award, Trophy, Radio, Activity, BarChart2 } from 'lucide-react';
+import { ShieldAlert, Monitor, Video, Maximize2, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Bookmark, RotateCcw, AlertTriangle, Send, Play, Upload, Star, Sparkles, X, Building2, Users, Calendar, Clock, Plus, Search, RefreshCw, FileText, Check, Lock, Unlock, Eye, ArrowRight, ExternalLink, Download, Filter, Code2, MessageSquare, Award, Trophy, Radio, Activity, BarChart2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Editor from '@monaco-editor/react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -2205,11 +2205,15 @@ export default function PlacementAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-4 sm:p-6 select-none font-sans"
-         onCopy={(e) => e.preventDefault()}
-         onPaste={(e) => e.preventDefault()}
-         onCut={(e) => e.preventDefault()}
-         onContextMenu={(e) => e.preventDefault()}>
+    <div className={`min-h-screen font-sans ${
+      mainTab === 'admin'
+        ? 'bg-slate-50/70 text-slate-900 p-4 sm:p-6 lg:p-8 flex flex-col'
+        : 'bg-white text-black flex flex-col items-center justify-center p-4 sm:p-6 select-none'
+    }`}
+         onCopy={(e) => { if (mainTab !== 'admin') e.preventDefault(); }}
+         onPaste={(e) => { if (mainTab !== 'admin') e.preventDefault(); }}
+         onCut={(e) => { if (mainTab !== 'admin') e.preventDefault(); }}
+         onContextMenu={(e) => { if (mainTab !== 'admin') e.preventDefault(); }}>
       
       {isOffline && (
         <div className="bg-black text-white font-bold py-2 text-center text-xs w-full z-50 fixed top-0 left-0 shadow-md flex items-center justify-center gap-2 border-b border-slate-800">
@@ -2226,234 +2230,235 @@ export default function PlacementAssessment() {
       )}
       
       {step === 'landing' && (
-        <div className="max-w-4xl w-full bg-white border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-xl text-black transition-all duration-300 animate-fade-in my-8">
-          
-          <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-5 mb-6 gap-4">
-            <div className="flex items-center space-x-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm">
-                <Building2 className="w-6 h-6 text-blue-500" />
+        mainTab === 'admin' ? (
+          /* Multi-Tenant Startup Admin Hub (Modern Spacious Desktop Layout) */
+          !isAdminAuthenticated ? (
+            <div className="max-w-md mx-auto my-16 w-full bg-white border border-slate-200/90 p-8 sm:p-10 rounded-3xl shadow-lg text-center space-y-6 animate-fade-in">
+              <div className="w-16 h-16 mx-auto rounded-3xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shadow-xs">
+                <Lock className="w-8 h-8" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black flex items-center gap-2">
-                  {mainTab === 'admin' ? "STARTUP ASSESSMENT HUB" : "PLACEMENT & HIRING PORTAL"}
-                </h1>
-                <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
-                  <span>{mainTab === 'admin' ? "MULTI-TENANT SCREENING & LIVE DRIVE MONITOR" : "ONLINE TECHNICAL ASSESSMENT ENGINE"}</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
-                </p>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Startup Admin Console</h2>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed">Enter your administrator passcode to unlock multi-tenant drive management and real-time candidate monitoring.</p>
               </div>
-            </div>
 
-            {/* In Admin Section: NO candidate test entry tab! Only clean admin status and exit action */}
-            {mainTab === 'admin' ? (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-black font-mono">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                  ADMIN CONSOLE
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    localStorage.removeItem('learniverse_admin_authed');
-                    setIsAdminAuthenticated(false);
-                    window.location.href = "/";
+              <div className="space-y-3.5">
+                <input
+                  type="password"
+                  value={adminPasscode}
+                  disabled={isAdminSubmitting}
+                  onChange={(e) => {
+                    setAdminPasscode(e.target.value);
+                    setAdminAuthError('');
                   }}
-                  className="px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-black hover:bg-black hover:text-white transition-all shadow-xs"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAdminUnlock();
+                    }
+                  }}
+                  placeholder="Enter Administrator Passcode"
+                  className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono text-center shadow-xs disabled:opacity-50 transition-all"
+                />
+                {adminAuthError && (
+                  <p className="text-xs font-semibold text-rose-500 animate-shake">{adminAuthError}</p>
+                )}
+                <button
+                  disabled={isAdminSubmitting}
+                  onClick={handleAdminUnlock}
+                  className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer"
                 >
-                  Exit Console
+                  {isAdminSubmitting ? 'Authenticating...' : 'Unlock Startup Console →'}
                 </button>
               </div>
-            ) : null}
-          </div>
-
-          {mainTab === 'admin' ? (
-            /* Multi-Tenant Startup Admin Hub */
-            !isAdminAuthenticated ? (
-              <div className="max-w-md mx-auto py-10 px-6 text-center space-y-5 animate-fade-in">
-                <div className="w-14 h-14 mx-auto rounded-3xl bg-slate-100 border border-slate-200 text-blue-600 flex items-center justify-center shadow-xs">
-                  <Lock className="w-7 h-7" />
+            </div>
+          ) : (
+            <div className="max-w-7xl w-full mx-auto space-y-6 animate-fade-in">
+              {/* Executive Admin Header Card */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <Building2 className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                        Startup Assessment Hub
+                      </h1>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200/80 text-[11px] font-bold text-blue-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                        Admin Console
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
+                      <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        Live Database Connected • 3s Sync
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span>Last synced: <strong className="text-slate-700 font-medium">{lastSyncTime}</strong></span>
+                      <button
+                        onClick={() => {
+                          fetchCatalog(false);
+                          fetchLiveMonitor(activeMonitorTestId, false);
+                        }}
+                        className="hover:text-blue-600 font-semibold transition-colors flex items-center gap-1 text-[11px] text-slate-600 cursor-pointer"
+                        title="Refresh real-time data"
+                      >
+                        ↻ Refresh
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-900">Startup Admin Console</h2>
-                  <p className="text-xs text-slate-500 mt-1">Enter your admin passcode or authenticate with an authorized Google admin email to manage drives.</p>
-                </div>
 
-                <div className="space-y-3">
-                  <input
-                    type="password"
-                    value={adminPasscode}
-                    disabled={isAdminSubmitting}
-                    onChange={(e) => {
-                      setAdminPasscode(e.target.value);
-                      setAdminAuthError('');
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAdminUnlock();
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <button
+                    onClick={() => {
+                      if (catalogSubTab === 'students') {
+                        exportStudentsCsv();
+                      } else {
+                        window.open('/api/assessment/admin/export', '_blank');
                       }
                     }}
-                    placeholder="Enter Administrator Passcode"
-                    className="w-full bg-white border border-slate-300 text-slate-900 text-sm px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-center shadow-sm disabled:opacity-50"
-                  />
-                  {adminAuthError && (
-                    <p className="text-xs font-semibold text-rose-500">{adminAuthError}</p>
-                  )}
-                  <button
-                    disabled={isAdminSubmitting}
-                    onClick={handleAdminUnlock}
-                    className="w-full bg-black hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl transition-all border border-black shadow-sm disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-bold text-slate-700 transition-all shadow-2xs cursor-pointer"
                   >
-                    {isAdminSubmitting ? 'Authenticating...' : 'Unlock Startup Console →'}
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{catalogSubTab === 'students' ? 'Export Students CSV' : 'Export CSV'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsAdminAuthenticated(false);
+                      localStorage.removeItem('learniverse_admin_authed');
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-semibold text-slate-700 transition-all shadow-2xs cursor-pointer"
+                    title="Lock console"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Lock</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem('learniverse_admin_authed');
+                      setIsAdminAuthenticated(false);
+                      window.location.href = "/";
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Exit Console</span>
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-6 animate-fade-in">
-                {/* Metric Summary Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Companies</span>
-                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.companies || 2}</span>
+
+              {/* Metric Summary KPI Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Registered Companies</span>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-2xl font-black text-slate-900">{catalogData?.counts?.companies || 2}</span>
+                    <span className="text-xs text-slate-400 font-medium">Tenants</span>
                   </div>
-                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">Ongoing Drives</span>
-                    <span className="text-xl font-black text-slate-900 flex items-center gap-1.5">
+                </div>
+                <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-blue-300 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block">Ongoing Live Drives</span>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-2xl font-black text-slate-900 flex items-center gap-2">
                       <span>{catalogData?.counts?.ongoing || 1}</span>
                       <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                     </span>
-                  </div>
-                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Upcoming Drives</span>
-                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.upcoming || 0}</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Past Drives</span>
-                    <span className="text-xl font-black text-slate-900">{catalogData?.counts?.past || 0}</span>
+                    <span className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">Active</span>
                   </div>
                 </div>
-
-                {/* Real-Time Database Constant Connection Status Banner */}
-                <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl text-xs text-black shadow-xs">
-                  <div className="flex items-center gap-2.5">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
-                    </span>
-                    <span className="font-bold text-black">
-                      Live Database Connected • Constant 3s Real-Time Synchronization Active
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2.5 text-[11px] text-slate-600">
-                    <span>Last synced: <strong className="text-black">{lastSyncTime}</strong></span>
-                    <button
-                      onClick={() => {
-                        fetchCatalog(false);
-                        fetchLiveMonitor(activeMonitorTestId, false);
-                      }}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-black font-semibold rounded-lg shadow-xs transition-all flex items-center gap-1"
-                    >
-                      <span>↻ Refresh Now</span>
-                    </button>
+                <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Upcoming Drives</span>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-2xl font-black text-slate-900">{catalogData?.counts?.upcoming || 0}</span>
+                    <span className="text-xs text-slate-400 font-medium">Scheduled</span>
                   </div>
                 </div>
-
-                {/* Sub Navigation Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setCatalogSubTab('topin_suite')}
-                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'topin_suite' || catalogSubTab === 'builder'
-                          ? 'bg-blue-600 text-white shadow-sm border border-blue-600 ring-2 ring-blue-500/20'
-                          : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-                      }`}
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Assessment Hub</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-white text-blue-700 text-[9px] font-black uppercase">NEW</span>
-                    </button>
-                    <button
-                      onClick={() => setCatalogSubTab('catalog')}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'catalog'
-                          ? 'bg-black text-white shadow-sm border border-black'
-                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      <span>🗂️ Drive Catalog</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCatalogSubTab('live_monitor');
-                        fetchLiveMonitor();
-                      }}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'live_monitor'
-                          ? 'bg-black text-white shadow-sm border border-black'
-                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      <span>📡 Live Command Center</span>
-                      <span className={`w-2 h-2 rounded-full ${isWsConnected ? 'bg-emerald-400' : 'bg-blue-500 animate-ping'}`} />
-                      {isWsConnected && <span className="text-[9px] bg-emerald-500/20 text-emerald-700 font-mono font-bold px-1 rounded">WS</span>}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCatalogSubTab('students');
-                        fetchStudents();
-                      }}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'students'
-                          ? 'bg-black text-white shadow-sm border border-black'
-                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      <Users className="w-3.5 h-3.5" />
-                      <span>👥 Students Analytics</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCatalogSubTab('leaderboard');
-                        if (studentsList.length === 0) fetchStudents();
-                      }}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        catalogSubTab === 'leaderboard'
-                          ? 'bg-black text-white shadow-sm border border-black'
-                          : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      <Trophy className="w-3.5 h-3.5 text-amber-500" />
-                      <span>🏆 Leaderboard</span>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        if (catalogSubTab === 'students') {
-                          exportStudentsCsv();
-                        } else {
-                          window.open('/api/assessment/admin/export', '_blank');
-                        }
-                      }}
-                      className="bg-black hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm border border-black flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{catalogSubTab === 'students' ? 'Export Students CSV' : 'Export CSV'}</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsAdminAuthenticated(false);
-                        localStorage.removeItem('learniverse_admin_authed');
-                      }}
-                      className="text-slate-400 hover:text-slate-600 text-xs px-2 py-1"
-                      title="Lock console"
-                    >
-                      Lock Console
-                    </button>
+                <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Past Drives</span>
+                  <div className="mt-1 flex items-baseline justify-between">
+                    <span className="text-2xl font-black text-slate-900">{catalogData?.counts?.past || 0}</span>
+                    <span className="text-xs text-slate-400 font-medium">Archived</span>
                   </div>
                 </div>
+              </div>
 
+              {/* Segmented Navigation Tab Bar */}
+              <div className="bg-white border border-slate-200/90 p-2 rounded-2xl shadow-xs flex items-center gap-1.5 overflow-x-auto">
+                <button
+                  onClick={() => setCatalogSubTab('topin_suite')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                    catalogSubTab === 'topin_suite' || catalogSubTab === 'builder'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Assessment Hub</span>
+                </button>
+                <button
+                  onClick={() => setCatalogSubTab('catalog')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                    catalogSubTab === 'catalog'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Building2 className="w-4 h-4" />
+                  <span>Drive Catalog</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCatalogSubTab('live_monitor');
+                    fetchLiveMonitor();
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                    catalogSubTab === 'live_monitor'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Radio className="w-4 h-4" />
+                  <span>Live Command Center</span>
+                  <span className={`w-2 h-2 rounded-full ${isWsConnected ? 'bg-emerald-400' : 'bg-blue-400 animate-ping'}`} />
+                </button>
+                <button
+                  onClick={() => {
+                    setCatalogSubTab('students');
+                    fetchStudents();
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                    catalogSubTab === 'students'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Students Analytics</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCatalogSubTab('leaderboard');
+                    if (studentsList.length === 0) fetchStudents();
+                  }}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                    catalogSubTab === 'leaderboard'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  <span>Leaderboard</span>
+                </button>
+              </div>
+
+              {/* SubTabs Active Content View Container */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-xs">
                 {/* SubTab 1: Drive Catalog */}
                 {catalogSubTab === 'catalog' && (
                   <div className="space-y-4 animate-fade-in">
@@ -2737,8 +2742,8 @@ export default function PlacementAssessment() {
 
                 {/* SubTab 3: Topin Modern Assessment Hub & Builder */}
                 {(catalogSubTab === 'topin_suite' || catalogSubTab === 'builder') && (
-                  <div className="bg-white border border-slate-200/90 rounded-3xl shadow-xs overflow-hidden animate-fade-in p-1 md:p-3">
-                    <AdminAssessmentHub />
+                  <div className="animate-fade-in">
+                    <AdminAssessmentHub hideNavbar={true} />
                   </div>
                 )}
 
@@ -3883,10 +3888,28 @@ export default function PlacementAssessment() {
                   </div>
                 )}
               </div>
-            )
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            </div>
+          )
+        ) : (
+          <div className="max-w-4xl w-full bg-white border border-slate-200 p-6 sm:p-10 rounded-3xl shadow-xl text-black transition-all duration-300 animate-fade-in my-8">
+            <div className="flex flex-col sm:flex-row items-center sm:justify-between border-b border-slate-200 pb-5 mb-6 gap-4">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center shadow-sm">
+                  <Building2 className="w-6 h-6 text-blue-500" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black flex items-center gap-2">
+                    PLACEMENT & HIRING PORTAL
+                  </h1>
+                  <p className="text-[11px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
+                    <span>ONLINE TECHNICAL ASSESSMENT ENGINE</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
             
             {/* Offerings list */}
@@ -4130,9 +4153,8 @@ export default function PlacementAssessment() {
               ? '⏳ Test Not Started Yet (See Countdown Above)' 
               : 'Begin Assessment Setup →'}
           </Button>
-            </>
-          )}
-        </div>
+          </div>
+        )
       )}
 
       {step === 'instructions' && (

@@ -16,7 +16,7 @@ from placement_assessment_system.api import SQLiteCursorAdapter
 from placement_assessment_system import question_bank_admin
 from placement_assessment_system.question_bank_admin import (
     TrainerTestRequest, QuestionReviewRequest, list_questions, review_question,
-    save_trainer_test, router as question_bank_router,
+    save_trainer_test, get_question_bank_facets, router as question_bank_router,
 )
 
 
@@ -73,6 +73,11 @@ class TestAdminQuestionBank(unittest.TestCase):
         all_status = list_questions(search="", category="", topic="", difficulty="", question_type="", company="", role="", status="all", page=1, page_size=1, db=self.db)
         self.assertEqual(all_status["total"], 2)
         self.assertEqual(all_status["pages"], 2)
+
+    def test_facets_backfill_from_legacy_question_rows(self):
+        facets = get_question_bank_facets(db=self.db)
+        self.assertIn({"value": "Programming"}, facets["categories"])
+        self.assertIn({"value": "Python"}, facets["topics"])
 
     def test_approval_audit_and_test_requires_approved_questions(self):
         pending_test = TrainerTestRequest(id="test-1", title="Test", roleName="Software Engineer", status="Draft", sections=[{"id": "s1", "type": "MCQ", "selectedQuestionIds": ["pending-1"]}])

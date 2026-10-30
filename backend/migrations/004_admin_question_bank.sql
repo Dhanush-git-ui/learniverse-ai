@@ -2,6 +2,7 @@
 -- Additive only: existing questions and placement sessions remain intact.
 
 ALTER TABLE questions ALTER COLUMN category TYPE TEXT;
+ALTER TABLE questions ALTER COLUMN generator_version TYPE TEXT;
 ALTER TABLE questions ADD COLUMN IF NOT EXISTS option_explanations TEXT;
 ALTER TABLE questions ADD COLUMN IF NOT EXISTS source TEXT;
 ALTER TABLE questions ADD COLUMN IF NOT EXISTS provenance VARCHAR(50);

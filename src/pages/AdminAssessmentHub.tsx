@@ -22,7 +22,11 @@ import {
 import { ROLE_TEMPLATES, INITIAL_MY_QUESTIONS } from '../data/mockAdminData';
 import { deleteTrainerTest, listTrainerTests, saveTrainerTest } from '../services/adminQuestionBankService';
 
-export const AdminAssessmentHub: React.FC = () => {
+interface AdminAssessmentHubProps {
+  hideNavbar?: boolean;
+}
+
+export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavbar = false }) => {
   const [assessments, setAssessments] = useState<AdminAssessment[]>([]);
   const [assessmentStorageError, setAssessmentStorageError] = useState('');
 
@@ -329,25 +333,74 @@ export const AdminAssessmentHub: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/60 font-sans text-slate-900 flex flex-col">
+    <div className={`font-sans text-slate-900 flex flex-col ${hideNavbar ? 'w-full' : 'min-h-screen bg-slate-50/60'}`}>
       {/* Top Navbar with Learniverse AI Branding */}
-      <AdminNavbar 
-        userName={adminUser} 
-        activeNav={activeNav}
-        onNavChange={(tab) => {
-          setActiveNav(tab);
-          if (tab === 'home' && currentView === 'section-details') {
-            setCurrentView('wizard');
-          }
-        }}
-        onNavigateHome={() => {
-          setActiveNav('home');
-          setCurrentView('dashboard');
-        }}
-      />
+      {!hideNavbar && (
+        <AdminNavbar 
+          userName={adminUser} 
+          activeNav={activeNav}
+          onNavChange={(tab) => {
+            setActiveNav(tab);
+            if (tab === 'home' && currentView === 'section-details') {
+              setCurrentView('wizard');
+            }
+          }}
+          onNavigateHome={() => {
+            setActiveNav('home');
+            setCurrentView('dashboard');
+          }}
+        />
+      )}
 
       {/* Main Screen Router */}
-      <main className="flex-1">
+      <main className={`flex-1 ${hideNavbar ? 'p-0' : ''}`}>
+        {hideNavbar && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/90 pb-4 mb-6">
+            <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveNav('home');
+                  setCurrentView('dashboard');
+                }}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeNav === 'home'
+                    ? 'bg-white text-blue-600 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>Assessments & Tests</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-700 font-mono font-bold">
+                  {assessments.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveNav('questions')}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeNav === 'questions'
+                    ? 'bg-white text-blue-600 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>Question Bank</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-700 font-mono font-bold">
+                  {myQuestions.length}
+                </span>
+              </button>
+            </div>
+
+            {currentView !== 'dashboard' && activeNav === 'home' && (
+              <button
+                type="button"
+                onClick={() => setCurrentView('dashboard')}
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200"
+              >
+                <span>← Back to Tests Dashboard</span>
+              </button>
+            )}
+          </div>
+        )}
         {assessmentStorageError && <div role="alert" className="mx-auto mt-4 max-w-7xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">Database status: {assessmentStorageError}</div>}
         {/* If 'My Questions' tab is active, show Question Bank Manager */}
         {activeNav === 'questions' ? (
