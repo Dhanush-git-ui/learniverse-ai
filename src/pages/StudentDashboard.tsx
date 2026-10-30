@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import jsPDF from "jspdf";
+import { getAuthHeaders } from "@/utils/apiAuth";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -87,42 +88,77 @@ export default function StudentDashboard() {
   // 2. Load real student session & analytics from Neon
   useEffect(() => {
     try {
+      let parsed: any = null;
       const rawStudent = localStorage.getItem("learniverse_student");
+      const rawUser = localStorage.getItem("learniverse_user");
       if (rawStudent) {
-        const parsed = JSON.parse(rawStudent);
-        setStudent(parsed);
-        const roll = parsed.roll_number || parsed.rollNumber;
-        const token = localStorage.getItem("learniverse_token") || parsed.token;
-
-        if (token) {
-          setAnalyticsLoading(true);
-          fetch("/api/analytics/dashboard", {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-            .then(res => res.ok ? res.json() : null)
-            .then(data => {
-              if (data?.data) setAnalyticsData(data.data);
-            })
-            .catch(() => {})
-            .finally(() => setAnalyticsLoading(false));
-        } else {
-          // No token yet (e.g. Google login still resolving) — keep skeleton briefly
-          setTimeout(() => setAnalyticsLoading(false), 3000);
-        }
-
-        if (roll) {
-          fetch(`/api/student/dashboard/${roll}`)
-            .then((res) => (res.ok ? res.json() : null))
-            .then((data) => {
-              if (data) setDashboardData(data);
-            })
-            .catch(() => {
-              // A missing dashboard endpoint should leave the cached view intact.
-            });
+        try { parsed = JSON.parse(rawStudent); } catch {}
+      } else if (rawUser) {
+        try { parsed = JSON.parse(rawUser); } catch {}
+      } else {
+        const storedRoll = localStorage.getItem("learniverse_roll_number");
+        const storedName = localStorage.getItem("learniverse_student_name");
+        if (storedRoll) {
+          parsed = { roll_number: storedRoll, rollNumber: storedRoll, name: storedName || "Student" };
         }
       }
+
+      if (parsed) {
+        setStudent(parsed);
+        const roll = parsed.roll_number || parsed.rollNumber || localStorage.getItem("learniverse_roll_number");
+        const token = localStorage.getItem("learniverse_token") || parsed.token;
+
+        setAnalyticsLoading(true);
+
+        // Fetch user's full analytics from backend
+        fetch("/api/analytics/dashboard", {
+          headers: getAuthHeaders()
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data?.data && Object.keys(data.data).length > 0) {
+              setAnalyticsData((prev: any) => prev ? { ...prev, ...data.data } : data.data);
+            }
+          })
+          .catch(() => {})
+          .finally(() => setAnalyticsLoading(false));
+
+        if (roll) {
+          fetch(`/api/student/dashboard/${roll}`, {
+            headers: getAuthHeaders()
+          })
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+              if (data) {
+                setDashboardData(data);
+                if (data.analytics && Object.keys(data.analytics).length > 0) {
+                  setAnalyticsData((prev: any) => {
+                    if (!prev) return data.analytics;
+                    return {
+                      ...data.analytics,
+                      ...prev,
+                      recent_submissions: prev.recent_submissions?.length ? prev.recent_submissions : data.analytics.recent_submissions,
+                      coding_solved: prev.coding_solved || data.analytics.coding_solved,
+                      top100_solved: prev.top100_solved || data.analytics.top100_solved,
+                    };
+                  });
+                }
+                setStudent((prev: any) => ({
+                  ...prev,
+                  name: prev?.name || data.student_name,
+                  branch: prev?.branch || data.branch,
+                  roll_number: roll,
+                  rollNumber: roll
+                }));
+              }
+            })
+            .catch(() => {});
+        }
+      } else {
+        setAnalyticsLoading(false);
+      }
     } catch {
-      // The dashboard remains usable if optional analytics cannot be loaded.
+      setAnalyticsLoading(false);
     }
   }, [navigate]);
 
@@ -1164,11 +1200,11 @@ export default function StudentDashboard() {
                             <div key={idx} className="py-3 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                               <div className="flex items-center gap-3">
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                                  sub.verdict === "Accepted"
+                                  sub.verdict?.toLowerCase() === "accepted"
                                     ? "bg-emerald-50 text-emerald-600"
                                     : "bg-rose-50 text-rose-600"
                                 }`}>
-                                  {sub.verdict === "Accepted" ? (
+                                  {sub.verdict?.toLowerCase() === "accepted" ? (
                                     <CheckCircle2 className="w-4 h-4" />
                                   ) : (
                                     <XCircle className="w-4 h-4" />
@@ -1179,7 +1215,7 @@ export default function StudentDashboard() {
                                     {sub.problem_title || `Problem #${sub.problem_id}`}
                                   </div>
                                   <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
-                                    <span>Tests: {sub.passed_tests} / {sub.total_tests} passed</span>
+                                    <span>Tests: {sub.passed ?? sub.passed_tests ?? 0} / {sub.total ?? sub.total_tests ?? 0} passed</span>
                                     {sub.runtime_ms && <span>• {sub.runtime_ms}ms runtime</span>}
                                     {sub.submitted_at && <span>• {new Date(sub.submitted_at).toLocaleDateString()}</span>}
                                   </div>
@@ -1188,7 +1224,7 @@ export default function StudentDashboard() {
 
                               <div className="flex items-center gap-3 shrink-0">
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                  sub.verdict === "Accepted"
+                                  sub.verdict?.toLowerCase() === "accepted"
                                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                     : "bg-rose-50 text-rose-700 border border-rose-200"
                                 }`}>

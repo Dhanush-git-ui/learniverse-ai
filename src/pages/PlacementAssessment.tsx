@@ -1158,6 +1158,19 @@ export default function PlacementAssessment() {
     localStorage.setItem('learniverse_student_name', cleanName);
     localStorage.setItem('learniverse_student_branch', branch);
     localStorage.setItem('learniverse_assessment_user_id', cleanRoll);
+    try {
+      const existingStudent = localStorage.getItem('learniverse_student');
+      if (!existingStudent) {
+        localStorage.setItem('learniverse_student', JSON.stringify({
+          roll_number: cleanRoll,
+          rollNumber: cleanRoll,
+          name: cleanName,
+          branch: branch || 'Computer Science & Engineering'
+        }));
+      }
+    } catch {
+      // ignore
+    }
 
     // 1. Instantly prepare local question pool for standard Campus Placement Assessment
     const roleToUse = 'Campus Placement Assessment';
@@ -1945,6 +1958,26 @@ export default function PlacementAssessment() {
         ...prev,
         [currentQuestion.id]: { passed_cases: passed, total_cases: total, runtime: result.runtime, code: userCode }
       }));
+
+      // Immediately log compiler submission to analytics so it reflects on the Student Dashboard
+      const allPassed = passed >= total && total > 0;
+      fetch('/api/analytics/code-submit', {
+        method: 'POST',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          problem_id: currentQuestion.id,
+          problem_title: (currentQuestion as any).question?.slice(0, 100) || 'Assessment Coding Challenge',
+          topic_slug: 'placement-assessment',
+          language: selectedLang,
+          code: userCode,
+          action: 'submit',
+          verdict: allPassed ? 'Accepted' : 'Wrong Answer',
+          passed: passed,
+          total: total,
+          runtime_ms: parseInt(result.runtime) || 100,
+          memory_kb: 0
+        })
+      }).catch(() => {});
     } catch (e: any) {
       setCompilationResult({ results: [{ actual: e.message || "Submission failed.", expected: '', input: 'Error', passed: false }] });
     } finally {

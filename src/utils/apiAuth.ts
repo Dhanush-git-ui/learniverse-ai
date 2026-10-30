@@ -86,5 +86,20 @@ export function getAuthHeaders(extraHeaders: Record<string, string> = {}): Recor
     headers['X-API-Key'] = apiKey;
   }
 
+  // 3. Attach student roll number if available
+  try {
+    const rawStudent = localStorage.getItem('learniverse_student');
+    const rawUser = localStorage.getItem('learniverse_user');
+    const directRoll = localStorage.getItem('learniverse_roll_number');
+    const student = rawStudent ? JSON.parse(rawStudent) : null;
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    const roll = directRoll || student?.roll_number || student?.rollNumber || user?.roll_number || user?.rollNumber;
+    if (roll) {
+      headers['X-Roll-Number'] = String(roll).trim().toUpperCase();
+    }
+  } catch {
+    // ignore
+  }
+
   return headers;
 }

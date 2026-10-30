@@ -20,17 +20,20 @@ analytics_router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 # JWT Auth Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 def _get_token_payload(request: Request) -> dict:
-    """Extracts and verifies the JWT from Authorization header."""
+    """Extracts and verifies the JWT from Authorization header, with X-Roll-Number fallback for student actions."""
     auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Missing or invalid Authorization header.")
-    token = auth.split(" ", 1)[1].strip()
-    try:
-        from auth import _decode_access_token
-        payload = _decode_access_token(token)
-        return payload
-    except Exception as e:
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid authentication token.")
+    if auth.startswith("Bearer "):
+        token = auth.split(" ", 1)[1].strip()
+        try:
+            from auth import _decode_access_token
+            payload = _decode_access_token(token)
+            return payload
+        except Exception:
+            pass
+    roll = request.headers.get("X-Roll-Number", "").strip().upper()
+    if roll:
+        return {"sub": roll, "roll_number": roll, "role": "student"}
+    raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Missing or invalid authentication token.")
 
 
 def _require_student(request: Request) -> dict:

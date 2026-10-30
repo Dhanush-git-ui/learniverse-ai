@@ -213,7 +213,10 @@ export default function Top100Codes() {
       // Persist to Neon
       try {
         const token = getAuthToken();
-        if (token) {
+        const roll = localStorage.getItem('learniverse_roll_number') ||
+          JSON.parse(localStorage.getItem('learniverse_student') || '{}')?.roll_number ||
+          JSON.parse(localStorage.getItem('learniverse_user') || '{}')?.roll_number;
+        if (token || roll) {
           fetch('/api/analytics/top100-progress', {
             method: 'POST',
             headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
@@ -225,7 +228,7 @@ export default function Top100Codes() {
               best_verdict: verdict,
             })
           }).then(r => {
-            if (r.status === 401) {
+            if (r.status === 401 && !roll) {
               toast({
                 title: "Session Expired",
                 description: "Please log in again to sync your progress to your account.",

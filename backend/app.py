@@ -589,7 +589,7 @@ def get_portfolio(roll_number: str):
 
 @app.get("/api/student/dashboard/{roll_number}")
 def get_student_dashboard_endpoint(roll_number: str):
-    """Returns assessment metrics and fallback summary for student dashboard."""
+    """Returns assessment metrics and complete analytics summary for student dashboard."""
     roll = roll_number.strip().upper()
     data = {
         "status": "ok",
@@ -599,8 +599,10 @@ def get_student_dashboard_endpoint(roll_number: str):
         "percentage": 0,
         "test_status": "not_started",
         "student_name": "HITAM Student",
-        "branch": "Engineering"
+        "branch": "Engineering",
+        "analytics": {}
     }
+    sub = None
     try:
         from cdc_integration import _fetch_submission_from_sources
         sub = _fetch_submission_from_sources(roll)
@@ -614,6 +616,24 @@ def get_student_dashboard_endpoint(roll_number: str):
             data["submitted_at"] = str(sub.get("submitted_at", ""))
     except Exception as e:
         logger.warning("[STUDENT DASHBOARD ENDPOINT] %s", e)
+
+    try:
+        from analytics_service import get_dashboard_summary
+        summary = get_dashboard_summary(roll)
+        if summary:
+            data["analytics"] = summary
+            if not sub and summary.get("placement"):
+                p = summary["placement"]
+                data["total_marks"] = p.get("total_marks", data["total_marks"])
+                data["max_marks"] = p.get("max_marks", data["max_marks"])
+                data["percentage"] = p.get("percentage", data["percentage"])
+                data["test_status"] = p.get("status", "completed")
+                data["student_name"] = p.get("student_name", data["student_name"])
+                data["branch"] = p.get("branch", data["branch"])
+                data["submitted_at"] = str(p.get("submitted_at", ""))
+    except Exception as e:
+        logger.warning("[STUDENT DASHBOARD ANALYTICS] %s", e)
+
     return data
 
 

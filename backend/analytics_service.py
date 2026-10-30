@@ -238,8 +238,34 @@ def get_dashboard_summary(user_id: str) -> dict:
         from psycopg2.extras import RealDictCursor
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
+        clean_uid = str(user_id or "").strip()
+        # Resolve all associated user identities (Google sub id, roll number, email)
+        cur.execute("""
+            SELECT id, roll_number, email FROM users
+            WHERE id = %s 
+               OR UPPER(TRIM(roll_number)) = UPPER(TRIM(%s))
+               OR LOWER(TRIM(email)) = LOWER(TRIM(%s))
+            LIMIT 1;
+        """, (clean_uid, clean_uid, clean_uid))
+        u_row = cur.fetchone()
+
+        user_ids = {clean_uid}
+        roll_num = clean_uid.upper()
+        if u_row:
+            if u_row.get("id"):
+                user_ids.add(str(u_row["id"]).strip())
+            if u_row.get("roll_number"):
+                user_ids.add(str(u_row["roll_number"]).strip())
+                roll_num = str(u_row["roll_number"]).strip().upper()
+
+        user_ids_list = list(user_ids)
+
         # Main aggregates from view
-        cur.execute("SELECT * FROM v_student_dashboard WHERE user_id = %s;", (user_id,))
+        cur.execute("""
+            SELECT * FROM v_student_dashboard 
+            WHERE user_id = ANY(%s) OR UPPER(TRIM(roll_number)) = %s
+            LIMIT 1;
+        """, (user_ids_list, roll_num))
         row = cur.fetchone()
         result = dict(row) if row else {}
 
@@ -247,41 +273,56 @@ def get_dashboard_summary(user_id: str) -> dict:
         cur.execute("""
             SELECT topic_slug, accuracy_pct, questions_attempted, correct_count, last_attempted
             FROM v_mcq_topic_accuracy
-            WHERE user_id = %s
+            WHERE user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s
             ORDER BY last_attempted DESC
             LIMIT 10;
-        """, (user_id,))
+        """, (user_ids_list, roll_num))
         result["mcq_by_topic"] = [dict(r) for r in cur.fetchall()]
 
         # Weak topics (accuracy < 60%)
         cur.execute("""
             SELECT topic_slug, accuracy_pct
             FROM v_mcq_topic_accuracy
-            WHERE user_id = %s AND questions_attempted >= 3
+            WHERE (user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s) AND questions_attempted >= 3
             ORDER BY accuracy_pct ASC
             LIMIT 5;
-        """, (user_id,))
+        """, (user_ids_list, roll_num))
         result["weak_topics"] = [dict(r) for r in cur.fetchall()]
 
         # Recent coding submissions
         cur.execute("""
             SELECT problem_id, problem_title, language, verdict, passed, total, ts, runtime_ms
             FROM coding_submissions
-            WHERE user_id = %s
+            WHERE user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s
             ORDER BY ts DESC
             LIMIT 10;
-        """, (user_id,))
+        """, (user_ids_list, roll_num))
         result["recent_submissions"] = [dict(r) for r in cur.fetchall()]
+
+        # Ensure coding aggregates are populated even if view join is sparse
+        if not result.get("coding_solved"):
+            try:
+                cur.execute("""
+                    SELECT COUNT(DISTINCT problem_id) as solved_count
+                    FROM coding_submissions
+                    WHERE (user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s)
+                      AND LOWER(verdict) = 'accepted';
+                """, (user_ids_list, roll_num))
+                cs_row = cur.fetchone()
+                if cs_row and cs_row.get("solved_count") is not None:
+                    result["coding_solved"] = cs_row["solved_count"]
+            except Exception:
+                pass
 
         # Recent MCQ attempts (questions and answers)
         try:
             cur.execute("""
                 SELECT topic_slug, question_id, is_correct, selected_answer, correct_answer, question_text, explanation, ts
                 FROM mcq_attempts
-                WHERE user_id = %s
+                WHERE user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s
                 ORDER BY ts DESC
                 LIMIT 10;
-            """, (user_id,))
+            """, (user_ids_list, roll_num))
             result["recent_mcq_attempts"] = [dict(r) for r in cur.fetchall()]
         except Exception:
             result["recent_mcq_attempts"] = []
@@ -290,18 +331,20 @@ def get_dashboard_summary(user_id: str) -> dict:
         try:
             cur.execute("""
                 SELECT 
-                    COUNT(*) FILTER (WHERE status = 'solved') as solved_total,
+                    COUNT(*) FILTER (WHERE LOWER(status) = 'solved') as solved_total,
                     COUNT(*) as attempted_total,
-                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Easy' AND status = 'solved') as easy_solved,
-                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Medium' AND status = 'solved') as medium_solved,
-                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Hard' AND status = 'solved') as hard_solved
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Easy' AND LOWER(status) = 'solved') as easy_solved,
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Medium' AND LOWER(status) = 'solved') as medium_solved,
+                    COUNT(*) FILTER (WHERE difficulty ILIKE 'Hard' AND LOWER(status) = 'solved') as hard_solved
                 FROM top100_progress
-                WHERE user_id = %s;
-            """, (user_id,))
+                WHERE user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s;
+            """, (user_ids_list, roll_num))
             trow = cur.fetchone()
             result["top100_summary"] = dict(trow) if trow else {
                 "solved_total": 0, "attempted_total": 0, "easy_solved": 0, "medium_solved": 0, "hard_solved": 0
             }
+            if not result.get("top100_solved"):
+                result["top100_solved"] = result["top100_summary"].get("solved_total", 0)
         except Exception:
             result["top100_summary"] = {
                 "solved_total": 0, "attempted_total": 0, "easy_solved": 0, "medium_solved": 0, "hard_solved": 0
@@ -312,10 +355,10 @@ def get_dashboard_summary(user_id: str) -> dict:
             cur.execute("""
                 SELECT topic_slug, topic_name, tab, duration_seconds, started_at
                 FROM topic_views
-                WHERE user_id = %s
+                WHERE user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s
                 ORDER BY started_at DESC
                 LIMIT 8;
-            """, (user_id,))
+            """, (user_ids_list, roll_num))
             result["recent_topics_visited"] = [dict(r) for r in cur.fetchall()]
         except Exception:
             result["recent_topics_visited"] = []
@@ -324,8 +367,8 @@ def get_dashboard_summary(user_id: str) -> dict:
         cur.execute("""
             SELECT COUNT(DISTINCT started_at::date) AS streak_days
             FROM topic_views
-            WHERE user_id = %s AND started_at >= NOW() - INTERVAL '30 days';
-        """, (user_id,))
+            WHERE (user_id = ANY(%s) OR UPPER(TRIM(user_id)) = %s) AND started_at >= NOW() - INTERVAL '30 days';
+        """, (user_ids_list, roll_num))
         streak_row = cur.fetchone()
         result["streak_days"] = streak_row["streak_days"] if streak_row else 0
 
@@ -337,10 +380,11 @@ def get_dashboard_summary(user_id: str) -> dict:
                        correct_count, wrong_count, unanswered_count, violations_count,
                        status, submitted_at, question_answers
                 FROM fixly_test_submissions
-                WHERE UPPER(TRIM(roll_number)) = UPPER(TRIM(%s))
-                   OR UPPER(TRIM(roll_number)) = (SELECT UPPER(TRIM(roll_number)) FROM users WHERE id = %s LIMIT 1)
+                WHERE UPPER(TRIM(roll_number)) = %s
+                   OR UPPER(TRIM(roll_number)) IN (SELECT UPPER(TRIM(roll_number)) FROM users WHERE id = ANY(%s))
+                   OR session_id = ANY(%s)
                 ORDER BY submitted_at DESC LIMIT 1;
-            """, (user_id, user_id))
+            """, (roll_num, user_ids_list, user_ids_list))
             prow = cur.fetchone()
             if prow:
                 p_dict = dict(prow)
@@ -373,6 +417,7 @@ def get_dashboard_summary(user_id: str) -> dict:
                 result["placement"] = None
         except Exception as e:
             logger.debug("[ANALYTICS placement lookup] %s", e)
+            result["placement"] = None
             result["placement"] = None
 
         # Generate personalized AI recommendations

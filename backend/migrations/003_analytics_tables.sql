@@ -148,17 +148,17 @@ SELECT
         / NULLIF(COUNT(ma.id), 0), 0
     )::numeric(5,1)                                                  AS mcq_accuracy_pct,
     COUNT(DISTINCT cs.problem_id)
-        FILTER (WHERE cs.verdict = 'accepted' AND cs.action = 'submit') AS coding_solved,
+        FILTER (WHERE LOWER(cs.verdict) = 'accepted' AND (LOWER(cs.action) = 'submit' OR cs.action IS NULL)) AS coding_solved,
     COUNT(DISTINCT cs.id)
-        FILTER (WHERE cs.action = 'submit')                          AS coding_submissions,
+        FILTER (WHERE LOWER(cs.action) = 'submit' OR cs.action IS NULL)                          AS coding_submissions,
     COUNT(DISTINCT tp.problem_id)
-        FILTER (WHERE tp.status = 'solved')                          AS top100_solved,
+        FILTER (WHERE LOWER(tp.status) = 'solved')                          AS top100_solved,
     MAX(tv.started_at)                                               AS last_active_at
 FROM       users         u
-LEFT JOIN  topic_views   tv ON tv.user_id = u.id
-LEFT JOIN  mcq_attempts  ma ON ma.user_id = u.id
-LEFT JOIN  coding_submissions cs ON cs.user_id = u.id
-LEFT JOIN  top100_progress    tp ON tp.user_id = u.id
+LEFT JOIN  topic_views   tv ON (tv.user_id = u.id OR UPPER(TRIM(tv.user_id)) = UPPER(TRIM(u.roll_number)))
+LEFT JOIN  mcq_attempts  ma ON (ma.user_id = u.id OR UPPER(TRIM(ma.user_id)) = UPPER(TRIM(u.roll_number)))
+LEFT JOIN  coding_submissions cs ON (cs.user_id = u.id OR UPPER(TRIM(cs.user_id)) = UPPER(TRIM(u.roll_number)))
+LEFT JOIN  top100_progress    tp ON (tp.user_id = u.id OR UPPER(TRIM(tp.user_id)) = UPPER(TRIM(u.roll_number)))
 GROUP BY u.id, u.roll_number, u.name, u.branch;
 
 -- ============================================================

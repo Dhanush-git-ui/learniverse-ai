@@ -167,8 +167,14 @@ def verify_admin_password(password: str) -> bool:
     if not env_hash:
         return False
     try:
-        clean_hash = env_hash.strip().strip('"').strip("'")
-        return bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8"))
+        clean_hashes = [h.strip().strip('"').strip("'") for h in env_hash.split(",") if h.strip()]
+        for clean_hash in clean_hashes:
+            try:
+                if bcrypt.checkpw(password.encode("utf-8"), clean_hash.encode("utf-8")):
+                    return True
+            except Exception:
+                continue
+        return False
     except Exception as exc:
         logger.warning("[ADMIN AUTH] Configured password hash could not be verified: %s", exc)
         return False
