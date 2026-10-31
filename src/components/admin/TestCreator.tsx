@@ -1091,7 +1091,7 @@ export const TestCreator: React.FC<TestCreatorProps> = ({
                   <label className="block font-bold text-slate-700 mb-1">Difficulty</label>
                   <select
                     value={newQDifficulty}
-                    onChange={(e) => setNewQDifficulty(e.target.value as any)}
+                    onChange={(e) => setNewQDifficulty(e.target.value as 'Easy' | 'Medium' | 'Hard')}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-medium"
                   >
                     <option value="Easy">Easy</option>
@@ -1173,3 +1173,4 @@ export const TestCreator: React.FC<TestCreatorProps> = ({
 };
 
 export default TestCreator;
+

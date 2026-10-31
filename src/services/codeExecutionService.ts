@@ -768,7 +768,7 @@ function buildJavaHarness(
     '  static String __normalize(String s) {',
     '    if (s == null) return "none";',
     '    String trimmed = s.trim();',
-    '    if ((trimmed.startsWith("\\\"") && trimmed.endsWith("\\\"") && trimmed.length() >= 2) || (trimmed.startsWith("\'") && trimmed.endsWith("\'") && trimmed.length() >= 2)) {',
+    '    if ((trimmed.startsWith("\\"") && trimmed.endsWith("\\"") && trimmed.length() >= 2) || (trimmed.startsWith("\'") && trimmed.endsWith("\'") && trimmed.length() >= 2)) {',
     '      trimmed = trimmed.substring(1, trimmed.length() - 1).trim();',
     '    }',
     '    return trimmed.replace(" ", "").toLowerCase();',
@@ -806,7 +806,7 @@ function buildJavaHarness(
       }
     });
     const params = pairs.map(p => `${p.name}_${i}`).join(', ');
-    const inputStdin = pairs.map(p => p.value.replace(/^[\[{]/, '').replace(/[\]}]$/, '')).join(' ');
+    const inputStdin = pairs.map(p => p.value.replace(/^[[{]/, '').replace(/[\]}]$/, '')).join(' ');
     const safeInputStdin = inputStdin.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
     mainLines.push(`    java.io.ByteArrayOutputStream __baos_${i} = new java.io.ByteArrayOutputStream();`);

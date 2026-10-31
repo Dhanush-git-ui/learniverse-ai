@@ -92,9 +92,9 @@ export default function StudentDashboard() {
       const rawStudent = localStorage.getItem("learniverse_student");
       const rawUser = localStorage.getItem("learniverse_user");
       if (rawStudent) {
-        try { parsed = JSON.parse(rawStudent); } catch {}
+        try { parsed = JSON.parse(rawStudent); } catch { /* ignore malformed json */ }
       } else if (rawUser) {
-        try { parsed = JSON.parse(rawUser); } catch {}
+        try { parsed = JSON.parse(rawUser); } catch { /* ignore malformed json */ }
       } else {
         const storedRoll = localStorage.getItem("learniverse_roll_number");
         const storedName = localStorage.getItem("learniverse_student_name");
