@@ -10,6 +10,7 @@ import { QuestionPickerModal } from '../components/admin/QuestionPickerModal';
 import { AIPoweredModal } from '../components/admin/AIPoweredModal';
 import { FinalReviewPublish } from '../components/admin/FinalReviewPublish';
 import { MyQuestionsManager } from '../components/admin/MyQuestionsManager';
+import { TestCreator } from '../components/admin/TestCreator';
 
 import { 
   AdminAssessment, 
@@ -116,7 +117,8 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
 
   // Main Screen Navigation State
   // 'dashboard' | 'role-catalog' | 'wizard' | 'section-details' | 'review-publish'
-  const [currentView, setCurrentView] = useState<'dashboard' | 'role-catalog' | 'wizard' | 'section-details' | 'review-publish'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'create' | 'role-catalog' | 'wizard' | 'section-details' | 'review-publish'>('dashboard');
+  const [editingAssessment, setEditingAssessment] = useState<AdminAssessment | null>(null);
 
   // Active Assessment being created or edited
   const [activeRoleTitle, setActiveRoleTitle] = useState('Full Stack Developer');
@@ -134,7 +136,9 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
 
   // 1. Create Assessment Click -> Opens Creation Mode Modal (Screenshot 2)
   const handleOpenCreateModal = () => {
-    setIsCreationModeOpen(true);
+    setEditingAssessment(null);
+    setEditingAssessmentId(null);
+    setCurrentView('create');
   };
 
   // 2. Select Role-Based Mode -> Goes to Role Catalog (Screenshot 3)
@@ -169,7 +173,8 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
       }
     ]);
     setEditingAssessmentId(null);
-    setCurrentView('wizard');
+    setEditingAssessment(null);
+    setCurrentView('create');
   };
 
   // 5. Role Catalog Selection -> Loads selected role sections & goes to wizard (Screenshot 4 & 5)
@@ -177,7 +182,8 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
     setActiveRoleTitle(role.title);
     setActiveSections(role.sections);
     setEditingAssessmentId(null);
-    setCurrentView('wizard');
+    setEditingAssessment(null);
+    setCurrentView('create');
   };
 
   // 6. AI Generation Result -> Loads generated sections & goes to wizard
@@ -185,7 +191,8 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
     setActiveRoleTitle(generatedRole.title);
     setActiveSections(generatedRole.sections);
     setEditingAssessmentId(null);
-    setCurrentView('wizard');
+    setEditingAssessment(null);
+    setCurrentView('create');
   };
 
   // 7. Add New Section of chosen type (Screenshot 11)
@@ -271,9 +278,10 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
   // 10. Edit an existing assessment from the dashboard
   const handleEditExistingAssessment = (asmt: AdminAssessment) => {
     setEditingAssessmentId(asmt.id);
+    setEditingAssessment(asmt);
     setActiveRoleTitle(asmt.title);
     setActiveSections(asmt.sections || []);
-    setCurrentView('wizard');
+    setCurrentView('create');
   };
 
   // 11. Delete an assessment
@@ -443,6 +451,22 @@ export const AdminAssessmentHub: React.FC<AdminAssessmentHubProps> = ({ hideNavb
                 onEditAssessment={handleEditExistingAssessment}
                 onDeleteAssessment={handleDeleteAssessment}
                 onRefresh={handleRefreshAssessments}
+              />
+            )}
+
+            {/* VIEW 0: Streamlined 3-Step Test Creator */}
+            {currentView === 'create' && (
+              <TestCreator
+                onBack={() => {
+                  setEditingAssessment(null);
+                  setEditingAssessmentId(null);
+                  setCurrentView('dashboard');
+                }}
+                onSave={async (asmt) => {
+                  return await persistAssessment(asmt);
+                }}
+                editingAssessment={editingAssessment}
+                authorName={adminUser}
               />
             )}
 

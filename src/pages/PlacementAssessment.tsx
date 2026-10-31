@@ -2360,7 +2360,7 @@ export default function PlacementAssessment() {
                 <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Registered Companies</span>
                   <div className="mt-1 flex items-baseline justify-between">
-                    <span className="text-2xl font-black text-slate-900">{catalogData?.counts?.companies || 2}</span>
+                    <span className="text-2xl font-black text-slate-900">{catalogData?.counts?.companies ?? 0}</span>
                     <span className="text-xs text-slate-400 font-medium">Tenants</span>
                   </div>
                 </div>
@@ -2368,10 +2368,10 @@ export default function PlacementAssessment() {
                   <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block">Ongoing Live Drives</span>
                   <div className="mt-1 flex items-baseline justify-between">
                     <span className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                      <span>{catalogData?.counts?.ongoing || 1}</span>
-                      <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                      <span>{catalogData?.counts?.ongoing ?? 0}</span>
+                      {Number(catalogData?.counts?.ongoing || 0) > 0 && <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />}
                     </span>
-                    <span className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">Active</span>
+                    <span className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">{Number(catalogData?.counts?.ongoing || 0) > 0 ? 'Active' : '0 Active'}</span>
                   </div>
                 </div>
                 <div className="bg-white border border-slate-200/90 p-5 rounded-2xl shadow-xs hover:border-slate-300 transition-colors">

@@ -15,8 +15,8 @@ from auth import User, require_admin
 from placement_assessment_system.api import SQLiteCursorAdapter
 from placement_assessment_system import question_bank_admin
 from placement_assessment_system.question_bank_admin import (
-    TrainerTestRequest, QuestionReviewRequest, list_questions, review_question,
-    save_trainer_test, get_question_bank_facets, router as question_bank_router,
+    TrainerTestRequest, QuestionReviewRequest, CreateQuestionRequest, list_questions, review_question,
+    create_question, save_trainer_test, get_question_bank_facets, router as question_bank_router,
 )
 
 
@@ -54,6 +54,7 @@ class TestAdminQuestionBank(unittest.TestCase):
         cls.connection.close()
 
     def setUp(self):
+        self.connection.execute("DELETE FROM questions WHERE id NOT IN ('approved-1', 'pending-1')")
         self.connection.execute("UPDATE questions SET review_status='Pending Review' WHERE id='pending-1'")
         self.connection.execute("DELETE FROM trainer_tests")
         self.connection.execute("DELETE FROM question_review_events")
@@ -96,6 +97,43 @@ class TestAdminQuestionBank(unittest.TestCase):
         self.assertEqual(saved["id"], "test-1")
         self.db.execute("SELECT section_data FROM trainer_test_sections WHERE test_id=%s", ("test-1",))
         self.assertEqual(self.db.fetchone()["section_data"]["selectedQuestionIds"], ["pending-1"])
+
+    def test_create_custom_question_and_sample_auto_seed(self):
+        # 1. Custom question creation endpoint
+        custom_req = CreateQuestionRequest(
+            id="custom-test-1",
+            question="What is the capital of France?",
+            topic="General Knowledge",
+            difficulty="Easy",
+            options=["Paris", "London", "Berlin", "Madrid"],
+            correct_option="A",
+            explanation="Paris is the capital."
+        )
+        created = create_question(custom_req, User(id="admin-1", role="admin"), self.db)
+        self.assertEqual(created["id"], "custom-test-1")
+        self.assertEqual(created["status"], "Approved")
+
+        # 2. Saving a test with sample question q-101 and custom question
+        test_req = TrainerTestRequest(
+            id="test-creator-1",
+            title="Modern Full Stack Screening",
+            roleName="Full Stack",
+            status="In Progress",
+            totalTime=30,
+            totalScore=2,
+            sections=[{
+                "id": "sec-1",
+                "name": "General",
+                "type": "MCQ",
+                "timeLimit": 30,
+                "questionsCount": 2,
+                "score": 2,
+                "selectedQuestionIds": ["q-101", "custom-test-1"]
+            }]
+        )
+        saved = save_trainer_test("test-creator-1", test_req, User(id="admin-1", role="admin"), self.db)
+        self.assertEqual(saved["id"], "test-creator-1")
+        self.assertEqual(saved["question_count"], 2)
 
 
 if __name__ == "__main__":

@@ -119,31 +119,31 @@ export const MyAssessmentsDashboard: React.FC<MyAssessmentsDashboardProps> = ({
             onClick={() => setActiveTab('active')}
             className={`pb-3.5 transition-colors relative cursor-pointer ${
               activeTab === 'active'
-                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600'
+                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600 font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Active({activeCount || 2})
+            Active ({activeCount})
           </button>
           <button
             onClick={() => setActiveTab('drafts')}
             className={`pb-3.5 transition-colors relative cursor-pointer ${
               activeTab === 'drafts'
-                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600'
+                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600 font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Drafts({draftsCount || 9})
+            Drafts ({draftsCount})
           </button>
           <button
             onClick={() => setActiveTab('completed')}
             className={`pb-3.5 transition-colors relative cursor-pointer ${
               activeTab === 'completed'
-                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600'
+                ? 'text-blue-600 after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2.5px] after:bg-blue-600 font-bold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Completed({completedCount || 99})
+            Completed ({completedCount})
           </button>
         </div>
 
@@ -208,8 +208,31 @@ export const MyAssessmentsDashboard: React.FC<MyAssessmentsDashboardProps> = ({
           <tbody className="divide-y divide-slate-100 text-sm text-slate-800">
             {filteredAssessments.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-slate-400">
-                  No assessments found in this view. Click <strong>+ Create Assessment</strong> to get started.
+                <td colSpan={8} className="py-16 text-center">
+                  <div className="max-w-md mx-auto flex flex-col items-center justify-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
+                      <Layers className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base font-bold text-slate-800">
+                        No {activeTab} assessments found
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        {activeTab === 'active'
+                          ? 'You currently have 0 active assessments running. Click below to create and launch a new test for your students.'
+                          : activeTab === 'drafts'
+                          ? 'You have 0 saved drafts. Create an assessment and save it as a draft anytime.'
+                          : 'No completed assessments are archived yet.'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={onCreateClick}
+                      className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Create New Assessment</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ) : (
