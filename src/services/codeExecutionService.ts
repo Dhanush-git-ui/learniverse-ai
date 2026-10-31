@@ -29,7 +29,7 @@ const PFX_P = '__CODE_P__';   // passed: true | false
 const PFX_A = '__CODE_A__';   // actual output from solve()
 const PFX_E = '__CODE_E__';   // expected output from example
 
-// ─── Input Parser ─────────────────────────────────────────────────────────────
+// ─── Input Parser ────────────────────────────────────────────────────────
 
 function parseInputPairs(inputStr: string): { name: string; value: string }[] {
   if (!inputStr?.trim()) return [];
@@ -46,7 +46,7 @@ function parseInputPairs(inputStr: string): { name: string; value: string }[] {
   return result;
 }
 
-// ─── Type Inference ───────────────────────────────────────────────────────────
+// ─── Type Inference ────────────────────────────────────────────────────────
 
 function inferCppType(name: string, value: string): string {
   if (name.toLowerCase().includes('head')) return 'ListNode*';
@@ -151,7 +151,7 @@ function cppSerializerLines(returnType: string, i: number): string[] {
     `for(int _i=0;_i<(int)${out}.size();_i++){`,
     `  if(_i) ${actual} += ",";`,
     `  ${actual} += "[";`,
-    `  for(int _j=0;_j<(int)${out}[_i].size();_j++){if(_j)${actual}+=",";${actual}+=to_string(${out}[_i][_j]);}`,
+    `  for(int _j=0;_j<(int)${out}[_i].size();_j++){if(_j)${actual}+=" ,";${actual}+=to_string(${out}[_i][_j]);}`,
     `  ${actual} += "]";`,
     `}`,
     `${actual} += "]";`,
@@ -159,13 +159,13 @@ function cppSerializerLines(returnType: string, i: number): string[] {
 
   if (rt.startsWith('vector<string>')) return [
     `string ${actual} = "[";`,
-    `for(int _i=0;_i<(int)${out}.size();_i++){if(_i)${actual}+=",";${actual}+=${out}[_i];}`,
+    `for(int _i=0;_i<(int)${out}.size();_i++){if(_i)${actual}+=" ,";${actual}+=${out}[_i];}`,
     `${actual} += "]";`,
   ];
 
   if (rt.startsWith('vector<')) return [
     `string ${actual} = "[";`,
-    `for(int _i=0;_i<(int)${out}.size();_i++){if(_i)${actual}+=",";${actual}+=to_string(${out}[_i]);}`,
+    `for(int _i=0;_i<(int)${out}.size();_i++){if(_i)${actual}+=" ,";${actual}+=to_string(${out}[_i]);}`,
     `${actual} += "]";`,
   ];
 
@@ -174,7 +174,7 @@ function cppSerializerLines(returnType: string, i: number): string[] {
   return [`string ${actual} = to_string(${out});`];
 }
 
-// ─── Harness Builders ─────────────────────────────────────────────────────────
+// ─── Harness Builders ───────────────────────────────────────────────────────
 
 function buildPythonHarness(
   code: string,
@@ -404,7 +404,7 @@ function buildJavaScriptHarness(
     '  } else if (typeof solve === "function") {',
     '    __user_entry_func = solve;',
     '  }',
-    '} catch (e) {}',
+    '} catch (e) { /* ignore setup errors in the harness */ }',
     '',
     'class ListNode {',
     '  constructor(val, next) {',
@@ -524,7 +524,7 @@ function buildCppHarness(
   pfx_e = PFX_E
 ): string {
   // If user defined main(), rename it to __user_main so there's no duplicate main() conflict
-  let modifiedCode = code.replace(/\bint\s+main\s*\(/g, 'int __user_main(').replace(/\bvoid\s+main\s*\(/g, 'void __user_main(');
+  const modifiedCode = code.replace(/\bint\s+main\s*\(/g, 'int __user_main(').replace(/\bvoid\s+main\s*\(/g, 'void __user_main(');
 
   let targetFuncName = 'solve';
   const mFunc = modifiedCode.match(/([\w<>,\s*]+?)\s+(\w+)\s*\(/);
@@ -855,7 +855,7 @@ function buildJavaHarness(
   return `${uniqueImports}\n\n${userCode}\n\n${mainLines.join('\n')}`;
 }
 
-// ─── Parsing Output ───────────────────────────────────────────────────────────
+// ─── Parsing Output ───────────────────────────────────────────────────────
 
 function parseHarnessOutput(
   stdout: string,
@@ -947,7 +947,7 @@ async function executeCodeOnBackend(code: string, lang: string) {
   };
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Public API ─────────────────────────────────────────────────────────
 
 export async function runAndEvaluate(
   code:     string,
