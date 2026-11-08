@@ -64,6 +64,12 @@ backend/data/chunks/
 backend/data/embeddings/
 backend/data/*.json
 !backend/data/placement_coding_questions.json
+!backend/data/assessment_question_templates.json
+!backend/data/admin_question_bank.json
+!backend/data/admin_supplemental_question_bank.json
+!backend/data/admin_company_practice_batch_001.json
+!backend/data/admin_generated_batch_001.json
+!backend/data/admin_coding_question_bank.json
 
 # Local virtualenvs and build artifacts
 backend/scraper/venv/

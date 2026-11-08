@@ -7,7 +7,6 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { runAndEvaluate } from '@/services/codeExecutionService';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { lookupStudentLocally } from '@/data/studentsRoster';
-import { getLocalQuestionsForRole, getNormalPlacementTestQuestions } from '@/data/assessmentQuestions';
 import AdminAssessmentHub from './AdminAssessmentHub';
 
 interface Question {
@@ -256,6 +255,7 @@ export default function PlacementAssessment() {
   const [visited, setVisited] = useState<Record<string, boolean>>({});
   const [timeLeft, setTimeLeft] = useState<number>(7200); // 2 hours
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
   const [timeSpent, setTimeSpent] = useState<Record<string, number>>({});
   
@@ -947,7 +947,6 @@ export default function PlacementAssessment() {
     setBuilderErrorMsg('');
     setBuilderSuccessMsg('');
     try {
-      const roleQs = getLocalQuestionsForRole(builderRoleTrack);
       const res = await fetch('/api/assessment/admin/tests', {
         method: 'POST',
         headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
@@ -959,10 +958,8 @@ export default function PlacementAssessment() {
           start_time: new Date(builderStartTime).toISOString(),
           end_time: new Date(builderEndTime).toISOString(),
           duration_minutes: builderDuration,
-          total_marks: roleQs.reduce((acc, q) => acc + (q.marks || 1), 0) || 70.0,
           pass_percentage: builderPassPct,
-          roster: builderParsedRoster,
-          questions: roleQs
+          roster: builderParsedRoster
         })
       });
       const data = await res.json();
@@ -1176,20 +1173,18 @@ export default function PlacementAssessment() {
       // ignore
     }
 
-    // 1. Instantly prepare local question pool for standard Campus Placement Assessment
+    // Official assessments must be created and served by the backend. Never fall
+    // back to an answer-bearing question bank shipped in the browser bundle.
     const roleToUse = 'Campus Placement Assessment';
-    const localQs = getNormalPlacementTestQuestions();
-    const localAttemptId = 'session_' + cleanRoll + '_' + Date.now();
-
-    setAttemptId(localAttemptId);
-    setQuestions(localQs);
-    setAssignedRole(roleToUse);
-    setStudentName(cleanName);
+    setAttemptId(null);
+    setQuestions([]);
+    setSubmissionError(null);
 
     // 2. Fast server sync with 2000ms max timeout (prevents cold-start freezing)
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      timeoutId = setTimeout(() => controller.abort(), 2000);
 
       const response = await fetch('/api/assessment/start', {
         method: 'POST',
@@ -1212,30 +1207,36 @@ export default function PlacementAssessment() {
         }),
         signal: controller.signal
       });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.attempt_id && data.questions && data.questions.length > 0) {
-          setAttemptId(data.attempt_id);
-          setQuestions(data.questions);
-          if (data.role) setAssignedRole(data.role);
-          if (data.student_name && !cleanName) setStudentName(data.student_name);
-          if (data.saved_answers && Object.keys(data.saved_answers).length > 0) {
-            setAnswers(data.saved_answers);
-          }
-          if (data.duration && data.duration < 7200) {
-            setTimeLeft(data.duration);
-          }
-        }
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || 'The assessment service could not start your attempt. Please try again.');
       }
+      const data = await response.json();
+      if (!data.attempt_id || !Array.isArray(data.questions) || data.questions.length === 0) {
+        throw new Error('The assessment service returned an invalid attempt. Please try again.');
+      }
+
+      setAttemptId(data.attempt_id);
+      setQuestions(data.questions);
+      setAssignedRole(data.role || roleToUse);
+      if (data.student_name) setStudentName(data.student_name);
+      if (data.saved_answers && Object.keys(data.saved_answers).length > 0) {
+        setAnswers(data.saved_answers);
+      }
+      if (typeof data.duration === 'number' && data.duration > 0) {
+        setTimeLeft(data.duration);
+      }
+      return true;
     } catch (e) {
-      console.warn("Server start skipped or timed out; proceeding instantly with local test pool", e);
+      const message = e instanceof Error && e.name === 'AbortError'
+        ? 'The assessment service took too long to respond. Your attempt was not started; please retry.'
+        : (e instanceof Error ? e.message : 'The assessment service is unavailable. Please retry.');
+      setErrorMsg(message);
+      return false;
     } finally {
+      if (timeoutId) clearTimeout(timeoutId);
       setLoadingQuestions(false);
     }
-
-    return true;
   };
 
 
@@ -1457,20 +1458,11 @@ export default function PlacementAssessment() {
 
   // Submit test to API
   async function submitAssessment(isAuto = false, _attemptId = attemptId, _questions = questions, _answers = answers) {
-
-    if (!_attemptId) return;
+    if (!_attemptId || isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     setIsSubmitting(true);
+    setSubmissionError(null);
     
-    // Stop Camera feed immediately
-    if (streamRef.current) {
-      try {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      } catch (err) {
-        console.debug('Could not stop assessment camera tracks cleanly.', err);
-      }
-    }
-
     // Separate coding answers from MCQ answers
     const mcqAnswers: Record<string, string> = {};
     const codingSubmissionsPayload: Record<string, any> = {};
@@ -1490,133 +1482,53 @@ export default function PlacementAssessment() {
       }
     });
 
-    // ── Instant result: compute score locally and show result page NOW ──────
-    const localScore = computeLocalScore(_questions, _answers, codingSubmissions);
-    // Build a minimal report from local data (full report comes from server)
-    const localReport = _questions
-      .filter(q => q.category !== 'Coding')
-      .map(q => {
-        const isScenario = q.category === 'Real-World Scenarios' || q.question_type === 'scenario';
-        const userAns = _answers[q.id] || '';
-        const isCorr = isScenario
-          ? Boolean(userAns && userAns.trim().length >= 20)
-          : (userAns === (q.correct_option ?? ''));
-        return {
-          id: q.id,
-          category: q.category,
-          topic: q.topic,
-          difficulty: q.difficulty,
-          question: q.question,
-          options: q.options,
-          correct_option: isScenario ? 'Evaluated by Engineering Rubrics' : (q.correct_option ?? ''),
-          explanation: (q as any).explanation ?? '',
-          user_answer: userAns,
-          is_correct: isCorr,
-          marks_awarded: isCorr ? (q.marks || 1) : 0,
-          coding_details: null
-        };
-      });
-
-    setResultsData(localScore);
-    setReportData(localReport);
-    setStep('score');
-    setShowFeedbackModal(true);
-    setIsSubmitting(false);
-
-    // Exit Fullscreen after transition to score step
-    if (document.fullscreenElement) {
-      try {
-        await document.exitFullscreen();
-      } catch (err) {
-        console.debug('Could not leave browser fullscreen after submission.', err);
-      }
-    }
-
     // ── Calculate final question elapsed time ──────────────────────────────
     const finalQId = activeQuestionIdRef.current;
     const finalElapsed = finalQId ? Math.max(1, Math.round((Date.now() - questionStartTimeRef.current) / 1000)) : 0;
     const updatedTimeSpent = finalQId ? { ...timeSpent, [finalQId]: (timeSpent[finalQId] || 0) + finalElapsed } : timeSpent;
 
-    // ── Background: send to server and reconcile once response arrives ───────
-    fetch('/api/assessment/submit', {
-      method: 'POST',
-      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({
-        attempt_id: _attemptId,
-        answers: mcqAnswers,
-        coding_submissions: codingSubmissionsPayload,
-        time_spent: updatedTimeSpent
-      })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        localStorage.removeItem('learniverse_assessment_user_id');
-        // Reconcile with server score (more accurate, includes coding evaluation)
-        setResultsData(data.score);
-        setReportData(data.report || localReport);
-      }
-    })
-    .catch(e => {
-      console.error("Background submission failed", e);
-    });
-
-    // ── Direct sync to fixly_test_submissions table ─────────────────────────
     try {
-      const eachQAnswer = _questions.map(q => {
-        const userAns = _answers[q.id] || '';
-        const isScenario = q.category === 'Real-World Scenarios' || q.question_type === 'scenario';
-        const isCorr = isScenario
-          ? Boolean(userAns && userAns.trim().length >= 20)
-          : Boolean(q.correct_option && userAns === q.correct_option);
-        return {
-          question_id: q.id,
-          category: q.category,
-          topic: q.topic,
-          difficulty: q.difficulty,
-          question: q.question,
-          options: q.options,
-          student_answer: userAns || '(unattempted)',
-          correct_option: isScenario ? 'Evaluated by Engineering Rubrics' : q.correct_option,
-          is_correct: isCorr,
-          marks_awarded: isCorr ? (q.marks || 1) : 0,
-          time_spent: updatedTimeSpent[q.id] || 0,
-          explanation: (q as any).explanation || ''
-        };
-      });
-
-      const totalPossibleMarks = _questions.reduce((acc, q) => acc + (q.marks || 1), 0);
-      const attemptedCount = _questions.filter(q => Boolean(_answers[q.id])).length;
-      const correctCount = eachQAnswer.filter(q => q.is_correct).length;
-      const wrongCount = attemptedCount - correctCount;
-
-      fetch('/api/assessment/fixly/submit-direct', {
+      const response = await fetch('/api/assessment/submit', {
         method: 'POST',
         headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
-          session_id: _attemptId,
-          student_name: studentName || 'Candidate',
-          roll_number: rollNumber || '',
-          role: assignedRole || 'Mobile App Developer Intern',
-          branch: branch || 'CSE',
-          total_marks: localScore.total || 0,
-          max_marks: totalPossibleMarks,
-          percentage: localScore.percentage || 0,
-          total_questions: _questions.length,
-          attempted: attemptedCount,
-          correct_count: correctCount,
-          wrong_count: wrongCount,
-          unanswered_count: _questions.length - attemptedCount,
-          question_answers: eachQAnswer,
-          violations_count: violations,
-          violations_log: [],
-          status: violations >= 3 ? 'disqualified' : 'completed'
+          attempt_id: _attemptId,
+          answers: mcqAnswers,
+          coding_submissions: codingSubmissionsPayload,
+          time_spent: updatedTimeSpent
         })
-      }).catch((error) => {
-        console.warn('Could not persist optional Fixly submission history.', error);
       });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.status !== 'success') {
+        throw new Error(data.detail || 'Submission could not be confirmed. Your answers remain available; please retry.');
+      }
+
+      setResultsData(data.score);
+      setReportData(data.report || []);
+      setStep('score');
+      setShowFeedbackModal(true);
+      setShowSubmitModal(false);
+      localStorage.removeItem('learniverse_assessment_user_id');
+      if (streamRef.current) {
+        try {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+        } catch (err) {
+          console.debug('Could not stop assessment camera tracks cleanly.', err);
+        }
+      }
+      if (document.fullscreenElement) {
+        try {
+          await document.exitFullscreen();
+        } catch (err) {
+          console.debug('Could not leave browser fullscreen after submission.', err);
+        }
+      }
     } catch (error) {
-      console.warn('Could not persist optional Fixly submission history.', error);
+      setSubmissionError(error instanceof Error ? error.message : 'Submission could not be confirmed. Please retry.');
+      setShowSubmitModal(false);
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -4269,6 +4181,20 @@ export default function PlacementAssessment() {
               <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
               <h2 className="text-2xl font-extrabold text-slate-900">Submitting Assessment...</h2>
               <p className="text-slate-500 text-sm max-w-sm">Finalizing answers, please wait...</p>
+            </div>
+          )}
+
+          {submissionError && !isSubmitting && (
+            <div role="alert" className="fixed top-4 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[calc(100%-2rem)] rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-900 shadow-lg">
+              <p className="font-semibold">Submission not confirmed</p>
+              <p className="mt-1">{submissionError}</p>
+              <Button
+                type="button"
+                onClick={() => submitAssessment(true, attemptIdRef.current, questionsRef.current, answersRef.current)}
+                className="mt-3 bg-rose-700 text-white hover:bg-rose-800"
+              >
+                Retry submission
+              </Button>
             </div>
           )}
 

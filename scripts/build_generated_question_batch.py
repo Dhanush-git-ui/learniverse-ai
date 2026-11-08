@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "src" / "data" / "admin_generated_batch_001.json"
+OUT = ROOT / "backend" / "data" / "admin_generated_batch_001.json"
 
 
 def make_question(index, category, topic, prompt, answer, distractors, explanation, wrong_reasons, role, evidence):

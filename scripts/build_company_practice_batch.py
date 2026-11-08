@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src" / "data" / "admin_company_practice_batch_001.json"
+OUTPUT = ROOT / "backend" / "data" / "admin_company_practice_batch_001.json"
 
 # Questions are authored as generic practice tied to a relevant role/company
 # context. The associations do not claim that a company asked these questions.

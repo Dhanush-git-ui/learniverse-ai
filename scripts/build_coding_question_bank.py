@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "backend" / "data" / "placement_coding_questions.json"
-OUTPUT = ROOT / "src" / "data" / "admin_coding_question_bank.json"
+OUTPUT = ROOT / "backend" / "data" / "admin_coding_question_bank.json"
 
 COMPANIES = {
     "TCS": ("tcs", "TCS", "Software Engineer", "Coding Practice"),

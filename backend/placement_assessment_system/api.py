@@ -112,6 +112,67 @@ def _score_scenario_submission(answer: Any, question: dict):
     awarded = min(awarded, max_marks, question_max)
     return attempted, round(awarded, 2), awarded > 0, has_unscored_criteria
 
+
+def _existing_submission_result(db, session_id: str):
+    """Return a stored result so a retry after a lost response is idempotent."""
+    db.execute(
+        """
+        SELECT total_marks, max_marks, percentage, question_answers
+        FROM fixly_test_submissions
+        WHERE session_id = %s
+        ORDER BY submitted_at DESC
+        LIMIT 1;
+        """,
+        (session_id,),
+    )
+    submission = db.fetchone()
+    if not submission:
+        return None
+
+    question_answers = submission.get("question_answers") or []
+    if isinstance(question_answers, str):
+        try:
+            question_answers = json.loads(question_answers)
+        except (TypeError, ValueError):
+            question_answers = []
+    report = [
+        {
+            "id": item.get("question_id"),
+            "category": item.get("category"),
+            "topic": item.get("topic"),
+            "difficulty": item.get("difficulty"),
+            "question": item.get("question"),
+            "options": item.get("options"),
+            "correct_option": item.get("correct_option"),
+            "explanation": item.get("explanation", ""),
+            "user_answer": item.get("student_answer"),
+            "is_correct": bool(item.get("is_correct")),
+            "marks_awarded": float(item.get("marks_awarded") or 0),
+            "coding_details": None,
+        }
+        for item in question_answers
+        if isinstance(item, dict)
+    ]
+
+    sections = {
+        "Aptitude": "aptitude",
+        "Verbal": "verbal",
+        "Computer_Fundamentals": "comp_fundamentals",
+        "Coding": "coding",
+    }
+    section_scores = {key: 0.0 for key in sections.values()}
+    db.execute(
+        "SELECT section_name, marks FROM section_results WHERE session_id::text = %s",
+        (session_id,),
+    )
+    for section in db.fetchall() or []:
+        score_key = sections.get(section.get("section_name"))
+        if score_key:
+            section_scores[score_key] = round(float(section.get("marks") or 0), 2)
+    section_scores["total"] = round(float(submission.get("total_marks") or 0), 2)
+    section_scores["percentage"] = round(float(submission.get("percentage") or 0), 2)
+    return {"status": "success", "score": section_scores, "report": report}
+
 def _save_submission_file_backup(record: dict):
     """Fail-proof disk backup for candidate submissions (JSON + CSV + Excel)."""
     try:
@@ -1640,6 +1701,12 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, curre
 
     else:
         _assert_session_owner(current_user, session)
+
+    if session.get("status") in {"completed", "disqualified", "auto_submitted"}:
+        stored_result = _existing_submission_result(db, str(session["session_id"]))
+        if stored_result:
+            return stored_result
+        raise HTTPException(status_code=409, detail="Assessment was already processed; its stored result is unavailable.")
 
     if session["status"] != "started" and current_user.role != "admin":
         raise HTTPException(status_code=409, detail="Assessment session is not active")

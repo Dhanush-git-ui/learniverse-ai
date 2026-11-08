@@ -16,11 +16,11 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "backend"
 LOCAL_DB = BACKEND / "placement_assessment_system" / "assessment_local.db"
-BUNDLE = ROOT / "src" / "data" / "admin_question_bank.json"
-CODING_BUNDLE = ROOT / "src" / "data" / "admin_coding_question_bank.json"
-SUPPLEMENTAL_BUNDLE = ROOT / "src" / "data" / "admin_supplemental_question_bank.json"
-COMPANY_BUNDLE = ROOT / "src" / "data" / "admin_company_practice_batch_001.json"
-GENERATED_BUNDLE = ROOT / "src" / "data" / "admin_generated_batch_001.json"
+BUNDLE = ROOT / "backend" / "data" / "admin_question_bank.json"
+CODING_BUNDLE = ROOT / "backend" / "data" / "admin_coding_question_bank.json"
+SUPPLEMENTAL_BUNDLE = ROOT / "backend" / "data" / "admin_supplemental_question_bank.json"
+COMPANY_BUNDLE = ROOT / "backend" / "data" / "admin_company_practice_batch_001.json"
+GENERATED_BUNDLE = ROOT / "backend" / "data" / "admin_generated_batch_001.json"
 CATEGORIES = [
     "Quantitative Aptitude", "Logical Reasoning", "Verbal Ability", "Computer Fundamentals",
     "Programming and Coding", "Core Computer Science", "Data Structures and Algorithms",

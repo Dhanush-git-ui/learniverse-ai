@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "questions.json"
-OUTPUT = ROOT / "src" / "data" / "admin_question_bank.json"
+OUTPUT = ROOT / "backend" / "data" / "admin_question_bank.json"
 
 
 def normalize(value: object) -> str:

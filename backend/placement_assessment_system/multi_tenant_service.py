@@ -1,5 +1,6 @@
 import os
 import json
+import random
 import uuid
 import re
 from datetime import datetime, timezone, timedelta
@@ -85,6 +86,33 @@ def init_multi_tenant_tables(db):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+
+
+def _load_server_question_template(role_track: str) -> List[Dict[str, Any]]:
+    """Load an assessment template from the backend-only question bank."""
+    role = (role_track or "").lower()
+    if "ai" in role or "artificial" in role:
+        key = "AI_ENGINEER_QUESTIONS"
+    elif any(term in role for term in ("backend", "full stack", "fullstack", "front-end", "frontend")):
+        key = "BACKEND_FULLSTACK_QUESTIONS"
+    elif "devops" in role or "cloud" in role:
+        key = "DEVOPS_QUESTIONS"
+    elif any(term in role for term in ("growth", "technology & growth", "marketing", "business")):
+        key = "GROWTH_INTERN_QUESTIONS"
+    else:
+        key = "REACT_NATIVE_QUESTIONS"
+
+    bank_path = os.path.join(os.path.dirname(__file__), "..", "data", "assessment_question_templates.json")
+    with open(bank_path, "r", encoding="utf-8") as bank_file:
+        bank = json.load(bank_file)
+    questions = bank.get(key)
+    if not isinstance(questions, list) or not questions:
+        raise RuntimeError(f"Assessment question template is missing for role: {role_track}")
+
+    mcqs = [dict(q) for q in questions if q.get("category") != "Real-World Scenarios"]
+    scenarios = [dict(q) for q in questions if q.get("category") == "Real-World Scenarios"]
+    random.shuffle(mcqs)
+    return mcqs + scenarios
 
 
 def seed_default_multi_tenant_data(db, root_dir: str):
@@ -533,7 +561,10 @@ def create_assessment_test(db, payload: Dict[str, Any]) -> Dict[str, Any]:
     start_time = payload.get("start_time") or datetime.now(timezone.utc).isoformat()
     end_time = payload.get("end_time") or (datetime.now(timezone.utc) + timedelta(days=2)).isoformat()
     duration_minutes = int(payload.get("duration_minutes") or 60)
-    total_marks = float(payload.get("total_marks") or 70.0)
+    questions_list = _load_server_question_template(role_track)
+    total_marks = sum(float(q.get("marks") or 1.0) for q in questions_list)
+    if total_marks <= 0:
+        total_marks = float(payload.get("total_marks") or 70.0)
     pass_percentage = float(payload.get("pass_percentage") or 50.0)
 
     db.execute("""
@@ -559,8 +590,8 @@ def create_assessment_test(db, payload: Dict[str, Any]) -> Dict[str, Any]:
         """, (r_id, test_id, name, roll, email, branch, phone))
         inserted_candidates += 1
 
-    # Insert questions if provided
-    questions_list = payload.get("questions") or []
+    # Assessment questions and answer keys are selected only from the
+    # server-side bank; ignore client-supplied question content.
     inserted_questions = 0
     for q in questions_list:
         q_id = str(q.get("id") or str(uuid.uuid4())[:8])

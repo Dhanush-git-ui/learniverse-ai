@@ -12,43 +12,17 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "src" / "data" / "assessmentQuestions.ts"
-MAIN_BUNDLE = ROOT / "src" / "data" / "admin_question_bank.json"
-OUTPUT = ROOT / "src" / "data" / "admin_supplemental_question_bank.json"
-
-ARRAY_START = re.compile(r"^export const (\w+)\s*=\s*\[", re.M)
+SOURCE = ROOT / "backend" / "data" / "assessment_question_templates.json"
+MAIN_BUNDLE = ROOT / "backend" / "data" / "admin_question_bank.json"
+OUTPUT = ROOT / "backend" / "data" / "admin_supplemental_question_bank.json"
 
 
 def extract_arrays(text: str):
-    for match in ARRAY_START.finditer(text):
-        start = match.end() - 1
-        depth, quote, escaped, end = 0, None, False, None
-        for index in range(start, len(text)):
-            char = text[index]
-            if quote:
-                if escaped:
-                    escaped = False
-                elif char == "\\":
-                    escaped = True
-                elif char == quote:
-                    quote = None
-                continue
-            if char in ('"', "'"):
-                quote = char
-            elif char == "[":
-                depth += 1
-            elif char == "]":
-                depth -= 1
-                if depth == 0:
-                    end = index + 1
-                    break
-        if end:
-            try:
-                records = json.loads(text[start:end])
-            except json.JSONDecodeError:
-                continue
+    banks = json.loads(text)
+    for bank_name, records in banks.items():
+        if isinstance(records, list):
             for record in records:
-                yield match.group(1), record
+                yield bank_name, record
 
 
 def normalize(value: str) -> str:
@@ -142,7 +116,7 @@ def build() -> dict:
             "subTopic": str(row.get("topic") or source_category_name(source_name)),
             "difficulty": difficulty, "questionType": "MCQ", "tags": source_tags,
             "company": None, "role": role, "provenance": "Source-Verified Practice Question",
-            "source": f"src/data/assessmentQuestions.ts#{source_name}/{row.get('id', '')}",
+            "source": f"backend/data/assessment_question_templates.json#{source_name}/{row.get('id', '')}",
             "verificationStatus": "Four-option and answer-letter alignment checks passed; factual answer and distractor rationales not independently verified",
             "reviewStatus": "Pending Review",
             "structuralStatus": "Needs Revision",
