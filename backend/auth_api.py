@@ -119,7 +119,6 @@ def verify_google_id_token(token_str: str) -> Dict[str, Any]:
     """Verify a Google ID token against an explicitly configured client ID."""
     active_ids = GOOGLE_CLIENT_IDS if GOOGLE_CLIENT_IDS else _resolve_google_client_ids()
     clean_token = (token_str or "").strip()
-    last_err = None
     for client_id in active_ids:
         try:
             idinfo = id_token.verify_oauth2_token(
@@ -129,12 +128,10 @@ def verify_google_id_token(token_str: str) -> Dict[str, Any]:
                 clock_skew_in_seconds=10
             )
             return idinfo
-        except Exception as e:
-            last_err = e
+        except Exception:
             pass
-    logger.warning("Google token verification failed (active_ids=%s): %s", active_ids, last_err)
-    detail_msg = f"Invalid Google OAuth credential: {last_err}" if os.environ.get("ENV") == "development" else "Invalid Google OAuth credential."
-    raise HTTPException(status_code=401, detail=detail_msg)
+    logger.warning("Google token verification failed for configured client IDs")
+    raise HTTPException(status_code=401, detail="Invalid Google OAuth credential.")
 
 def is_admin_email(email: str) -> bool:
     e = (email or "").strip().lower()
@@ -185,7 +182,7 @@ def admin_login_endpoint(request: Request, payload: AdminLoginRequest):
     Dedicated Admin Login endpoint with bcrypt password verification.
     """
     username = payload.username.strip().lower()
-    password = payload.password.strip()
+    password = payload.password
     valid_usernames = get_valid_admin_usernames()
 
     if username not in valid_usernames or not verify_admin_password(password):
@@ -319,7 +316,7 @@ def manual_hitam_login_endpoint(request: Request, payload: ManualLoginRequest):
     # Check if this is an admin attempting login via the general identifier field
     valid_admins = get_valid_admin_usernames()
     if identifier.lower() in valid_admins:
-        if not payload.password or not verify_admin_password(payload.password.strip()):
+        if not payload.password or not verify_admin_password(payload.password):
             raise HTTPException(status_code=401, detail="Invalid admin credentials. Access denied.")
 
         jwt_token = create_access_token(user_id=identifier.lower(), email=identifier.lower(), role="admin", expires_hours=8)

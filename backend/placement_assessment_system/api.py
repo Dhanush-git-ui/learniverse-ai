@@ -274,61 +274,36 @@ def _get_pool():
     global _db_pool
     if not DB_URL:
         return None
-    if _db_pool is None or _db_pool.closed:
-        try:
-            from psycopg2.pool import ThreadedConnectionPool
-            from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
-            _db_pool = ThreadedConnectionPool(
-                minconn=DB_POOL_MIN_CONNS,
-                maxconn=DB_POOL_MAX_CONNS,
-                dsn=DB_URL,
-            )
-        except Exception as e:
-            print(f"[DB POOL] Could not connect to PostgreSQL: {e}.")
-            _db_pool = None
+    try:
+        from db_pool import get_pool
+        _db_pool = get_pool(DB_URL)
+    except Exception as exc:
+        print(f"[DB POOL] PostgreSQL pool unavailable ({type(exc).__name__}).")
+        _db_pool = None
     return _db_pool
 
 def _get_live_conn(pool, max_retries: int = 3):
-    global _db_pool
-    last_err: Exception = RuntimeError("No connection attempts made")
+    from psycopg2.pool import PoolError
 
     for attempt in range(max_retries):
-        if attempt > 0:
-            _time.sleep(0.5)
-
         try:
             conn = pool.getconn()
-        except Exception as err:
-            last_err = err
-            try:
-                pool.closeall()
-            except Exception:
-                pass
-            _db_pool = None
-            try:
-                from psycopg2.pool import ThreadedConnectionPool
-                from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
-                pool = ThreadedConnectionPool(
-                    minconn=DB_POOL_MIN_CONNS,
-                    maxconn=DB_POOL_MAX_CONNS,
-                    dsn=DB_URL,
-                )
-                _db_pool = pool
-            except Exception as reconnect_err:
-                last_err = reconnect_err
+        except PoolError:
+            # Pool exhaustion is load, not evidence that every pooled connection is broken.
+            raise HTTPException(status_code=503, detail="Database is temporarily at capacity")
+        except Exception as exc:
+            if attempt + 1 == max_retries:
+                raise HTTPException(status_code=503, detail="Assessment database is unavailable") from exc
             continue
 
         if _ping_conn(conn):
             return conn
 
         try:
-            import psycopg2
-            last_err = psycopg2.OperationalError("Stale pooled connection discarded")
             pool.putconn(conn, close=True)
         except Exception:
             pass
-
-    return None
+    raise HTTPException(status_code=503, detail="Assessment database is unavailable")
 
 
 # ------------------------------------------------------------
@@ -559,6 +534,9 @@ class SQLiteCursorAdapter:
     def close(self):
         self.cur.close()
 
+    def commit(self):
+        self.conn.commit()
+
     @property
     def rowcount(self):
         return self.cur.rowcount
@@ -741,7 +719,6 @@ def ensure_schema():
                 submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
         """)
-
         conn.commit()
         cur.close()
     except Exception as e:
@@ -798,6 +775,9 @@ class PostgresCursorAdapter:
     def close(self):
         self.cur.close()
 
+    def commit(self):
+        self.conn.commit()
+
     @property
     def description(self):
         return self.cur.description
@@ -816,31 +796,33 @@ def get_db_cursor():
     pool = _get_pool()
     conn = None
     if pool:
-        try:
-            conn = _get_live_conn(pool)
-        except Exception:
-            conn = None
+        conn = _get_live_conn(pool)
 
     if conn:
-        from psycopg2.extras import RealDictCursor
-        raw_cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur = PostgresCursorAdapter(raw_cur, conn)
+        raw_cur = None
+        cur = None
         is_broken = False
         try:
+            from psycopg2.extras import RealDictCursor
+            raw_cur = conn.cursor(cursor_factory=RealDictCursor)
+            cur = PostgresCursorAdapter(raw_cur, conn)
             yield cur
             if conn.closed == 0:
                 conn.commit()
-        except Exception as e:
+        except BaseException:
             is_broken = True
             if conn.closed == 0:
                 try:
                     conn.rollback()
                 except Exception:
                     pass
-            raise e
+            raise
         finally:
             try:
-                cur.close()
+                if cur is not None:
+                    cur.close()
+                elif raw_cur is not None:
+                    raw_cur.close()
             except Exception:
                 pass
             broken = is_broken or conn.closed != 0
@@ -860,12 +842,12 @@ def get_db_cursor():
         try:
             yield adapter
             sqlite_conn.commit()
-        except Exception as e:
+        except BaseException:
             try:
                 sqlite_conn.rollback()
             except Exception:
                 pass
-            raise e
+            raise
         finally:
             try:
                 adapter.close()
@@ -1995,6 +1977,9 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, curre
             )
         )
 
+        # Persist the session status, per-question rows, section totals, and
+        # submission record atomically before writing backups or dispatching CDC.
+        db.commit()
         _save_submission_file_backup(sub_record)
         try:
             from cdc_integration import save_to_bulk_test_table
@@ -2121,8 +2106,9 @@ def submit_fixly_direct(req: DirectFixlySubmissionRequest, background_tasks: Bac
                 sub_record["status"]
             )
         )
+        db.commit()
     except Exception as e:
-        print(f"[DIRECT DB INSERT WARNING] {e}")
+        raise HTTPException(status_code=503, detail="Submission could not be persisted.") from e
 
     # 2. Save fail-proof disk backup
     _save_submission_file_backup(sub_record)

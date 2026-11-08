@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BACKEND_DIR not in sys.path:
@@ -17,6 +17,36 @@ from starlette.requests import Request
 
 
 class AuthenticationHardeningTests(unittest.TestCase):
+    def test_live_monitor_requires_a_valid_admin_jwt(self):
+        from app import _validate_monitor_admin_token
+        from auth import create_access_token
+
+        with patch.dict(os.environ, {"API_SECRET_KEY": "configured-test-secret"}, clear=False):
+            student_token = create_access_token("student-1", role="student")
+            admin_token = create_access_token("admin-1", role="admin")
+            with self.assertRaises(HTTPException) as denied:
+                _validate_monitor_admin_token(student_token)
+            self.assertEqual(denied.exception.status_code, 403)
+            self.assertEqual(_validate_monitor_admin_token(admin_token)["role"], "admin")
+            with self.assertRaises(Exception):
+                _validate_monitor_admin_token("invalid-token")
+
+    def test_direct_submission_failure_is_not_reported_as_success(self):
+        from fastapi import BackgroundTasks
+        from placement_assessment_system.api import DirectFixlySubmissionRequest, submit_fixly_direct
+
+        request = DirectFixlySubmissionRequest(
+            student_name="Synthetic Candidate", roll_number="SYNTHETIC-1",
+            total_marks=1, percentage=5,
+        )
+        database = MagicMock()
+        database.execute.side_effect = RuntimeError("isolated persistence failure")
+        with patch("placement_assessment_system.api._save_submission_file_backup") as backup:
+            with self.assertRaises(HTTPException) as raised:
+                submit_fixly_direct(request, BackgroundTasks(), _admin=None, db=database)
+        self.assertEqual(raised.exception.status_code, 503)
+        backup.assert_not_called()
+
     def test_legacy_signing_secrets_are_not_accepted(self):
         with patch.dict(os.environ, {"API_SECRET_KEY": "configured-test-secret"}, clear=False):
             legacy = jwt.encode({

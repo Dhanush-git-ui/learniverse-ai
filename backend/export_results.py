@@ -13,6 +13,7 @@ import sqlite3
 from datetime import datetime
 from dotenv import load_dotenv
 import pandas as pd
+from db_pool import acquire_connection, release_connection
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 load_dotenv()
@@ -27,14 +28,15 @@ def fetch_all_submissions():
 
     # 1. Try PostgreSQL (Neon DB)
     if DB_URL:
+        conn = None
         try:
-            import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(DB_URL)
+            conn = acquire_connection(DB_URL)
             cur = conn.cursor(cursor_factory=RealDictCursor)
             cur.execute("SELECT * FROM fixly_test_submissions ORDER BY submitted_at DESC;")
             pg_rows = cur.fetchall() or []
-            conn.close()
+            release_connection(conn)
+            conn = None
             for r in pg_rows:
                 roll = str(r.get("roll_number", "")).strip().upper()
                 if roll and roll not in records_by_roll:
@@ -42,7 +44,9 @@ def fetch_all_submissions():
             if pg_rows:
                 sources_found.append(f"Neon PostgreSQL ({len(pg_rows)} rows)")
         except Exception as e:
-            print(f"[NOTE] Neon DB: {e}")
+            if conn is not None:
+                release_connection(conn, discard=True)
+            print(f"[NOTE] PostgreSQL export unavailable ({type(e).__name__})")
 
     # 2. Try SQLite
     if os.path.exists(SQLITE_PATH):

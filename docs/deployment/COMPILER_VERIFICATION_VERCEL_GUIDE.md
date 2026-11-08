@@ -482,8 +482,9 @@ async def list_problems(...):
 
 Already configured in `config.py`:
 ```python
-self.DB_POOL_MIN_CONNS = 20
-self.DB_POOL_MAX_CONNS = 100
+# One shared pool per worker; defaults min=1/max=10, hard caps min=5/max=20.
+self.DB_POOL_MIN_CONNS = 1
+self.DB_POOL_MAX_CONNS = 10
 ```
 
 ### 4. CDN for Frontend

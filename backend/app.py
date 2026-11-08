@@ -60,58 +60,29 @@ from config import settings
 
 DB_URL = settings.DATABASE_URL
 
-from psycopg2.pool import ThreadedConnectionPool
-from config import DB_POOL_MIN_CONNS, DB_POOL_MAX_CONNS
+from db_pool import (
+    get_pool as get_shared_db_pool,
+    close_pool as close_shared_db_pool,
+    release_connection as release_shared_db_connection,
+)
 _db_pool = None
 
 def get_db_conn():
     global _db_pool
     if not DB_URL:
         return None
-    for attempt in range(3):
-        try:
-            if _db_pool is None or _db_pool.closed:
-                _db_pool = ThreadedConnectionPool(
-                    minconn=DB_POOL_MIN_CONNS,
-                    maxconn=DB_POOL_MAX_CONNS,
-                    dsn=DB_URL
-                )
-            conn = _db_pool.getconn()
-            if getattr(conn, "closed", 0) != 0:
-                try:
-                    _db_pool.putconn(conn, close=True)
-                except Exception:
-                    pass
-                continue
-            # Validate connection health against Neon timeout/SSL drops
-            try:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT 1;")
-                return conn
-            except Exception:
-                try:
-                    _db_pool.putconn(conn, close=True)
-                except Exception:
-                    pass
-                continue
-        except Exception as e:
-            logger.warning("[DB POOL] Could not acquire connection (attempt %s): %s", attempt + 1, e)
-            try:
-                if _db_pool and not _db_pool.closed:
-                    _db_pool.closeall()
-                _db_pool = None
-            except Exception:
-                pass
-    return None
+    try:
+        _db_pool = get_shared_db_pool(DB_URL)
+        return _db_pool.getconn()
+    except Exception as exc:
+        logger.warning("Database connection unavailable (%s)", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Database is temporarily unavailable") from exc
 
 def release_db_conn(conn, close=False):
-    global _db_pool
-    if _db_pool and conn:
-        try:
-            is_bad = close or getattr(conn, "closed", 0) != 0
-            _db_pool.putconn(conn, close=is_bad)
-        except Exception:
-            pass
+    try:
+        release_shared_db_connection(conn, discard=close)
+    except Exception:
+        logger.warning("Unable to return a database connection to the worker pool")
 
 from contextlib import contextmanager, asynccontextmanager
 
@@ -132,15 +103,15 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize DB pool
     global _db_pool, _code_execution_semaphore
     _code_execution_semaphore = asyncio.Semaphore(50)
-    if DB_URL and (_db_pool is None or _db_pool.closed):
+    if not DB_URL and not settings.IS_DEV:
+        raise RuntimeError("DATABASE_URL must be configured outside development")
+    if DB_URL:
         try:
-            _db_pool = ThreadedConnectionPool(
-                minconn=DB_POOL_MIN_CONNS,
-                maxconn=DB_POOL_MAX_CONNS,
-                dsn=DB_URL
-            )
-        except Exception as e:
-            logger.warning("[DB STARTUP] Could not initialize DB pool: %s", e)
+            _db_pool = get_shared_db_pool(DB_URL)
+        except Exception as exc:
+            logger.error("PostgreSQL pool initialization failed (%s)", type(exc).__name__)
+            if not settings.IS_DEV:
+                raise RuntimeError("PostgreSQL pool initialization failed") from exc
     
     # Startup: Preload some topics
     try:
@@ -153,8 +124,8 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown: Close DB pool
-    if _db_pool is not None and not _db_pool.closed:
-        _db_pool.closeall()
+    close_shared_db_pool()
+    _db_pool = None
     
     # Shutdown: Close HTTP client
     await http_client.aclose()
@@ -369,13 +340,43 @@ app.include_router(analytics_router)
 # ---------------------------------------------------------------------------
 # REAL-TIME WEBSOCKET COMMAND CENTER MONITOR
 # ---------------------------------------------------------------------------
+def _validate_monitor_admin_token(token: str) -> dict:
+    """Return verified administrator claims or reject the monitor connection."""
+    from auth import _decode_access_token
+
+    claims = _decode_access_token(token)
+    if claims.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Administrator privileges required")
+    return claims
+
+
 @app.websocket("/ws/test-monitor/{test_id}")
 async def websocket_test_monitor(websocket: WebSocket, test_id: str):
     """
     Real-time push channel for the assessment live command center.
     Streams active student heartbeat, time-remaining, roster status, and violations every 1s.
     """
-    await websocket.accept()
+    # Browser WebSocket APIs cannot set Authorization headers. Accept a short
+    # lived application JWT as an offered subprotocol, validate it before
+    # accepting, and never echo/log the credential. Only admins may subscribe.
+    offered_protocols = [
+        value.strip()
+        for value in websocket.headers.get("sec-websocket-protocol", "").split(",")
+        if value.strip()
+    ]
+    credential_protocols = [value for value in offered_protocols if value.startswith("bearer.")]
+    try:
+        if "learniverse.admin" not in offered_protocols:
+            raise HTTPException(status_code=401, detail="Required WebSocket protocol was not offered")
+        if len(credential_protocols) != 1:
+            raise HTTPException(status_code=401, detail="A single authentication credential is required")
+        token = credential_protocols[0][len("bearer."):]
+        _validate_monitor_admin_token(token)
+    except Exception:
+        await websocket.close(code=1008, reason="Valid administrator authentication required")
+        return
+
+    await websocket.accept(subprotocol="learniverse.admin")
     logger.info("[WS MONITOR] Live monitoring connected for test: %s", test_id)
     try:
         from placement_assessment_system.api import get_db_cursor
@@ -1849,7 +1850,7 @@ class RawExecuteRequest(BaseModel):
 
 @app.post("/api/code/execute-raw")
 @limiter.limit("60/minute")
-async def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: str = Depends(verify_api_key)):
+def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: str = Depends(verify_api_key)):
     # Basic payload protections: limit file content size to avoid memory abuse.
     code = ""
     if req.files:
@@ -1874,13 +1875,13 @@ async def execute_raw_code(request: Request, req: RawExecuteRequest, user_id: st
             )
         return execution_result
     except Exception as exc:
-        logger.error(f"[EXECUTE-RAW] Unexpected error during execution: {exc}")
+        logger.error("[EXECUTE-RAW] Code execution provider failed (%s)", type(exc).__name__)
         return JSONResponse(
             status_code=200,
             content={
                 "run": {
                     "stdout": "",
-                    "stderr": f"Execution error: {str(exc)}",
+                    "stderr": "Execution service is temporarily unavailable.",
                     "code": 1
                 }
             }

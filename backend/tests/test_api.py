@@ -49,9 +49,10 @@ class TestAPI(unittest.TestCase):
         mock_get_chroma.return_value = (None, mock_col)
         with patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}):
             with patch("config.settings.GEMINI_API_KEY", "test-key"):
-                response = self.client.get("/health")
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json().get("status"), "healthy")
+                with patch("config.settings.OPENROUTER_API_KEY", "test-openrouter-key"):
+                    response = self.client.get("/health")
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.json().get("status"), "healthy")
 
     def test_get_topics(self):
         """Test the topics list retrieval endpoint."""

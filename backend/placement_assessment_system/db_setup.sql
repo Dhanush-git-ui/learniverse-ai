@@ -174,4 +174,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_one_active_session ON test_sessions(studen
 CREATE INDEX IF NOT EXISTS idx_fixly_roll_number ON fixly_test_submissions(roll_number);
 CREATE INDEX IF NOT EXISTS idx_fixly_role ON fixly_test_submissions(role);
 CREATE INDEX IF NOT EXISTS idx_fixly_submitted_at ON fixly_test_submissions(submitted_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_fixly_session_once
+    ON fixly_test_submissions(session_id) WHERE session_id IS NOT NULL;
 

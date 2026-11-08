@@ -1,6 +1,9 @@
 # backend/config.py
 import os
+import logging
 from dotenv import load_dotenv
+
+logger = logging.getLogger("learniverse.config")
 
 class Settings:
     def __init__(self):
@@ -22,8 +25,14 @@ class Settings:
         
         # Database
         self.DATABASE_URL = os.environ.get("DATABASE_URL")
-        self.DB_POOL_MIN_CONNS = int(os.environ.get("DB_POOL_MIN_CONNS", "5"))
-        self.DB_POOL_MAX_CONNS = int(os.environ.get("DB_POOL_MAX_CONNS", "50"))
+        requested_pool_min = int(os.environ.get("DB_POOL_MIN_CONNS", "1"))
+        requested_pool_max = int(os.environ.get("DB_POOL_MAX_CONNS", "10"))
+        if requested_pool_min < 1 or requested_pool_max < 1 or requested_pool_min > requested_pool_max:
+            raise ValueError("DB pool sizes must satisfy 1 <= DB_POOL_MIN_CONNS <= DB_POOL_MAX_CONNS")
+        self.DB_POOL_MAX_CONNS = min(requested_pool_max, 20)
+        self.DB_POOL_MIN_CONNS = min(requested_pool_min, self.DB_POOL_MAX_CONNS, 5)
+        if self.DB_POOL_MAX_CONNS != requested_pool_max or self.DB_POOL_MIN_CONNS != requested_pool_min:
+            logger.warning("Database pool sizing capped for each worker (min=%s, max=%s)", self.DB_POOL_MIN_CONNS, self.DB_POOL_MAX_CONNS)
         
         # RAG Configuration
         self.SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))

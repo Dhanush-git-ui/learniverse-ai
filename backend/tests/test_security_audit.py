@@ -35,11 +35,16 @@ from placement_assessment_system import api as assessment_api
 
 
 class TestPostgresDeployability(unittest.TestCase):
-    @unittest.skipUnless(os.environ.get("TEST_POSTGRES_URL"), "PostgreSQL service URL is not configured")
+    @unittest.skipUnless(
+        os.environ.get("TEST_POSTGRES_URL") and os.environ.get("RUN_POSTGRES_INTEGRATION") == "1",
+        "PostgreSQL integration test is not explicitly enabled",
+    )
     def test_production_postgres_commit_and_rollback(self):
         """A synthetic write persists on commit and disappears after rollback."""
         table = f"deployability_smoke_{uuid4().hex}"
         url = os.environ["TEST_POSTGRES_URL"]
+        from test_db_reliability import assert_isolated_postgres_target
+        assert_isolated_postgres_target(url, os.environ.get("DATABASE_URL", ""))
         with patch("placement_assessment_system.api.settings.IS_DEV", False), \
              patch("placement_assessment_system.api.DB_URL", url), \
              patch("placement_assessment_system.api._db_pool", None):

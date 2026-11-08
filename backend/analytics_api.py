@@ -99,7 +99,7 @@ class Top100Event(BaseModel):
 # ──────────────────────────────────────────────────────────────────────────────
 
 @analytics_router.post("/topic-view", status_code=201)
-async def post_topic_view(request: Request, body: TopicViewEvent):
+def post_topic_view(request: Request, body: TopicViewEvent):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     if not user_id:
@@ -115,7 +115,7 @@ async def post_topic_view(request: Request, body: TopicViewEvent):
 
 
 @analytics_router.post("/chat-message", status_code=201)
-async def post_chat_message(request: Request, body: ChatMessageEvent):
+def post_chat_message(request: Request, body: ChatMessageEvent):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     _ensure_user(payload)
@@ -128,7 +128,7 @@ async def post_chat_message(request: Request, body: ChatMessageEvent):
 
 
 @analytics_router.post("/mcq-attempt", status_code=201)
-async def post_mcq_attempt(request: Request, body: McqAttemptEvent):
+def post_mcq_attempt(request: Request, body: McqAttemptEvent):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     _ensure_user(payload)
@@ -145,7 +145,7 @@ async def post_mcq_attempt(request: Request, body: McqAttemptEvent):
 
 
 @analytics_router.post("/code-submit", status_code=201)
-async def post_code_submit(request: Request, body: CodeSubmitEvent):
+def post_code_submit(request: Request, body: CodeSubmitEvent):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     _ensure_user(payload)
@@ -161,7 +161,7 @@ async def post_code_submit(request: Request, body: CodeSubmitEvent):
 
 
 @analytics_router.post("/top100-progress", status_code=201)
-async def post_top100_progress(request: Request, body: Top100Event):
+def post_top100_progress(request: Request, body: Top100Event):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     _ensure_user(payload)
@@ -175,7 +175,7 @@ async def post_top100_progress(request: Request, body: Top100Event):
 
 
 @analytics_router.get("/top100-progress")
-async def get_top100_progress(request: Request):
+def get_top100_progress(request: Request):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     if not user_id:
@@ -194,7 +194,7 @@ async def get_top100_progress(request: Request):
 # GET /api/analytics/dashboard — student's own stats
 # ──────────────────────────────────────────────────────────────────────────────
 @analytics_router.get("/dashboard")
-async def get_dashboard(request: Request):
+def get_dashboard(request: Request):
     payload = _require_student(request)
     user_id = payload.get("sub") or payload.get("user_id", "")
     if not user_id:
@@ -213,7 +213,7 @@ async def get_dashboard(request: Request):
 # GET /api/analytics/admin/students — admin only
 # ──────────────────────────────────────────────────────────────────────────────
 @analytics_router.get("/admin/students")
-async def admin_list_students(
+def admin_list_students(
     request: Request,
     search: str = "",
     branch: str = "",
@@ -266,7 +266,7 @@ async def admin_list_students(
 # GET /api/analytics/admin/student/{roll} — full per-student view
 # ──────────────────────────────────────────────────────────────────────────────
 @analytics_router.get("/admin/student/{roll}")
-async def admin_student_detail(request: Request, roll: str):
+def admin_student_detail(request: Request, roll: str):
     _require_admin(request)
     roll = roll.strip().upper()
     try:

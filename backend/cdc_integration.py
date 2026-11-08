@@ -23,6 +23,7 @@ from auth import require_admin
 from pydantic import BaseModel
 
 from config import settings
+from db_pool import acquire_connection as acquire_db_connection, release_connection as release_db_connection
 
 logger = logging.getLogger("learniverse.cdc_integration")
 
@@ -45,10 +46,10 @@ def _fetch_submission_from_sources(roll_number: str) -> Optional[dict]:
     db_url = settings.DATABASE_URL
     postgres_available = False
     if db_url:
+        conn = None
         try:
-            import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url)
+            conn = acquire_db_connection(db_url)
             cur = conn.cursor(cursor_factory=RealDictCursor)
             cur.execute(
                 """
@@ -59,11 +60,14 @@ def _fetch_submission_from_sources(roll_number: str) -> Optional[dict]:
                 (clean_roll,)
             )
             row = cur.fetchone()
-            conn.close()
+            release_db_connection(conn)
+            conn = None
             postgres_available = True
             if row:
                 return dict(row)
         except Exception as e:
+            if conn is not None:
+                release_db_connection(conn, discard=True)
             logger.warning("[CDC_INTEGRATION] Neon DB lookup error: %s", e)
 
     if not settings.IS_DEV:
@@ -114,20 +118,23 @@ def _fetch_all_submissions_from_sources() -> List[dict]:
     db_url = settings.DATABASE_URL
     postgres_available = False
     if db_url:
+        conn = None
         try:
-            import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url)
+            conn = acquire_db_connection(db_url)
             cur = conn.cursor(cursor_factory=RealDictCursor)
             cur.execute("SELECT * FROM fixly_test_submissions ORDER BY submitted_at DESC;")
             rows = cur.fetchall() or []
-            conn.close()
+            release_db_connection(conn)
+            conn = None
             postgres_available = True
             for r in rows:
                 roll = str(r.get("roll_number", "")).strip().upper()
                 if roll and roll not in results_map:
                     results_map[roll] = dict(r)
         except Exception as e:
+            if conn is not None:
+                release_db_connection(conn, discard=True)
             logger.warning("[CDC_INTEGRATION] Neon DB fetch all error: %s", e)
 
     if not settings.IS_DEV:
@@ -439,10 +446,10 @@ def _fetch_student_rank_from_view(roll_number: str) -> Optional[dict]:
     db_url = settings.DATABASE_URL
     if not db_url:
         return None
+    conn = None
     try:
-        import psycopg2
         from psycopg2.extras import RealDictCursor
-        conn = psycopg2.connect(db_url)
+        conn = acquire_db_connection(db_url)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute(
             """
@@ -454,7 +461,8 @@ def _fetch_student_rank_from_view(roll_number: str) -> Optional[dict]:
             (roll_number.strip().upper(),)
         )
         row = cur.fetchone()
-        conn.close()
+        release_db_connection(conn)
+        conn = None
         if row:
             return {
                 "branch_rank": row.get("branch_rank"),
@@ -462,6 +470,8 @@ def _fetch_student_rank_from_view(roll_number: str) -> Optional[dict]:
                 "overall_percentile": float(row.get("overall_percentile") or 0.0)
             }
     except Exception as e:
+        if conn is not None:
+            release_db_connection(conn, discard=True)
         logger.debug("[CDC_INTEGRATION] Analytics view lookup note: %s", e)
     return None
 
@@ -781,9 +791,9 @@ def save_to_bulk_test_table(sub_record: dict, test_date: Optional[str] = None, b
     # 1. Save to Neon PostgreSQL
     db_url = settings.DATABASE_URL
     if db_url:
+        conn = None
         try:
-            import psycopg2
-            conn = psycopg2.connect(db_url)
+            conn = acquire_db_connection(db_url)
             cur = conn.cursor()
             cur.execute(
                 """
@@ -834,10 +844,13 @@ def save_to_bulk_test_table(sub_record: dict, test_date: Optional[str] = None, b
                 )
             )
             conn.commit()
-            conn.close()
+            release_db_connection(conn)
+            conn = None
             logger.info("[BULK TEST TABLE] Saved test for %s on date %s to Neon DB", sub_record.get("roll_number"), test_date)
             return True
         except Exception as e:
+            if conn is not None:
+                release_db_connection(conn, discard=True)
             logger.warning("[BULK TEST TABLE] Neon DB insert error: %s", e)
 
     if not settings.IS_DEV:
@@ -1005,10 +1018,10 @@ def get_bulk_tests(
     total_count = 0
 
     if db_url:
+        conn = None
         try:
-            import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url)
+            conn = acquire_db_connection(db_url)
             cur = conn.cursor(cursor_factory=RealDictCursor)
 
             query = "SELECT * FROM bulk_test_submissions WHERE 1=1"
@@ -1048,7 +1061,8 @@ def get_bulk_tests(
 
             cur.execute(query, tuple(params))
             rows = cur.fetchall() or []
-            conn.close()
+            release_db_connection(conn)
+            conn = None
 
             for r in rows:
                 item = dict(r)
@@ -1073,6 +1087,8 @@ def get_bulk_tests(
                 "results": results
             }
         except Exception as e:
+            if conn is not None:
+                release_db_connection(conn, discard=True)
             logger.warning("[BULK TESTS QUERY ERROR] %s", e)
 
     if not settings.IS_DEV:
@@ -1115,10 +1131,10 @@ def get_bulk_tests_daily_summary(
     """
     db_url = settings.DATABASE_URL
     if db_url:
+        conn = None
         try:
-            import psycopg2
             from psycopg2.extras import RealDictCursor
-            conn = psycopg2.connect(db_url)
+            conn = acquire_db_connection(db_url)
             cur = conn.cursor(cursor_factory=RealDictCursor)
 
             query = "SELECT * FROM v_daily_bulk_test_summary WHERE 1=1"
@@ -1130,7 +1146,8 @@ def get_bulk_tests_daily_summary(
 
             cur.execute(query, tuple(params) if params else None)
             rows = cur.fetchall() or []
-            conn.close()
+            release_db_connection(conn)
+            conn = None
 
             formatted = []
             for r in rows:
@@ -1147,6 +1164,8 @@ def get_bulk_tests_daily_summary(
                 "queried_at": datetime.now(timezone.utc).isoformat()
             }
         except Exception as e:
+            if conn is not None:
+                release_db_connection(conn, discard=True)
             logger.warning("[BULK SUMMARY VIEW ERROR] %s", e)
 
     if not settings.IS_DEV:

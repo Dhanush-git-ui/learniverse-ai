@@ -57,8 +57,8 @@ This guide walks through scaling Judge0 to handle 300 concurrent users executing
 cd learniverse-ai
 cat > .env.production << 'EOF'
 DATABASE_URL=postgresql://judge0:your_secure_password@postgres:5432/learniverse_db
-DB_POOL_MIN_CONNS=20
-DB_POOL_MAX_CONNS=100
+DB_POOL_MIN_CONNS=1
+DB_POOL_MAX_CONNS=10
 
 JUDGE0_URL=http://nginx/
 JUDGE0_API_KEY=
@@ -114,8 +114,9 @@ Update `backend/config.py`:
 
 ```python
 # For 300 concurrent users:
-self.DB_POOL_MIN_CONNS = 20         # Min DB connections
-self.DB_POOL_MAX_CONNS = 100        # Max DB connections
+# One shared PostgreSQL pool per backend worker; config caps min at 5 / max at 20.
+self.DB_POOL_MIN_CONNS = 1
+self.DB_POOL_MAX_CONNS = 10
 self.CODE_EXECUTION_SEMAPHORE_LIMIT = 250  # Max parallel code runs
 ```
 
@@ -426,8 +427,8 @@ docker-compose restart judge0_server
 ### Problem: "Database Connection Pool Exhausted"
 
 ```python
-# Increase pool size in config.py
-self.DB_POOL_MAX_CONNS = 150  # was 100
+# Pool size is bounded per worker; budget max × workers × instances.
+DB_POOL_MAX_CONNS=10  # default; hard cap 20
 ```
 
 ### Problem: "High Memory Usage"

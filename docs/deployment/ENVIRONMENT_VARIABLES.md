@@ -7,7 +7,7 @@ Copy `backend/.env.example` for local development. Production values belong in R
 | `ENV` | Yes | Use `production` in Render; controls development-only behavior. |
 | `API_SECRET_KEY` | Yes | Strong random backend API/JWT signing key; rotate any old key and expect existing tokens to expire/become invalid after rotation. |
 | `DATABASE_URL` | Yes in production | PostgreSQL connection string (Neon or provisioned PostgreSQL). |
-| `DB_POOL_MIN_CONNS`, `DB_POOL_MAX_CONNS` | Optional | Pool sizing; account for every worker and both backend pools against provider limits. |
+| `DB_POOL_MIN_CONNS`, `DB_POOL_MAX_CONNS` | Optional | One shared pool per backend worker; defaults are min 1 / max 10, capped at min 5 / max 20. Budget max × workers × instances against provider limits. |
 | `GOOGLE_CLIENT_ID` | Yes for Google sign-in | OAuth client ID accepted by backend token verification. |
 | `VITE_GOOGLE_CLIENT_ID` | Yes for Google sign-in UI | Public Google Identity Services client ID; it is not a secret and must match backend configuration. |
 | `ADMIN_EMAILS` | Yes for Google admins | Comma-separated exact admin identities. |

@@ -1036,9 +1036,11 @@ export default function PlacementAssessment() {
       try {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.port === '8080' ? `${window.location.hostname}:8000` : window.location.host;
+        const token = getAuthToken();
+        if (!token) throw new Error('Administrator authentication is required for live monitoring.');
         const wsUrl = `${protocol}//${host}/ws/test-monitor/${encodeURIComponent(activeMonitorTestId)}`;
         
-        ws = new WebSocket(wsUrl);
+        ws = new WebSocket(wsUrl, ['learniverse.admin', `bearer.${token}`]);
 
         ws.onopen = () => {
           setIsWsConnected(true);

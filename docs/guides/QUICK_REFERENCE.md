@@ -32,8 +32,8 @@ powershell -ExecutionPolicy Bypass -File deploy-judge0.ps1
 ### Backend (.env.production)
 ```env
 CODE_EXECUTION_SEMAPHORE_LIMIT=250     # Max concurrent code runs
-DB_POOL_MIN_CONNS=20                   # Min database connections
-DB_POOL_MAX_CONNS=100                  # Max database connections
+DB_POOL_MIN_CONNS=1                    # Shared pool per worker; default min
+DB_POOL_MAX_CONNS=10                   # Shared pool per worker; hard max 20
 JUDGE0_URL=http://nginx/               # Load balancer endpoint
 ```
 
@@ -111,8 +111,8 @@ docker exec judge0_redis redis-cli DBSIZE
 
 ### Issue: "Connection pool exhausted"
 ```python
-# In backend/config.py, increase:
-self.DB_POOL_MAX_CONNS = 150  # was 100
+# Configure within the supported per-worker bounds:
+DB_POOL_MAX_CONNS=10  # default 10; values above 20 are capped
 ```
 
 ### Issue: "Workers not processing"
@@ -190,13 +190,13 @@ docker exec judge0_postgres psql -U judge0 -d learniverse_db \
 
 ### 300 users (Current)
 - 6-8 workers
-- DB pool: 100 connections
+- DB pool: up to 20 connections per backend worker (default 10)
 - Redis: 2GB
 - Server: 19 cores, 28GB RAM
 
 ### 500 users
 - 10 workers
-- DB pool: 150 connections
+- DB pool: up to 20 connections per backend worker (default 10)
 - Redis: 4GB
 - Add geographic redundancy
 
