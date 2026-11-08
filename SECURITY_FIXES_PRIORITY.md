@@ -1,6 +1,8 @@
 # Security & Critical Issues - Remediation Priority
 ## Learniverse AI Project
 
+> Historical notes, not a verified current audit. Findings below were not revalidated when written; consult `docs/audit/FINAL_ENGINEERING_AUDIT.md` for the current source-based status.
+
 **Date:** 2026-10-26  
 **Status:** CRITICAL ISSUES IDENTIFIED  
 **Urgency:** Fix P0 issues within 24 hours
@@ -25,13 +27,13 @@
 **Severity:** P0 - IMMEDIATE CREDENTIAL COMPROMISE  
 **Evidence:**
 ```python
-judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip() or getattr(settings, "JUDGE0_API_KEY", "") or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
+judge0_api_key = os.environ.get("JUDGE0_API_KEY", "").strip() or getattr(settings, "JUDGE0_API_KEY", "")
 ```
 **Risk:** Attacker reads source code → uses your RapidAPI key → consumes quota, modifies settings, accesses other projects  
 **Action:**
 - [ ] Remove hardcoded key immediately
 - [ ] Rotate your actual Judge0 RapidAPI key
-- [ ] Verify no other hardcoded keys in codebase: `grep -r "4f20a9ed91msh" backend/`
+- [ ] Verify no other hardcoded keys in codebase using an approved secret scanner.
 - [ ] Add pre-commit hook to prevent key commits
 
 **Time:** 10 minutes
@@ -108,9 +110,9 @@ async def execute_raw_code(
 **Evidence:**
 ```python
 if settings.IS_DEV:
-    valid_keys.append("devsecretkey")
+    valid_keys.append("<removed-development-key>")
 ```
-**Risk:** If `IS_DEV=true` anywhere in config (env var typo, config error), anyone using string "devsecretkey" gains API access
+**Risk:** If development-mode credentials are accepted in production, an attacker could authenticate without a provisioned secret.
 
 **Action:**
 - [ ] Remove dev key logic entirely
@@ -280,7 +282,7 @@ logger.info(f"Code execution: user={user_id}, lang={req.language}, code_len={len
 
 After fixes, verify:
 
-- [ ] No hardcoded credentials in source code: `grep -r "4f20a9ed91msh\|devsecretkey\|162984921146" .`
+- [ ] No hardcoded credentials in source code; use an approved secret scanner.
 - [ ] localStorage admin checks removed: `grep -r "localStorage.*admin\|is_admin" src/`
 - [ ] Code execution logs user_id: `grep -A5 "execute_raw_code" backend/app.py`
 - [ ] No `?admin=` query params: `grep -r "admin=true" src/`
@@ -293,7 +295,7 @@ After fixes, verify:
 
 ```bash
 # Check for hardcoded keys
-grep -r "4f20a9ed91msh\|devsecretkey" backend/ src/
+rg -n "API_SECRET_KEY|JUDGE0_API_KEY" backend/ src/
 
 # Check for localStorage role checks
 grep -r "role.*admin" src/

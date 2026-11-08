@@ -64,6 +64,54 @@ def _score_coding_submission(submission: dict):
     attempted = bool(isinstance(code, str) and code.strip())
     return attempted, 0, 0, False, 0.0
 
+
+def _score_scenario_submission(answer: Any, question: dict):
+    """Score only against explicit machine-checkable rubric signals.
+
+    Legacy prose-only rubrics are left unscored for reviewer grading; answer
+    length alone never earns marks.
+    """
+    text = str(answer or "").casefold()
+    attempted = bool(text.strip())
+    rubrics = question.get("rubrics") or question.get("rubric") or []
+    if isinstance(rubrics, dict):
+        rubrics = rubrics.get("criteria", [])
+    if not isinstance(rubrics, list) or not rubrics:
+        return attempted, 0.0, False, True
+
+    max_marks = 0.0
+    awarded = 0.0
+    has_machine_rules = False
+    has_unscored_criteria = False
+    for criterion in rubrics:
+        if not isinstance(criterion, dict):
+            continue
+        try:
+            points = max(0.0, float(criterion.get("marks", 0)))
+        except (TypeError, ValueError):
+            continue
+        signals = criterion.get("signals")
+        if not isinstance(signals, list) or not signals:
+            has_unscored_criteria = True
+            continue
+        has_machine_rules = True
+        normalized_signals = [str(signal).strip().casefold() for signal in signals if str(signal).strip()]
+        if normalized_signals:
+            max_marks += points
+            hits = sum(signal in text for signal in normalized_signals)
+            awarded += points * hits / len(normalized_signals)
+        else:
+            has_unscored_criteria = True
+
+    if not has_machine_rules or max_marks <= 0:
+        return attempted, 0.0, False, True
+    try:
+        question_max = max(0.0, float(question.get("marks", max_marks)))
+    except (TypeError, ValueError):
+        question_max = max_marks
+    awarded = min(awarded, max_marks, question_max)
+    return attempted, round(awarded, 2), awarded > 0, has_unscored_criteria
+
 def _save_submission_file_backup(record: dict):
     """Fail-proof disk backup for candidate submissions (JSON + CSV + Excel)."""
     try:
@@ -155,7 +203,9 @@ _RETRYABLE_PG_FRAGMENTS = (
 def _is_retryable_pg_error(exc: Exception) -> bool:
     return any(f in str(exc).lower() for f in _RETRYABLE_PG_FRAGMENTS)
 
-ROSTER_PATH = os.path.join(os.path.dirname(__file__), "../data/students_roster.json")
+ROSTER_PATH = os.environ.get("STUDENT_ROSTER_PATH", "").strip() or os.path.join(
+    os.path.dirname(__file__), "../data/students_roster.json"
+)
 
 def _get_roster():
     if os.path.exists(ROSTER_PATH):
@@ -1704,22 +1754,7 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, curre
                 "plagiarism_warning": plag_info["warning"]
             }
         elif is_scenario:
-            ans_str = str(user_ans or "").strip()
-            word_count = len(ans_str.split())
-            is_attempted = (word_count > 0)
-            scenario_max = float(q_meta.get("marks", 25))
-            if word_count >= 50:
-                marks_awarded = scenario_max
-                is_correct = True
-            elif word_count >= 15:
-                marks_awarded = round(scenario_max * 0.75, 2)
-                is_correct = True
-            elif word_count > 0:
-                marks_awarded = round(scenario_max * 0.4, 2)
-                is_correct = True
-            else:
-                marks_awarded = 0.0
-                is_correct = False
+            is_attempted, marks_awarded, is_correct, needs_manual_review = _score_scenario_submission(user_ans, q_meta)
         else:
             is_attempted = (user_ans is not None and str(user_ans).strip() != "")
             correct_opt = q_meta.get("correct_option", "A")
@@ -1748,11 +1783,12 @@ def submit_test(req: SubmitTestRequest, background_tasks: BackgroundTasks, curre
             "difficulty": q_meta.get("difficulty"),
             "question": q_meta.get("question"),
             "options": opts,
-            "correct_option": "Evaluated by Engineering Rubrics" if is_scenario else (q_meta.get("correct_option") if not is_coding else None),
+            "correct_option": ("Manual review required" if needs_manual_review else "Evaluated by Engineering Rubrics") if is_scenario else (q_meta.get("correct_option") if not is_coding else None),
             "explanation": q_meta.get("explanation", ""),
             "user_answer": user_ans,
             "is_correct": is_correct,
             "marks_awarded": round(marks_awarded, 2),
+            **({"needs_manual_review": needs_manual_review} if is_scenario else {}),
             "coding_details": coding_meta if is_coding else None,
             "question_type": "scenario" if is_scenario else ("coding" if is_coding else "mcq")
         })

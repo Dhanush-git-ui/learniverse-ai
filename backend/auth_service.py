@@ -62,7 +62,7 @@ class PasswordResetConfirm(BaseModel):
 # Configuration
 # ============================================================================
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "change-me-in-production")
+JWT_SECRET = os.environ.get("JWT_SECRET", "").strip()
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = int(os.environ.get("JWT_EXPIRY_HOURS", "24"))
 REFRESH_TOKEN_EXPIRY_DAYS = int(os.environ.get("REFRESH_TOKEN_EXPIRY_DAYS", "30"))
@@ -90,6 +90,8 @@ def verify_password(password: str, hashed: str) -> bool:
 
 def create_access_token(user_id: str, email: str, role: UserRole) -> tuple[str, datetime]:
     """Create JWT access token"""
+    if not JWT_SECRET:
+        raise RuntimeError("JWT_SECRET must be explicitly configured")
     now = datetime.now(timezone.utc)
     expiry = now + timedelta(hours=JWT_EXPIRY_HOURS)
 
@@ -106,6 +108,8 @@ def create_access_token(user_id: str, email: str, role: UserRole) -> tuple[str, 
 
 def create_refresh_token(user_id: str) -> str:
     """Create refresh token"""
+    if not JWT_SECRET:
+        raise RuntimeError("JWT_SECRET must be explicitly configured")
     now = datetime.now(timezone.utc)
     expiry = now + timedelta(days=REFRESH_TOKEN_EXPIRY_DAYS)
 
@@ -120,6 +124,8 @@ def create_refresh_token(user_id: str) -> str:
 
 def verify_token(token: str) -> dict:
     """Verify and decode JWT token"""
+    if not JWT_SECRET:
+        raise HTTPException(status_code=503, detail="Authentication is not configured")
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload

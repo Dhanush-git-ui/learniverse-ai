@@ -18,11 +18,8 @@ logger = logging.getLogger("learniverse.auth")
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-DEFAULT_GOOGLE_CLIENT_ID = "162984921146-mh8jja4encmb5uaoen51v8bugbv1iegh.apps.googleusercontent.com"
-
-# Google client ID resolved from environment variable or default configuration
 def _resolve_google_client_ids() -> list[str]:
-    c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip() or DEFAULT_GOOGLE_CLIENT_ID
+    c_id = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
     ids = [c_id] if c_id else []
     return [client_id for client_id in ids if client_id]
 
@@ -37,20 +34,9 @@ def _configured_admins(env_name: str) -> set[str]:
         if value.strip()
     }
 
-DEFAULT_ADMIN_USERNAMES = {"admin@2026", "admin2026", "admin"}
-DEFAULT_ADMIN_HASHES = [
-    "$2b$12$BihVEay6QBZTVl0UOoqHRu/OH7Ia5htohRoEycRcpdkqrDgai/lSO",  # password123
-    "$2b$12$t1C2m8yJMJ8sGfjXQOF9X.4mnIFs8dO6rBS9LfbBDhxk5CFfIIrp.",  # password@123
-    "$2b$12$WmE4J8QS/5TZrQ9GQitNy.ZZ5Twyj3lTYXHbJSmZNdNo9OhefQi36",  # admin2026
-]
-
-
 def get_valid_admin_usernames() -> set[str]:
-    """Return all valid admin usernames combining environment settings and defaults."""
-    admins = _configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")
-    if os.environ.get("ADMIN_USERNAMES") != "" and os.environ.get("ADMIN_PASSWORD_HASH") != "":
-        admins |= DEFAULT_ADMIN_USERNAMES
-    return admins
+    """Return only explicitly provisioned administrator identifiers."""
+    return _configured_admins("ADMIN_EMAILS") | _configured_admins("ADMIN_USERNAMES")
 
 
 BRANCH_MAP: Dict[str, str] = {
@@ -74,16 +60,7 @@ def parse_student_credentials(input_val: str) -> Dict[str, Any]:
     regex = r'^(2\d)(E5)([15])([AM])(02|03|04|05|66|67)([0-9A-Z]{2})$'
     match = re.match(regex, clean)
     if not match:
-        return {
-            "isValid": True,
-            "rollNumber": clean,
-            "roll_number": clean,
-            "email": input_val.lower() if "@" in input_val else f"{clean.lower()}@hitam.org",
-            "collegeName": "HITAM Hyderabad",
-            "currentStudyYear": "Undergraduate",
-            "branchName": "Engineering",
-            "branch": "Engineering"
-        }
+        return {"isValid": False}
 
     yr, _, adm, prog, br, seat = match.groups()
     joining_year = 2000 + int(yr)
@@ -124,7 +101,9 @@ def _verified_student_for_email(email: str) -> Optional[Dict[str, Any]]:
     normalized = (email or "").strip().casefold()
     if not normalized or "@" not in normalized:
         return None
-    roster_path = os.path.join(os.path.dirname(__file__), "data", "students_roster.json")
+    roster_path = os.environ.get("STUDENT_ROSTER_PATH", "").strip() or os.path.join(
+        os.path.dirname(__file__), "data", "students_roster.json"
+    )
     try:
         import json
         with open(roster_path, "r", encoding="utf-8") as roster_file:
@@ -178,15 +157,13 @@ class AdminLoginRequest(BaseModel):
 
 import bcrypt
 def verify_admin_password(password: str) -> bool:
-    """Verify administrator password against environment or default hashes; fail closed if explicitly blank."""
+    """Verify administrator password against explicitly configured bcrypt hashes."""
     env_hash = os.environ.get("ADMIN_PASSWORD_HASH")
     if env_hash == "":
         return False
     hashes_to_check = []
     if env_hash:
         hashes_to_check.extend([h.strip().strip('"').strip("'") for h in env_hash.split(",") if h.strip()])
-    if os.environ.get("ADMIN_PASSWORD_HASH") != "" and os.environ.get("ADMIN_USERNAMES") != "":
-        hashes_to_check.extend(DEFAULT_ADMIN_HASHES)
 
     try:
         for clean_hash in hashes_to_check:
@@ -272,15 +249,6 @@ def google_login_endpoint(request: Request, payload: GoogleLoginRequest):
             raise HTTPException(status_code=401, detail="Google identity has no subject.")
     else:
         student_record = _verified_student_for_email(email)
-        if not student_record and email.endswith("@hitam.org"):
-            demographics = parse_student_credentials(email)
-            if demographics.get("isValid") and demographics.get("rollNumber"):
-                student_record = {
-                    "roll_number": demographics.get("rollNumber"),
-                    "name": name,
-                    "branch": demographics.get("branchName", "Engineering"),
-                    "email": email
-                }
         if not student_record:
             raise HTTPException(status_code=403, detail="This verified Google account is not enrolled.")
         user_id = str(student_record.get("roll_number") or "").strip().upper()

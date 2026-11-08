@@ -11,7 +11,9 @@ if backend_dir not in sys.path:
 import httpx
 from app import app, get_code_execution_semaphore
 
-API_KEY = "devsecretkey"
+API_KEY = os.environ.get("API_SECRET_KEY", "")
+if not API_KEY:
+    raise RuntimeError("Set API_SECRET_KEY to an isolated test credential before running this verification script")
 
 async def run_scenario(concurrency):
     # Ensure code execution semaphore is initialized

@@ -258,9 +258,9 @@ const HowItWorksPage = () => {
               <div className="p-3.5 bg-blue-50 border border-blue-100 rounded-2xl mb-4">
                 <Cpu className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Google Gemini API</h3>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">OpenRouter AI + Gemini Embeddings</h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                Generates natural, context-grounded student-teacher dialogues via the Gemini 3.5 Flash model.
+                Retrieves indexed textbook passages and generates tutor responses through the configured OpenRouter model.
               </p>
             </div>
 

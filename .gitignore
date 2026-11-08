@@ -83,6 +83,11 @@ backend/reports/
 *.db-shm
 *.db-wal
 scripts/qa_results.json
+backend/data/*Responses*.csv
+backend/data/*Responses*.xlsx
+backend/data/*Submissions*.csv
+backend/data/*Submissions*.json
+reports/*Responses*.xlsx
 
 # Agents & Rules
 .agents/rules/

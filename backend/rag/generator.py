@@ -31,11 +31,11 @@ def _strip_code_fences(text: str) -> str:
     return text.strip()
 
 class OpenRouterModel:
-    def __init__(self, model_name: str = settings.GEMINI_MODEL_NAME, api_key: str | None = None):
+    def __init__(self, model_name: str = settings.OPENROUTER_MODEL_NAME, api_key: str | None = None):
         self.model_name = model_name
-        self.api_key = api_key or settings.GEMINI_API_KEY
+        self.api_key = api_key or settings.OPENROUTER_API_KEY
         if not self.api_key:
-            raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY must be set in environment")
+            raise ValueError("OPENROUTER_API_KEY must be set to use the configured OpenRouter model")
 
     async def generate_content(self, prompt: str, generation_config: dict | None = None) -> str:
         headers = {
@@ -88,10 +88,10 @@ _model_instance = None
 def get_model() -> OpenRouterModel:
     global _model_instance
     if _model_instance is None:
-        key = settings.GEMINI_API_KEY
+        key = settings.OPENROUTER_API_KEY
         if not key:
-            raise ValueError("Error: GEMINI_API_KEY is not configured on the backend.")
-        _model_instance = OpenRouterModel(settings.GEMINI_MODEL_NAME, api_key=key)
+            raise ValueError("Error: OPENROUTER_API_KEY is not configured on the backend.")
+        _model_instance = OpenRouterModel(settings.OPENROUTER_MODEL_NAME, api_key=key)
     return _model_instance
 
 async def generate_answer(question: str, context: str) -> str:
@@ -103,11 +103,11 @@ async def generate_answer(question: str, context: str) -> str:
         logger.error(f"Error during RAG generation: {e}")
         return "I apologize, but I am currently unable to generate an answer. Please try again later."
 
-async def generate_teacher_answer(query, topic_questions, history=None, topic="General"):
+async def generate_teacher_answer(query, topic_questions, history=None, topic="General", context=""):
     try:
         model = get_model()
         history_str = format_history(history)
-        prompt = TEACHER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
+        prompt = TEACHER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic, context=context or "No retrieved textbook material is available. State that the answer is not supported by the indexed textbook.")
         return await model.generate_content(prompt)
     except Exception as e:
         logger.error(f"Error during teacher generation: {e}")
@@ -146,11 +146,11 @@ async def generate_genealogy(topic: str, expected: str, actual: str) -> dict:
         logger.error(f"Genealogy analysis failed: {e}")
         return {"core_concept": topic, "missing_prereq": "", "link": "", "micro_lesson": ""}
 
-async def generate_peer_answer(query, topic_questions, history=None, topic="General"):
+async def generate_peer_answer(query, topic_questions, history=None, topic="General", context=""):
     try:
         model = get_model()
         history_str = format_history(history)
-        prompt = PEER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic)
+        prompt = PEER_PROMPT.format(topic_questions=topic_questions, query=query, history=history_str, topic=topic, context=context or "No retrieved textbook material is available. State that the answer is not supported by the indexed textbook.")
         return await model.generate_content(prompt, generation_config={"temperature": 0.7})
     except Exception as e:
         logger.error(f"Error during peer generation: {e}")

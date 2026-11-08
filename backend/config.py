@@ -1,6 +1,5 @@
 # backend/config.py
 import os
-import secrets
 from dotenv import load_dotenv
 
 class Settings:
@@ -13,16 +12,13 @@ class Settings:
         self.ENV = os.environ.get("ENV", "development").lower()
         self.IS_DEV = self.ENV == "development"
         
-        # Security: Stable secret key fallback across server restarts and worker processes
-        DEFAULT_SECRET_KEY = "u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE"
-        api_key = os.environ.get("API_SECRET_KEY")
-        if not api_key:
-            api_key = DEFAULT_SECRET_KEY
-        self.API_SECRET_KEY = api_key
+        # Authentication keys must be explicitly provisioned by the operator.
+        self.API_SECRET_KEY = os.environ.get("API_SECRET_KEY", "").strip()
         
         # APIs
         self.GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        self.GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "tencent/hy3:free")
+        self.OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "").strip()
+        self.OPENROUTER_MODEL_NAME = os.environ.get("OPENROUTER_MODEL_NAME", "tencent/hy3:free")
         
         # Database
         self.DATABASE_URL = os.environ.get("DATABASE_URL")
@@ -33,10 +29,11 @@ class Settings:
         self.SIMILARITY_THRESHOLD = float(os.environ.get("RAG_SIMILARITY_THRESHOLD", "0.8"))
         self.RAG_NUM_RESULTS = 4
         
-    # Compiler: Strictly disable local execution in production
-        allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
+    # Local execution is always additionally gated by ENV=development.
+        self.ALLOW_LOCAL_EXECUTION = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").strip().lower() == "true"
         self.JUDGE0_URL = os.environ.get("JUDGE0_URL", "").strip() or "https://judge0-ce.p.rapidapi.com"
-        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip() or "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
+        self.JUDGE0_API_KEY = os.environ.get("JUDGE0_API_KEY", "").strip()
+        self.PISTON_FALLBACK_ENABLED = os.environ.get("PISTON_FALLBACK_ENABLED", "false").strip().lower() == "true"
         self.CODE_EXECUTION_SEMAPHORE_LIMIT = int(os.environ.get("CODE_EXECUTION_SEMAPHORE_LIMIT", "150"))
 
         # Assessment settings
@@ -75,7 +72,7 @@ settings = Settings()
 ALLOWED_ORIGINS = settings.ALLOWED_ORIGINS
 SIMILARITY_THRESHOLD = settings.SIMILARITY_THRESHOLD
 RAG_NUM_RESULTS = settings.RAG_NUM_RESULTS
-GEMINI_MODEL_NAME = settings.GEMINI_MODEL_NAME
+OPENROUTER_MODEL_NAME = settings.OPENROUTER_MODEL_NAME
 DB_POOL_MIN_CONNS = settings.DB_POOL_MIN_CONNS
 DB_POOL_MAX_CONNS = settings.DB_POOL_MAX_CONNS
 CODE_EXECUTION_SEMAPHORE_LIMIT = settings.CODE_EXECUTION_SEMAPHORE_LIMIT

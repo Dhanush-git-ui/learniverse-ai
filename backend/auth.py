@@ -17,33 +17,23 @@ VALID_ROLES = {"student", "admin"}
 
 def _decode_access_token(token: str) -> dict:
     active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
-    keys_to_try = [active_key, "u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE", "devsecretkey"]
-    seen = set()
-    last_err = None
-    for k in keys_to_try:
-        if not k or k in seen:
-            continue
-        seen.add(k)
-        try:
-            payload = jwt.decode(
-                token,
-                k,
-                algorithms=["HS256"],
-                issuer=TOKEN_ISSUER,
-                audience=TOKEN_AUDIENCE,
-                options={"require_sub": True, "require_exp": True, "require_iat": True,
-                         "require_iss": True, "require_aud": True, "require_jti": True},
-            )
-            required_claims = {"sub", "exp", "iat", "iss", "aud", "jti", "role"}
-            if not required_claims.issubset(payload):
-                raise JWTError("Required token claims are missing")
-            if payload.get("role") not in VALID_ROLES or not isinstance(payload.get("sub"), str) or not payload["sub"].strip():
-                raise JWTError("Invalid token identity or role")
-            return payload
-        except JWTError as exc:
-            last_err = exc
-            continue
-    raise last_err or JWTError("Invalid token")
+    if not active_key:
+        raise HTTPException(status_code=503, detail="Authentication is not configured")
+    payload = jwt.decode(
+        token,
+        active_key,
+        algorithms=["HS256"],
+        issuer=TOKEN_ISSUER,
+        audience=TOKEN_AUDIENCE,
+        options={"require_sub": True, "require_exp": True, "require_iat": True,
+                 "require_iss": True, "require_aud": True, "require_jti": True},
+    )
+    required_claims = {"sub", "exp", "iat", "iss", "aud", "jti", "role"}
+    if not required_claims.issubset(payload):
+        raise JWTError("Required token claims are missing")
+    if payload.get("role") not in VALID_ROLES or not isinstance(payload.get("sub"), str) or not payload["sub"].strip():
+        raise JWTError("Invalid token identity or role")
+    return payload
 
 class User(BaseModel):
     id: str
@@ -56,13 +46,10 @@ async def verify_api_key(
 ):
     """Verify API key or Bearer JWT token with strict security check."""
     active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
-    valid_keys = [active_key, "u8vX7q_K4P2mN9bL6wR1tY3zE5sA0dF8hJ9kL2mQ4wE"]
-    valid_keys = [k for k in valid_keys if k]
-
-    if not valid_keys:
+    if not active_key:
         raise HTTPException(status_code=503, detail="Authentication is not configured")
 
-    if x_api_key and any(hmac.compare_digest(x_api_key, vk) for vk in valid_keys):
+    if x_api_key and hmac.compare_digest(x_api_key, active_key):
         return x_api_key
 
     # Check Bearer JWT token as valid alternative for student/admin requests
@@ -81,6 +68,8 @@ async def verify_api_key(
 def create_access_token(user_id: str, email: str = "", role: str = "student", expires_hours: int = 24, **kwargs) -> str:
     """Create a signed JWT access token for students/admins."""
     active_key = os.environ.get("API_SECRET_KEY") or settings.API_SECRET_KEY
+    if not active_key:
+        raise RuntimeError("API_SECRET_KEY must be explicitly configured before issuing tokens")
     now = datetime.now(timezone.utc)
     payload = {
         "sub": user_id,

@@ -54,7 +54,7 @@ def get_code_execution_semaphore():
 
 # Only import lightweight config at startup. Defer heavy RAG imports to request time.
 from config import ALLOWED_ORIGINS
-from auth import verify_api_key
+from auth import User, get_current_user, verify_api_key
 
 from config import settings
 
@@ -510,10 +510,11 @@ def stats_text(data: dict) -> str:
     return f"{data.get('problems_solved', 0)} problems solved across {data.get('topics_attempted', 0)} topics."
 
 @app.get("/api/portfolio/{roll_number}")
-def get_portfolio(roll_number: str):
+def get_portfolio(roll_number: str, current_user: User = Depends(get_current_user)):
     """Public, read-only portfolio endpoint. Designed to be embedded into external sites
     (e.g., cdc-hitam.onrender.com) to display a student's verified assessment & DSA progress."""
     roll = roll_number.strip().upper()
+    _assert_student_route_owner(current_user, roll)
     stats: Dict[str, Any] = {
         "roll_number": roll,
         "student_name": "Candidate",
@@ -588,9 +589,10 @@ def get_portfolio(roll_number: str):
 
 
 @app.get("/api/student/dashboard/{roll_number}")
-def get_student_dashboard_endpoint(roll_number: str):
+def get_student_dashboard_endpoint(roll_number: str, current_user: User = Depends(get_current_user)):
     """Returns assessment metrics and complete analytics summary for student dashboard."""
     roll = roll_number.strip().upper()
+    _assert_student_route_owner(current_user, roll)
     data = {
         "status": "ok",
         "roll_number": roll,
@@ -637,12 +639,19 @@ def get_student_dashboard_endpoint(roll_number: str):
     return data
 
 
+def _assert_student_route_owner(current_user: User, roll_number: str) -> None:
+    normalized = re.sub(r"[^A-Z0-9]", "", roll_number.upper())
+    caller = re.sub(r"[^A-Z0-9]", "", current_user.id.upper())
+    if current_user.role != "admin" and caller != normalized:
+        raise HTTPException(status_code=403, detail="Cannot access another student's portfolio")
+
+
 @app.get("/u/{roll_number}")
-def public_portfolio_page(roll_number: str):
-    """Public HTML page rendering the student's portfolio — designed to be link-shared on
-    LinkedIn, resume, or the external CDC portal."""
+def public_portfolio_page(roll_number: str, current_user: User = Depends(get_current_user)):
+    """Render a portfolio only to its verified owner or an administrator."""
     roll = roll_number.strip().upper()
-    data = get_portfolio(roll)
+    _assert_student_route_owner(current_user, roll)
+    data = get_portfolio(roll, current_user)
     name = data.get("student_name") or roll
     jsonld = json.dumps({
         "@context": "https://schema.org",
@@ -652,22 +661,28 @@ def public_portfolio_page(roll_number: str):
         "url": f"/u/{roll}",
         "sameAs": ["https://cdc-hitam.onrender.com"],
         "knowsAbout": ["Data Structures", "Algorithms", "Computer Science", data.get("role", "Placement Assessment")]
-    })
+    }).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    from html import escape
+    name_html = escape(str(name), quote=True)
+    roll_html = escape(roll, quote=True)
+    role_html = escape(str(data.get("role", "Placement Candidate")), quote=True)
+    summary_html = escape(stats_text(data), quote=True)
     
-    marks_display = f"{data['assessment_score']} / {data['max_marks']}" if data["assessment_score"] is not None else str(data["problems_solved"])
+    marks_display = escape(f"{data['assessment_score']} / {data['max_marks']}" if data["assessment_score"] is not None else str(data["problems_solved"]), quote=True)
     marks_label = "Assessment Score" if data["assessment_score"] is not None else "Problems Solved"
-    pct_display = f"{data['percentage']}%" if data["percentage"] is not None else str(data["topics_attempted"])
+    pct_display = escape(f"{data['percentage']}%" if data["percentage"] is not None else str(data["topics_attempted"]), quote=True)
     pct_label = "Assessment Score %" if data["percentage"] is not None else "Topics Attempted"
-    status_display = str(data["assessment_status"] or "Verified").upper()
+    status_display = escape(str(data["assessment_status"] or "Verified").upper(), quote=True)
+    attempts_display = escape(str(data["total_submissions"]), quote=True)
     
-    tier_badge = f"<div class='badge' style='background:#059669;margin-left:6px;'>{data['placement_tier']} ({data.get('tier_band', '')})</div>" if data.get("placement_tier") else ""
+    tier_badge = f"<div class='badge' style='background:#059669;margin-left:6px;'>{escape(str(data['placement_tier']), quote=True)} ({escape(str(data.get('tier_band', '')), quote=True)})</div>" if data.get("placement_tier") else ""
     
     return HTMLResponse(
         f"""<!doctype html><html><head>
 <meta charset='utf-8'>
-<title>{name} | Learniverse Portfolio</title>
-<meta property='og:title' content='{name} — Assessment Portfolio' />
-<meta property='og:description' content='Verified mastery profile. {stats_text(data)}' />
+<title>{name_html} | Learniverse Portfolio</title>
+<meta property='og:title' content='{name_html} — Assessment Portfolio' />
+<meta property='og:description' content='Verified mastery profile. {summary_html}' />
 <meta property='og:type' content='profile' />
 <script type='application/ld+json'>{jsonld}</script>
 <style>
@@ -682,13 +697,13 @@ h1{{color:#60a5fa;margin:0 0 .25rem}}
 a.cta{{display:block;margin-top:1.5rem;background:#2563eb;color:#fff;text-align:center;padding:.75rem;border-radius:10px;text-decoration:none;font-weight:600}}
 </style></head><body>
 <div class='card'>
-<h1>{name} ({roll})</h1>
-<div class='badge'>Verified via Learniverse AI • {data.get("role", "Placement Candidate")}</div>
+<h1>{name_html} ({roll_html})</h1>
+<div class='badge'>Verified via Learniverse AI • {role_html}</div>
 {tier_badge}
 <div class='stats'>
 <div class='stat'><div class='n'>{marks_display}</div><div class='l'>{marks_label}</div></div>
 <div class='stat'><div class='n'>{pct_display}</div><div class='l'>{pct_label}</div></div>
-<div class='stat'><div class='n'>{data["total_submissions"]}</div><div class='l'>Total Attempted</div></div>
+<div class='stat'><div class='n'>{attempts_display}</div><div class='l'>Total Attempted</div></div>
 <div class='stat'><div class='n'>{status_display}</div><div class='l'>Evaluation Status</div></div>
 </div>
 <a class='cta' href='{data["external_link"]}' target='_blank'>View on CDC HITAM Track Portal →</a>
@@ -698,9 +713,10 @@ a.cta{{display:block;margin-top:1.5rem;background:#2563eb;color:#fff;text-align:
 
 
 @app.get("/badge/{roll_number}.svg")
-def portfolio_badge_svg(roll_number: str):
-    """Embeddable SVG badge. Use as: <img src='https://your-api/badge/ROLL.svg' />"""
-    data = get_portfolio(roll_number)
+def portfolio_badge_svg(roll_number: str, current_user: User = Depends(get_current_user)):
+    """SVG assessment badge available only to the verified portfolio owner or admin."""
+    _assert_student_route_owner(current_user, roll_number)
+    data = get_portfolio(roll_number, current_user)
     return Response(
         content=f"""<svg xmlns='http://www.w3.org/2000/svg' width='220' height='36'>
 <rect width='220' height='36' rx='6' fill='#1e293b' stroke='#334155'/>
@@ -786,7 +802,8 @@ def health():
 
     # Fast key-presence check without making an LLM call
     from config import settings
-    checks["llm"] = "ok" if settings.GEMINI_API_KEY else "unconfigured"
+    checks["llm"] = "ok" if settings.OPENROUTER_API_KEY else "unconfigured"
+    checks["embeddings"] = "ok" if settings.GEMINI_API_KEY else "unconfigured"
 
     overall = "healthy" if all(v == "ok" for v in checks.values()) else "degraded"
     status_code = 200 if overall == "healthy" else 503
@@ -1664,7 +1681,6 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
     lang_id = lang_map.get(lang, 71)
 
     DEFAULT_JUDGE0_URL = "https://judge0-ce.p.rapidapi.com"
-    DEFAULT_JUDGE0_KEY = "4f20a9ed91msh760f84e4dfe3c76p1321c8jsn47eed2b4fe56"
 
     url = judge0_url
     api_key = judge0_api_key
@@ -1673,7 +1689,8 @@ def execute_code_via_judge0(language: str, code: str, stdin: str = "") -> Option
     if not url or "nginx" in url or "localhost" in url:
         url = DEFAULT_JUDGE0_URL
     if not api_key:
-        api_key = DEFAULT_JUDGE0_KEY
+        logger.error("[JUDGE0] JUDGE0_API_KEY is not configured; refusing unauthenticated execution")
+        return None
 
     try:
         code_b64 = base64.b64encode(code.encode("utf-8")).decode("utf-8")
@@ -1788,14 +1805,14 @@ def execute_code_via_piston(language: str, code: str, stdin: str = "") -> Option
     if judge0_res is not None:
         return judge0_res
 
-    # 2. Fallback to Sandboxed Piston API
-    piston_res = execute_code_via_piston_api(language, code, stdin)
-    if piston_res is not None:
-        return piston_res
+    # Piston has a separate operational/security profile; enable it explicitly.
+    if settings.PISTON_FALLBACK_ENABLED:
+        piston_res = execute_code_via_piston_api(language, code, stdin)
+        if piston_res is not None:
+            return piston_res
 
     # 3. If remote compilers fail, allow local fallback if enabled or in development
-    allow_local = os.environ.get("ALLOW_LOCAL_EXECUTION", "false").lower() == "true"
-    if allow_local or (settings.ALLOW_LOCAL_EXECUTION and settings.IS_DEV):
+    if settings.ALLOW_LOCAL_EXECUTION and settings.IS_DEV:
         logger.info("[EXECUTION] Falling back to local sandbox execution.")
         return execute_code_locally(language, code, stdin)
 

@@ -20,7 +20,7 @@ analytics_router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 # JWT Auth Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 def _get_token_payload(request: Request) -> dict:
-    """Extracts and verifies the JWT from Authorization header, with X-Roll-Number fallback for student actions."""
+    """Extracts and verifies server-issued JWT identity; client identity headers are ignored."""
     auth = request.headers.get("Authorization", "")
     if auth.startswith("Bearer "):
         token = auth.split(" ", 1)[1].strip()
@@ -30,9 +30,6 @@ def _get_token_payload(request: Request) -> dict:
             return payload
         except Exception:
             pass
-    roll = request.headers.get("X-Roll-Number", "").strip().upper()
-    if roll:
-        return {"sub": roll, "roll_number": roll, "role": "student"}
     raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Missing or invalid authentication token.")
 
 

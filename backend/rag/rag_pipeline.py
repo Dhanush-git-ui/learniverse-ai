@@ -1,8 +1,6 @@
 # backend/rag/rag_pipeline.py
 import os
-import json
 import logging
-from dotenv import load_dotenv
 import sys
 
 logger = logging.getLogger("rag_pipeline")
@@ -70,6 +68,40 @@ def get_topic_questions(topic_name: str) -> list:
     topic_cache.set(cache_key, [], 3600*24)
     return []
 
+
+def select_retrieval_context(retrieved: list, max_chars: int = 12000, threshold: float | None = None):
+    """Validate, deduplicate, cap, and attribute retrieved textbook chunks."""
+    if threshold is None:
+        threshold = settings.SIMILARITY_THRESHOLD
+    context_parts = []
+    sources = []
+    seen = set()
+    remaining_chars = max(0, max_chars)
+    for chunk in retrieved:
+        text = str(chunk.get("text") or "").strip()
+        score = chunk.get("score")
+        if not text or not isinstance(score, (int, float)) or score < 0 or score > threshold:
+            continue
+        fingerprint = text.casefold()
+        if fingerprint in seen:
+            continue
+        seen.add(fingerprint)
+        selected_text = text[:remaining_chars]
+        if selected_text:
+            context_parts.append(selected_text)
+            remaining_chars -= len(selected_text)
+        metadata = chunk.get("metadata") or {}
+        sources.append({
+            "book": str(metadata.get("book") or "Unknown"),
+            "chapter": str(metadata.get("chapter") or "Unknown"),
+            "topic": str(metadata.get("topic") or "Unknown"),
+            "score": float(score),
+            "content_type": str(metadata.get("content_type") or "general"),
+        })
+        if remaining_chars <= 0:
+            break
+    return "\n\n---\n\n".join(context_parts), sources
+
 async def run_rag_pipeline(query: str, topic: str, category: str, history: list = None, mode: str = "teacher"):
     """
     Coordinates topic questions memory assembly and dual-persona text generation.
@@ -101,7 +133,18 @@ async def run_rag_pipeline(query: str, topic: str, category: str, history: list 
     mode_prefix = MODE_PREFIXES.get(mode, MODE_PREFIXES["teacher"])
     augmented_query = mode_prefix + query
 
-    # 1. Load preloaded Socratic questions for memory
+    # 1. Retrieve grounded textbook material off the event loop. Retrieval errors
+    # are treated as no evidence and never silently produce textbook citations.
+    try:
+        from rag.retriever import retrieve_context
+        retrieved = await asyncio.to_thread(retrieve_context, query, category, settings.RAG_NUM_RESULTS)
+    except Exception:
+        logger.exception("Textbook retrieval failed")
+        retrieved = []
+
+    retrieved_context, sources = select_retrieval_context(retrieved)
+
+    # 2. Load preloaded Socratic questions for memory
     questions = get_topic_questions(topic)
     if questions:
         q_strs = []
@@ -112,8 +155,8 @@ async def run_rag_pipeline(query: str, topic: str, category: str, history: list 
         questions_block = "No preloaded questions in memory for this topic."
     
     # 2. Fire the topic questions and query into prompt generator concurrently using asyncio
-    teacher_task = generate_teacher_answer(query=augmented_query, topic_questions=questions_block, history=history, topic=topic)
-    peer_task = generate_peer_answer(query=augmented_query, topic_questions=questions_block, history=history, topic=topic)
+    teacher_task = generate_teacher_answer(query=augmented_query, topic_questions=questions_block, history=history, topic=topic, context=retrieved_context)
+    peer_task = generate_peer_answer(query=augmented_query, topic_questions=questions_block, history=history, topic=topic, context=retrieved_context)
     
     results = await asyncio.gather(teacher_task, peer_task, return_exceptions=True)
     teacher_res, peer_res = results
@@ -133,7 +176,7 @@ async def run_rag_pipeline(query: str, topic: str, category: str, history: list 
     return {
         "teacher_answer": teacher_ans,
         "peer_answer": peer_ans,
-        "sources": []
+        "sources": sources
     }
 
 if __name__ == "__main__":

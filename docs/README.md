@@ -19,6 +19,7 @@ Use this index to find project guidance. Keep security findings and verification
 
 ## Product and contributor guides
 
+- [Project architecture and technical guide (Word)](guides/PROJECT_ARCHITECTURE.docx)
 - [Quick start](guides/QUICK_START.md)
 - [Quick reference](guides/QUICK_REFERENCE.md)
 - [Top 100 problems integration](guides/TOP_100_PROBLEMS_INTEGRATION.md)

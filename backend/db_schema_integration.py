@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # File: backend/db_schema_integration.py
 # Purpose: Helper functions to use new schema features
 # Usage: from db_schema_integration import record_integrity_event, save_browser_info
@@ -25,7 +25,7 @@ def record_integrity_event(
     details: Optional[str] = None,
     severity: str = "warning"
 ) -> bool:
-    \"\"\"
+    """
     Record session integrity event to normalized table.
     
     Args:
@@ -37,7 +37,7 @@ def record_integrity_event(
     
     Returns:
         True if successful, False otherwise
-    \"\"\"
+    """
     if not ENABLE_INTEGRITY_EVENTS:
         return False
     
@@ -71,7 +71,7 @@ def record_integrity_event(
 
 
 def save_browser_info(session_id: str, browser_data: Dict[str, Any]) -> bool:
-    \"\"\"
+    """
     Save normalized browser information for session.
     
     Args:
@@ -89,7 +89,7 @@ def save_browser_info(session_id: str, browser_data: Dict[str, Any]) -> bool:
     
     Returns:
         True if successful, False otherwise
-    \"\"\"
+    """
     if not ENABLE_BROWSER_INFO:
         return False
     
@@ -145,7 +145,7 @@ def save_browser_info(session_id: str, browser_data: Dict[str, Any]) -> bool:
 
 
 def get_session_integrity_events(session_id: str, limit: int = 100) -> list:
-    \"\"\"
+    """
     Retrieve integrity events for a session.
     
     Args:
@@ -154,7 +154,7 @@ def get_session_integrity_events(session_id: str, limit: int = 100) -> list:
     
     Returns:
         List of event dicts
-    \"\"\"
+    """
     try:
         from app import get_db_conn, release_db_conn
         
@@ -196,7 +196,7 @@ def get_session_integrity_events(session_id: str, limit: int = 100) -> list:
 
 
 def get_browser_info(session_id: str) -> Optional[Dict[str, Any]]:
-    \"\"\"
+    """
     Retrieve browser info for a session.
     
     Args:
@@ -204,7 +204,7 @@ def get_browser_info(session_id: str) -> Optional[Dict[str, Any]]:
     
     Returns:
         Dict with browser info or None if not found
-    \"\"\"
+    """
     try:
         from app import get_db_conn, release_db_conn
         
@@ -250,7 +250,7 @@ def get_browser_info(session_id: str) -> Optional[Dict[str, Any]]:
 
 
 def migrate_jsonb_events_to_table(session_id: str) -> int:
-    \"\"\"
+    """
     Migrate existing JSONB suspicious_events to session_integrity_events table.
     Call this periodically to migrate old data.
     
@@ -259,7 +259,7 @@ def migrate_jsonb_events_to_table(session_id: str) -> int:
     
     Returns:
         Number of events migrated
-    \"\"\"
+    """
     try:
         from app import get_db_conn, release_db_conn
         import json

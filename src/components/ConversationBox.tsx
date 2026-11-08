@@ -142,7 +142,7 @@ const ConversationBox = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'teacher',
-        content: "I'm sorry, I had trouble reaching the tutoring backend. Please verify that the FastAPI server is running on port 8000 and your GEMINI_API_KEY is configured in the `.env` file."
+        content: "I'm sorry, I couldn't reach the learning assistant. Please try again in a moment."
       };
       
       setMessages(prev => [...prev, errorMessage]);
